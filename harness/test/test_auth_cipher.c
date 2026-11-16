@@ -688,7 +688,7 @@ static void test_type1_padding(void)
 	struct fake_rng f;
 	wr_key k = seq_key(1, 16);
 	wri_aes_ctx a;
-	static const uint8_t iv[16] = "cephsageyudagreg";
+	static const uint8_t iv[16] = { 'c', 'e', 'p', 'h', 's', 'a', 'g', 'e', 'y', 'u', 'd', 'a', 'g', 'r', 'e', 'g' };
 	size_t on = 0, i;
 	uint8_t plain[32], ct[32], out[32];
 
@@ -1122,7 +1122,7 @@ static void test_type1_pad_runs(void)
 	struct fake_rng f;
 	wr_key k = seq_key(1, 16);
 	wri_aes_ctx a;
-	static const uint8_t iv[16] = "cephsageyudagreg";
+	static const uint8_t iv[16] = { 'c', 'e', 'p', 'h', 's', 'a', 'g', 'e', 'y', 'u', 'd', 'a', 'g', 'r', 'e', 'g' };
 	uint8_t plain[32], ct[32], out[32];
 	size_t on = 0, i;
 
