@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: LGPL-2.1-or-later
+
+  winrbd-wdk-2-toolset.props
+
+  Import point 2 of 3: right AFTER Microsoft.Cpp.props.
+
+  The WDK normally ships a Visual Studio extension that installs the
+  "WindowsKernelModeDriver10.0" platform toolset under $(VCTargetsPath).
+  The NuGet WDK does not include that toolset definition, only the property
+  sheets it imports. This file imports the same sheets, in the same order,
+  on top of the stock v143 toolset, so nothing is installed system-wide.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <IsKernelModeToolset>true</IsKernelModeToolset>
+    <WDKBuildFolder>$(WindowsTargetPlatformVersion)</WDKBuildFolder>
+    <!-- Never sign. The WDK would otherwise create a self-signed "WDKTestCert" in the
+         current user's certificate store and test-sign the output with it. -->
+    <SignMode>Off</SignMode>
+  </PropertyGroup>
+  <!-- DDKPlatform (x64) and the KM / KMDF / DDK include and lib path properties (KM_IncludePath, DDK_LIB_PATH, ...). -->
+  <Import Project="$(WDKContentRoot)build\$(WDKBuildFolder)\x64\WindowsKernelModeDriver\WDK.x64.WindowsKernelModeDriver.props" />
+  <Import Project="$(WDKContentRoot)DesignTime\CommonConfiguration\Neutral\WDK\$(WDKBuildFolder)\WDK.props" />
+  <Import Project="$(WDKContentRoot)build\$(WDKBuildFolder)\WindowsDriver.Default.props" />
+  <Import Project="$(WDKContentRoot)build\$(WDKBuildFolder)\x64\ImportAfter\WDK.x64.WindowsKernelModeDriver.Platform.props" />
+</Project>

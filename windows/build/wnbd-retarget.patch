@@ -1,0 +1,55 @@
+diff --git a/vstudio/driver.vcxproj b/vstudio/driver.vcxproj
+index 7f3e880..0b81502 100644
+--- a/vstudio/driver.vcxproj
++++ b/vstudio/driver.vcxproj
+@@ -22,32 +22,37 @@
+     <Configuration>Debug</Configuration>
+     <Platform Condition="'$(Platform)' == ''">x64</Platform>
+     <RootNamespace>wnbd</RootNamespace>
+-    <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+   </PropertyGroup>
++  <PropertyGroup Label="WinrbdWdkNuGet">
++    <WinrbdWdkDir Condition="'$(WinrbdWdkDir)' == ''">$(MSBuildThisFileDirectory)..\..\winrbd-wdk\</WinrbdWdkDir>
++  </PropertyGroup>
++  <Import Project="$(WinrbdWdkDir)winrbd-wdk-1-nuget.props" />
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <TargetVersion>Windows10</TargetVersion>
+     <UseDebugLibraries>true</UseDebugLibraries>
+-    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <ConfigurationType>Driver</ConfigurationType>
+     <DriverType>WDM</DriverType>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <TargetVersion>Windows10</TargetVersion>
+     <UseDebugLibraries>false</UseDebugLibraries>
+-    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <ConfigurationType>Driver</ConfigurationType>
+     <DriverType>WDM</DriverType>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analyze|x64'" Label="Configuration">
+     <TargetVersion>Windows10</TargetVersion>
+     <UseDebugLibraries>false</UseDebugLibraries>
+-    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <ConfigurationType>Driver</ConfigurationType>
+     <DriverType>WDM</DriverType>
+     <RunSDV Condition="'$(RunSDV)' == ''">Yes</RunSDV>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <Import Project="$(WinrbdWdkDir)winrbd-wdk-2-toolset.props" />
+   <ItemGroup Label="WrappedTaskItems">
+     <MessageCompile Include="wnbdevents.xml">
+       <GenerateKernelModeLoggingMacros>true</GenerateKernelModeLoggingMacros>
+@@ -197,6 +202,7 @@
+     <ResourceCompile Include="..\driver\wnbd.rc" />
+   </ItemGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <Import Project="$(WinrbdWdkDir)winrbd-wdk-3-toolset.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+ </Project>
+\ No newline at end of file

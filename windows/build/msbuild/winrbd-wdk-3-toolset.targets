@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: LGPL-2.1-or-later
+
+  winrbd-wdk-3-toolset.targets
+
+  Import point 3 of 3: right AFTER Microsoft.Cpp.targets.
+  Driver build targets (WPP, message compiler, INF stamping, ...) from the
+  NuGet WDK, normally pulled in by the WDK toolset definition.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(WDKContentRoot)build\$(WDKBuildFolder)\WindowsDriver.Common.targets" />
+</Project>

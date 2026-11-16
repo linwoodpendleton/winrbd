@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: LGPL-2.1-or-later
+
+  winrbd-wdk-1-nuget.props
+
+  Import point 1 of 3: BEFORE Microsoft.Cpp.Default.props.
+
+  Pulls the Windows SDK / WDK in from NuGet packages instead of a system-wide
+  WDK install. The packages' own props point WDKContentRoot / WindowsSdkDir at
+  "<package>\c" with no trailing backslash, but every WDK property sheet
+  concatenates "$(WDKContentRoot)build\..." directly, so add the backslash.
+
+  Inputs (all overridable with /p: on the msbuild command line):
+    WinrbdPackages      directory that holds the restored packages (trailing \)
+    WinrbdWdkVersion    package version, e.g. 10.0.26100.6584
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <WinrbdPackages Condition="'$(WinrbdPackages)' == ''">$(MSBuildThisFileDirectory)..\packages\</WinrbdPackages>
+    <WinrbdWdkVersion Condition="'$(WinrbdWdkVersion)' == ''">10.0.26100.6584</WinrbdWdkVersion>
+  </PropertyGroup>
+
+  <Import Project="$(WinrbdPackages)Microsoft.Windows.SDK.CPP.$(WinrbdWdkVersion)\build\native\Microsoft.Windows.SDK.cpp.props" />
+  <Import Project="$(WinrbdPackages)Microsoft.Windows.SDK.CPP.x64.$(WinrbdWdkVersion)\build\native\Microsoft.Windows.SDK.cpp.x64.props" />
+  <Import Project="$(WinrbdPackages)Microsoft.Windows.WDK.x64.$(WinrbdWdkVersion)\build\native\Microsoft.Windows.WDK.x64.props" />
+
+  <PropertyGroup>
+    <WDKContentRoot>$(WDKContentRoot)\</WDKContentRoot>
+    <WindowsSdkDir>$(WindowsSdkDir)\</WindowsSdkDir>
+    <WindowsSdkDir_10>$(WindowsSdkDir_10)\</WindowsSdkDir_10>
+    <UCRTContentRoot>$(UCRTContentRoot)\</UCRTContentRoot>
+  </PropertyGroup>
+</Project>
