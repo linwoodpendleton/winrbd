@@ -1,0 +1,69 @@
+winrbd licensing
+================
+
+winrbd is a collection of components that run in different environments, so
+different parts carry different licenses. Every source file should carry an
+SPDX-License-Identifier line; the table below is the policy for each
+directory. If a file header and this table disagree, the file header wins and
+the table is a bug: please open an issue.
+
+  Directory        License                              Notes
+  ---------------  -----------------------------------  ------------------------------
+  core/            MIT                                  Portable protocol core. MIT so
+                                                        it can be linked into iPXE,
+                                                        the Windows driver and any
+                                                        other host without licence
+                                                        conversion.
+  harness/         MIT                                  Linux test harness.
+  ipxe/            GPL-2.0-or-later OR UBDL             iPXE glue, tagged
+                                                        GPL2_OR_LATER_OR_UBDL like
+                                                        iPXE's own SAN code.
+  windows/         LGPL-2.1-or-later for new files;     Files derived from WNBD are
+                   LGPL-2.1-only for WNBD-derived files treated as LGPL-2.1-only
+                                                        (see the section below).
+  docs/            Not decided yet; until then, documents follow the license of
+                   the component they describe.
+  third_party/     Pinned git submodules (iPXE, WNBD) keep their own licenses.
+                   They are references and build inputs, not part of winrbd.
+
+Full license texts in this repository:
+
+  COPYING.MIT        MIT License (core/, harness/)
+  COPYING.LGPL-2.1   GNU Lesser General Public License, version 2.1
+                     (copied verbatim from third_party/wnbd/LICENSE)
+  COPYING.GPL-2.0    GNU General Public License, version 2
+                     (copied verbatim from third_party/ipxe/COPYING.GPLv2)
+  UBDL               See third_party/ipxe/COPYING.UBDL.
+
+Why WNBD-derived files are "only" and not "or later"
+----------------------------------------------------
+In the WNBD sources we checked (pinned commit in third_party/wnbd), most files
+(driver, libwnbd, wnbd-client, include) say "Licensed under LGPL-2.1 (see
+LICENSE)", which does not say "or later". Only driver/wnbd.rc carries
+"SPDX-License-Identifier: LGPL-2.1-only" with the wording "version 2.1". We
+treat derived files as LGPL-2.1-only unless the copyright holders confirm
+otherwise, and do not relicense anything derived from them to "or later".
+Only files we write from scratch use LGPL-2.1-or-later. A combined work that
+contains WNBD-derived files is effectively LGPL-2.1-only unless the
+copyright holders say otherwise.
+
+Independent implementation of the protocol core
+-----------------------------------------------
+The core is an independent implementation. It is written from Ceph's public
+protocol documentation, with Ceph's user-space source used as a reading
+reference and checked against a live cluster. It is not a clean-room process
+in the strict sense (we do not separate the people who read source from the
+people who write code). Code from the Linux kernel's libceph / rbd (GPL) must
+not be copied into core/ or windows/, and code from Ceph's user-space sources
+(mostly LGPL) must not be copied into the MIT core either. See CONTRIBUTING.md.
+
+Open items (not yet verified)
+-----------------------------
+ * Run iPXE's licence check (`make bin/<target>.licence`) on a real build that
+   contains the core (tagged MIT) and the glue (tagged GPL2_OR_LATER_OR_UBDL)
+   to confirm the combination is accepted as expected.
+ * The exact license of each Ceph user-space file we consult as a reference.
+   We believe most are LGPL-2.1, but that has to be confirmed per file, and
+   only the protocol facts are used, not the code.
+
+No warranty. See the license texts.

@@ -1,0 +1,6 @@
+[submodule "third_party/ipxe"]
+	path = third_party/ipxe
+	url = https://github.com/ipxe/ipxe.git
+[submodule "third_party/wnbd"]
+	path = third_party/wnbd
+	url = https://github.com/cloudbase/wnbd.git
