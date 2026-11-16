@@ -1,0 +1,33 @@
+{
+ "name": "note-5-1-example",
+ "note": "READ of 4096 bytes at offset 0 of object \"a\", pool 1, hash 0x12345678, pg seed 0x38, epoch 5; 217 bytes",
+ "request": {
+  "front_hex": "01011200000001010000000000000038000000ffffffffff7856341205000000140040080202150000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101010000000000000000000000000000000006031c0000000100000000000000ffffffff0000000000000000ffffffffffffffff010000006101000112000000000000000000000000001000000000000000000000000000000000000000000000feffffffffffffff000000000000000000000000000000000000000000000000",
+  "summary": {
+   "client_inc": 0,
+   "epoch": 5,
+   "features": 0,
+   "flags": 138412052,
+   "hash": 305419896,
+   "mtime_is_zero": true,
+   "oid": "a",
+   "ops": [
+    {
+     "code": 4609,
+     "flags": 0,
+     "length": 4096,
+     "name": "READ",
+     "offset": 0,
+     "payload_len": 0
+    }
+   ],
+   "pool": 1,
+   "retry_attempt": 0,
+   "seed": 56,
+   "snap_seq": 0,
+   "snapid": 18446744073709551614,
+   "snaps": []
+  }
+ },
+ "source": "synthetic: the example of osd-ops.md 5.1, rebuilt by osdop_check.py enc_mosdop()"
+}

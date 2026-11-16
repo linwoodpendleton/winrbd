@@ -1,0 +1,1730 @@
+{
+ "_comment": "Structure extracted by secure_check.py from the lab captures (Ceph v20.2.5). Only lengths, tags, counts, flags and negotiated numbers are kept. Challenges, proofs, tickets, signatures, ciphertext, nonces/IVs, secrets, addresses and entity names are deliberately absent; nothing in this file can be used to recover or replay a session.",
+ "banner": {
+  "hex_prefix": "636570682076320a",
+  "payload_len": 16,
+  "client_supported_required": [
+   3,
+   0
+  ],
+  "server_supported_required": [
+   3,
+   0
+  ]
+ },
+ "sessions": [
+  {
+   "peer": "mon",
+   "mode": "crc",
+   "offered_modes": [
+    1
+   ],
+   "server_picked_mode": 1,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 0,
+   "authorize_reply_version": null,
+   "other_keys": 32,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      43
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      40
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      13
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      269
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 41,
+     "gcm_operations": null
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 77,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      58
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 148,
+     "gcm_operations": null
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 41,
+     "gcm_operations": null
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      270
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 360,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      188
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 278,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      270
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 360,
+     "gcm_operations": null
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "mgr",
+   "mode": "crc",
+   "offered_modes": [
+    1
+   ],
+   "server_picked_mode": 1,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 0,
+   "authorize_reply_version": 1,
+   "other_keys": null,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      217
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      205
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      52
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 41,
+     "gcm_operations": null
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 41,
+     "gcm_operations": null
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "osd",
+   "mode": "crc",
+   "offered_modes": [
+    1
+   ],
+   "server_picked_mode": 1,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 0,
+   "authorize_reply_version": 1,
+   "other_keys": null,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      244
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      232
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      52
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      9
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 45,
+     "gcm_operations": null
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      224,
+      0,
+      100
+     ],
+     "alignments": [
+      8,
+      8,
+      8,
+      4096
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 414,
+     "gcm_operations": null
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 41,
+     "gcm_operations": null
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      152
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 242,
+     "gcm_operations": null
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "mon",
+   "mode": "secure",
+   "offered_modes": [
+    2,
+    1
+   ],
+   "server_picked_mode": 2,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 64,
+   "authorize_reply_version": null,
+   "other_keys": 32,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      47
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      40
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      13
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      333
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      58
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      270
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 400,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      188
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 320,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      270
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 400,
+     "gcm_operations": 2
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "mgr",
+   "mode": "secure",
+   "offered_modes": [
+    2,
+    1
+   ],
+   "server_picked_mode": 2,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 64,
+   "authorize_reply_version": 2,
+   "other_keys": null,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      221
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      205
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      116
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "osd",
+   "mode": "crc",
+   "offered_modes": [
+    1,
+    2
+   ],
+   "server_picked_mode": 1,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 0,
+   "authorize_reply_version": 1,
+   "other_keys": null,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      248
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      232
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      52
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      9
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 45,
+     "gcm_operations": null
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      224,
+      0,
+      100
+     ],
+     "alignments": [
+      8,
+      8,
+      8,
+      4096
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 414,
+     "gcm_operations": null
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 68,
+     "gcm_operations": null
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 41,
+     "gcm_operations": null
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 159,
+     "gcm_operations": null
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      152
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 242,
+     "gcm_operations": null
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "mon",
+   "mode": "secure",
+   "offered_modes": [
+    2
+   ],
+   "server_picked_mode": 2,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 64,
+   "authorize_reply_version": null,
+   "other_keys": 32,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      43
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      40
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      13
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      333
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      58
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      270
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 400,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      188
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 320,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      270
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 400,
+     "gcm_operations": 2
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "mgr",
+   "mode": "secure",
+   "offered_modes": [
+    2
+   ],
+   "server_picked_mode": 2,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 64,
+   "authorize_reply_version": 2,
+   "other_keys": null,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      217
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      205
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      116
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  },
+  {
+   "peer": "osd",
+   "mode": "secure",
+   "offered_modes": [
+    2
+   ],
+   "server_picked_mode": 2,
+   "cephx_key_type_of_session_key": 1,
+   "connection_secret_len": 64,
+   "authorize_reply_version": 2,
+   "other_keys": null,
+   "plaintext_frames_client": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST",
+     "segment_lengths": [
+      244
+     ]
+    },
+    {
+     "name": "AUTH_REQUEST_MORE",
+     "segment_lengths": [
+      232
+     ]
+    }
+   ],
+   "plaintext_frames_server": [
+    {
+     "name": "HELLO",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_REPLY_MORE",
+     "segment_lengths": [
+      36
+     ]
+    },
+    {
+     "name": "AUTH_DONE",
+     "segment_lengths": [
+      116
+     ]
+    }
+   ],
+   "frames_after_auth_client_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 21,
+     "name": "COMPRESSION_REQUEST",
+     "segment_lengths": [
+      9
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 8,
+     "name": "CLIENT_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      222,
+      0,
+      4194304
+     ],
+     "alignments": [
+      8,
+      8,
+      8,
+      4096
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 4194656,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      222,
+      0,
+      4194304
+     ],
+     "alignments": [
+      8,
+      8,
+      8,
+      4096
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 4194656,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      222,
+      0,
+      1049810
+     ],
+     "alignments": [
+      8,
+      8,
+      8,
+      4096
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 1050176,
+     "gcm_operations": 2
+    }
+   ],
+   "frames_after_auth_server_first": [
+    {
+     "tag": 7,
+     "name": "AUTH_SIGNATURE",
+     "segment_lengths": [
+      32
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 22,
+     "name": "COMPRESSION_DONE",
+     "segment_lengths": [
+      5
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 96,
+     "gcm_operations": 1
+    },
+    {
+     "tag": 9,
+     "name": "SERVER_IDENT",
+     "segment_lengths": [
+      123
+     ],
+     "alignments": [
+      8
+     ],
+     "flags": 0,
+     "late_status": null,
+     "wire_bytes": 192,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      150
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 288,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      150
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 288,
+     "gcm_operations": 2
+    },
+    {
+     "tag": 17,
+     "name": "MESSAGE",
+     "segment_lengths": [
+      41,
+      150
+     ],
+     "alignments": [
+      8,
+      8
+     ],
+     "flags": 0,
+     "late_status": 14,
+     "wire_bytes": 288,
+     "gcm_operations": 2
+    }
+   ],
+   "compression_frames": [
+    "COMPRESSION_REQUEST",
+    "COMPRESSION_DONE"
+   ]
+  }
+ ]
+}

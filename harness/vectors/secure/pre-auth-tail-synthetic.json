@@ -1,0 +1,17 @@
+{
+ "_comment": "Synthetic. Everything the client sends and receives from the banner to the end of the signature exchange for a secure-mode connection, with a synthetic connection secret (00..3f) and a synthetic session key (type 1, 16 bytes). The AUTH_DONE payload is an opaque placeholder (not a valid cephx reply); the vector tests the transcript scope, the two HMACs and the encryption of the two AUTH_SIGNATURE frames, not cephx. HELLO is omitted from the transcripts here to keep the vector small; a real transcript contains it (the checker's real-capture check includes it).",
+ "connection_secret_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+ "session_key_secret_hex": "a0a1a2a3a4a5a6a7a8a9aaabacadaeaf",
+ "client_banner_hex": "636570682076320a100001000000000000000000000000000000",
+ "server_banner_hex": "636570682076320a100003000000000000000000000000000000",
+ "client_auth_request_frame_hex": "020125000000080000000000000000000000000000000000000000009dd217c8020000000100000002000000150000000a0800000004000000746573740000000000000000f1efd644",
+ "server_auth_done_frame_hex": "060130000000080000000000000000000000000000000000000000008e2abd0192100000000000000200000020000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee99174835",
+ "client_tx_transcript_hex": "636570682076320a100001000000000000000000000000000000020125000000080000000000000000000000000000000000000000009dd217c8020000000100000002000000150000000a0800000004000000746573740000000000000000f1efd644",
+ "client_rx_transcript_hex": "636570682076320a100003000000000000000000000000000000060130000000080000000000000000000000000000000000000000008e2abd0192100000000000000200000020000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee99174835",
+ "client_signature_plain_hex": "0481f2ae1949c975a4eeef06fe68028be9416ed658d47081cc2deb7cd561f798",
+ "server_signature_plain_hex": "bc9cf85c4368c9ffbba07a6f452180b3b8454eaa44fabb69eafc30f4cb629251",
+ "client_signature_frame_wire_hex": "5ee83e477793cc7cbb381480b30cc69431dabdf879b50b483d403cfd1b1ec96a4247c453ca063ee3f4d84cb20e410a673eb9a2997e5cd20b7c329d663b870a2201654a9d4a848c689172d4521fcf8108499962ccf46cdb0d09edd82dbcf3c21b",
+ "server_signature_frame_wire_hex": "c32f23af0f4fbeef17dd5df5c727eb3e3abc748736f46bbf85cb2911cf0989df6e45d963c2ce32e35800afa79ff1d1a831fdbf81bd39008181e91d424cf2d4c95e5812a422977d9bce807a40ada1ac21f7068e32e484ff392f9b910181f6ebd8",
+ "client_next_iv_hex": "1c1d1e1f2121222324252627",
+ "server_next_iv_hex": "101112131515161718191a1b"
+}

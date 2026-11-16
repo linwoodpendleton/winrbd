@@ -1,0 +1,50 @@
+{
+ "source": "RFC 8009 Appendix A (public standard text; values typed from the RFC, not from any Ceph file)",
+ "enctype": "aes256-cts-hmac-sha384-192",
+ "key_usage": 2,
+ "base_key": "6d404d37faf79f9df0d33568d320669800eb4836472ea8a026d16b7182460c52",
+ "ke_usage2": "56ab22bee63d82d7bc5227f6773f8ea7a5eb1c825160c38312980c442e5c7e49",
+ "ki_usage2": "69b16514e3cd8e56b82010d5c73012b622c4d00ffc23ed1f",
+ "vectors": [
+  {
+   "description": "empty",
+   "plaintext": "",
+   "confounder": "f764e9fa15c276478b2c7d0c4e5f58e4",
+   "ke": "56ab22bee63d82d7bc5227f6773f8ea7a5eb1c825160c38312980c442e5c7e49",
+   "ki": "69b16514e3cd8e56b82010d5c73012b622c4d00ffc23ed1f",
+   "aes_output": "41f53fa5bfe7026d91faf9be959195a0",
+   "truncated_hmac": "58707273a96a40f0a01960621ac612748b9bbfbe7eb4ce3c",
+   "ciphertext": "41f53fa5bfe7026d91faf9be959195a058707273a96a40f0a01960621ac612748b9bbfbe7eb4ce3c"
+  },
+  {
+   "description": "length less than block size",
+   "plaintext": "000102030405",
+   "confounder": "b80d3251c1f6471494256ffe712d0b9a",
+   "ke": "56ab22bee63d82d7bc5227f6773f8ea7a5eb1c825160c38312980c442e5c7e49",
+   "ki": "69b16514e3cd8e56b82010d5c73012b622c4d00ffc23ed1f",
+   "aes_output": "4ed7b37c2bcac8f74f23c1cf07e62bc7b75fb3f637b9",
+   "truncated_hmac": "f559c7f664f69eab7b6092237526ea0d1f61cb20d69d10f2",
+   "ciphertext": "4ed7b37c2bcac8f74f23c1cf07e62bc7b75fb3f637b9f559c7f664f69eab7b6092237526ea0d1f61cb20d69d10f2"
+  },
+  {
+   "description": "length equals block size",
+   "plaintext": "000102030405060708090a0b0c0d0e0f",
+   "confounder": "53bf8a0d105265d4e276428624ce5e63",
+   "ke": "56ab22bee63d82d7bc5227f6773f8ea7a5eb1c825160c38312980c442e5c7e49",
+   "ki": "69b16514e3cd8e56b82010d5c73012b622c4d00ffc23ed1f",
+   "aes_output": "bc47ffec7998eb91e8115cf8d19dac4bbbe2e163e87dd37f49beca92027764f6",
+   "truncated_hmac": "8cf51f14d798c2273f35df574d1f932e40c4ff255b36a266",
+   "ciphertext": "bc47ffec7998eb91e8115cf8d19dac4bbbe2e163e87dd37f49beca92027764f68cf51f14d798c2273f35df574d1f932e40c4ff255b36a266"
+  },
+  {
+   "description": "length greater than block size",
+   "plaintext": "000102030405060708090a0b0c0d0e0f1011121314",
+   "confounder": "763e65367e864f02f55153c7e3b58af1",
+   "ke": "56ab22bee63d82d7bc5227f6773f8ea7a5eb1c825160c38312980c442e5c7e49",
+   "ki": "69b16514e3cd8e56b82010d5c73012b622c4d00ffc23ed1f",
+   "aes_output": "40013e2df58e8751957d2878bcd2d6fe101ccfd556cb1eae79db3c3ee86429f2b2a602ac86",
+   "truncated_hmac": "fef6ecb647d6295fae077a1feb517508d2c16b4192e01f62",
+   "ciphertext": "40013e2df58e8751957d2878bcd2d6fe101ccfd556cb1eae79db3c3ee86429f2b2a602ac86fef6ecb647d6295fae077a1feb517508d2c16b4192e01f62"
+  }
+ ]
+}

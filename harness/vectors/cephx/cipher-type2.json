@@ -1,0 +1,226 @@
+{
+ "description": "Cipher type 2 (AES-256 CTS CS3 + HMAC-SHA384, 24-byte MAC) with a synthetic key and the usage values cephx uses. Derived keys included. The RFC 8009 file holds the public standard vectors.",
+ "key_secret": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+ "derived": {
+  "0x03": {
+   "ke": "985b5b365a844e7809a67722f1cb494e629e2adba63530a402581fc4c1fd362e",
+   "ki": "6c743c95a6e97f3e688a1616a0589d754d072e614d493556"
+  },
+  "0x04": {
+   "ke": "d5dd0fc4ecb5792572994ff047adbc347c1abfec2eceec74fc4e69be182d2bed",
+   "ki": "fbbcdfc9ff76a05446ef4806231051b25535ed240b91066a"
+  },
+  "0x05": {
+   "ke": "be3f39a8fc25c7f40a409c597688b0892ae8d23f0f311c5989b7b332b29c2acc",
+   "ki": "b3d29dcc398d14b95e22bd3d95e724f177e8a27093ad5cc1"
+  },
+  "0x10": {
+   "ke": "186828cb2b1f2a6f6bfe848ba158c0742a8b1b7249addd061aa9c1db989f341b",
+   "ki": "39ed5fc5d6966921cc90085beb9d4531e43c8488eb7b38c7"
+  },
+  "0x11": {
+   "ke": "953238a9d46b6b7cce60af869418bed14bb46a0bf9e55558fbcdacdb2f56f937",
+   "ki": "442ca5f8be9cdf2b640af38d98f93e351431c58a76cadf95"
+  },
+  "0x12": {
+   "ke": "f3f3588de4d226be22c2cf32883e1f523d71540942e342a944ac3e03840e9de0",
+   "ki": "69fee35450efbeedeee38dcdf46bafbf2c94ed1739a20d0e"
+  }
+ },
+ "vectors": [
+  {
+   "usage": 3,
+   "confounder": "0838145228009d1b9d19e7b1607cf55f",
+   "plaintext": "",
+   "ciphertext_with_mac": "c77c00dbecb4960feed7a3dfa8272949054291a6129d1e5a5dc4fadc4dcf6f58df123bc8f6057048"
+  },
+  {
+   "usage": 3,
+   "confounder": "3c462edb0b0bd81e80a30a60a33572ee",
+   "plaintext": "030e19242f3a",
+   "ciphertext_with_mac": "252e1d92cdddd4c669b6533b4b0b5b911d88670b2504ed332d10c176dc3589e74da81029217d96415d95bcaddab4"
+  },
+  {
+   "usage": 3,
+   "confounder": "53f5b2de29c33f177c72676001740bba",
+   "plaintext": "030e19242f3a45505b66717c87929da8",
+   "ciphertext_with_mac": "437e460c8435ad3cd1625108d5502b6fd7ef93c2916f8761b2876b0ce2fde78e2dbc164b014646f6766ea34d29f7f8e8bcb0504a6027b284"
+  },
+  {
+   "usage": 3,
+   "confounder": "48f7e23ce13b55635d42adbb1e6729b0",
+   "plaintext": "030e19242f3a45505b66717c87929da8b3bec9d4df",
+   "ciphertext_with_mac": "86442ae74d7a06239975697d2ee6ac76849fd46ccb096506abed30c28090ffa182234b296af9c4ffa05488c29a474b3fd05a605aa1a2fe954c6151de2a"
+  },
+  {
+   "usage": 3,
+   "confounder": "3e1c858278a1ad14b65fef530225c80e",
+   "plaintext": "030e19242f3a45505b66717c87929da8b3bec9d4dfeaf505101b26313c47525d68737e89949faab5c0cbd6e1ecf707121d28333e49545f6a75808b96",
+   "ciphertext_with_mac": "e3d53c09b1046c3d9339bae2693b529b77f117042ee1a979dae286a8b1a5c518772885055475b3f1cbc3e91089c3f28eea3f17a9e8c71ed560de27524f70221f1f736389d1b998de236e0f0f1326b95d16f6d778ba9ac150852394fec87775bdcd88b238"
+  },
+  {
+   "usage": 4,
+   "confounder": "6a6eed2ae61f71a48acdf858e7128be1",
+   "plaintext": "",
+   "ciphertext_with_mac": "8f9892ba980a4130af31e489debef87a648d1ac9a7d476a6746d04eda21a0ddc4c80bac6b5845c67"
+  },
+  {
+   "usage": 4,
+   "confounder": "74ad4c4464cade6d8784836a7166f536",
+   "plaintext": "040f1a25303b",
+   "ciphertext_with_mac": "dd63e3f57f96d98f1081de45ca406e15e4b5b470cef5204d44dc1d559ad4354ed99c5e1883581bcc629d7d3ab83e"
+  },
+  {
+   "usage": 4,
+   "confounder": "59762ff94ca732ebac5ecb8bb35455d9",
+   "plaintext": "040f1a25303b46515c67727d88939ea9",
+   "ciphertext_with_mac": "a4decd4df90c3cf391a712501da9337d6931c47d846766f78aa1b5f75c9ca39d1d2dcd0367b4af520251f223e7db77222f8d34e0df7d52c8"
+  },
+  {
+   "usage": 4,
+   "confounder": "8071d892c7fe5871e15043f83ba3591a",
+   "plaintext": "040f1a25303b46515c67727d88939ea9b4bfcad5e0",
+   "ciphertext_with_mac": "e10deb40adc2dc85f96313a4cdd210b94d6585491d066b1efda01aa2bc3c0bbe16b3ea38604b2d0fa2ee3bf64da3eaf8513a7c8f3145a48ff3890172df"
+  },
+  {
+   "usage": 4,
+   "confounder": "34465a55d5c887e90d585ed20d6854eb",
+   "plaintext": "040f1a25303b46515c67727d88939ea9b4bfcad5e0ebf606111c27323d48535e69747f8a95a0abb6c1ccd7e2edf808131e29343f4a55606b76818c97",
+   "ciphertext_with_mac": "b1dc62175657065714fb40ae4916f5ad1f3e50cfb9ae76ec372de89d319ced69cde518e3444ebe4c6477ccd8e016ccf0d932cf32c24de8c53adfda3c06691b441246ced17e810e339ebda2319597d28891a6f739ba08ecddf6d929efc902c896e2699f1e"
+  },
+  {
+   "usage": 5,
+   "confounder": "f915257a7df70a93a2d3ab793a547abc",
+   "plaintext": "",
+   "ciphertext_with_mac": "8bbd04a25902447577b5a7b12618a1bd9ec22de247b7467d64aa7c93f244a3ad780be26cf85b6a30"
+  },
+  {
+   "usage": 5,
+   "confounder": "74b3ecc439d7aed7b20f36b5f84987ab",
+   "plaintext": "05101b26313c",
+   "ciphertext_with_mac": "fa44168d57e0a67c2f0d783b5ddb877049c847660f6de99c7d4e33ecbe9d1a70cf73bacefeebfa66a51b4415b7d7"
+  },
+  {
+   "usage": 5,
+   "confounder": "eb081407841a9e3160e3abf2489b7e33",
+   "plaintext": "05101b26313c47525d68737e89949faa",
+   "ciphertext_with_mac": "a9cb8f55da93e64bef7c9af5f0b2725d91900c238ccd9f1bd578bc3982a86b26ccfd13640f353191c3b71c54269b4461bb8086a4c80efa76"
+  },
+  {
+   "usage": 5,
+   "confounder": "bd6ffd74cb42dd7c0cebe54bc4c8c424",
+   "plaintext": "05101b26313c47525d68737e89949faab5c0cbd6e1",
+   "ciphertext_with_mac": "fe3fe27351dff438ca42c5e48a011bd3c64c7b23067320340f0a99cd30ba13d4ff9451f210cf73777da77caf777bebccc548d70fda95184775313d0b01"
+  },
+  {
+   "usage": 5,
+   "confounder": "27fcf44a6b32692cfa30b44278c6603f",
+   "plaintext": "05101b26313c47525d68737e89949faab5c0cbd6e1ecf707121d28333e49545f6a75808b96a1acb7c2cdd8e3eef909141f2a35404b56616c77828d98",
+   "ciphertext_with_mac": "a6f2c897d58f0ba8085d6fd4561c320da5c83603ee5b11420fbb3ee24b1e5e7b39576ef43509c8c49580d6d7f3dfd68fdd8b5b7d37314f0f334f92c05ce55056fac531a98b9379885247d3f507bb1fe8f2735e6cc5fffca330dec95f4c142a8aec935856"
+  },
+  {
+   "usage": 16,
+   "confounder": "1ead2fd30c81d48ef14f305d495904e9",
+   "plaintext": "",
+   "ciphertext_with_mac": "29927650d37efe56a2883b0f79e6a2544c5c046e75e08ac06df84cbaf04942f1c50012fdb63137e3"
+  },
+  {
+   "usage": 16,
+   "confounder": "8f0633bf2785bc9b426b5ce0fcf01d62",
+   "plaintext": "101b26313c47",
+   "ciphertext_with_mac": "769f43e97475be4e0b2931014ff5857995b9cc324fb6635cdf0e4eeddf2a5bcb972fe01ba706711e325ee7c1fb8d"
+  },
+  {
+   "usage": 16,
+   "confounder": "45a59136927630bc49346589ffbef41b",
+   "plaintext": "101b26313c47525d68737e89949faab5",
+   "ciphertext_with_mac": "7d91bbbffeca2e267cffc4aeac483d74aeb39e3e310676f482616678524c5ac86ce3a349dd604b518a4034dad257500bbd7c21e902a955a0"
+  },
+  {
+   "usage": 16,
+   "confounder": "0610a1b0796272b34f7e2017e6ae9e7a",
+   "plaintext": "101b26313c47525d68737e89949faab5c0cbd6e1ec",
+   "ciphertext_with_mac": "f3d87b4a22ce3712352998b32ce51a1dc1687b2c52cabbdb648e254494596f22a225522c8627ac1086c612872bbfde2140d8a5e3002494dbb07c112b63"
+  },
+  {
+   "usage": 16,
+   "confounder": "270b9c47832e4d92f0c8f82d208e4603",
+   "plaintext": "101b26313c47525d68737e89949faab5c0cbd6e1ecf707121d28333e49545f6a75808b96a1acb7c2cdd8e3eef909141f2a35404b56616c77828d98a3",
+   "ciphertext_with_mac": "2ff73c761dfc8ce1083f248cb632c93f4c8c866981bc0681863ec100c5fb4d2f8bf7feeef908c53dfc40cefeac13c9b15497094fa8460d05700de321e8da98e4efb55dc20f6d18690f672b115c06ad9e70a800e595ff000bd88995e83fc0552c182be3c1"
+  },
+  {
+   "usage": 17,
+   "confounder": "00d255a34f5960ba8c411f429042e836",
+   "plaintext": "",
+   "ciphertext_with_mac": "86e3c8c3105c920a35e0c720e0da5c10c2db1c6c347eca27162cb7e06c50ed7c56fbad5e0816348b"
+  },
+  {
+   "usage": 17,
+   "confounder": "18a6e2ea08aae7273e1647a8e96d9581",
+   "plaintext": "111c27323d48",
+   "ciphertext_with_mac": "a89f19b2c7b3fc09bb3561c276cbcc12a43213e851b0a7bdbb7a83e02e463af2b23fb00b9d53956069bcb84f956d"
+  },
+  {
+   "usage": 17,
+   "confounder": "1573a7d2818f86eade11056b1eced1b9",
+   "plaintext": "111c27323d48535e69747f8a95a0abb6",
+   "ciphertext_with_mac": "e36d63d3a3c3626569db0b4907837f43b13b96a2b8c4ce862617ab1d4a1b294f72fe98439acb53df5a66e50fc5678e458ddba71212646090"
+  },
+  {
+   "usage": 17,
+   "confounder": "56ea6701a37f33695e683ed588242828",
+   "plaintext": "111c27323d48535e69747f8a95a0abb6c1ccd7e2ed",
+   "ciphertext_with_mac": "7558b0e82641656d8a8478cab85d1353c30673688cec034863df36913b951ef1f934c1aeceebb1954166cdc3856eb9abdff7ae93c6abe1dadb54d42b6c"
+  },
+  {
+   "usage": 17,
+   "confounder": "d03c3e91c20ccf4207bba1dd6caf816a",
+   "plaintext": "111c27323d48535e69747f8a95a0abb6c1ccd7e2edf808131e29343f4a55606b76818c97a2adb8c3ced9e4effa0a15202b36414c57626d78838e99a4",
+   "ciphertext_with_mac": "fac8ca3257c401b1a1bc29932439324f2e9188fde59d94b8f626803f88682446055c548a5063308225a9227b8cb3e450b215de73c8a33cc61d5e2de29fa332029a5ee1d2b5ade975518dedc9dd86e65bdbb181efa01a796c7d25b1b5bbb1d1b2a382f384"
+  },
+  {
+   "usage": 18,
+   "confounder": "4b1fba2630566b21e31ac6d003deae3d",
+   "plaintext": "",
+   "ciphertext_with_mac": "5e6ae9fd3459208770c795cef617dc969381523704c3be956fb1b6bab38c9ff71abcd9021f8f5781"
+  },
+  {
+   "usage": 18,
+   "confounder": "f3bf952c8b98ca9c1b18567415ca1b5a",
+   "plaintext": "121d28333e49",
+   "ciphertext_with_mac": "1ea0c47387ffd98a2e2e4dcce63a7c4e6e3b15309bd55581a03c36768d873a989e01c66cebae44c8d532eba8d48e"
+  },
+  {
+   "usage": 18,
+   "confounder": "36f46f0b89ed08c998dc3857d648b467",
+   "plaintext": "121d28333e49545f6a75808b96a1acb7",
+   "ciphertext_with_mac": "0f5a6f9d6494a10568912e8487a9dc2bc37a40af15270ae12ea6dc8750085a5f04ad85245681131623011ab53953f90c2fd9b3b7826ebe60"
+  },
+  {
+   "usage": 18,
+   "confounder": "977d7f41c77866811c54191aca7764ed",
+   "plaintext": "121d28333e49545f6a75808b96a1acb7c2cdd8e3ee",
+   "ciphertext_with_mac": "7534eaf786137a3ca0f7b3db165bd463e1cca84df1ddf290e21dc6b1a89b1b6616968273fd27ef7a6c0c52bf7eaf32596aad5b198d707a9beaec02558b"
+  },
+  {
+   "usage": 18,
+   "confounder": "39c5876e8c3624856a3902db272fd389",
+   "plaintext": "121d28333e49545f6a75808b96a1acb7c2cdd8e3eef909141f2a35404b56616c77828d98a3aeb9c4cfdae5f0000b16212c37424d58636e79848f9aa5",
+   "ciphertext_with_mac": "f0fa1f9e608f614e11a5bb9731ddd862a99d0355290b34d0ed8d7fb9f282a34071982f049f0bbd9347c71d41bc861e4167429be6caca7a1edd9176c83ed3a6a8193cd1bad467b58f8a8b3e7d838bb259647c25a0850d293dfd1c0c65fb94608362992fca"
+  }
+ ],
+ "envelopes": [
+  {
+   "item": "",
+   "usage": 16,
+   "confounder": "327ba61d2efea55e7af6c28565025172",
+   "sealed_length_prefixed": "31000000f05cb82a5ae14ada7b45aa298c7fe273e6fa6591ab9794aa40e0883b152d561746ba0ab3992a1ca7a718ecd9f536ff2420"
+  },
+  {
+   "item": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324252627",
+   "usage": 16,
+   "confounder": "327ba61d2efea55e7af6c28565025172",
+   "sealed_length_prefixed": "59000000e6fa6591ab9794aa403f503e595ecaed2e921915edaf9841a008b3a58f96b76969eafdc56209c083183763ad8f068f1032f5dea45de2ad76067c5992ed92d4aaa5aa7c3e77452da27240abdb0980c14dd98cfef7af742efe32"
+  }
+ ]
+}

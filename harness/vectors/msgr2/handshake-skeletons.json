@@ -1,0 +1,453 @@
+{
+ "format": 1,
+ "description": "ordered frames of real connections of the stock client (lengths only, no content). Source captures named per entry.",
+ "connections": [
+  {
+   "name": "mon first connection, crc (k2-rados-small)",
+   "peer": "MON",
+   "mode": "crc",
+   "streams": [
+    {
+     "direction": "client_to_server",
+     "frames": [
+      {
+       "tag": 1,
+       "name": "HELLO",
+       "segment_lengths": [
+        36
+       ],
+       "wire_size": 72
+      },
+      {
+       "tag": 2,
+       "name": "AUTH_REQUEST",
+       "segment_lengths": [
+        39
+       ],
+       "wire_size": 75
+      },
+      {
+       "tag": 5,
+       "name": "AUTH_REQUEST_MORE",
+       "segment_lengths": [
+        40
+       ],
+       "wire_size": 76
+      },
+      {
+       "tag": 7,
+       "name": "AUTH_SIGNATURE",
+       "segment_lengths": [
+        32
+       ],
+       "wire_size": 68
+      },
+      {
+       "tag": 21,
+       "name": "COMPRESSION_REQUEST",
+       "segment_lengths": [
+        5
+       ],
+       "wire_size": 41
+      },
+      {
+       "tag": 8,
+       "name": "CLIENT_IDENT",
+       "segment_lengths": [
+        123
+       ],
+       "wire_size": 159
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41
+       ],
+       "wire_size": 77
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        58
+       ],
+       "wire_size": 148
+      }
+     ]
+    },
+    {
+     "direction": "server_to_client",
+     "frames": [
+      {
+       "tag": 1,
+       "name": "HELLO",
+       "segment_lengths": [
+        36
+       ],
+       "wire_size": 72
+      },
+      {
+       "tag": 4,
+       "name": "AUTH_REPLY_MORE",
+       "segment_lengths": [
+        13
+       ],
+       "wire_size": 49
+      },
+      {
+       "tag": 6,
+       "name": "AUTH_DONE",
+       "segment_lengths": [
+        372
+       ],
+       "wire_size": 408
+      },
+      {
+       "tag": 7,
+       "name": "AUTH_SIGNATURE",
+       "segment_lengths": [
+        32
+       ],
+       "wire_size": 68
+      },
+      {
+       "tag": 22,
+       "name": "COMPRESSION_DONE",
+       "segment_lengths": [
+        5
+       ],
+       "wire_size": 41
+      },
+      {
+       "tag": 9,
+       "name": "SERVER_IDENT",
+       "segment_lengths": [
+        123
+       ],
+       "wire_size": 159
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        270
+       ],
+       "wire_size": 360
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        188
+       ],
+       "wire_size": 278
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        270
+       ],
+       "wire_size": 360
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "osd connection, crc (k2-rados-small)",
+   "peer": "OSD",
+   "mode": "crc",
+   "streams": [
+    {
+     "direction": "client_to_server",
+     "frames": [
+      {
+       "tag": 1,
+       "name": "HELLO",
+       "segment_lengths": [
+        36
+       ],
+       "wire_size": 72
+      },
+      {
+       "tag": 2,
+       "name": "AUTH_REQUEST",
+       "segment_lengths": [
+        291
+       ],
+       "wire_size": 327
+      },
+      {
+       "tag": 5,
+       "name": "AUTH_REQUEST_MORE",
+       "segment_lengths": [
+        279
+       ],
+       "wire_size": 315
+      },
+      {
+       "tag": 7,
+       "name": "AUTH_SIGNATURE",
+       "segment_lengths": [
+        32
+       ],
+       "wire_size": 68
+      },
+      {
+       "tag": 21,
+       "name": "COMPRESSION_REQUEST",
+       "segment_lengths": [
+        9
+       ],
+       "wire_size": 45
+      },
+      {
+       "tag": 8,
+       "name": "CLIENT_IDENT",
+       "segment_lengths": [
+        123
+       ],
+       "wire_size": 159
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        224,
+        0,
+        100
+       ],
+       "wire_size": 414
+      }
+     ]
+    },
+    {
+     "direction": "server_to_client",
+     "frames": [
+      {
+       "tag": 1,
+       "name": "HELLO",
+       "segment_lengths": [
+        36
+       ],
+       "wire_size": 72
+      },
+      {
+       "tag": 4,
+       "name": "AUTH_REPLY_MORE",
+       "segment_lengths": [
+        62
+       ],
+       "wire_size": 98
+      },
+      {
+       "tag": 6,
+       "name": "AUTH_DONE",
+       "segment_lengths": [
+        78
+       ],
+       "wire_size": 114
+      },
+      {
+       "tag": 7,
+       "name": "AUTH_SIGNATURE",
+       "segment_lengths": [
+        32
+       ],
+       "wire_size": 68
+      },
+      {
+       "tag": 22,
+       "name": "COMPRESSION_DONE",
+       "segment_lengths": [
+        5
+       ],
+       "wire_size": 41
+      },
+      {
+       "tag": 9,
+       "name": "SERVER_IDENT",
+       "segment_lengths": [
+        123
+       ],
+       "wire_size": 159
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        152
+       ],
+       "wire_size": 242
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "mon connection, stock default modes = secure (k2-def-rbd-info)",
+   "peer": "MON",
+   "mode": "secure",
+   "streams": [
+    {
+     "direction": "client_to_server",
+     "frames": [
+      {
+       "tag": 1,
+       "name": "HELLO",
+       "segment_lengths": [
+        36
+       ],
+       "wire_size": 72
+      },
+      {
+       "tag": 2,
+       "name": "AUTH_REQUEST",
+       "segment_lengths": [
+        43
+       ],
+       "wire_size": 79
+      },
+      {
+       "tag": 5,
+       "name": "AUTH_REQUEST_MORE",
+       "segment_lengths": [
+        40
+       ],
+       "wire_size": 76
+      },
+      {
+       "tag": 7,
+       "name": "AUTH_SIGNATURE",
+       "segment_lengths": [
+        32
+       ],
+       "wire_size": 96
+      },
+      {
+       "tag": 21,
+       "name": "COMPRESSION_REQUEST",
+       "segment_lengths": [
+        5
+       ],
+       "wire_size": 96
+      },
+      {
+       "tag": 8,
+       "name": "CLIENT_IDENT",
+       "segment_lengths": [
+        123
+       ],
+       "wire_size": 192
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41
+       ],
+       "wire_size": 96
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        58
+       ],
+       "wire_size": 192
+      }
+     ]
+    },
+    {
+     "direction": "server_to_client",
+     "frames": [
+      {
+       "tag": 1,
+       "name": "HELLO",
+       "segment_lengths": [
+        36
+       ],
+       "wire_size": 72
+      },
+      {
+       "tag": 4,
+       "name": "AUTH_REPLY_MORE",
+       "segment_lengths": [
+        13
+       ],
+       "wire_size": 49
+      },
+      {
+       "tag": 6,
+       "name": "AUTH_DONE",
+       "segment_lengths": [
+        436
+       ],
+       "wire_size": 472
+      },
+      {
+       "tag": 7,
+       "name": "AUTH_SIGNATURE",
+       "segment_lengths": [
+        32
+       ],
+       "wire_size": 96
+      },
+      {
+       "tag": 22,
+       "name": "COMPRESSION_DONE",
+       "segment_lengths": [
+        5
+       ],
+       "wire_size": 96
+      },
+      {
+       "tag": 9,
+       "name": "SERVER_IDENT",
+       "segment_lengths": [
+        123
+       ],
+       "wire_size": 192
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        270
+       ],
+       "wire_size": 400
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        188
+       ],
+       "wire_size": 320
+      },
+      {
+       "tag": 17,
+       "name": "MESSAGE",
+       "segment_lengths": [
+        41,
+        270
+       ],
+       "wire_size": 400
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

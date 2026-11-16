@@ -1,0 +1,96 @@
+{
+ "name": "rados-put-small",
+ "note": "WRITEFULL of 100 bytes: mtime set, data segment = the 100 bytes",
+ "reply": {
+  "compat_version": 2,
+  "data": {
+   "hex": "",
+   "length": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "front_hex": "0800000074302d736d616c6c0102000000000000001a000000ffffffff25004008000000000000000003000000000000002a0000002a000000010000000222000000000000000000000000640000000000000000000000000000000000000000000000000000000000000003000000000000002a000000030000000000000000000000000000000000000000000000000000000000000000",
+  "header2_hex": "010000000000000001000000000000002b007f00080000000000000001000000000000000302000000",
+  "priority": 127,
+  "segment_lengths": [
+   41,
+   152,
+   0,
+   0
+  ],
+  "seq": 1,
+  "summary": {
+   "epoch": 42,
+   "flags": 138412069,
+   "oid": "t0-small",
+   "ops": [
+    {
+     "code": 8706,
+     "name": "WRITEFULL",
+     "payload_len": 0
+    }
+   ],
+   "pool": 2,
+   "replay_version": [
+    3,
+    42
+   ],
+   "result": 0,
+   "retry_attempt": 0,
+   "rvals": [
+    0
+   ],
+   "seed": 26,
+   "user_version": 3
+  },
+  "tid": 1,
+  "type": 43,
+  "version": 8
+ },
+ "request": {
+  "compat_version": 3,
+  "data": {
+   "hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8040b121920272e353c434a51585f666d747b828990979ea5acb3bac1c8cfd6dde4ebf2f9050c131a21282f363d444b525960676e757c838a91989fa6adb4bbc2",
+   "length": 100,
+   "sha256": "8ccfe0e9682941c3451db3606c96dfdde905896fd071c0bb2d58d01b8c6daf7d"
+  },
+  "front_hex": "0101120000000102000000000000001a000000ffffffffff3a69c6a42a00000024004008020215000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010101000000000000000048ccfa6aa0e3ab2206031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff0800000074302d736d616c6c01000222000000000000000000000000640000000000000000000000000000000000000064000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+  "header2_hex": "010000000000000001000000000000002a003f00090000000000000000000000000000000303000000",
+  "priority": 63,
+  "segment_lengths": [
+   41,
+   224,
+   0,
+   100
+  ],
+  "seq": 1,
+  "summary": {
+   "client_inc": 0,
+   "epoch": 42,
+   "features": 4541880224203014143,
+   "flags": 138412068,
+   "hash": 2764466490,
+   "mtime_is_zero": false,
+   "oid": "t0-small",
+   "ops": [
+    {
+     "code": 8706,
+     "flags": 0,
+     "length": 100,
+     "name": "WRITEFULL",
+     "offset": 0,
+     "payload_len": 100
+    }
+   ],
+   "pool": 2,
+   "retry_attempt": 0,
+   "seed": 26,
+   "snap_seq": 0,
+   "snapid": 18446744073709551614,
+   "snaps": []
+  },
+  "tid": 1,
+  "type": 42,
+  "version": 9
+ },
+ "source": "capture session k2-rados-small, tid 1 (private capture store)"
+}

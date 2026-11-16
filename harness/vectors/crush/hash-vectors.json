@@ -1,0 +1,53 @@
+{
+  "provenance": "arithmetic of crush-and-placement.md 5.1, produced by harness/tools/crush_check.py (written from the note) and agreeing with the reviewer's compile of the pinned C sources; the placement-expected.json file below is the live-cluster oracle",
+  "rjenkins_str": [
+    {"input_hex": "", "rjenkins": "bd49d10d", "linux_dcache": "00000000"},
+    {"input_hex": "61", "rjenkins": "29eec818", "linux_dcache": "000042f2"},
+    {"input_hex": "666f6f", "rjenkins": "7fc1f406", "linux_dcache": "0024db2a"},
+    {"input_hex": "6162636465666768696a6b6c", "rjenkins": "0b1b3ea5", "linux_dcache": "f281eff0"},
+    {"input_hex": "6162636465666768696a6b6c6d", "rjenkins": "3122b031", "linux_dcache": "6b959a82"},
+    {"input_hex": "7262645f6469726563746f7279", "rjenkins": "30a98c1c", "linux_dcache": "9569da2c"},
+    {"input_hex": "7262645f69642e6d79696d616765", "rjenkins": "f8d9dc15", "linux_dcache": "ca6e1713"},
+    {"input_hex": "7262645f6865616465722e313233346162636435363738", "rjenkins": "db3ea4d9", "linux_dcache": "c6227fd9"},
+    {"input_hex": "7262645f646174612e3132333461626364353637382e30303030303030303030303030303030", "rjenkins": "89a0b515", "linux_dcache": "e9caf84f"},
+    {"input_hex": "6e731f666f6f", "rjenkins": "ac17f0b6", "linux_dcache": "ccc913ee"}
+  ],
+  "crush_hash": [
+    {"fn": "hash2", "args": [0, 0], "result": "19ad4ce9"},
+    {"fn": "hash2", "args": [1, 2], "result": "b78dee9c"},
+    {"fn": "hash2", "args": [2143417350, 1], "result": "8ddb71b1"},
+    {"fn": "hash2", "args": [4294967295, 4294967295], "result": "9f3c11cc"},
+    {"fn": "hash3", "args": [0, 0, 0], "result": "7a3bf3b2"},
+    {"fn": "hash3", "args": [1, 2, 3], "result": "735ad42b"},
+    {"fn": "hash3", "args": [305419896, 4294967295, 7], "result": "03097224"},
+    {"fn": "hash3", "args": [5, 4294967295, 0], "result": "3e502f1c"},
+    {"fn": "hash4", "args": [0, 0, 0, 0], "result": "3fafb04d"},
+    {"fn": "hash4", "args": [1, 2, 3, 4], "result": "696d1f16"}
+  ],
+  "stable_mod": [
+    {"x": 2143417350, "b": 12, "mask": 15, "result": 6},
+    {"x": 2143417358, "b": 12, "mask": 15, "result": 6},
+    {"x": 2143417358, "b": 16, "mask": 15, "result": 14},
+    {"x": 4294967295, "b": 100, "mask": 127, "result": 63},
+    {"x": 100, "b": 100, "mask": 127, "result": 36},
+    {"x": 12345, "b": 1, "mask": 0, "result": 0}
+  ],
+  "pps_hashpspool": [
+    {"pool": 1, "seed": 6, "pps": "d77484f9"},
+    {"pool": 2, "seed": 6, "pps": "37f72ca0"},
+    {"pool": 1, "seed": 14, "pps": "adee4b52"}
+  ],
+  "crush_ln": [
+    {"u": 0, "result": "000000000000"},
+    {"u": 1, "result": "100000000000"},
+    {"u": 2, "result": "195c01a39fbd"},
+    {"u": 255, "result": "800000000000"},
+    {"u": 256, "result": "80171e3b6d7a"},
+    {"u": 4660, "result": "c2fb9e09ec18"},
+    {"u": 32767, "result": "f00000000000"},
+    {"u": 32768, "result": "f0002e2a60a0"},
+    {"u": 65534, "result": "fffffd61ad10"},
+    {"u": 65535, "result": "fffff0000000"}
+  ],
+  "crush_ln_note": "crush_ln needs the two tables of crush_ln_table.h; this repository does not carry them (licensing question 7.1). The harness loads them from the reference tree at run time."
+}

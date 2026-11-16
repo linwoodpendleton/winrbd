@@ -1,0 +1,42 @@
+{
+ "id": "mauth-renewal-scrubbed",
+ "description": "MAuth (type 17) in-session renewal request: PaxosServiceMessage prefix, protocol 2, auth_payload = request header 0x0200 + authorizer for service AUTH + CephXServiceTicketRequest, monmap_epoch 0. SCRUBBED: the AUTH ticket blob and the authorizer proof are replaced by 0xEE bytes of the same length (a real one is ciphertext under the session key)",
+ "source": "session k2-renew-ttl60 (crc mode, key type aes256k, auth_service_ticket_ttl=60) / first renewal",
+ "header2_hex": "0700000000000000000000000000000011007f00010000000000000006000000000000000301000000",
+ "front_hex": "0000000000000000ffff000000000000000002000000ff000000000201843c0000000000002000000001020000000000000097000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee43000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee011500000000000000",
+ "scrubbed_regions": [
+  {
+   "what": "authorizer ticket blob",
+   "offset": 54,
+   "length": 151,
+   "fill": "EE"
+  },
+  {
+   "what": "authorizer proof (ciphertext)",
+   "offset": 209,
+   "length": 67,
+   "fill": "EE"
+  }
+ ],
+ "expect": {
+  "type": 17,
+  "version": 1,
+  "compat": 1,
+  "priority": 127,
+  "front_len": 285,
+  "paxos_prefix": [
+   0,
+   -1,
+   0
+  ],
+  "protocol": 2,
+  "request_type": 512,
+  "authorizer_version": 1,
+  "service_id": 32,
+  "ticket_request_version": 1,
+  "ticket_request_keys": 21,
+  "monmap_epoch": 0,
+  "note": "mon-client 3.8.2"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

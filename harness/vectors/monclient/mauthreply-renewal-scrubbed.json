@@ -1,0 +1,59 @@
+{
+ "id": "mauthreply-renewal-scrubbed",
+ "description": "MAuthReply (type 18): protocol 2, result 0, global_id, result_bl = response header 0x0200/status 0 + ticket reply (ticket_enc 0), result_msg \"\". SCRUBBED: every ciphertext (msg_a) and ticket blob is replaced by 0xEE bytes of the same length",
+ "source": "session k2-renew-ttl60 (crc mode, key type aes256k, auth_service_ticket_ttl=60) / first renewal",
+ "header2_hex": "070000000000000000000000000000001200c400010000000000000007000000000000000301000000",
+ "front_hex": "0200000000000000843c0000000000007d0300000002000000000103000000010000000166000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee00b3000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee040000000166000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee00bf000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee100000000166000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee00a4000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee00000000",
+ "scrubbed_regions": [
+  {
+   "what": "ticket 0 session-key ciphertext (msg_a)",
+   "offset": 40,
+   "length": 102,
+   "fill": "EE"
+  },
+  {
+   "what": "ticket 0 opaque ticket blob",
+   "offset": 147,
+   "length": 179,
+   "fill": "EE"
+  },
+  {
+   "what": "ticket 1 session-key ciphertext (msg_a)",
+   "offset": 335,
+   "length": 102,
+   "fill": "EE"
+  },
+  {
+   "what": "ticket 1 opaque ticket blob",
+   "offset": 442,
+   "length": 191,
+   "fill": "EE"
+  },
+  {
+   "what": "ticket 2 session-key ciphertext (msg_a)",
+   "offset": 642,
+   "length": 102,
+   "fill": "EE"
+  },
+  {
+   "what": "ticket 2 opaque ticket blob",
+   "offset": 749,
+   "length": 164,
+   "fill": "EE"
+  }
+ ],
+ "expect": {
+  "type": 18,
+  "version": 1,
+  "compat": 1,
+  "priority": 196,
+  "front_len": 917,
+  "protocol": 2,
+  "result": 0,
+  "global_id_is_session_global_id": true,
+  "ticket_count": 3,
+  "result_msg": "",
+  "note": "mon-client 3.8.3"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

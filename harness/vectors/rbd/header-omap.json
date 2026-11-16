@@ -1,0 +1,148 @@
+{
+ "_about": "Header and directory omap values (rados listomapvals). Image ids and names are lab values. Timestamps are utime_t (u32 sec, u32 nsec). Keys that are absent in a dump are absent on the cluster (2.4).",
+ "images": {
+  "img-v1": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "6cd1fa6a758f041b",
+    "create_timestamp": "99c3fa6a663e7a08",
+    "features": "0100000000000000",
+    "modify_timestamp": "99c3fa6a663e7a08",
+    "object_prefix": "150000007262645f646174612e333738343161666264316437",
+    "order": "16",
+    "size": "0000000001000000",
+    "snap_seq": "0000000000000000"
+   },
+   "rbd_id_object_hex": "0c000000333738343161666264316437",
+   "lock_xattr_hex": null
+  },
+  "img-default": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "6dd1fa6a1d0f8b07",
+    "create_timestamp": "99c3fa6abf5ad910",
+    "features": "3d00000000000000",
+    "modify_timestamp": "99c3fa6abf5ad910",
+    "object_prefix": "150000007262645f646174612e333738363364376164613539",
+    "order": "16",
+    "size": "0000000001000000",
+    "snap_seq": "0000000000000000"
+   },
+   "rbd_id_object_hex": "0c000000333738363364376164613539",
+   "lock_xattr_hex": "010111000000000000000108000000696e7465726e616c"
+  },
+  "t0-copy-v1.with-snap": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "6cd1fa6abaf93419",
+    "create_timestamp": "6cd1fa6abaf93419",
+    "features": "0100000000000000",
+    "modify_timestamp": "6cd1fa6abaf93419",
+    "object_prefix": "150000007262645f646174612e336266326632326237623066",
+    "order": "16",
+    "size": "0000000001000000",
+    "snap_seq": "0300000000000000",
+    "snapshot_0000000000000003": "08083b0000000300000000000000070000007430736e61703100000000010000000000000000000000000101040000000000000090d1fa6a7d28642c0000000000"
+   },
+   "rbd_id_object_hex": "0c000000336266326632326237623066",
+   "lock_xattr_hex": null
+  },
+  "t0-feat-05": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "72dbfa6a31702301",
+    "create_timestamp": "72dbfa6a31702301",
+    "features": "0500000000000000",
+    "modify_timestamp": "72dbfa6a31702301",
+    "object_prefix": "150000007262645f646174612e356663343566383066613463",
+    "order": "16",
+    "size": "0000000100000000",
+    "snap_seq": "0000000000000000"
+   }
+  },
+  "t0-feat-45": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "72dbfa6a63d7ea39",
+    "create_timestamp": "72dbfa6a63d7ea39",
+    "features": "4500000000000000",
+    "modify_timestamp": "72dbfa6a63d7ea39",
+    "object_prefix": "140000007262645f646174612e3566643065333366663732",
+    "order": "16",
+    "size": "0000000100000000",
+    "snap_seq": "0000000000000000"
+   }
+  },
+  "t0-feat-str": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "73dbfa6a40b61626",
+    "create_timestamp": "73dbfa6a40b61626",
+    "features": "0300000000000000",
+    "modify_timestamp": "73dbfa6a40b61626",
+    "object_prefix": "150000007262645f646174612e356664383532623764646134",
+    "order": "16",
+    "size": "0000000100000000",
+    "snap_seq": "0000000000000000",
+    "stripe_count": "0400000000000000",
+    "stripe_unit": "0000010000000000"
+   }
+  },
+  "t0-feat-snap": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "73dbfa6a2b3f1c39",
+    "create_timestamp": "73dbfa6a2b3f1c39",
+    "features": "0100000000000000",
+    "modify_timestamp": "73dbfa6a2b3f1c39",
+    "object_prefix": "150000007262645f646174612e356664633131323136623464",
+    "order": "16",
+    "size": "0000000100000000",
+    "snap_seq": "0b00000000000000",
+    "snapshot_0000000000000009": "080836000000090000000000000002000000733100000001000000000000000000000000000101040000000000000075dbfa6a3eabbc010000000000",
+    "snapshot_000000000000000b": "0808360000000b0000000000000002000000733300000001000000000000000000000000000101040000000000000077dbfa6a81374f070000000000"
+   }
+  },
+  "t0-feat-clone": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "79dbfa6ab6ccfa1f",
+    "create_timestamp": "79dbfa6ab6ccfa1f",
+    "features": "0100000000000000",
+    "modify_timestamp": "79dbfa6ab6ccfa1f",
+    "object_prefix": "150000007262645f646174612e356666346634386238333038",
+    "order": "16",
+    "parent": "02022c0000000200000000000000000000000b00000035666330393162663732300c00000000000000010000000100000000",
+    "size": "0000000100000000",
+    "snap_seq": "0000000000000000"
+   }
+  },
+  "t0-feat-dp": {
+   "object": "rbd_header.<id>",
+   "omap_hex": {
+    "access_timestamp": "7fdbfa6abe15e624",
+    "create_timestamp": "7fdbfa6abe15e624",
+    "data_pool_id": "0500000000000000",
+    "features": "8100000000000000",
+    "modify_timestamp": "7fdbfa6abe15e624",
+    "object_prefix": "170000007262645f646174612e322e363030656361633462383563",
+    "order": "16",
+    "size": "0000000100000000",
+    "snap_seq": "0000000000000000"
+   }
+  },
+  "rbd_directory": {
+   "object": "rbd_directory",
+   "omap_hex": {
+    "id_37841afbd1d7": "06000000696d672d7631",
+    "id_37863d7ada59": "0b000000696d672d64656661756c74",
+    "id_3bf2f22b7b0f": "0a00000074302d636f70792d7631",
+    "id_3bf4f7033da2": "0b00000074302d636f70792d646566",
+    "name_img-default": "0c000000333738363364376164613539",
+    "name_img-v1": "0c000000333738343161666264316437",
+    "name_t0-copy-def": "0c000000336266346637303333646132",
+    "name_t0-copy-v1": "0c000000336266326632326237623066"
+   }
+  }
+ }
+}

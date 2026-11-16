@@ -1,0 +1,96 @@
+{
+ "name": "rados-put-big-chunk",
+ "note": "WRITE of a 4 MiB chunk (data kept as length + sha256 only)",
+ "reply": {
+  "compat_version": 2,
+  "data": {
+   "hex": "",
+   "length": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "front_hex": "0600000074302d62696701020000000000000003000000ffffffff2500400800000000000000000c000000000000002a0000002a00000001000000012200000000000040000000000000004000000000000000000000000000000000000000000000000000000000000c000000000000002a0000000c0000000000000000000000000000000000000000000000000000000000000000",
+  "header2_hex": "020000000000000002000000000000002b007f00080000000000000002000000000000000302000000",
+  "priority": 127,
+  "segment_lengths": [
+   41,
+   150,
+   0,
+   0
+  ],
+  "seq": 2,
+  "summary": {
+   "epoch": 42,
+   "flags": 138412069,
+   "oid": "t0-big",
+   "ops": [
+    {
+     "code": 8705,
+     "name": "WRITE",
+     "payload_len": 0
+    }
+   ],
+   "pool": 2,
+   "replay_version": [
+    12,
+    42
+   ],
+   "result": 0,
+   "retry_attempt": 0,
+   "rvals": [
+    0
+   ],
+   "seed": 3,
+   "user_version": 12
+  },
+  "tid": 2,
+  "type": 43,
+  "version": 8
+ },
+ "request": {
+  "compat_version": 3,
+  "data": {
+   "head_hex": "9fa6adb4bbc2c9d0d7dee5ecf3fa060d141b222930373e454c535a61686f767d",
+   "length": 4194304,
+   "sha256": "c925041e7e90d6ae864c9448c0c277fe2286596b04374877c43abf3bf3e0f28d"
+  },
+  "front_hex": "01011200000001020000000000000003000000ffffffffff2359827b2a0000002400400802021500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010100000000000000004dccfa6acb6b091c06031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff0600000074302d62696701000122000000000000400000000000000040000000000000000000000000000000000000004000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+  "header2_hex": "020000000000000002000000000000002a003f00090000000000000001000000000000000303000000",
+  "priority": 63,
+  "segment_lengths": [
+   41,
+   222,
+   0,
+   4194304
+  ],
+  "seq": 2,
+  "summary": {
+   "client_inc": 0,
+   "epoch": 42,
+   "features": 4541880224203014143,
+   "flags": 138412068,
+   "hash": 2072140067,
+   "mtime_is_zero": false,
+   "oid": "t0-big",
+   "ops": [
+    {
+     "code": 8705,
+     "flags": 0,
+     "length": 4194304,
+     "name": "WRITE",
+     "offset": 4194304,
+     "payload_len": 4194304
+    }
+   ],
+   "pool": 2,
+   "retry_attempt": 0,
+   "seed": 3,
+   "snap_seq": 0,
+   "snapid": 18446744073709551614,
+   "snaps": []
+  },
+  "tid": 2,
+  "type": 42,
+  "version": 9
+ },
+ "source": "capture session k2-rados-big, tid 2 (private capture store)"
+}

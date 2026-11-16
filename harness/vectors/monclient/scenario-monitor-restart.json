@@ -1,0 +1,92 @@
+{
+ "id": "scenario-monitor-restart",
+ "description": "Message sequence of the monitor connection made after the monitor was restarted under an open session: global_id reclaimed with the old AUTH ticket, MMonGetMap first, subscriptions re-sent with held + 1, one MMonMap only",
+ "source": "session k2-mon-restart (crc mode, key type aes256k), last monitor connection",
+ "expect": {
+  "global_id_reclaimed": true,
+  "old_ticket_sent": true,
+  "connection": [
+   {
+    "dir": "client->mon",
+    "type": 5,
+    "name": "MON_GET_MAP",
+    "version": 1,
+    "compat": 1,
+    "priority": 127
+   },
+   {
+    "dir": "client->mon",
+    "type": 15,
+    "name": "MON_SUBSCRIBE",
+    "version": 3,
+    "compat": 1,
+    "priority": 127,
+    "subscribe": [
+     [
+      "config",
+      0,
+      0
+     ],
+     [
+      "mgrmap",
+      0,
+      0
+     ],
+     [
+      "monmap",
+      4,
+      0
+     ],
+     [
+      "osdmap",
+      93,
+      1
+     ]
+    ]
+   },
+   {
+    "dir": "mon->client",
+    "type": 4,
+    "name": "MON_MAP",
+    "version": 1,
+    "compat": 1,
+    "priority": 196,
+    "monmap_epoch": 3
+   },
+   {
+    "dir": "mon->client",
+    "type": 62,
+    "name": "CONFIG",
+    "version": 1,
+    "compat": 1,
+    "priority": 196
+   },
+   {
+    "dir": "mon->client",
+    "type": 1796,
+    "name": "mgrmap push",
+    "version": 1,
+    "compat": 1,
+    "priority": 196
+   },
+   {
+    "dir": "client->mon",
+    "type": 50,
+    "name": "MON_COMMAND",
+    "version": 1,
+    "compat": 1,
+    "priority": 127
+   },
+   {
+    "dir": "mon->client",
+    "type": 51,
+    "name": "MON_COMMAND_ACK",
+    "version": 1,
+    "compat": 1,
+    "priority": 196
+   }
+  ],
+  "note": "mon-client 3.7, 3.9"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

@@ -1,0 +1,25 @@
+{
+ "id": "mmonsubscribe-osdmap-start0-onetime",
+ "description": "MMonSubscribe v3: {\"osdmap\" start 0, flags 1 (ONETIME)}: asks for the newest full map",
+ "source": "session k2-rbd-info-default (crc mode, key type aes256k); hostname replaced by \"host1\" and the frame re-assembled with fresh lengths and CRCs",
+ "frame_hex": "11022900000008002000000008000000000000000000000000000000eecfb56f040000000000000000000000000000000f007f0003000000000000000300000000000000030100000083aa327601000000060000006f73646d617000000000000000000105000000686f7374310e7d6718310000000000000000",
+ "header2_hex": "040000000000000000000000000000000f007f00030000000000000003000000000000000301000000",
+ "front_hex": "01000000060000006f73646d617000000000000000000105000000686f737431",
+ "expect": {
+  "type": 15,
+  "version": 3,
+  "compat": 1,
+  "priority": 127,
+  "what": [
+   [
+    "osdmap",
+    0,
+    1
+   ]
+  ],
+  "hostname": "host1",
+  "front_len": 32,
+  "note": "mon-client 2.5.1"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

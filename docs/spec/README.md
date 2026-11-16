@@ -14,10 +14,10 @@ Ground rules for every note (see [CONTRIBUTING.md](../../CONTRIBUTING.md)):
 
 - Written in our own words. Layout tables, numeric constants and protocol facts only; no Ceph code, comments or lookup data.
 - Every claim carries a `path:line` reference relative to the Ceph tree root at the pinned tag, or a Ceph doc page.
-- **[unverified]** = could not be pinned in source. **[confirm on capture]** = read from source but must be checked on a live cluster before the core relies on it. Both kinds are collected in section 6 of each note and, deduplicated, in section 7 below.
-- Nothing in these notes has been confirmed on a live capture yet.
+- **[unverified]** = could not be pinned in source. **[confirm on capture]** = read from source but must be checked on a live cluster before the core relies on it. Both kinds are collected in section 6 of each note and, deduplicated, in section 7 below. **[confirmed: <checker / capture>]** = settled by the capture round of 2026-11-16 (the check ids and capture names are the ones printed by the checkers in `harness/tools/`).
+- Status after the capture round (2026-11-16): all eight notes were checked against 39 packet captures and `ceph` / `rbd` / `crushtool` / `osdmaptool` output from a lab cluster, by checkers written from the notes alone (section 4). Where the capture disagreed with the source reading, the note was corrected in place and the change is listed under "Corrections after capture" in its section 6. Items the capture could not settle keep their mark and a reason.
 
-Contents of this page: 1 pinned release and compatibility stance; 2 the proposed v1 image profile; 3 the client capability profile; 4 table of notes; 5 cross-note consistency; 6 capture plan; 7 consolidated open questions; 8 licensing questions.
+Contents of this page: 1 pinned release and compatibility stance; 2 the proposed v1 image profile; 3 the client capability profile; 4 table of notes and Phase 0 exit status (4.1); 5 cross-note consistency; 6 capture plan; 7 consolidated open questions; 8 licensing questions.
 
 ### 1 Pinned release and compatibility stance
 
@@ -78,20 +78,46 @@ What the core implements, stated once. Each line points to the note that owns th
 
 ### 4 The notes
 
-All eight are drafts. "Reviewed against source" means one independent pass that re-opened the cited lines in the pinned tree and recomputed what could be recomputed, followed by this cross-note pass. "Confirmed on capture" is **no** for every note.
+Status vocabulary: **draft** = written from source only; **reviewed against source** = one independent pass re-opened the cited lines in the pinned tree and recomputed what could be recomputed, followed by the cross-note pass of section 5; **confirmed on capture** = an independent checker, written from the note alone (no Ceph decoder in the loop), parsed the 39 pcaps and the tool output, and the note was corrected where it disagreed. All eight notes are now **confirmed on capture, with open marks remaining**; the last column gives the checker, its result and the marks left. "Open" counts the `[unverified]` (u) and `[confirm on capture]` (c) marks still in the text; "confirmed" counts the `[confirmed: ...]` marks (grep below the note header, so a mark repeated in a correction list counts again: read the numbers as approximate). All eight checkers exit 0 against the capture set; how to run them is in [harness/tools/README.md](../../harness/tools/README.md).
 
-| Note | Scope | Status | Reviewed against source | Confirmed on capture |
+| Note | Scope | Status | Reviewed against source | Confirmed on capture (checker, result, open marks) |
 |---|---|---|---|---|
-| [msgr2.md](msgr2.md) | msgr2.1 crc-mode client: banner, 32-byte preamble, segments, CRC-32C, tags and control-frame payloads, HELLO, auth frame shells, CLIENT_IDENT / SERVER_IDENT, the MESSAGE frame and 41-byte header, `entity_addr_t`, feature bits, pre-auth signature mechanics | draft | yes; CRC, frame-size and worked-frame vectors recomputed; crc path high confidence, secure summary only | no |
-| [msgr2-secure-mode.md](msgr2-secure-mode.md) | optional secure mode: mode negotiation defaults, connection-secret slicing, AES-128-GCM nonce layout, secure 2.1 frame layout and size arithmetic, the pre-auth signature as first encrypted frame, declining compression | draft | yes; key/nonce slicing and two worked frames reproduced with separate scripts | no |
-| [cephx.md](cephx.md) | cephx: key and keyring format, cipher types 1 and 2, encrypted envelope, tickets, challenge proof, monitor handshake, OSD authorizer, expiry, renewal and global id | draft | yes; both ciphers reproduced against the upstream known-answer vectors by an independent implementation | no |
-| [mon-client.md](mon-client.md) | monitor client: `mon_host` parsing, MonMap, MMonGetMap and MMonSubscribe, MOSDMap delivery and gap handling, keepalive, hunting, MAuth renewal, global id | draft | yes; references re-checked | no |
-| [osdmap.md](osdmap.md) | OSDMap and Incremental, client subset: envelopes, versions chosen by feature bits, `pg_pool_t`, apply order, constants, map CRC, how the fields feed placement | draft | yes; every field order re-read in source | no |
-| [crush-and-placement.md](crush-and-placement.md) | object name to PG to placement seed to CRUSH for replicated pools: hashes, blob layout, tunables, straw2 and `crush_ln`, firstn with chooseleaf, upmap, affinity, temp maps | draft | yes; hashes and `crush_ln` rebuilt from the pinned C files, 688 in-tree expected mappings matched by a re-implementation of the note's procedure | no |
-| [osd-ops.md](osd-ops.md) | MOSDOp v9, MOSDOpReply v8, MOSDBackoff; 38-byte op record; op semantics; errors; tids, resend, backoff, full pools, snapshot context, ordering | draft | yes; the 217-byte worked MOSDOp recomputed | no |
-| [rbd-format2.md](rbd-format2.md) | RBD format 2: object naming, `rbd` and `lock` class calls, feature bits, striping and byte-range mapping, sparse I/O, exclusive-lock policies, the v1 image profile | draft | yes; striping and lock examples recomputed | no |
+| [msgr2.md](msgr2.md) | msgr2.1 crc-mode client: banner, 32-byte preamble, segments, CRC-32C, tags and control-frame payloads, HELLO, auth frame shells, CLIENT_IDENT / SERVER_IDENT, the MESSAGE frame and 41-byte header, `entity_addr_t`, feature bits, pre-auth signature mechanics | confirmed on capture | yes; CRC, frame-size and worked-frame vectors recomputed; crc path high confidence, secure summary only | yes: `msgr2_check.py`, 177,628 checks, 0 failed (74 check ids, 39 pcaps), plus the live probe `msgr2_probe.py`; 5 corrections; open 15 u / 2 c; 36 confirmed |
+| [msgr2-secure-mode.md](msgr2-secure-mode.md) | optional secure mode: mode negotiation defaults, connection-secret slicing, AES-128-GCM nonce layout, secure 2.1 frame layout and size arithmetic, the pre-auth signature as first encrypted frame, declining compression | confirmed on capture | yes; key/nonce slicing and two worked frames reproduced with separate scripts | yes: `secure_check.py`, 151,305 checks, 0 failed (80 secure connections, 880 secure frames, 1,390 GCM operations); 3 corrections; open 3 u / 6 c; 9 confirmed |
+| [cephx.md](cephx.md) | cephx: key and keyring format, cipher types 1 and 2, encrypted envelope, tickets, challenge proof, monitor handshake, OSD authorizer, expiry, renewal and global id | confirmed on capture | yes; both ciphers reproduced against the upstream known-answer vectors by an independent implementation | yes: `cephx_check.py`, 84,714 checks on the captures and 954 on the vectors, 0 failed (499 handshakes, both key types); 5 corrections; open 4 u / 1 c; 14 confirmed |
+| [mon-client.md](mon-client.md) | monitor client: `mon_host` parsing, MonMap, MMonGetMap and MMonSubscribe, MOSDMap delivery and gap handling, keepalive, hunting, MAuth renewal, global id | confirmed on capture | yes; references re-checked | yes: `monclient_check.py`, 64,830 assertions in 206 named checks, 0 failed; 6 corrections; open 13 u / 10 c; 36 confirmed |
+| [osdmap.md](osdmap.md) | OSDMap and Incremental, client subset: envelopes, versions chosen by feature bits, `pg_pool_t`, apply order, constants, map CRC, how the fields feed placement | confirmed on capture | yes; every field order re-read in source | yes: `osdmap_check.py`, 119 checks, 0 failed (item level: 178 stored maps and incrementals, 80,000 `crushtool` mappings, 2,194 `ceph osd map` answers, 792 `osdmaptool` PGs over 24 map states); no table needed correcting; open 7 u / 5 c; 14 confirmed |
+| [crush-and-placement.md](crush-and-placement.md) | object name to PG to placement seed to CRUSH for replicated pools: hashes, blob layout, tunables, straw2 and `crush_ln`, firstn with chooseleaf, upmap, affinity, temp maps | confirmed on capture | yes; hashes and `crush_ln` rebuilt from the pinned C files, 688 in-tree expected mappings matched by a re-implementation of the note's procedure | yes: `crush_check.py`, 80 checks (636,903 comparisons), 0 failed; 3 corrections; open 11 u / 5 c; 12 confirmed. Variants the lab never had (other bucket types, `choose_args`, upmap-primary, split pools) stay unconfirmed |
+| [osd-ops.md](osd-ops.md) | MOSDOp v9, MOSDOpReply v8, MOSDBackoff; 38-byte op record; op semantics; errors; tids, resend, backoff, full pools, snapshot context, ordering | confirmed on capture | yes; the 217-byte worked MOSDOp recomputed | yes: `osdop_check.py`, 119,197 checks, 0 failed (39 sessions, 19 vectors); 8 corrections; open 5 u / 8 c; 23 confirmed |
+| [rbd-format2.md](rbd-format2.md) | RBD format 2: object naming, `rbd` and `lock` class calls, feature bits, striping and byte-range mapping, sparse I/O, exclusive-lock policies, the v1 image profile | confirmed on capture | yes; striping and lock examples recomputed | yes: `rbd_check.py`, 6,891 checks, 0 failed, plus extra probe captures for the cases stock runs never reach; 8 corrections; open 7 u / 2 c; 42 confirmed |
 
 Suggested reading order for an implementer: msgr2, cephx, mon-client, osdmap, crush-and-placement, osd-ops, rbd-format2; msgr2-secure-mode only when secure mode is built.
+
+#### 4.1 Phase 0 exit status
+
+Roadmap exit criterion: "Each wire structure the core needs is described in the notes with a source reference and has been confirmed against a capture or `ceph` / `rbd` / `crushtool` output from the test cluster." Status on 2026-11-16, in the reading of this pass (the call is the project owner's):
+
+**Met**
+
+- **The eight notes**, in our own words, each structure with a source reference (sections 4 and 5).
+- **Pinned release and v1 image profile written down** (sections 1 and 2): Ceph v20.2.5, profile rows P1 and the refusal list. Images with features `0x01`, `0x05`, `0x21`, `0x25`, `0x3D`, `0x45`, `0x03`, `0x81` and migrating `0x201` behave as `rbd-format2.md` says.
+- **Test vectors from captures, scrubbed**: `harness/vectors/` holds eight directories (about 860 KB), each with a README on provenance and scrubbing; cephx session vectors are synthetic. Raw captures, keyrings and logs stay outside the repository.
+- **The default path is confirmed byte for byte**: msgr2.1 crc and secure framing (all CRCs, tags, GCM tags), cephx with both key types (challenge, tickets, authorizers, both AUTH_SIGNATURE values, renewal), monitor subscribe and MOSDMap delivery, OSDMap and Incremental decoding with the map CRC rule, placement bit-exact against 2,194 `ceph osd map` answers, 80,000 `crushtool` mappings and `osdmaptool` over 24 stored map states, MOSDOp / MOSDOpReply, `rbd` and `lock` class calls, and striping against real objects.
+- **Every checker passes** (section 4 table; re-run in this pass, exit 0).
+
+**Not met, or met only in part**
+
+1. **Lab shape.** One monitor, one manager, three OSDs, IPv4 only, one replicated data pool, OSDMap epochs 1 to 92: smaller than the plan in section 6. Everything that needs more (three-monitor hunting, IPv6 addresses, uniform / list / tree buckets, `choose_args`, upmap-primary, split or non-power-of-two `pg_num`, erasure pools, Reef and Squid daemons) is still read from source only.
+2. **Needs our own client** (section 6, group 5): reduced feature masks, a request mask of `0x24`, zero `features` in MOSDOp, a resend with the same tid, non-power-of-two alignment. No stock tool does these.
+3. **Fault injection (group 4) done only in part.** Done: monitor restart, short ticket TTL, wrong key, a user without OSD caps, read-only caps, foreign-tag lock behaviour. Not done: OSD kill with a write in flight, backoff, a full pool, stale snapshot context with and without ORDERSNAP.
+4. **Capture defects.** `k1-rbd-bench-default` (63 dropped packets) and `k1-sec-rados-big` (4) lost packets on the 9 MiB transfers; the checkers analyse those streams up to the hole and report them as capture defects, not as failures. A re-capture would remove the caveat.
+5. **Open marks remain** (table above; deduplicated in section 7). None of them is on the path of a plain read or write against the lab shape; several are policy decisions for Phase 1 (exclusive lock, unanswered ops, header changes while attached).
+6. **No repository-wide scrub script yet** (section 6, scrubbing item 4). The vector writers carry their own leak guard (`msgr2_check.py` compares its output with every known key and removes the files on a hit); this pass added manual scans, listed in `harness/tools/README.md`.
+7. **Licensing items L1 to L11 (section 8) are undecided**; L1 still gates `core/`.
+8. **Text to reconcile.** `crush-and-placement.md` still says the upmap, temp-map and affinity states have no oracle output (its 6 and 7.x), while `osdmap_check.py` compared 24 stored map states, including those, with `osdmaptool` (0 mismatches). The two notes should be aligned in the next editing pass.
+
+In short: the exit criterion holds for the structures a stock client uses on the single-monitor IPv4 default path, which is what Phase 1 needs to start; it does not yet hold for the variants listed above, which are tracked in section 7.
+
 
 ### 5 Cross-note consistency
 
@@ -103,7 +129,7 @@ Method: the shared facts below were compared across all eight notes by section a
 |---|---|---|
 | Pinned release | v20.2.5, commit `ed27c686...` | every note header |
 | CRC-32C | polynomial `0x1EDC6F41` (reflected `0x82F63B78`), raw update, no final inversion; preamble CRC seed 0; rev 1 segment CRC seed `0xFFFFFFFF`; OSDMap map CRC start `0xFFFFFFFF`; vectors `crc("123456789", seed 0xFFFFFFFF) = 0x1CF96D7C`, `crc("foo bar baz", 0) = 4119623852`, `crc("whiz bang boom", 0) = 2360230088` recomputed here | msgr2.md 2.5, 5.1; msgr2-secure-mode.md 2.8, 5.1; osdmap.md 2.4.5 |
-| Banner | `ceph v2\n`, payload 16, daemons send supported `0x3`, required 0; client sends `0x1` / 0 | msgr2.md 2.2; msgr2-secure-mode.md 2.2 |
+| Banner | `ceph v2\n`, payload 16, daemons send supported `0x3`, required 0; a stock client sends `0x3` / 0 and then COMPRESSION_REQUEST; `0x1` also works against monitors (live probe) | msgr2.md 2.2; msgr2-secure-mode.md 2.2 |
 | Frame tags | 1 HELLO, 2 AUTH_REQUEST, 3 AUTH_BAD_METHOD, 4 AUTH_REPLY_MORE, 5 AUTH_REQUEST_MORE, 6 AUTH_DONE, 7 AUTH_SIGNATURE, 8 CLIENT_IDENT, 9 SERVER_IDENT, 17 MESSAGE, 18 KEEPALIVE2, 19 KEEPALIVE2_ACK, 20 ACK | msgr2.md 2.4; cephx.md 2.2; msgr2-secure-mode.md 2.1 |
 | Entity types | MON 1, MDS 2, OSD 4, CLIENT 8, MGR 16, AUTH 32 | msgr2.md 2.7; cephx.md 2.1; msgr2-secure-mode.md 2.5 |
 | Auth method / mode / key type | method NONE 1, CEPHX 2, GSS 4; mode CRC 1, SECURE 2; key type AES 1, AES256KRB5 2 | msgr2.md 2.7; cephx.md 2.1; msgr2-secure-mode.md 2.3 |
@@ -129,6 +155,19 @@ Method: the shared facts below were compared across all eight notes by section a
 8. `osdmap.md` Q6 (blocklist handling) said "to be settled in the OSD op note"; `osd-ops.md` 2.11 and 4.1 settle it (-108 is fatal for the session). Cross-reference added.
 9. `msgr2.md` licensing item 1 named two companies from third-party file headers; reworded without the names (the file paths stay).
 
+**Facts that changed in the capture round** (each is corrected in its owning note; listed here because several notes depend on them)
+
+- Stock client banner is `0x3` (REVISION_1 plus COMPRESSION) and it always sends COMPRESSION_REQUEST; the server always answers "no compression". A monitor accepts `0x1` without COMPRESSION_REQUEST, and drops `0x3` without it.
+- HELLO addresses of the peers carry type 2 (msgr2); only the client's own address is type 3. SERVER_IDENT also lists a second, type-1 address for the v1 port.
+- `ceph_msg_header2.flags` is 3 (COMPLETE | NOCRC) on all 5,680 captured messages; a monitor accepts 0, 1 and 3.
+- Servers enforce a required feature mask: monitor and OSD report `0x0c01020042040000` (bits 18, 25, 30, 41, 48, 58, 59) and refuse a client missing any of them. Stock CLIENT_IDENT sends `required` `0x0800000000001000` (OSD, manager, short monitor connections) or `0x0800000000000000` (persistent monitor connection, which also asks for lossless but is answered lossy).
+- Stock clients send an empty auth-method list to monitors and managers and `[1]` to OSDs; they open two monitor connections per tool run (request masks `0x20` and `0x35`, each with its own global id; OSD connections use the second one's).
+- Priority: monitor-bound client messages 127, OSD-bound 63, monitor replies 196.
+- A user with no OSD caps still receives the OSDMap; every OSD connection then fails with AUTH_BAD_METHOD -13 and the stock client retries silently. This is the "hang"; the OSD does not drop ops.
+- `MOSDOpReply.data_off` is 0 even for reads at a non-zero offset; 60 pre-execution errors echo the request flags without ACK; librbd's metadata calls add FULL_TRY.
+- `lock get_info` after the last locker leaves keeps the lock type and tag; a clone has features `0x1` and op_features 0.
+
+
 **Differences that are deliberate, not inconsistencies**
 
 - Address choice: the reference messenger connects to the first vector entry of type 1 or 2 (`msgr2.md` 2.8 / `mon-client.md` 2.4.3); our v2-only client takes the first entry of type 2 (`osdmap.md` 4.1, `mon-client.md` 2.4.3). Whether daemons list v2 before v1 is open (C2).
@@ -142,6 +181,8 @@ Method: the shared facts below were compared across all eight notes by section a
 - The `path:line` references number in the hundreds; each note's reviewer re-opened them, this pass re-opened only the ones listed above.
 
 ### 6 Capture plan
+
+**Status of this plan (2026-11-16).** Run against a smaller lab than the one below (one monitor, one manager, three OSDs, IPv4 only, pools `winrbd` replicated size 3 with `pg_num` 32 and `.mgr`; both key types). Group 0 done (vectors with synthetic secrets); group 1 done (stored maps and incrementals for epochs 1 to 89, `ceph osd map` for 2,194 names, `crushtool` for 80,000 inputs, `osdmaptool` over 24 map states, `rbd` / `rados` class-call output); groups 2 and 3 done (39 pcaps: both key types, crc, default and forced-secure, idle keepalive, ticket renewal, wrong key, no OSD caps, read-only caps, monitor restart, a 9 MiB transfer); group 4 partly (see section 4.1); group 5 not started (no client yet). The shape below stays the target for a second round.
 
 All oracles are stock Ceph tools run against a lab cluster; the client under test is never its own oracle. Notes keep their own vector tables (msgr2 5, secure 5, cephx 5, mon-client 5, osdmap 5, crush 5, osd-ops 5, rbd 5); this section groups them by what produces them and says how to run them safely.
 
@@ -195,18 +236,52 @@ All oracles are stock Ceph tools run against a lab cluster; the client under tes
 1. Raw packet captures, keyrings, `debug_auth` logs and anything containing a session key, ticket, authorizer, connection secret or key base64 never enter the repository, even from a throw-away cluster. They stay in private lab storage.
 2. What may be committed: (a) Group 0 inputs and expected values computed with synthetic keys (for example the `00 01 02 ...` pattern used in the notes); (b) oracle output from group 1, which contains no secrets but does contain the cluster fsid, addresses and pool names: use a lab cluster on private addresses, treat its fsid as non-sensitive, and review before commit; (c) frame dumps from groups 2 to 4 as annotated hex with every secret-bearing field (ticket blobs, encrypted envelopes, authorizers, signatures, connection secret) replaced by a labelled placeholder of the same length, and a header line saying which integrity fields (CRC, HMAC, tag) are therefore no longer valid.
 3. A vector that needs real integrity values (a CRC or HMAC over a secret-bearing frame) is committed only as the pair "synthetic input, expected output" that our own code computed and that was cross-checked against the private capture; the private capture itself decides pass or fail and the result is recorded as a sentence in the note.
-4. Before any commit that contains capture-derived text: run a scrub check that fails on a keyring `key =` line, on a base64 string of cephx key length, on 16 or 32 byte hex runs that are not in the allow-list of synthetic test values, and on any address outside the lab range. The scrub check itself does not exist yet and is part of the harness work.
+4. Before any commit that contains capture-derived text: run a scrub check that fails on a keyring `key =` line, on a base64 string of cephx key length, on 16 or 32 byte hex runs that are not in the allow-list of synthetic test values, and on any address outside the lab range. Status: no repository-wide scrub script exists yet; the vector writers carry their own leak guard (for example `msgr2_check.py` compares its output with every key and session key known to the capture set and removes the files on a hit), and the manual scans used before publishing are listed in `harness/tools/README.md`. One script that does all of it remains harness work.
 5. Never capture traffic of a cluster you do not own.
 
 ### 7 Consolidated open questions
 
-Deduplicated; each points to the owning note and question number. `[c]` = confirm on capture, `[u]` = unverified in source. The ten that block the most work are marked **Top 10** and listed in order of how much they gate.
+Deduplicated; each points to the owning note and question number. `[c]` = confirm on capture, `[u]` = unverified in source. The A1 to G1 list below is the one from before the capture round (kept so that the ids in the notes still resolve); the status table right after this paragraph says what the capture round settled, and the new Top 10 (below the list) replaces the old ranking.
+
+**Status after the capture round (2026-11-16).** *settled* = nothing left that the note's checker could still settle; *partly* = some settled, the rest is in the note's section 6; *open* = nothing in the captures reaches it.
+
+| Id | Status | What the round showed, and what is left |
+|---|---|---|
+| A1 | settled for monitors; open for OSDs | Stock client sends banner `0x3` and COMPRESSION_REQUEST. Live probe on the monitor: `0x1` without COMPRESSION_REQUEST works, `0x3` without it is dropped. Not probed on an OSD. |
+| A2 | partly | Stock mask `0x3f07fffffffdffff` on all 499 CLIENT_IDENT frames. Servers enforce a required mask (`0x0c01020042040000`; bit 12 optional). Effect of a reduced mask on map encodings and CRCs: needs our own client. |
+| A3 | settled | HMAC key = raw session-key secret (16 bytes for type 1, the whole 32 for type 2), banner included; both signatures verified on 499 handshakes. Left: the transcript after an AUTH_BAD_METHOD retry on one connection (the stock client never retries). |
+| A4 | partly | Alignments 4, 16 and 4096 accepted; non-zero `data_off` / pre-padding accepted on messages without data. Left: non-power-of-two (not tried: it could crash the only monitor), messages with data, 32-bit builds. |
+| A5 | settled | Peer HELLO addresses type 2; monitor nonce 0; synthesised `target_addr` accepted. Left: whether a client must verify the monitor nonce. |
+| A6 | partly | Stock client pings the monitor every 10.0 s (first one about 3 s after connect), the server never initiates; no keepalives at all on idle OSD connections. Left: does a client KEEPALIVE2 reset the server's 900 s idle timer. |
+| A7 | partly | -13 (wrong key; no OSD caps) and -95 (unknown method or mode) seen; monitor answers lossy even to a lossless intent. Left: other codes, OSD lossless sessions. |
+| A8 | open | Bounds for a bounded-memory client. |
+| B1 | partly | Challenge proofs reproduced for both key types (245 seen); modern key is type 2 by default. Request mask `0x24` is never sent by stock clients (they send `0x20`, `0x35`, `0x15`): needs our own client. |
+| B2 | partly | Reconnect with the old ticket keeps the global id. Left: does the OSD check CLIENT_IDENT's id against the ticket; what happens to open OSD sessions when the id changes. |
+| B3 | partly | Service tickets renewed in-session every 45.0 s for a 60 s TTL; an OSD connection outlives its ticket. Left: renewing the 72 h AUTH ticket, expired old ticket on reconnect. |
+| B4 | open | Not a wire question: SHA-384, CTS and multi-buffer GCM in iPXE and the driver. |
+| C1 | settled | Two MMonMap per fresh session; nothing unsolicited. MMonGetOSDMap / MMonGetVersion never exercised (no stock tool sends them). |
+| C2 | partly | IPv4 sockaddr, sorted wire order and v2-before-v1 confirmed. IPv6 and non-Linux family numbers: the lab has neither. |
+| C3 | partly | Map and incremental CRC rule confirmed on 89 maps, 89 incrementals and every delivered map. Left: skipping incremental verification and re-fetching: no incrementals ever crossed the wire. |
+| C4 | open | The lab only runs tentacle. |
+| C5 | open | Observed wire sizes are small (largest: a 246 KB command reply, a 53 KB manager map). Not a ceiling study. |
+| C6 | open | Hostname resolution. |
+| D1 | partly | Placement bit-exact against `ceph osd map`, `crushtool` and `osdmaptool` (including reweight, affinity, upmap, pg_temp, primary_temp, out and down states). Left: `choose_args`, upmap-primary (needs `require-min-compat-client reef`), device-class variants, split pools, the Linux dcache hash, the local-fallback path (never reached by any run). |
+| D2 | open | Only straw and straw2 buckets exist in the lab and in the in-tree maps. |
+| E1 | partly | Segment layout, priority 63, features word, omap union, SPARSE_READ offsets confirmed. Left: zero `features`, all-zero omap union, ENOSPC variants. |
+| E2 | open | Needs fault injection: OSD kill, backoff, full pool, same-tid resend. |
+| E3 | open | Zero-length and multi-extent sparse reads, backoff ranges, ignoring pushed MOSDMap. |
+| F1 | partly | Observed with stock tools: writes from a non-holder pass; `snap create` and `resize` fail at once with EROFS; a stock writer polls hundreds of times a second; `rbd bench` against a foreign-tag lock never completes. Left: krbd, the handoff to Windows. |
+| F2 | open | Design question (no header watch). |
+| F3 | mostly settled | Outputs before a failing op are delivered; FAILOK keeps later ops running; the six-op header request works. Left: atomicity of the multi-op header read. |
+| F4 | partly | Q14 resolved (`rbd create` in a pool-snapshot-mode pool is refused with EINVAL). Left: trash, namespaces, erasure data pools, flags `0x100`, `0x400`, `0x800`. |
+| G1 | open | No Reef or Squid daemon anywhere. |
+
 
 **Transport and handshake**
 
-- **Top 1. A1 [c] Compression skip.** Does a v20.2.5 daemon accept a client whose banner has REVISION_1 but not COMPRESSION, going straight to CLIENT_IDENT? Source says yes. Fallback: advertise `0x3` and send COMPRESSION_REQUEST with `is_compress = false` (that handler was not read [u]). msgr2 Q4; msgr2-secure-mode Q5.
-- **Top 2. A2 [c] Feature mask.** Is `0x3f07fffffffdffff` accepted unchanged by monitors and OSDs, is it exactly what a stock client sends, and what changes in the received encodings with a reduced mask (including what an OSD requires of a client for a given map)? msgr2 Q9; osdmap Q1, Q14; mon-client Q1; rbd-format2 Q15; crush C7.
-- **Top 3. A3 [c] Pre-auth signature.** Exact bytes covered (banner, HELLO, epilogues), key bytes for mon versus OSD connections, behaviour across an AUTH_BAD_METHOD retry on one TCP connection. msgr2 Q3; cephx Q2; msgr2-secure-mode Q1, Q2.
+- **A1 [c] Compression skip.** Does a v20.2.5 daemon accept a client whose banner has REVISION_1 but not COMPRESSION, going straight to CLIENT_IDENT? Source says yes. Fallback: advertise `0x3` and send COMPRESSION_REQUEST with `is_compress = false` (that handler was not read [u]). msgr2 Q4; msgr2-secure-mode Q5.
+- **A2 [c] Feature mask.** Is `0x3f07fffffffdffff` accepted unchanged by monitors and OSDs, is it exactly what a stock client sends, and what changes in the received encodings with a reduced mask (including what an OSD requires of a client for a given map)? msgr2 Q9; osdmap Q1, Q14; mon-client Q1; rbd-format2 Q15; crush C7.
+- **A3 [c] Pre-auth signature.** Exact bytes covered (banner, HELLO, epilogues), key bytes for mon versus OSD connections, behaviour across an AUTH_BAD_METHOD retry on one TCP connection. msgr2 Q3; cephx Q2; msgr2-secure-mode Q1, Q2.
 - A4 [c][u] Alignment values to send (especially from a 32-bit build), non-zero `data_off` / `data_pre_padding_len` handling. msgr2 Q1, Q7; msgr2-secure-mode Q3.
 - A5 [c] HELLO `peer_addr` and `target_addr` bytes for a mon and an OSD; whether the mon nonce must be verified. msgr2 Q2; mon-client Q12.
 - A6 [u] Keepalive cadence toward OSDs and whether a client KEEPALIVE2 resets the server's idle timer. msgr2 Q5; mon-client T13.
@@ -215,35 +290,35 @@ Deduplicated; each points to the owning note and question number. `[c]` = confir
 
 **Authentication**
 
-- **Top 4. B1 [c] cephx first contact.** A request mask of only OSD plus AUTH (`0x24`) is accepted; key type 2 works end to end on a fresh cluster; the challenge proof for both key types matches the worked examples. cephx Q1, Q3; section 5 item 4.
-- **Top 7. B2 [u] Identity across reconnects.** Does the OSD tie resent-op identity to the global id, and can an unacknowledged write be resent after re-authentication with a new global id? What happens to open OSD sessions when the monitor returns a different global id. cephx Q4; osd-ops Q5; mon-client Q18.
+- **B1 [c] cephx first contact.** A request mask of only OSD plus AUTH (`0x24`) is accepted; key type 2 works end to end on a fresh cluster; the challenge proof for both key types matches the worked examples. cephx Q1, Q3; section 5 item 4.
+- **B2 [u] Identity across reconnects.** Does the OSD tie resent-op identity to the global id, and can an unacknowledged write be resent after re-authentication with a new global id? What happens to open OSD sessions when the monitor returns a different global id. cephx Q4; osd-ops Q5; mon-client Q18.
 - B3 [u] In-session renewal of the AUTH ticket, an OSD connection outliving its ticket, an expired old ticket on reconnect. cephx Q5, Q6; mon-client Q4, Q5.
 - B4 [u] Availability and streaming behaviour of SHA-384, a CTS construction and multi-buffer AES-GCM in iPXE and in the Windows driver. cephx Q9; msgr2-secure-mode Q8.
 
 **Monitor client and OSDMap**
 
 - C1 [c][u] Two MMonMap messages on a fresh session; nothing unsolicited after the handshake; whether a plain client may send MMonGetOSDMap. mon-client Q3, Q8, Q17.
-- **Top 8. C2 [c] Wire details of addresses and containers.** IPv4 and IPv6 sockaddr byte layouts including flow info and scope id, v2-before-v1 order in address vectors, sorted wire order of maps and sets, denc container equivalence. osdmap Q8, Q11, Q12; mon-client Q15, Q16; msgr2 Q13.
+- **C2 [c] Wire details of addresses and containers.** IPv4 and IPv6 sockaddr byte layouts including flow info and scope id, v2-before-v1 order in address vectors, sorted wire order of maps and sets, denc container equivalence. osdmap Q8, Q11, Q12; mon-client Q15, Q16; msgr2 Q13.
 - C3 [c] Map CRC is `0xFFFFFFFF`-seeded with no final inversion; whether a client may skip verifying incrementals and recover by re-fetching a full map. osdmap Q3, Q4; mon-client Q10.
 - C4 [u] Lowest `require_osd_release` that a v20.2.5 monitor still serves. osdmap Q2.
-- **Top 9. C5 Memory ceilings.** Largest realistic MOSDMap, OSDMap and CRUSH blob against the 4 MiB iPXE heap and the Windows non-paged pool; need for a streaming decoder; zero-copy data in secure mode. osdmap Q10; mon-client Q9; msgr2-secure-mode Q9.
+- **C5 Memory ceilings.** Largest realistic MOSDMap, OSDMap and CRUSH blob against the 4 MiB iPXE heap and the Windows non-paged pool; need for a streaming decoder; zero-copy data in secure mode. osdmap Q10; mon-client Q9; msgr2-secure-mode Q9.
 - C6 Hostname resolution in iPXE and the driver (v1 assumes literal addresses). mon-client Q7.
 
 **Placement**
 
-- **Top 10. D1 [u] CRUSH runs.** `choose_args` weight sets (position semantics, pool-id versus default set), upmap-primary, primary-affinity rotation, MSR / QUINCY fields in the embedded blob, device-class rules: read from source, never run. Companion licensing question L1. crush Q4 to Q6, Q13; C5 to C9.
+- **D1 [u] CRUSH runs.** `choose_args` weight sets (position semantics, pool-id versus default set), upmap-primary, primary-affinity rotation, MSR / QUINCY fields in the embedded blob, device-class rules: read from source, never run. Companion licensing question L1. crush Q4 to Q6, Q13; C5 to C9.
 - D2 Legacy bucket algorithms (`uniform`, `list`, `tree`, `straw`) and odd `allowed_bucket_algs` bytes. crush Q3, Q14, Q15.
 
 **OSD operations**
 
 - E1 [c] MOSDOp segment placement, a zero `features` field, echoed op record for ZERO to TRUNCATE rewrite, ENOSPC as message result versus per-op result. osd-ops Q1, Q2, Q10, Q14.
-- **Top 6 (with F2). E2 Unanswered operations.** What a boot-time driver does when an op gets no reply (timer resend with the same tid, reconnect, or fail the I/O); behaviour of a pool that is full without FULL_TRY (silent drop). osd-ops Q6, Q7.
+- **E2 Unanswered operations.** What a boot-time driver does when an op gets no reply (timer resend with the same tid, reconnect, or fail the I/O); behaviour of a pool that is full without FULL_TRY (silent drop). osd-ops Q6, Q7.
 - E3 [u][c] Sparse-read sanity bounds and zero-length behaviour; backoff range comparison and priority; whether OSD-pushed MOSDMap messages may be ignored. osd-ops Q4, Q9, Q13, Q15, Q16.
 
 **RBD**
 
-- **Top 5. F1 [c] Exclusive lock.** Lock policy L2 (lock under a foreign tag) is inferred from librbd, not observed; the lock does not survive the iPXE to Windows handoff (different session); what stock tools and Linux krbd do when a foreign lock is held. rbd-format2 Q2, Q3; T15.
-- **Top 6 (with E2). F2 Header changes while attached.** No header watch means no notice of new snapshots or resizes; a stale snapshot context silently loses snapshot data; polling interval undecided. rbd-format2 Q1; osd-ops Q8, Q12.
+- **F1 [c] Exclusive lock.** Lock policy L2 (lock under a foreign tag) is inferred from librbd, not observed; the lock does not survive the iPXE to Windows handoff (different session); what stock tools and Linux krbd do when a foreign lock is held. rbd-format2 Q2, Q3; T15.
+- **F2 Header changes while attached.** No header watch means no notice of new snapshots or resizes; a stale snapshot context silently loses snapshot data; polling interval undecided. rbd-format2 Q1; osd-ops Q8, Q12.
 - F3 [c][u] Multi-op reply semantics when an op fails, six-op request versus librbd's five, holes and zero-length writes, atomicity of the multi-op header read. rbd-format2 Q4, Q5, Q13, Q16, Q17.
 - F4 [u] Trash and rename, namespaces, erasure data pools, reader and object-map flags, allocation hint, image size changes, whether RBD forbids pool-snapshot pools. rbd-format2 Q6 to Q11, Q14.
 
@@ -251,7 +326,20 @@ Deduplicated; each points to the owning note and question number. `[c]` = confir
 
 - G1 Reef 18 and Squid 19 daemons: not researched anywhere (section 1). msgr2 Q10; msgr2-secure-mode Q11; osd-ops Q3; rbd-format2 Q12; osdmap Q15; crush Q1 (table stability across releases).
 
-The ten marked Top are, in order: 1 compression skip (A1), 2 feature mask (A2), 3 pre-auth signature (A3), 4 cephx first contact (B1), 5 exclusive lock (F1), 6 unanswered ops and stale snapshot context (E2, F2), 7 identity across reconnects (B2), 8 address and container wire details (C2), 9 memory ceilings (C5), 10 CRUSH runs (D1).
+**New Top 10 (what is still open, in order of how much it gates).** Replaces the ranking in the original list.
+
+1. **Exclusive-lock policy (F1; rbd-format2 Q2, Q3, T15).** The effect of policy L2 on other clients is now observed (see the table). Still open: the choice for our writer, krbd's behaviour with a foreign lock (not run, it could wedge the lab's kernel client), and the loss of the lock across the iPXE to Windows handoff.
+2. **Unanswered ops and header changes while attached (E2, F2; osd-ops Q6, Q7, Q8, Q12; rbd-format2 Q1).** Fault injection was never run: OSD kill with a write in flight, backoff, a full pool, stale snapshot context with and without ORDERSNAP, resend with the same tid.
+3. **Reduced capability negotiation (A1 on OSDs, A2; msgr2 Q9; osdmap Q1, Q14; crush C7).** What a client with fewer feature bits receives, and the compression skip on an OSD: needs our own client.
+4. **cephx edges (B1, B2, B3).** Request mask `0x24`, renewing the 72 h AUTH ticket, an expired old ticket on reconnect, the OSD's check of the global id, a disallowed key type, a crc-only client against a secure-only cluster.
+5. **Memory ceilings (C5; osdmap Q10; mon-client Q9; msgr2-secure-mode Q9).** Unchanged: only the lab's small maps were seen.
+6. **CRUSH variants never run (D1, D2).** `choose_args`, upmap-primary, uniform / list / tree buckets, device-class rules, split and non-power-of-two `pg_num`, the Linux dcache hash, the local-fallback path.
+7. **Multi-monitor, IPv6 and incremental delivery (C2, C3).** Hunting, priority and weight, three-monitor maps, IPv6 sockaddr, a subscription start above 0, incrementals-only MOSDMap, a trimmed start.
+8. **Edge-of-spec wire probes on OSDs (A4 to A7).** Non-power-of-two alignment, `data_off` on messages with data, KEEPALIVE2 against the 900 s idle timer, other AUTH_BAD_METHOD codes, lossless sessions, revision-0 secure framing, CRC-32C on non-x86 CPUs.
+9. **Other releases (G1, C4).** Reef and Squid daemons; the lowest `require_osd_release` a v20.2.5 monitor still serves.
+10. **Op and RBD corner cases (E1, E3, F3, F4).** Zero-length and multi-extent SPARSE_READ, ENOSPC and EDQUOT, redirect and `-EAGAIN`, trash and rename, namespaces, erasure data pools, image flags, WRITESAME and CMPEXT, atomicity of the multi-op header read.
+
+The licensing items in section 8 (L1 first) are independent of these and still gate `core/`.
 
 ### 8 Licensing questions
 
@@ -281,8 +369,8 @@ None of these is decided. They need the project owner and, where noted, the Ceph
 
 - 用自己的话写;只放布局表、数字常量和协议事实,不抄 Ceph 的代码、注释或查找表数据。
 - 每条结论都带 `path:line`(相对于固定 tag 的 Ceph 源码树根)或 Ceph 文档页。
-- **[unverified]** = 在源码里没能钉死;**[confirm on capture]** = 源码里读到了,但 core 依赖它之前必须在真实集群上核对。每篇笔记的第 6 节收集这两类,本页第 7 节去重汇总。
-- 目前**没有任何一条**经过真实抓包确认。
+- **[unverified]** = 在源码里没能钉死;**[confirm on capture]** = 源码里读到了,但 core 依赖它之前必须在真实集群上核对。每篇笔记的第 6 节收集这两类,本页第 7 节去重汇总。 **[confirmed: <检查器 / 抓包>]** = 已被 2026-11-16 这轮抓包验证(检查编号与抓包名即 `harness/tools/` 里检查器打印的那些)。
+- 抓包轮之后的状态(2026-11-16):八篇笔记都已对照 39 个抓包文件,以及实验集群上 `ceph` / `rbd` / `crushtool` / `osdmaptool` 的输出做过核对,检查器只依据笔记本身编写(见第 4 节)。抓包与源码解读不一致的地方,已在笔记中就地更正,并列在各笔记第 6 节的「Corrections after capture」下;抓包没能确定的条目保留标记并写明原因。
 
 ### 1 固定版本与兼容立场
 
@@ -332,20 +420,46 @@ None of these is decided. They need the project owner and, where noted, the Ceph
 
 ### 4 笔记一览
 
-八篇都是草稿。「对照源码复核」指:有独立的一轮复核,重新打开所引用的源码行,并重算了能重算的内容,之后又做了本轮的跨笔记检查。「抓包确认」对所有笔记都是**否**。
+状态用语:**草稿** = 只依据源码写成;**对照源码复核** = 另有一轮独立复核,重新打开所引用的源码行并重算了能重算的内容,之后又做了第 5 节的跨笔记检查;**抓包确认** = 由只依据该笔记编写的独立检查器(不使用任何 Ceph 解码器)解析 39 个抓包文件与工具输出,不一致处已改笔记。八篇现在都是**抓包确认,但仍有未决标记**;最后一列给出检查器、结果与剩余标记。「未决」指文中仍有的 `[unverified]`(u)与 `[confirm on capture]`(c)标记数,「已确认」指 `[confirmed: ...]` 标记数(按笔记头部之后用 grep 统计,更正列表里重复出现的标记会重复计数,请当作近似值)。八个检查器对抓包集全部返回 0;运行方法见 [harness/tools/README.md](../../harness/tools/README.md)。
 
-| 笔记 | 范围 | 状态 | 对照源码复核 | 抓包确认 |
+| 笔记 | 范围 | 状态 | 对照源码复核 | 抓包确认(检查器、结果、剩余标记) |
 |---|---|---|---|---|
-| [msgr2.md](msgr2.md) | msgr2.1 crc 模式客户端:banner、32 字节 preamble、分段、CRC-32C、tag 与控制帧载荷、HELLO、认证帧外壳、CLIENT/SERVER_IDENT、MESSAGE 帧及 41 字节头、`entity_addr_t`、特性位、pre-auth 签名机制 | 草稿 | 是;CRC、帧大小与示例帧已重算;crc 路径把握高,secure 仅为摘要 | 否 |
-| [msgr2-secure-mode.md](msgr2-secure-mode.md) | 可选 secure 模式:模式协商默认值、连接密钥切分、AES-128-GCM nonce、secure 2.1 帧布局与长度算术、作为首个加密帧的 pre-auth 签名、拒绝压缩 | 草稿 | 是;密钥/nonce 切分与两个示例帧用独立脚本重现 | 否 |
-| [cephx.md](cephx.md) | cephx:密钥与 keyring 格式、两种密码类型、加密信封、票据、challenge 证明、mon 握手、OSD authorizer、过期续期与 global id | 草稿 | 是;两种密码已用上游已知答案向量由独立实现重现 | 否 |
-| [mon-client.md](mon-client.md) | monitor 客户端:`mon_host` 解析、MonMap、MMonGetMap/MMonSubscribe、MOSDMap 投递与缺口处理、keepalive、hunting、MAuth 续期、global id | 草稿 | 是;引用已复核 | 否 |
-| [osdmap.md](osdmap.md) | OSDMap 与 Incremental 的客户端子集:信封、按特性位选版本、`pg_pool_t`、应用顺序、常量、图 CRC、字段如何用于定位 | 草稿 | 是;字段顺序逐一重读源码 | 否 |
-| [crush-and-placement.md](crush-and-placement.md) | 副本池的 对象名 -> PG -> 放置种子 -> CRUSH:哈希、blob 布局、tunables、straw2 与 `crush_ln`、firstn + chooseleaf、upmap、affinity、temp 映射 | 草稿 | 是;哈希与 `crush_ln` 用固定版本的 C 文件重建,按笔记步骤重新实现后匹配了 688 条源码树内的期望映射 | 否 |
-| [osd-ops.md](osd-ops.md) | MOSDOp v9、MOSDOpReply v8、MOSDBackoff;38 字节 op 记录;各 op 语义;错误;tid、重发、backoff、池满、快照上下文、顺序 | 草稿 | 是;217 字节示例 MOSDOp 已重算 | 否 |
-| [rbd-format2.md](rbd-format2.md) | RBD format 2:对象命名、`rbd` 与 `lock` 类调用、特性位、条带与字节范围映射、稀疏 I/O、exclusive-lock 策略、v1 镜像档案 | 草稿 | 是;条带与锁的示例已重算 | 否 |
+| [msgr2.md](msgr2.md) | msgr2.1 crc 模式客户端:banner、32 字节 preamble、分段、CRC-32C、tag 与控制帧载荷、HELLO、认证帧外壳、CLIENT/SERVER_IDENT、MESSAGE 帧及 41 字节头、`entity_addr_t`、特性位、pre-auth 签名机制 | 抓包确认 | 是;CRC、帧大小与示例帧已重算;crc 路径把握高,secure 仅为摘要 | 是:`msgr2_check.py`,177,628 项检查,0 失败(74 个检查编号,39 个抓包),另有现场探测 `msgr2_probe.py`;更正 5 处;未决 15 u / 2 c;已确认 36 |
+| [msgr2-secure-mode.md](msgr2-secure-mode.md) | 可选 secure 模式:模式协商默认值、连接密钥切分、AES-128-GCM nonce、secure 2.1 帧布局与长度算术、作为首个加密帧的 pre-auth 签名、拒绝压缩 | 抓包确认 | 是;密钥/nonce 切分与两个示例帧用独立脚本重现 | 是:`secure_check.py`,151,305 项,0 失败(80 条 secure 连接、880 个 secure 帧、1,390 次 GCM 运算);更正 3 处;未决 3 u / 6 c;已确认 9 |
+| [cephx.md](cephx.md) | cephx:密钥与 keyring 格式、两种密码类型、加密信封、票据、challenge 证明、mon 握手、OSD authorizer、过期续期与 global id | 抓包确认 | 是;两种密码已用上游已知答案向量由独立实现重现 | 是:`cephx_check.py`,抓包 84,714 项 + 向量 954 项,0 失败(499 次握手,两种密钥类型);更正 5 处;未决 4 u / 1 c;已确认 14 |
+| [mon-client.md](mon-client.md) | monitor 客户端:`mon_host` 解析、MonMap、MMonGetMap/MMonSubscribe、MOSDMap 投递与缺口处理、keepalive、hunting、MAuth 续期、global id | 抓包确认 | 是;引用已复核 | 是:`monclient_check.py`,206 个检查、64,830 条断言,0 失败;更正 6 处;未决 13 u / 10 c;已确认 36 |
+| [osdmap.md](osdmap.md) | OSDMap 与 Incremental 的客户端子集:信封、按特性位选版本、`pg_pool_t`、应用顺序、常量、图 CRC、字段如何用于定位 | 抓包确认 | 是;字段顺序逐一重读源码 | 是:`osdmap_check.py`,119 项,0 失败(明细:178 份存档图与增量、80,000 条 `crushtool` 映射、2,194 条 `ceph osd map`、24 种图状态下 792 个 `osdmaptool` PG);表格无需更正;未决 7 u / 5 c;已确认 14 |
+| [crush-and-placement.md](crush-and-placement.md) | 副本池的 对象名 -> PG -> 放置种子 -> CRUSH:哈希、blob 布局、tunables、straw2 与 `crush_ln`、firstn + chooseleaf、upmap、affinity、temp 映射 | 抓包确认 | 是;哈希与 `crush_ln` 用固定版本的 C 文件重建,按笔记步骤重新实现后匹配了 688 条源码树内的期望映射 | 是:`crush_check.py`,80 项(636,903 次比较),0 失败;更正 3 处;未决 11 u / 5 c;已确认 12。实验室没有的变体(其他桶类型、`choose_args`、upmap-primary、分裂池)仍未确认 |
+| [osd-ops.md](osd-ops.md) | MOSDOp v9、MOSDOpReply v8、MOSDBackoff;38 字节 op 记录;各 op 语义;错误;tid、重发、backoff、池满、快照上下文、顺序 | 抓包确认 | 是;217 字节示例 MOSDOp 已重算 | 是:`osdop_check.py`,119,197 项,0 失败(39 个会话、19 个向量);更正 8 处;未决 5 u / 8 c;已确认 23 |
+| [rbd-format2.md](rbd-format2.md) | RBD format 2:对象命名、`rbd` 与 `lock` 类调用、特性位、条带与字节范围映射、稀疏 I/O、exclusive-lock 策略、v1 镜像档案 | 抓包确认 | 是;条带与锁的示例已重算 | 是:`rbd_check.py`,6,891 项,0 失败,另有为标准运行碰不到的情形补抓的探测;更正 8 处;未决 7 u / 2 c;已确认 42 |
 
 建议阅读顺序:msgr2、cephx、mon-client、osdmap、crush-and-placement、osd-ops、rbd-format2;只有要做 secure 模式时才读 msgr2-secure-mode。
+
+#### 4.1 Phase 0 退出状态
+
+路线图的退出标准:「核心需要的每个线上结构,笔记里都有来源引用,并已用测试集群的抓包或 `ceph` / `rbd` / `crushtool` 输出核对过。」2026-11-16 的状态如下(本轮的判断,是否收口由项目负责人决定):
+
+**已满足**
+
+- **八篇笔记**,用自己的话写,每个结构都有来源引用(第 4、5 节)。
+- **固定版本与 v1 镜像档案已写明**(第 1、2 节):Ceph v20.2.5、档案 P1 与拒绝清单。特性为 `0x01`、`0x05`、`0x21`、`0x25`、`0x3D`、`0x45`、`0x03`、`0x81` 以及迁移中的 `0x201` 的镜像,行为都与 `rbd-format2.md` 一致。
+- **来自抓包的测试向量,已脱敏**:`harness/vectors/` 共八个目录(约 860 KB),各有说明来源与脱敏方式的 README;cephx 的会话向量是合成的。原始抓包、keyring 与日志都留在仓库之外。
+- **默认路径逐字节确认**:msgr2.1 的 crc 与 secure 帧(全部 CRC、tag、GCM tag)、两种密钥类型的 cephx(challenge、票据、authorizer、两个 AUTH_SIGNATURE、续期)、monitor 订阅与 MOSDMap 投递、OSDMap 与 Incremental 解码及图 CRC 规则、与 2,194 条 `ceph osd map`、80,000 条 `crushtool` 映射、24 种图状态下 `osdmaptool` 逐位一致的定位、MOSDOp / MOSDOpReply、`rbd` 与 `lock` 类调用、与真实对象一致的条带映射。
+- **所有检查器通过**(第 4 节表;本轮重跑,退出码均为 0)。
+
+**未满足或只满足一部分**
+
+1. **实验室规模。** 1 个 monitor、1 个 manager、3 个 OSD、仅 IPv4、1 个副本数据池、OSDMap 版本 1 到 92:比第 6 节的计划小。需要更多条件的内容(三 monitor 的 hunting、IPv6 地址、uniform / list / tree 桶、`choose_args`、upmap-primary、分裂或非 2 的幂的 `pg_num`、纠删码池、Reef 与 Squid 守护进程)仍然只读过源码。
+2. **需要我们自己的客户端**(第 6 节组 5):减少特性位、`0x24` 请求掩码、MOSDOp 的 `features` 为零、同 tid 重发、非 2 的幂的对齐。标准工具做不到这些。
+3. **故障注入(组 4)只做了一部分。** 已做:monitor 重启、缩短票据 TTL、错误密钥、没有 OSD 权限的用户、只读权限、外来标签锁的行为。未做:写入途中杀 OSD、backoff、池满、带/不带 ORDERSNAP 的过期快照上下文。
+4. **抓包缺陷。** `k1-rbd-bench-default`(丢 63 个包)与 `k1-sec-rados-big`(丢 4 个)在 9 MiB 传输中有丢包;检查器只分析到缺口之前,并把它们记为抓包缺陷而非失败。重新抓一次即可去掉这个说明。
+5. **仍有未决标记**(见上表,第 7 节去重)。其中没有一条在「对实验室规模做一次普通读写」的路径上;有几条是 Phase 1 的策略决定(exclusive-lock、无应答的操作、挂载期间的头部变化)。
+6. **还没有覆盖整个仓库的脱敏脚本**(第 6 节脱敏第 4 条)。写向量的程序各有自己的泄漏检查(`msgr2_check.py` 会把输出与所有已知密钥比对,命中就删文件);本轮另做了人工扫描,方法写在 `harness/tools/README.md`。
+7. **许可问题 L1 到 L11(第 8 节)都未决定**;L1 仍然卡着 `core/`。
+8. **需要对齐的文字。** `crush-and-placement.md` 仍写 upmap、temp、affinity 状态没有标准答案输出(其第 6、7.x 节),而 `osdmap_check.py` 已用 `osdmaptool` 对 24 种存档图状态(含这些)做过比对,0 处不一致。下一轮修订时应让两篇一致。
+
+简言之:退出标准对「标准客户端在单 monitor、IPv4 的默认路径上用到的结构」成立,这正是启动 Phase 1 需要的;对上面列出的变体尚不成立,它们记录在第 7 节。
+
 
 ### 5 跨笔记一致性
 
@@ -365,11 +479,26 @@ None of these is decided. They need the project owner and, where noted, the Ceph
 8. `osdmap.md` Q6(blocklist)写「留给 OSD op 笔记」,`osd-ops.md` 已解决(-108 对会话致命);已加交叉引用。
 9. `msgr2.md` 许可项里出现了两个公司名,已改写(文件路径保留)。
 
+**抓包轮中改变的事实**(各自已在所属笔记中更正;列在这里是因为多篇笔记依赖它们)
+
+- 标准客户端的 banner 是 `0x3`(REVISION_1 加 COMPRESSION),并且总会发 COMPRESSION_REQUEST,服务端总回答「不压缩」。monitor 接受不带 COMPRESSION_REQUEST 的 `0x1`,对不带它的 `0x3` 直接断开。
+- 对端的 HELLO 地址类型是 2(msgr2);只有客户端自己的地址是类型 3。SERVER_IDENT 还会列出一个给 v1 端口的类型 1 地址。
+- `ceph_msg_header2.flags` 在全部 5,680 条抓到的消息里都是 3(COMPLETE | NOCRC);monitor 接受 0、1、3。
+- 服务端会强制执行必需特性掩码:monitor 与 OSD 报告 `0x0c01020042040000`(位 18、25、30、41、48、58、59),缺任何一位的客户端都被拒。标准 CLIENT_IDENT 的 `required` 是 `0x0800000000001000`(OSD、manager、短连接 monitor)或 `0x0800000000000000`(常驻 monitor 连接;它还要求 lossless,但被回答为 lossy)。
+- 标准客户端对 monitor 与 manager 发空的认证方法列表,对 OSD 发 `[1]`;每次运行工具会开两条 monitor 连接(请求掩码 `0x20` 与 `0x35`,各有自己的 global id;OSD 连接用第二条的)。
+- 优先级:发往 monitor 的客户端消息 127,发往 OSD 的 63,monitor 的回复 196。
+- 没有 OSD 权限的用户仍能收到 OSDMap;之后每条 OSD 连接都以 AUTH_BAD_METHOD -13 失败,标准客户端静默重试。「挂住」就是这个,不是 OSD 丢弃操作。
+- `MOSDOpReply.data_off` 即使对非零偏移的读也是 0;60 个执行前的错误回显请求标志但没有 ACK;librbd 的元数据调用会加 FULL_TRY。
+- 最后一个持锁者离开后 `lock get_info` 仍保留锁类型与 tag;克隆镜像的特性是 `0x1`、op_features 为 0。
+
+
 **有意保留的差异(不是不一致)**:参考 messenger 取地址向量里第一个类型为 1 或 2 的条目,我们的纯 v2 客户端取第一个类型 2 的条目;参考实现允许 ONETIME osdmap 订阅,最小客户端建议持续订阅;空地址编码时 `elen` 为 28,而解码器接受 0。
 
 **笔记内无法解决、转入第 7 节的**:真实地图是否偏离「有序容器」与 sockaddr 字节布局的假设(需抓包);OSD 是否对某些地图状态要求全集里的额外位(仅源码推断);几百条 `path:line` 引用中,本轮只重新打开了上面列出的那些。
 
 ### 6 抓包计划
+
+**本计划的当前状态(2026-11-16)。** 实际用的实验室比下面写的小(1 个 monitor、1 个 manager、3 个 OSD、仅 IPv4;池 `winrbd` 为副本数 3、`pg_num` 32,另有 `.mgr`;两种密钥类型都有)。组 0 已完成(合成密钥的向量);组 1 已完成(版本 1 到 89 的存档图与增量、2,194 个名字的 `ceph osd map`、80,000 个输入的 `crushtool`、24 种图状态的 `osdmaptool`、`rbd` / `rados` 类调用输出);组 2、3 已完成(39 个抓包:两种密钥类型,crc、默认与强制 secure,空闲 keepalive,票据续期,错误密钥,无 OSD 权限,只读权限,monitor 重启,9 MiB 传输);组 4 完成一部分(见第 4.1 节);组 5 未开始(还没有客户端)。下面的规模仍是第二轮的目标。
 
 所有「标准答案」都来自对实验集群运行的官方 Ceph 工具;被测客户端绝不自己当自己的标准。
 
@@ -389,25 +518,60 @@ None of these is decided. They need the project owner and, where noted, the Ceph
 1. 原始抓包、keyring、`debug_auth` 日志,以及任何含会话密钥、票据、authorizer、连接密钥、密钥 base64 的东西,即使来自一次性集群也**不进仓库**,留在私有实验室存储。
 2. 可入库:(a) 组 0 用合成密钥(如笔记里的 `00 01 02 ...`)算出的输入与期望值;(b) 组 1 的工具输出(不含密钥,但含 fsid、地址、池名,实验集群用私有地址,入库前人工检查);(c) 组 2–4 的帧转储,写成带注释的十六进制,所有含密钥的字段(票据 blob、加密信封、authorizer、签名、连接密钥)用同长度的占位符替换,并在头部注明哪些完整性字段(CRC、HMAC、tag)因此已不再有效。
 3. 需要真实完整性值的向量,只入库「合成输入 + 我们自己代码算出并与私有抓包交叉核对过的期望输出」;私有抓包本身决定通过与否,结果以一句话记在笔记里。
-4. 含抓包衍生文本的提交之前必须跑脱敏检查:命中 keyring 的 `key =` 行、cephx 密钥长度的 base64 串、不在合成值白名单内的 16/32 字节十六进制串、实验室范围之外的地址就失败。该检查目前还不存在,属于 harness 的工作。
+4. 含抓包衍生文本的提交之前必须跑脱敏检查:命中 keyring 的 `key =` 行、cephx 密钥长度的 base64 串、不在合成值白名单内的 16/32 字节十六进制串、实验室范围之外的地址就失败。现状:还没有覆盖整个仓库的脱敏脚本;写向量的程序各有自己的泄漏检查(例如 `msgr2_check.py` 会把输出与抓包集里所有已知的密钥与会话密钥比对,命中就删文件),发布前用的人工扫描写在 `harness/tools/README.md`。把这些合成一个脚本仍是 harness 的工作。
 5. 绝不抓不属于自己的集群的流量。
 
 ### 7 汇总的未决问题
 
-已去重,每条指向所属笔记与问题号。`[c]` = 待抓包确认,`[u]` = 源码未核实。**Top 10** 按「卡住多少后续工作」排序:
+已去重,每条指向所属笔记与问题号。`[c]` = 待抓包确认,`[u]` = 源码未核实。英文第 7 节保留了抓包轮之前的 A1 到 G1 列表(笔记里的编号仍要能对上),下表给出这一轮的结果,新的 Top 10 取代旧的排序。
 
-1. **压缩跳过(A1)。** 只带 REVISION_1、不带 COMPRESSION 的 banner,v20.2.5 守护进程是否直接进入 CLIENT_IDENT?源码说可以。备选:声明 `0x3` 并发 `is_compress = false` 的 COMPRESSION_REQUEST(该处理函数未读)。msgr2 Q4;secure Q5。
-2. **特性掩码(A2)。** `0x3f07fffffffdffff` 是否被 monitor 和 OSD 原样接受、是否与标准客户端发的完全相同、减少位后收到的编码有何变化。msgr2 Q9;osdmap Q1/Q14;mon-client Q1;rbd Q15;crush C7。
-3. **pre-auth 签名(A3)。** 覆盖的确切字节(banner、HELLO、epilogue)、对 mon 与 OSD 连接分别用哪个密钥、同一 TCP 连接上 AUTH_BAD_METHOD 重试后的行为。msgr2 Q3;cephx Q2;secure Q1/Q2。
-4. **cephx 首次接触(B1)。** 只请求 OSD+AUTH(`0x24`)是否被接受;类型 2 密钥在全新集群上端到端可用;两种密钥的 challenge 证明与示例一致。cephx Q1/Q3。
-5. **exclusive-lock(F1)。** 策略 L2 是从 librbd 推断的、没有观察;锁无法跨 iPXE 到 Windows 的交接(会话不同);外来锁存在时标准工具与 Linux krbd 的行为。rbd Q2/Q3;T15。
-6. **无应答的操作与过期的快照上下文(E2、F2)。** 启动盘驱动在操作无回复时怎么做(同 tid 定时重发、重连还是让 I/O 失败);池满且无 FULL_TRY 时静默丢弃;没有 header watch 时不知道新快照,过期的快照上下文会悄悄丢快照数据。osd-ops Q6/Q7/Q8/Q12;rbd Q1。
-7. **跨重连的身份(B2)。** OSD 是否把重发操作的身份绑定到 global id;以新 global id 重新认证后能否安全重发未确认的写。cephx Q4;osd-ops Q5;mon-client Q18。
-8. **地址与容器的线上细节(C2)。** IPv4/IPv6 sockaddr 字节布局(含 flow info 与 scope id)、地址向量里 v2 与 v1 的先后、map/set 的有序线上顺序。osdmap Q8/Q11/Q12;mon-client Q15/Q16;msgr2 Q13。
-9. **内存上限(C5)。** 最大的真实 MOSDMap/OSDMap/CRUSH blob 与 iPXE 4 MiB 堆、Windows 非分页池的关系;是否需要流式解码;secure 模式下的零拷贝。osdmap Q10;mon-client Q9;secure Q9。
-10. **CRUSH 实跑(D1)。** `choose_args`/weight-set 的位置语义、upmap-primary、primary affinity 轮转、嵌入 blob 里的 MSR/QUINCY 字段、设备类规则:只读过源码,没跑过;与许可问题 L1 配套。crush Q4–Q6/Q13。
+**抓包轮之后的状态(2026-11-16)。** *已解决* = 笔记的检查器能确定的都已确定;*部分* = 一部分已确定,其余在该笔记第 6 节;*未决* = 抓包碰不到。
 
-其余问题(传输与握手 A4–A8、认证 B3–B4、monitor 与 OSDMap C1/C3/C4/C6、旧桶算法 D2、OSD 操作 E1/E3、RBD F3/F4、跨版本 G1:Reef 18 / Squid 19 完全没研究)见英文第 7 节及各笔记第 6 节。
+| 编号 | 状态 | 这一轮的结果与剩余问题 |
+|---|---|---|
+| A1 | monitor 已解决;OSD 未决 | 标准客户端发 banner `0x3` 和 COMPRESSION_REQUEST。对 monitor 的现场探测:不带 COMPRESSION_REQUEST 的 `0x1` 可用,不带它的 `0x3` 被断开。OSD 没探测。 |
+| A2 | 部分 | 标准掩码 `0x3f07fffffffdffff` 出现在全部 499 个 CLIENT_IDENT 里。服务端强制必需掩码(`0x0c01020042040000`,位 12 可选)。减少位后的编码与 CRC:需要我们自己的客户端。 |
+| A3 | 已解决 | HMAC 密钥 = 会话密钥的原始秘密(类型 1 为 16 字节,类型 2 为整 32 字节),含 banner;499 次握手的两个签名都验证。剩余:同一连接上 AUTH_BAD_METHOD 重试后的转录范围(标准客户端从不重试)。 |
+| A4 | 部分 | 对齐 4、16、4096 被接受;无数据的消息里非零 `data_off` / 前置填充被接受。剩余:非 2 的幂(没试,可能弄崩唯一的 monitor)、带数据的消息、32 位构建。 |
+| A5 | 已解决 | 对端 HELLO 地址类型 2;monitor nonce 为 0;合成的 `target_addr` 被接受。剩余:客户端是否必须校验 monitor nonce。 |
+| A6 | 部分 | 标准客户端每 10.0 秒 ping monitor(第一次在连接后约 3 秒),服务端从不主动发;空闲的 OSD 连接上完全没有 keepalive。剩余:客户端 KEEPALIVE2 是否重置服务端 900 秒空闲计时。 |
+| A7 | 部分 | 见到 -13(错误密钥、无 OSD 权限)与 -95(未知方法或模式);monitor 对 lossless 意图也回答 lossy。剩余:其他错误码、OSD 的 lossless 会话。 |
+| A8 | 未决 | 内存受限客户端的上限。 |
+| B1 | 部分 | 两种密钥类型的 challenge 证明都重现(见到 245 次);现代密钥默认是类型 2。标准客户端从不发请求掩码 `0x24`(只发 `0x20`、`0x35`、`0x15`):需要我们自己的客户端。 |
+| B2 | 部分 | 用旧票据重连会保留 global id。剩余:OSD 是否核对 CLIENT_IDENT 的 id 与票据;id 变化时已打开的 OSD 会话怎样。 |
+| B3 | 部分 | 服务票据在会话内每 45.0 秒续期(TTL 60 秒);OSD 连接活得比票据久。剩余:72 小时 AUTH 票据的续期、重连时旧票据已过期。 |
+| B4 | 未决 | 不是线上问题:iPXE 与驱动里的 SHA-384、CTS、多缓冲 GCM。 |
+| C1 | 已解决 | 新会话两个 MMonMap;之后没有主动下发。MMonGetOSDMap / MMonGetVersion 没被使用过(没有标准工具发它们)。 |
+| C2 | 部分 | IPv4 sockaddr、有序线上顺序、v2 在 v1 之前,已确认。IPv6 与非 Linux 的地址族号:实验室都没有。 |
+| C3 | 部分 | 图与增量的 CRC 规则在 89 份图、89 份增量和所有下发的图上确认。剩余:跳过增量校验并重新拉取:线上从未出现过增量。 |
+| C4 | 未决 | 实验室只跑 tentacle。 |
+| C5 | 未决 | 观察到的线上大小都很小(最大:246 KB 的命令回复、53 KB 的 manager 图)。这不是上限研究。 |
+| C6 | 未决 | 主机名解析。 |
+| D1 | 部分 | 定位与 `ceph osd map`、`crushtool`、`osdmaptool` 逐位一致(含 reweight、affinity、upmap、pg_temp、primary_temp、out、down 状态)。剩余:`choose_args`、upmap-primary(需要 `require-min-compat-client reef`)、设备类变体、分裂池、Linux dcache 哈希、本地回退路径(任何运行都没走到)。 |
+| D2 | 未决 | 实验室与源码树内的图里只有 straw 与 straw2 桶。 |
+| E1 | 部分 | 分段布局、优先级 63、features 字、omap 联合体、SPARSE_READ 偏移已确认。剩余:`features` 为零、全零 omap 联合体、ENOSPC 各变体。 |
+| E2 | 未决 | 需要故障注入:杀 OSD、backoff、池满、同 tid 重发。 |
+| E3 | 未决 | 零长度与多区段稀疏读、backoff 范围、忽略 OSD 推送的 MOSDMap。 |
+| F1 | 部分 | 用标准工具观察到:非持锁者的写能通过;`snap create` 与 `resize` 立刻以 EROFS 失败;标准写者每秒轮询数百次;`rbd bench` 面对外来标签的锁永远完成不了。剩余:krbd、交接到 Windows。 |
+| F2 | 未决 | 设计问题(没有 header watch)。 |
+| F3 | 基本解决 | 失败操作之前的输出会返回;FAILOK 让后面的操作继续;六个操作的头部请求可用。剩余:多操作头部读取的原子性。 |
+| F4 | 部分 | Q14 已解决(pool-snapshot 模式的池里 `rbd create` 被以 EINVAL 拒绝)。剩余:trash、namespace、纠删码数据池、标志 `0x100`、`0x400`、`0x800`。 |
+| G1 | 未决 | 没有任何 Reef 或 Squid 守护进程。 |
+
+**新的 Top 10(仍未决的,按卡住多少排序)。** 取代英文第 7 节原列表里的排序。
+
+1. **exclusive-lock 策略(F1;rbd Q2/Q3/T15)。** 策略 L2 对其他客户端的影响现已观察到(见上表)。剩余:我们的写者怎么选、krbd 面对外来锁的行为(没跑,可能弄坏实验室的内核客户端)、锁在 iPXE 到 Windows 交接时丢失。
+2. **无应答的操作与挂载期间的头部变化(E2、F2;osd-ops Q6/Q7/Q8/Q12;rbd Q1)。** 故障注入一次也没跑:写入途中杀 OSD、backoff、池满、带/不带 ORDERSNAP 的过期快照上下文、同 tid 重发。
+3. **能力协商的缩减(OSD 上的 A1、A2;msgr2 Q9;osdmap Q1/Q14;crush C7)。** 特性位更少的客户端会收到什么,以及 OSD 上的压缩跳过:需要我们自己的客户端。
+4. **cephx 的边角(B1、B2、B3)。** 请求掩码 `0x24`、72 小时 AUTH 票据的续期、重连时旧票据过期、OSD 对 global id 的核对、不被允许的密钥类型、仅 crc 的客户端连仅 secure 的集群。
+5. **内存上限(C5;osdmap Q10;mon-client Q9;secure Q9)。** 不变:只见过实验室的小图。
+6. **从未运行过的 CRUSH 变体(D1、D2)。** `choose_args`、upmap-primary、uniform / list / tree 桶、设备类规则、分裂与非 2 的幂的 `pg_num`、Linux dcache 哈希、本地回退路径。
+7. **多 monitor、IPv6 与增量下发(C2、C3)。** hunting、优先级与权重、三 monitor 的图、IPv6 sockaddr、起点大于 0 的订阅、只含增量的 MOSDMap、被裁剪的起点。
+8. **OSD 上贴近规范边缘的线上探测(A4 到 A7)。** 非 2 的幂对齐、带数据消息的 `data_off`、KEEPALIVE2 与 900 秒空闲计时、其他 AUTH_BAD_METHOD 错误码、lossless 会话、revision-0 的 secure 帧、非 x86 CPU 上的 CRC-32C。
+9. **其他版本(G1、C4)。** Reef 与 Squid 守护进程;v20.2.5 monitor 仍支持的最低 `require_osd_release`。
+10. **操作与 RBD 的边角情形(E1、E3、F3、F4)。** 零长度与多区段 SPARSE_READ、ENOSPC 与 EDQUOT、重定向与 `-EAGAIN`、trash 与重命名、namespace、纠删码数据池、镜像标志、WRITESAME 与 CMPEXT、多操作头部读取的原子性。
+
+第 8 节的许可问题(首先是 L1)与上面这些无关,仍卡着 `core/`。
 
 ### 8 许可问题
 

@@ -100,3 +100,7 @@ Thumbs.db
 
 # Local lab configuration (harness/lab)
 harness/lab/lab.conf
+
+# Python bytecode
+__pycache__/
+*.pyc

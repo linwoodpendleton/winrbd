@@ -1,9 +1,13 @@
 # OSDMap and OSDMap::Incremental: the client subset
 
-Status: draft, Phase 0 spec note. Written from source reading only (every `path:line` reference
-was re-opened and re-checked against the v20.2.5 tree in a second review pass); nothing here has been
-checked against a live capture yet. Items that need a capture are marked **[confirm on capture]**,
-items that could not be pinned in source are marked **[unverified]**.
+Status: draft, Phase 0 spec note. Written from source reading (every `path:line` reference
+was re-opened and re-checked against the v20.2.5 tree in a second review pass), then checked against the
+lab capture set by an independent checker written from this note alone, not from Ceph source
+(`harness/tools/osdmap_check.py`; vectors and provenance in `harness/vectors/osdmap/README.md`). Items still
+needing a capture are marked **[confirm on capture]**, items that could not be pinned in source are marked
+**[unverified]**, items the lab settled are marked **[confirmed: ...]**. The lab is one tentacle cluster
+(1 mon, 3 OSDs, IPv4 only, epochs 1 to 92); section 6, "Corrections after capture", lists what changed in this
+note and what the lab cannot settle.
 
 All `path:line` references are relative to the Ceph tree root at tag v20.2.5
 (commit ed27c686770872022f4c1de04f6b0ac5d5384ded). Line numbers are from that tree only.
@@ -80,7 +84,8 @@ Replicated pools only. Erasure-coded pools are recognised (and rejected) but not
 
 Elements of `map` and `set` are written in ascending key order because they are ordered
 containers; a client can rely on sorted wire order but should not require it for correctness
-**[confirm on capture]**. Two containers in this note are not plain `std::map`s but have the same
+**[confirmed: osdmap_check.py over the 89 stored maps and 89 incrementals of the lab: 870 adjacent key pairs
+(pools, pool names, `pg_temp` with up to 32 entries, upmap maps), none out of order]**. Two containers in this note are not plain `std::map`s but have the same
 wire form: `pg_temp` is a custom class that writes `u32` count, then per entry a `pg_t`, a `u32`
 element count and that many little-endian `s32` (`src/osd/OSDMap.h:121-129` encode and `:130-155`
 decode of the compiled-in branch `#if 1` at `:116`; an alternative branch at `:265-337` is
@@ -128,7 +133,9 @@ For IPv6 (family 10, `elen` 28) the 26 raw bytes are: port (2, big-endian), flow
 IPv6 address (16), scope id (4). Flow info and scope id are copied from the in-memory structure, so
 they are in the sender's host byte order (little-endian on x86 and arm64); in practice both are
 zero. The byte layouts of the sockaddr body are derived from the Linux `sockaddr_in` /
-`sockaddr_in6` layouts, not stated in the Ceph source **[confirm on capture]**.
+`sockaddr_in6` layouts, not stated in the Ceph source. IPv4 **[confirmed: osdmap_check.py re-encoded 470
+captured entries from their decoded fields and got the captured bytes back: port big-endian, address, 8 zero
+bytes; `struct_len` 28, `elen` 16, family 2]**. IPv6 **[confirm on capture]**: the lab has no IPv6 network.
 
 What `elen` values actually occur (derived from the encoder, `msg_types.h:321-328`, `:500-515`):
 the encoder always writes the size of the in-memory address for its family: 16 for IPv4, 28 for
@@ -142,8 +149,8 @@ exactly `elen` bytes so that the stream stays aligned. Family 10 is the on-wire 
 only where the sender translates it: the Linux value is native on Linux; a Windows sender
 rewrites its own IPv6 constant to 10 (`src/msg/msg_types.h:38`, `:507-511` encode, `:541-545`
 decode). A sender on any other platform writes its native family number unchanged, which may not be 10
-**[unverified: only the Windows translation is visible in the source]**; the monitor and OSDs
-are Linux.
+**[unverified: only the Windows translation is visible in the source; the captures cannot settle
+it because every sender in the lab is Linux]**; the monitor and OSDs are Linux.
 
 Legacy form (marker 0): `u8` marker already read, then `u8` marker2, `u16` rest, `u32` nonce, and
 a raw 128-byte `sockaddr_storage` whose first two bytes are the family in network byte order
@@ -168,7 +175,9 @@ is written as exactly this empty vector (`src/osd/OSDMap.cc:1549-1565` slots are
 decoder never sees a "missing" entry, only an empty vector.
 Worked layout of one IPv4 msgr2 entry, derived from the tables above: marker 2, count 1,
 then the 35-byte entity address (marker 1, 1, 1, len 28, type 2, nonce, elen 16, family 2,
-port, ip, 8 zero bytes) **[confirm on capture]**.
+port, ip, 8 zero bytes) **[confirmed: osdmap_check.py, 470 entries in the lab's maps; never-up OSDs carry
+the 5-byte empty vector (11 seen) and no blank `elen` 28 entry occurs; every dual-stack OSD vector is
+[v2 entry, v1 entry] in that order (235 seen); the only `elen` value seen is 16]**.
 
 ### 2.2 Versioned envelope (struct_v / struct_compat / struct_len)
 
@@ -275,12 +284,17 @@ Lower releases (not reachable with v20 daemons) step the client blocks down furt
 incremental block 6 / 5 / 3 for the same three cases (`OSDMap.cc:588-597`); pool versions 27, 26,
 24 and 21 for missing nautilus, mimic, luminous and `NEW_OSDOP_ENCODING` (`osd_types.cc:1968-1983`).
 
+**[confirmed: osdmap_check.py, all 89 stored maps and 89 incrementals of the tentacle lab: wrapper 8 / compat 7,
+full-map client block 10 / compat 1, incremental client block 9 / compat 1, OSD-only block 9 / compat 1,
+`pg_pool_t` 32 / compat 5; the other rows of this table were not exercised, the lab only runs tentacle.]**
+
 Floor: v20 OSDs refuse to start when the recorded `require_osd_release` is more than two
 releases older than themselves (`src/ceph_osd.cc:529`, `src/common/ceph_releases.cc:28-55`), and the
 monitor refuses to let a tentacle OSD boot while `require_osd_release` is below reef
 (`OSDMonitor.cc:3511-3516`); both put reef (18) at the floor for a running v20 cluster. Whether a v20
 monitor can still serve a map with a lower `require_osd_release` was not established in the code
-paths read **[unverified]**.
+paths read **[unverified]**; the lab cannot settle it either (it runs tentacle, and lowering
+`require_osd_release` was not attempted on the shared lab).
 
 Whether the monitor re-encodes the map for a given client depends on that client's connection
 feature bits, see 2.8.
@@ -353,7 +367,8 @@ table-driven update (`src/include/crc32c.h:33-51`, `src/common/sctp_crc32.c:517-
 chaining adds nothing (`src/common/buffer.cc:2089-2125`). So the stored value is the register after processing
 with start 0xFFFFFFFF, i.e. the bitwise complement of what a CRC-32C library with the usual final
 inversion returns for the same bytes (polynomial 0x1EDC6F41, reflected form 0x82F63B78)
-**[confirm on capture, vector T8]**. The value is written little-endian. The reference decoder
+**[confirmed: osdmap_check.py, vector T8: 89 of 89 stored maps; the textbook value with the final inversion
+never matches]**. The value is written little-endian. The reference decoder
 verifies it and throws on mismatch (`OSDMap.cc:3958-3972`).
 
 A client may skip verification. If it does verify, it must hold the whole map in one contiguous
@@ -478,6 +493,8 @@ CRC coverage for `inc_crc`: everything from the wrapper's first byte up to the `
 then continued over the bytes after it to the end of the wrapper, which includes `full_crc`
 (`OSDMap.cc:1024-1050`, encoder `:746-757`); same CRC routine and start value as 2.4.5. The reference
 decoder verifies `inc_crc` and throws on mismatch (`OSDMap.cc:1038-1050`).
+**[confirmed: osdmap_check.py, 89 of 89 stored incrementals: `inc_crc` covers the wrapper up to its own field and
+then `full_crc`; `full_crc` equals the `crc` of the monitor's stored full map of the same epoch.]**
 
 `full_crc` equals the `crc` field the full map at that epoch carries when encoded with the
 monitor's canonical feature set (`OSDMonitor.cc:2016-2017`). When the monitor re-encodes an
@@ -656,7 +673,10 @@ removed in exactly this epoch. The reference client uses it to drop removed snap
 snap context of *in-flight* writes (`src/osdc/Objecter.cc:1142`, `:1296`; the pruning function
 starts at `:2917`). A minimal client may ignore the field and simply refresh its image snap
 context on error, but whether the OSD rejects a write whose snap context names a removed snapshot
-was not checked **[unverified]**.
+was not checked **[unverified]**; the lab cannot settle it without a writer that sends a stale snap
+context (an OSD-op test, see Q7). What the lab does show: the removal of a self-managed snapshot arrives in
+`new_removed_snaps` of exactly one epoch (full-map row 21 at epoch 28, `[2~1]` for pool 2) and the same ids in
+`new_purged_snaps` one epoch later (epoch 29), while the `removed_snaps` field of the pool record stays empty.
 
 ---
 
@@ -677,7 +697,11 @@ was not checked **[unverified]**.
    current + 1. A start at or below the last epoch the monitor already sent on this session is
    raised to that epoch + 1 (`OSDMonitor.cc:4544-4547`), so a re-request for an epoch that was sent
    but lost on your side returns nothing new; recover from that by subscribing with start 0, which
-   is answered with a full map regardless (`OSDMonitor.cc:4867-4880`) **[confirm on capture]**.
+   is answered with a full map regardless (`OSDMonitor.cc:4867-4880`) **[confirm on capture]** (the lab shows the
+first half only: **[confirmed: osdmap_check.py, 79 MOSDMap messages]** a subscription with start 0 is answered by
+exactly one MOSDMap holding one full map of the newest epoch, and the stock client then re-subscribes with
+start = epoch + 1 and ONETIME (flag 1) and gets nothing more; re-subscribing with a low start after maps were
+already sent on the session was not exercised).
    Subscription mechanics in general belong to the monitor-client note.
 
 ### 3.2 Handling an MOSDMap message
@@ -895,7 +919,7 @@ client's "did the interval change, so resend" decision rather than the placement
   filtering the vector by its own bind configuration (`src/msg/async/AsyncMessenger.cc:846-857`);
   a msgr2-only client should take the first entry of type 2.
 - Decoding sorted maps in wire order lets you build sorted arrays and use binary search without
-  an extra sort pass **[confirm on capture]**.
+  an extra sort pass **[confirmed: see 2.1]**.
 
 ---
 
@@ -969,7 +993,7 @@ before committing. Prefer small clusters with a few pools so vectors stay small.
 | # | Vector | Obtain with | Check |
 |---|---|---|---|
 | T1 | Full map, latest epoch | `ceph osd getmap -o map.bin` (command at `OSDMonitor.cc:5490-5647`); also `ceph-monstore-tool <store> get osdmap -- --version N --out f` (`src/tools/ceph_monstore_tool.cc:190-239`) | decode and compare every field in 2.4.3 with `ceph osd dump -f json` and `osdmaptool map.bin --print`; check wrapper / block / pool `struct_v` values against 2.4.2 |
-| T2 | Same cluster at `require_osd_release` squid or reef (set with `ceph osd require-osd-release`) | same | pool version 29, client block 10, no tentacle features **[confirm on capture]** |
+| T2 | Same cluster at `require_osd_release` squid or reef (set with `ceph osd require-osd-release`) | same | pool version 29, client block 10, no tentacle features **[confirm on capture]**: not run, needs a lower `require_osd_release` and the lab only runs tentacle |
 | T3 | Raw incrementals for consecutive epochs, including at least: OSD down, OSD up (new address), reweight, primary-affinity change, pg_temp set and clear, primary_temp set and clear, pg-upmap and upmap-items set and clear, pg-upmap-primary set and clear, pool create, pool delete, new CRUSH map | capture the `MOSDMap` payloads in the harness (msgr2 crc mode so frames are readable); cross-check decoding with `ceph-dencoder type OSDMap::Incremental import <file> decode dump_json` (type registered at `src/tools/ceph-dencoder/osd_types.h:5`) | decoded fields equal the dencoder dump; and apply T3 to T1 gives the same result as the next full map from step T1 repeated at that epoch |
 | T4 | MOSDMap with mixed full and incremental entries and with `cluster_osdmap_trim_lower_bound` above your epoch | capture after letting the client fall behind many epochs and after `osd_map_message_max` batching; or after trimming | the 3.2 walk reaches the right final epoch |
 | T5 | Address vectors | in T1 and T3: one OSD with v2 only, one with v1 + v2, one never-up OSD, one IPv6 OSD if available | decoded family, port, ip, nonce, type equal `ceph osd dump`; confirm the byte layout of 2.1.2, including IPv6, the 8 zero pad bytes, and that a never-up OSD is the 5-byte empty vector (not an `elen` 28 entry) |
@@ -980,6 +1004,23 @@ before committing. Prefer small clusters with a few pools so vectors stay small.
 | T10 | pg_pool_t with snapshots | a pool with several self-managed snapshots (RBD snapshots) and a pool with pool snaps | removed_snaps and snaps decode; skipping by envelope works |
 | T11 | Pool versions | a stretch pool if a test cluster is available | version 30 / 32 layout of 2.5 rows 51-52 |
 
+Status of these vectors after the capture run (details: `harness/vectors/osdmap/README.md`; all of it is
+re-checked by `harness/tools/osdmap_check.py`):
+
+- T1 done: 89 stored full maps against `ceph-dencoder` JSON, the epoch-42 map also against `osdmaptool`.
+- T2 not run (needs a lower `require_osd_release`).
+- T3 done from the monitor store, not from the wire: a stock client subscribes with start 0 and receives one full
+  map, so no incremental ever crossed the wire in the captures. All 89 stored incrementals are decoded and applied;
+  the kinds present are listed in the vector README (no pool deletion, no destroy, no `pg_upmap_primaries`).
+- T4 not done (every captured MOSDMap is one full map, trim lower bound 1).
+- T5 partly: IPv4, dual-stack and never-up OSDs only.
+- T6 done for replicated HASHPSPOOL pools with a power-of-two `pg_num` (2,194 names, 825 `osdmaptool` PG results over
+  25 map states); not done for `pg_upmap_primaries`, non-power-of-two `pg_num`, `pg_num` != `pgp_num`, legacy pools.
+- T7 and T9 done on synthetic mutations of a real map, plus 3,000 seeded bit-flip inputs.
+- T8 done for full-feature maps; the reduced-feature case needs our own client.
+- T10 partly: self-managed snapshots only (see 2.9); no pool-snaps pool.
+- T11 not run (no stretch pool).
+
 ---
 
 ## 6 Open questions
@@ -987,16 +1028,20 @@ before committing. Prefer small clusters with a few pools so vectors stay small.
 Q1. **Which feature bits to advertise** and therefore which struct versions arrive. The full mask
 (2.7.4) gives the canonical bytes; whether the connection feature negotiation in msgr2 lets the
 client advertise exactly that mask, and what the OSD and monitor require of a client for a given
-map (2.8, `OSDMap::get_features`), is a msgr2 / auth note topic; the recommended answer is in `msgr2.md` 4.4 (advertise the full v20.2.5 set, `0x3f07fffffffdffff`). **[confirm on capture]** by
-recording the versions received with several advertised masks.
+map (2.8, `OSDMap::get_features`), is a msgr2 / auth note topic; the recommended answer is in `msgr2.md` 4.4 (advertise the full v20.2.5 set, `0x3f07fffffffdffff`). **[confirmed for the full mask: osdmap_check.py, 395
+connections: the stock client advertises exactly `0x3f07fffffffdffff`; every mon, OSD and mgr advertises the same;
+all 17 masks of the 2.7.4 table are contained in it and bit 62 is clear; with it the monitor sent MOSDMap header
+version 4 / compat 3, client block 10, pool 32]**. **[confirm on capture]** for several advertised masks: only our
+own client can send a reduced mask, the stock client always sends the full one.
 
 Q2. **Lowest `require_osd_release` a v20.2.5 monitor will serve.** Only the OSD startup check
 (2.4.2) was found; no equivalent monitor-side floor was located in the code paths read.
 **[unverified]**. Determines whether the floors in section 4.1 are always sufficient.
 
 Q3. **CRC details** (2.4.5): start value all ones and the absence of a final inversion are read
-from the CRC routine's source; **[confirm on capture]** (vector T8). Also confirm that the CRC
-range for a full map is exactly the wrapper minus the CRC field, with an empty tail.
+from the CRC routine's source; **[confirmed: osdmap_check.py, vector T8, 89 maps and 89 incrementals]**. The CRC
+range for a full map is exactly the wrapper minus the CRC field, with an empty tail **[confirmed: same run]**.
+Still open: the T8 case of a map re-encoded for a client with fewer feature bits (needs our own client).
 
 Q4. **Verifying an applied incremental.** `full_crc` is the CRC of the new full map's encoding.
 A client that does not re-encode cannot check it. Options: re-fetch the full map periodically,
@@ -1006,6 +1051,8 @@ Q5. **Interaction of `new_weight` and `new_state` in one epoch** (3.5 step 11): 
 creation path relies on the weight side effect and does not put EXISTS in `new_state`
 (`OSDMonitor.cc:9778-9781`). Still confirm from real incrementals (create, boot, destroy, purge)
 that a non-zero weight never accompanies an EXISTS bit toggle for the same OSD.
+Lab result: **[confirmed for the create and boot path: osdmap_check.py, incrementals 3, 8, 13 create OSDs with a
+non-zero weight and state NEW, never the EXISTS bit]**; destroy and purge were not exercised.
 
 Q6. **Blocklist handling.** A blocklisted client is rejected by OSDs with error 108
 (`EBLOCKLISTED`, `rados.h:499`, `PrimaryLogPG.cc:2130`); the list itself lives in the OSD-only block,
@@ -1016,7 +1063,9 @@ Q7. **Removed snapshots** (2.9): does an OSD reject a write that carries a snap 
 removed, or is the snap context pruning purely an optimisation? **[unverified]**
 
 Q8. **Sorted wire order** of maps and sets (2.1) is expected from the ordered containers but was
-not pinned for every container used here **[confirm on capture]**.
+not pinned for every container used here **[confirmed for the containers present in the lab maps: see 2.1;
+`old_pools`, `old_pg_upmap*` and `old_pg_upmap_primary` were empty or single-entry in every incremental, so their
+order was not exercised]**.
 
 Q9. **Header version 4 gap field** (2.3): the v20 receiver decodes and discards a non-zero map;
 no v20 sender writes one. Whether a future sender could rely on a receiver acting on it is
@@ -1031,11 +1080,14 @@ for everything except the optional CRC.
 Q11. **Addresses.** The IPv4 / IPv6 sockaddr byte layouts in 2.1.2 are inferred from the platform
 structures; confirm with T5, including what a v1-only OSD looks like, how a dual-stack OSD's
 vector is ordered, and that no OSD address in a real map has an `elen` other than 16 or 28.
+Lab result: dual-stack order is v2 then v1, every `elen` is 16, no IPv6 and no v1-only OSD exist in the lab
+(see 2.1.3); the IPv6 half stays open.
 
 Q12. **OSDs with multiple addresses.** The reference messenger connects to the first entry whose
 type is 1 or 2 after its own bind-config filtering (`AsyncMessenger.cc:846-857`, 3.8); the exact
 filter (`_filter_addrs`) was not read, and which entry the daemon lists first (v2 before v1 is
-expected) is **[confirm on capture]**. The note assumes "first entry of type 2".
+expected) is **[confirmed: osdmap_check.py, 235 dual-stack vectors, v2 entry first, v1 second]**; the exact filter is
+still unread. The note assumes "first entry of type 2".
 
 Q13. **Nested length checks.** The reference decoder compares an inner `struct_len` only against
 the bytes left in the whole buffer (2.2). The stricter rule in 2.2 (inner end within outer end) is
@@ -1051,6 +1103,44 @@ Q15. **Pool versions 31 and above beyond 32.** v20.2.5 writes 32 at most; a late
 add fields at the end. The envelope length makes that safe for decoding, but any newly meaningful
 field (a flag, a placement rule) would be silently ignored; re-check the pool tables when pinning
 a different release.
+
+### Corrections after capture
+
+What the capture run changed in this note (the lab: one tentacle cluster, IPv4 only, 89 stored epochs, 39 pcaps):
+
+1. **No table was wrong.** Every row of 2.4.3, 2.5 (struct_v 32, rows 1 to 53) and 2.6.3 decoded all 178 stored maps
+   and incrementals (and the 24 intermediate maps and the 79 maps seen on the wire) and ended exactly at the envelope
+   end; the decoded values equal the `ceph-dencoder` JSON field by field. No version number, size or order in
+   sections 2.1 to 2.6 had to be corrected.
+2. **Marks changed from [confirm on capture] to confirmed:** sorted wire order (2.1, 3.8, Q8); IPv4 sockaddr layout
+   (2.1.2) and the worked layout of an address vector (2.1.3); CRC rule for maps and incrementals (2.4.5, 2.6.1, Q3,
+   T8); `MOSDMap` answer to a start-0 subscription (3.1); full-mask advertisement and received versions (Q1, first
+   half); address order v2 before v1 (Q12); create path of Q5.
+3. **Added facts (no earlier statement was contradicted):**
+   - the monitor's trim lower bound in MOSDMap equals the store's `first_committed` (1 in the lab); the stock client
+     subscribes to `osdmap` ONETIME with start 0, then with start = epoch + 1 (2.3, 3.1);
+   - the full map and the stored map are byte-identical when the client advertises the full mask (2.8);
+   - the `crush` blob inside a full map has no MSR tunable pair, the one in an incremental's `crush` field has it
+     (crush note 2.1 (a), **confirmed**); the rule min / max bytes could not be told apart, every rule stores 1 / 100;
+   - `new_primary_affinity` is on the wire as table 2.6.3 says; the dencoder JSON dump omits it, so a JSON-based
+     test must take it from the bytes (epochs 55 and 57);
+   - the pool record's `removed_snaps` stays empty on a tentacle cluster; removals arrive through
+     `new_removed_snaps` and `new_purged_snaps` (2.9);
+   - `osdmaptool`'s "raw" column is the CRUSH output after dropping non-existent OSDs and before upmap, which is what
+     3.7 step 6 produces; primary affinity (3.7 step 9) changed 5 primaries in the oracle runs and every answer was
+     reproduced; upmap items, upmap, `pg_temp`, `primary_temp`, reweight, out and down were each reproduced.
+4. **Oracle quirk to remember when building vectors:** `ceph osd map` hashed an object name containing a non-BMP
+   character (an emoji) as two separate 3-byte surrogates, not as UTF-8, because of how the monitor's JSON command
+   parser treats `\u` escapes. The placement pipeline is right; the vector must carry the bytes the oracle hashed.
+5. **Still marked, and why the captures cannot settle them:** IPv6 sockaddr layout and a non-Linux family number (no
+   such sender in the lab); the `require_osd_release` floor, T2 and the older rows of the table in 2.4.2 (the lab only
+   runs tentacle); Q7 and 2.9 (needs an OSD-op test with a stale snap context); Q9 (no sender writes a non-zero gap
+   map); Q10 (no memory measurement); Q14 (needs our own client advertising reduced masks); re-subscribing with a
+   low start (3.1); a MOSDMap carrying incrementals, a mix of kinds, or a trim bound above the client's epoch (T4);
+   the re-encoded-for-fewer-features CRC case (T8). Never exercised by any lab epoch, so the corresponding steps of
+   3.5 and 3.7 are checked against the note's text only: `old_pools`, OSD destroy, `new_state` mask 0, shrinking
+   `max_osd`, `pg_upmap_primaries` (decode of rows 28 / 29 and 25 only with empty maps), stretch pool rows 51 / 52 with
+   data, non-power-of-two `pg_num`, `pg_num` != `pgp_num`, pools without HASHPSPOOL.
 
 ---
 

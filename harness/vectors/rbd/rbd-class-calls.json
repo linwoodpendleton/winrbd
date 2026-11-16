@@ -1,0 +1,1261 @@
+{
+ "_about": "Class-method vectors. input_hex / output_hex are the raw bytes of one `call` op and its reply; result is the request result (negative errno on failure). decoded = what the note's layout gives. See README.md.",
+ "vectors": [
+  {
+   "id": "img-v1/rbd.get_size/0",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_size",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "160000000001000000",
+   "result": 9,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "order": 22,
+    "size": 4294967296
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_features/1",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "read_only": null,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_features/2",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "feffffffffffffff01",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "read_only": true,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_object_prefix/3",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_object_prefix",
+   "input_hex": "",
+   "output_hex": "150000007262645f646174612e333738343161666264316437",
+   "result": 25,
+   "decoded": {
+    "value": "rbd_data.37841afbd1d7"
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_flags/4",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_flags",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "flags": 0
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_snapcontext/5",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_snapcontext",
+   "input_hex": "",
+   "output_hex": "000000000000000000000000",
+   "result": 12,
+   "decoded": {
+    "seq": 0,
+    "snaps": []
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_data_pool/6",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_data_pool",
+   "input_hex": "",
+   "output_hex": "ffffffffffffffff",
+   "result": 8,
+   "decoded": {
+    "pool": -1
+   }
+  },
+  {
+   "id": "img-v1/rbd.parent_get/7",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "parent_get",
+   "input_hex": "",
+   "output_hex": "010118000000ffffffffffffffff0000000000000000feffffffffffffff",
+   "result": 30,
+   "decoded": {
+    "parent": {
+     "v": 1,
+     "compat": 1,
+     "pool": -1,
+     "ns": "",
+     "image_id": "",
+     "snap": 18446744073709551614
+    }
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_parent/8",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_parent",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "ffffffffffffffff00000000feffffffffffffff0000000000000000",
+   "result": 28,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "parent": {
+     "pool": -1,
+     "image_id": "",
+     "snap": 18446744073709551614,
+     "overlap": 0
+    }
+   }
+  },
+  {
+   "id": "img-v1/rbd.op_features_get/9",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "op_features_get",
+   "input_hex": "",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "op_features": 0
+   }
+  },
+  {
+   "id": "img-v1/lock.get_info/10",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "010109000000000000000000000000",
+   "result": 15,
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [],
+     "type": 0,
+     "tag": ""
+    }
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_id/11",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_id",
+   "class": "rbd",
+   "method": "get_id",
+   "input_hex": "",
+   "output_hex": "0c000000333738343161666264316437",
+   "result": 16,
+   "decoded": {
+    "value": "37841afbd1d7"
+   }
+  },
+  {
+   "id": "img-v1/rbd.dir_get_id/12",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_directory",
+   "class": "rbd",
+   "method": "dir_get_id",
+   "input_hex": "06000000696d672d7631",
+   "output_hex": "0c000000333738343161666264316437",
+   "result": 16,
+   "decoded": {
+    "name": "img-v1",
+    "id": "37841afbd1d7"
+   }
+  },
+  {
+   "id": "img-v1/rbd.dir_get_name/13",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_directory",
+   "class": "rbd",
+   "method": "dir_get_name",
+   "input_hex": "0c000000333738343161666264316437",
+   "output_hex": "06000000696d672d7631",
+   "result": 10,
+   "decoded": {
+    "id": "37841afbd1d7",
+    "name": "img-v1"
+   }
+  },
+  {
+   "id": "img-v1/rbd.get_features/14",
+   "source": "rados exec, layering-only image",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "ffffffffffffffff",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551615,
+    "read_only": null,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "img-default/rbd.get_size/15",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_size",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "160000000001000000",
+   "result": 9,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "order": 22,
+    "size": 4294967296
+   }
+  },
+  {
+   "id": "img-default/rbd.get_features/16",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "3d000000000000003d00000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "read_only": null,
+    "features": 61,
+    "incompatible": 61
+   }
+  },
+  {
+   "id": "img-default/rbd.get_features/17",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "feffffffffffffff01",
+   "output_hex": "3d000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "read_only": true,
+    "features": 61,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "img-default/rbd.get_object_prefix/18",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_object_prefix",
+   "input_hex": "",
+   "output_hex": "150000007262645f646174612e333738363364376164613539",
+   "result": 25,
+   "decoded": {
+    "value": "rbd_data.37863d7ada59"
+   }
+  },
+  {
+   "id": "img-default/rbd.get_flags/19",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_flags",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "flags": 0
+   }
+  },
+  {
+   "id": "img-default/rbd.get_snapcontext/20",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_snapcontext",
+   "input_hex": "",
+   "output_hex": "000000000000000000000000",
+   "result": 12,
+   "decoded": {
+    "seq": 0,
+    "snaps": []
+   }
+  },
+  {
+   "id": "img-default/rbd.get_data_pool/21",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_data_pool",
+   "input_hex": "",
+   "output_hex": "ffffffffffffffff",
+   "result": 8,
+   "decoded": {
+    "pool": -1
+   }
+  },
+  {
+   "id": "img-default/rbd.parent_get/22",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "parent_get",
+   "input_hex": "",
+   "output_hex": "010118000000ffffffffffffffff0000000000000000feffffffffffffff",
+   "result": 30,
+   "decoded": {
+    "parent": {
+     "v": 1,
+     "compat": 1,
+     "pool": -1,
+     "ns": "",
+     "image_id": "",
+     "snap": 18446744073709551614
+    }
+   }
+  },
+  {
+   "id": "img-default/rbd.get_parent/23",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_parent",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "ffffffffffffffff00000000feffffffffffffff0000000000000000",
+   "result": 28,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "parent": {
+     "pool": -1,
+     "image_id": "",
+     "snap": 18446744073709551614,
+     "overlap": 0
+    }
+   }
+  },
+  {
+   "id": "img-default/rbd.op_features_get/24",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "op_features_get",
+   "input_hex": "",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "op_features": 0
+   }
+  },
+  {
+   "id": "img-default/lock.get_info/25",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "010111000000000000000108000000696e7465726e616c",
+   "result": 23,
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [],
+     "type": 1,
+     "tag": "internal"
+    }
+   }
+  },
+  {
+   "id": "img-default/rbd.get_id/26",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_id",
+   "class": "rbd",
+   "method": "get_id",
+   "input_hex": "",
+   "output_hex": "0c000000333738363364376164613539",
+   "result": 16,
+   "decoded": {
+    "value": "37863d7ada59"
+   }
+  },
+  {
+   "id": "img-default/rbd.dir_get_id/27",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_directory",
+   "class": "rbd",
+   "method": "dir_get_id",
+   "input_hex": "0b000000696d672d64656661756c74",
+   "output_hex": "0c000000333738363364376164613539",
+   "result": 16,
+   "decoded": {
+    "name": "img-default",
+    "id": "37863d7ada59"
+   }
+  },
+  {
+   "id": "img-default/rbd.dir_get_name/28",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_directory",
+   "class": "rbd",
+   "method": "dir_get_name",
+   "input_hex": "0c000000333738363364376164613539",
+   "output_hex": "0b000000696d672d64656661756c74",
+   "result": 15,
+   "decoded": {
+    "id": "37863d7ada59",
+    "name": "img-default"
+   }
+  },
+  {
+   "id": "img-default/rbd.get_features/29",
+   "source": "rados exec, default-feature image, lock released",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "ffffffffffffffff",
+   "output_hex": "3d000000000000003d00000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551615,
+    "read_only": null,
+    "features": 61,
+    "incompatible": 61
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_size/30",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_size",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "160000000001000000",
+   "result": 9,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "order": 22,
+    "size": 4294967296
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_features/31",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "read_only": null,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_features/32",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "feffffffffffffff01",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "read_only": true,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_object_prefix/33",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_object_prefix",
+   "input_hex": "",
+   "output_hex": "150000007262645f646174612e336266326632326237623066",
+   "result": 25,
+   "decoded": {
+    "value": "rbd_data.3bf2f22b7b0f"
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_flags/34",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_flags",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "flags": 0
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_snapcontext/35",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_snapcontext",
+   "input_hex": "",
+   "output_hex": "0300000000000000010000000300000000000000",
+   "result": 20,
+   "decoded": {
+    "seq": 3,
+    "snaps": [
+     3
+    ]
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_data_pool/36",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_data_pool",
+   "input_hex": "",
+   "output_hex": "ffffffffffffffff",
+   "result": 8,
+   "decoded": {
+    "pool": -1
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.parent_get/37",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "parent_get",
+   "input_hex": "",
+   "output_hex": "010118000000ffffffffffffffff0000000000000000feffffffffffffff",
+   "result": 30,
+   "decoded": {
+    "parent": {
+     "v": 1,
+     "compat": 1,
+     "pool": -1,
+     "ns": "",
+     "image_id": "",
+     "snap": 18446744073709551614
+    }
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_parent/38",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_parent",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "ffffffffffffffff00000000feffffffffffffff0000000000000000",
+   "result": 28,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "parent": {
+     "pool": -1,
+     "image_id": "",
+     "snap": 18446744073709551614,
+     "overlap": 0
+    }
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.op_features_get/39",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "op_features_get",
+   "input_hex": "",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "op_features": 0
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/lock.get_info/40",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "010109000000000000000000000000",
+   "result": 15,
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [],
+     "type": 0,
+     "tag": ""
+    }
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_id/41",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_id",
+   "class": "rbd",
+   "method": "get_id",
+   "input_hex": "",
+   "output_hex": "0c000000336266326632326237623066",
+   "result": 16,
+   "decoded": {
+    "value": "3bf2f22b7b0f"
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.dir_get_id/42",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_directory",
+   "class": "rbd",
+   "method": "dir_get_id",
+   "input_hex": "0a00000074302d636f70792d7631",
+   "output_hex": "0c000000336266326632326237623066",
+   "result": 16,
+   "decoded": {
+    "name": "t0-copy-v1",
+    "id": "3bf2f22b7b0f"
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.dir_get_name/43",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_directory",
+   "class": "rbd",
+   "method": "dir_get_name",
+   "input_hex": "0c000000336266326632326237623066",
+   "output_hex": "0a00000074302d636f70792d7631",
+   "result": 14,
+   "decoded": {
+    "id": "3bf2f22b7b0f",
+    "name": "t0-copy-v1"
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_size/44",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_size",
+   "input_hex": "0300000000000000",
+   "output_hex": "160000000001000000",
+   "result": 9,
+   "decoded": {
+    "snap": 3,
+    "order": 22,
+    "size": 4294967296
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_features/45",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "0300000000000000",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 3,
+    "read_only": null,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_flags/46",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_flags",
+   "input_hex": "0300000000000000",
+   "output_hex": "0000000000000000",
+   "result": 8,
+   "decoded": {
+    "snap": 3,
+    "flags": 0
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_parent/47",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_parent",
+   "input_hex": "0300000000000000",
+   "output_hex": "ffffffffffffffff00000000feffffffffffffff0000000000000000",
+   "result": 28,
+   "decoded": {
+    "snap": 3,
+    "parent": {
+     "pool": -1,
+     "image_id": "",
+     "snap": 18446744073709551614,
+     "overlap": 0
+    }
+   }
+  },
+  {
+   "id": "t0-copy-v1.with-snap/rbd.get_features/48",
+   "source": "rados exec, layering image with snapshots 3 (head state at the time of the dump)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "ffffffffffffffff",
+   "output_hex": "01000000000000000100000000000000",
+   "result": 16,
+   "decoded": {
+    "snap": 18446744073709551615,
+    "read_only": null,
+    "features": 1,
+    "incompatible": 1
+   }
+  },
+  {
+   "id": "t4.get_features.empty_input",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_features",
+   "input_hex": "",
+   "output_hex": "",
+   "result": -22,
+   "note": "input missing: -EINVAL (22)"
+  },
+  {
+   "id": "t4.get_size.unknown_snap",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_size",
+   "input_hex": "6300000000000000",
+   "output_hex": "",
+   "result": -2
+  },
+  {
+   "id": "t4.get_stripe_unit_count.nostriping",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_stripe_unit_count",
+   "input_hex": "",
+   "output_hex": "",
+   "result": -8,
+   "note": "STRIPINGV2 bit clear: -ENOEXEC (8)"
+  },
+  {
+   "id": "t4.get_stripe_unit_count.striped",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_stripe_unit_count",
+   "input_hex": "",
+   "output_hex": "00000100000000000400000000000000",
+   "result": 0,
+   "decoded": {
+    "stripe_unit": 65536,
+    "stripe_count": 4
+   }
+  },
+  {
+   "id": "t4.get_id.empty_object",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "rbd",
+   "method": "get_id",
+   "input_hex": "",
+   "output_hex": "",
+   "result": -2
+  },
+  {
+   "id": "t4.get_id.garbage_object",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "rbd",
+   "method": "get_id",
+   "input_hex": "",
+   "output_hex": "",
+   "result": -5
+  },
+  {
+   "id": "t4.unknown_method",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "t0_no_such_method",
+   "input_hex": "",
+   "output_hex": "",
+   "result": -95
+  },
+  {
+   "id": "t4.unknown_class",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "t0nosuchclass",
+   "method": "get",
+   "input_hex": "",
+   "output_hex": "",
+   "result": -1,
+   "note": "class name not in the OSD class lists: -EPERM (1), not -EOPNOTSUPP"
+  },
+  {
+   "id": "t4.get_snapcontext",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_snapcontext",
+   "input_hex": "",
+   "output_hex": "0b00000000000000020000000b000000000000000900000000000000",
+   "result": 0,
+   "decoded": {
+    "seq": 11,
+    "snaps": [
+     11,
+     9
+    ]
+   }
+  },
+  {
+   "id": "t4.parent_get.clone",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "parent_get",
+   "input_hex": "",
+   "output_hex": "0101230000000200000000000000000000000b00000035666330393162663732300c00000000000000",
+   "result": 0,
+   "decoded": {
+    "parent": {
+     "v": 1,
+     "compat": 1,
+     "pool": 2,
+     "ns": "",
+     "image_id": "5fc091bf720",
+     "snap": 12
+    }
+   }
+  },
+  {
+   "id": "t4.parent_overlap_get.clone",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "parent_overlap_get",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "010000000100000000",
+   "result": 0,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "overlap": 16777216
+   }
+  },
+  {
+   "id": "t4.get_parent.clone",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_parent",
+   "input_hex": "feffffffffffffff",
+   "output_hex": "02000000000000000b00000035666330393162663732300c000000000000000000000100000000",
+   "result": 0,
+   "decoded": {
+    "snap": 18446744073709551614,
+    "parent": {
+     "pool": 2,
+     "image_id": "5fc091bf720",
+     "snap": 12,
+     "overlap": 16777216
+    }
+   }
+  },
+  {
+   "id": "t4.get_data_pool.dp",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "rbd",
+   "method": "get_data_pool",
+   "input_hex": "",
+   "output_hex": "0500000000000000",
+   "result": 0,
+   "decoded": {
+    "pool": 5
+   }
+  },
+  {
+   "id": "t20.lock.note_example",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "lock",
+   "input_hex": "010124000000080000007262645f6c6f636b010100000063010000007400000000000000000000000000",
+   "output_hex": "",
+   "result": 0,
+   "decoded": {
+    "in": {
+     "v": 1,
+     "compat": 1,
+     "name": "rbd_lock",
+     "type": 1,
+     "cookie": "c",
+     "tag": "t",
+     "desc": "",
+     "duration": [
+      0,
+      0
+     ],
+     "flags": 0
+    }
+   }
+  },
+  {
+   "id": "t20.get_info.live",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "0101530000000100000001010e000000081a60000000000000010000006301012f00000000000000000000000101011c00000001000000743ec34a1000000002000000c0000207000000000000000000000000010100000074",
+   "result": 0,
+   "note": "client address scrubbed to 192.0.2.7 (lab address replaced)",
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [
+      {
+       "etype": 8,
+       "num": 24602,
+       "cookie": "c",
+       "expiration": [
+        0,
+        0
+       ],
+       "addr": {
+        "form": "v2",
+        "v": 1,
+        "compat": 1,
+        "type": 1,
+        "nonce": 1254309492,
+        "elen": 16,
+        "family": 2,
+        "port": 0,
+        "ip": "192.0.2.7",
+        "tail_zero": true
+       },
+       "desc": ""
+      }
+     ],
+     "type": 1,
+     "tag": "t"
+    }
+   }
+  },
+  {
+   "id": "t20.lock.same_again",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "lock",
+   "input_hex": "010124000000080000007262645f6c6f636b010100000063010000007400000000000000000000000000",
+   "output_hex": "",
+   "result": -17
+  },
+  {
+   "id": "t20.lock.other_cookie_excl",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "lock",
+   "input_hex": "010125000000080000007262645f6c6f636b01020000006332010000007400000000000000000000000000",
+   "output_hex": "",
+   "result": -16
+  },
+  {
+   "id": "t20.lock.shared_vs_excl",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "lock",
+   "input_hex": "010125000000080000007262645f6c6f636b02020000006334010000007400000000000000000000000000",
+   "output_hex": "",
+   "result": -16
+  },
+  {
+   "id": "t20.lock.type0",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "lock",
+   "input_hex": "010125000000080000007262645f6c6f636b00020000006335010000007400000000000000000000000000",
+   "output_hex": "",
+   "result": -22
+  },
+  {
+   "id": "t20.lock.both_renew_flags",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "lock",
+   "input_hex": "010125000000080000007262645f6c6f636b01020000006337010000007400000000000000000000000003",
+   "output_hex": "",
+   "result": -22
+  },
+  {
+   "id": "t20.assert_locked.wrong_cookie",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "assert_locked",
+   "input_hex": "010118000000080000007262645f6c6f636b01020000007a7a0100000074",
+   "output_hex": "",
+   "result": -16
+  },
+  {
+   "id": "t20.unlock.wrong_cookie",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "unlock",
+   "input_hex": "010112000000080000007262645f6c6f636b020000007a7a",
+   "output_hex": "",
+   "result": -2
+  },
+  {
+   "id": "t20.get_info.after_unlock",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "01010a00000000000000010100000074",
+   "result": 0,
+   "note": "locker gone, lock type and tag of the last holder remain",
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [],
+     "type": 1,
+     "tag": "t"
+    }
+   }
+  },
+  {
+   "id": "t20.get_info.two_shared",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "01019e0000000200000001010f000000081a6000000000000002000000733101012f00000000000000000000000101011c00000001000000743ec34a1000000002000000c000020700000000000000000000000001010f000000081a6000000000000002000000733201012f00000000000000000000000101011c00000001000000743ec34a1000000002000000c0000207000000000000000000000000020100000074",
+   "result": 0,
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [
+      {
+       "etype": 8,
+       "num": 24602,
+       "cookie": "s1",
+       "expiration": [
+        0,
+        0
+       ],
+       "addr": {
+        "form": "v2",
+        "v": 1,
+        "compat": 1,
+        "type": 1,
+        "nonce": 1254309492,
+        "elen": 16,
+        "family": 2,
+        "port": 0,
+        "ip": "192.0.2.7",
+        "tail_zero": true
+       },
+       "desc": ""
+      },
+      {
+       "etype": 8,
+       "num": 24602,
+       "cookie": "s2",
+       "expiration": [
+        0,
+        0
+       ],
+       "addr": {
+        "form": "v2",
+        "v": 1,
+        "compat": 1,
+        "type": 1,
+        "nonce": 1254309492,
+        "elen": 16,
+        "family": 2,
+        "port": 0,
+        "ip": "192.0.2.7",
+        "tail_zero": true
+       },
+       "desc": ""
+      }
+     ],
+     "type": 2,
+     "tag": "t"
+    }
+   }
+  },
+  {
+   "id": "t20.set_cookie",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "set_cookie",
+   "input_hex": "010121000000080000007262645f6c6f636b0202000000733101000000740500000073316e6577",
+   "output_hex": "",
+   "result": 0,
+   "decoded": {
+    "in": {
+     "v": 1,
+     "compat": 1,
+     "name": "rbd_lock",
+     "type": 2,
+     "cookie": "s1",
+     "tag": "t",
+     "new_cookie": "s1new"
+    }
+   }
+  },
+  {
+   "id": "t20.break_lock.s2",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "break_lock",
+   "input_hex": "01011b000000080000007262645f6c6f636b081a60000000000000020000007332",
+   "output_hex": "",
+   "result": 0,
+   "decoded": {
+    "in": {
+     "v": 1,
+     "compat": 1,
+     "name": "rbd_lock",
+     "etype": 8,
+     "num": 24602,
+     "cookie": "s2"
+    }
+   }
+  },
+  {
+   "id": "t20.get_info.expired",
+   "source": "wire (probe capture)",
+   "object": "scratch object",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "01010a00000000000000010100000074",
+   "result": 0,
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [],
+     "type": 1,
+     "tag": "t"
+    }
+   }
+  },
+  {
+   "id": "t15.get_info.foreign",
+   "source": "wire (probe capture)",
+   "object": "rbd_header",
+   "class": "lock",
+   "method": "get_info",
+   "input_hex": "01010c000000080000007262645f6c6f636b",
+   "output_hex": "01017600000001000000010120000000081a600000000000001300000077696e7262642070726f626520636f6f6b696501013b00000000000000000000000101011c00000001000000743ec34a1000000002000000c000020700000000000000000c00000077696e7262642070726f6265010600000077696e726264",
+   "result": 0,
+   "decoded": {
+    "name": "rbd_lock",
+    "info": {
+     "v": 1,
+     "compat": 1,
+     "lockers": [
+      {
+       "etype": 8,
+       "num": 24602,
+       "cookie": "winrbd probe cookie",
+       "expiration": [
+        0,
+        0
+       ],
+       "addr": {
+        "form": "v2",
+        "v": 1,
+        "compat": 1,
+        "type": 1,
+        "nonce": 1254309492,
+        "elen": 16,
+        "family": 2,
+        "port": 0,
+        "ip": "192.0.2.7",
+        "tail_zero": true
+       },
+       "desc": "winrbd probe"
+      }
+     ],
+     "type": 1,
+     "tag": "winrbd"
+    }
+   }
+  }
+ ]
+}

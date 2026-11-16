@@ -1,0 +1,96 @@
+{
+ "name": "rados-stat",
+ "note": "STAT: reply output is u64 size + utime (16 bytes)",
+ "reply": {
+  "compat_version": 2,
+  "data": {
+   "hex": "640000000000000048ccfa6aa0e3ab22",
+   "length": 16,
+   "sha256": "c0da2483f095595057780f4a6cdc5e6cb6a8154fd325b4589c4c79c76ab30b33"
+  },
+  "front_hex": "0800000074302d736d616c6c0102000000000000001a000000ffffffff1500400800000000000000000300000000000000000000002a0000000100000002120000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000000",
+  "header2_hex": "010000000000000001000000000000002b007f00080000000000000001000000000000000302000000",
+  "priority": 127,
+  "segment_lengths": [
+   41,
+   152,
+   0,
+   16
+  ],
+  "seq": 1,
+  "summary": {
+   "epoch": 42,
+   "flags": 138412053,
+   "oid": "t0-small",
+   "ops": [
+    {
+     "code": 4610,
+     "name": "STAT",
+     "payload_len": 16
+    }
+   ],
+   "pool": 2,
+   "replay_version": [
+    0,
+    0
+   ],
+   "result": 0,
+   "retry_attempt": 0,
+   "rvals": [
+    0
+   ],
+   "seed": 26,
+   "user_version": 3
+  },
+  "tid": 1,
+  "type": 43,
+  "version": 8
+ },
+ "request": {
+  "compat_version": 3,
+  "data": {
+   "hex": "",
+   "length": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "front_hex": "0101120000000102000000000000001a000000ffffffffff3a69c6a42a000000140040080202150000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101010000000000000000000000000000000006031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff0800000074302d736d616c6c01000212000000000000000000000000000000000000000000000000000000000000000000000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+  "header2_hex": "010000000000000001000000000000002a003f00090000000000000000000000000000000303000000",
+  "priority": 63,
+  "segment_lengths": [
+   41,
+   224,
+   0,
+   0
+  ],
+  "seq": 1,
+  "summary": {
+   "client_inc": 0,
+   "epoch": 42,
+   "features": 4541880224203014143,
+   "flags": 138412052,
+   "hash": 2764466490,
+   "mtime_is_zero": true,
+   "oid": "t0-small",
+   "ops": [
+    {
+     "code": 4610,
+     "flags": 0,
+     "length": 0,
+     "name": "STAT",
+     "offset": 0,
+     "payload_len": 0
+    }
+   ],
+   "pool": 2,
+   "retry_attempt": 0,
+   "seed": 26,
+   "snap_seq": 0,
+   "snapid": 18446744073709551614,
+   "snaps": []
+  },
+  "tid": 1,
+  "type": 42,
+  "version": 9
+ },
+ "source": "capture session k2-rados-small, tid 1 (private capture store)"
+}

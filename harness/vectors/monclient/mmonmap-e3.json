@@ -1,0 +1,57 @@
+{
+ "id": "mmonmap-e3",
+ "description": "MMonMap (type 4), monitor to client: header2 + front = u32 length + MonMap struct_v 10 / compat 6, one monitor with a v2 and a v1 address; identical bytes to `ceph mon getmap`. fsid and the lab host name are kept (random lab values, not secrets)",
+ "source": "session k2-rbd-info-default (crc mode, key type aes256k) / first MMonMap received",
+ "header2_hex": "010000000000000000000000000000000400c400010000000000000002000000000000000301000000",
+ "front_hex": "0a0100000a060401000052762725e19a11f1886d525400770001030000004cc4fa6a4b52f52b17c3fa6aa51b8331010108000000ff0f0080010000000101080000000000000000000000010000000c00000077696e7262642d636570683106016b0000000c00000077696e7262642d636570683102020000000101011c00000002000000000000001000000002000ce40a4d000a00000000000000000101011c00000001000000000000001000000002001a850a4d000a0000000000000000000000000000000017c3fa6a659f8331010000000c00000077696e7262642d636570683114000000000100000000000000000000000000000000000100000002000000010000000200000002000000",
+ "monmap_hex": "0a060401000052762725e19a11f1886d525400770001030000004cc4fa6a4b52f52b17c3fa6aa51b8331010108000000ff0f0080010000000101080000000000000000000000010000000c00000077696e7262642d636570683106016b0000000c00000077696e7262642d636570683102020000000101011c00000002000000000000001000000002000ce40a4d000a00000000000000000101011c00000001000000000000001000000002001a850a4d000a0000000000000000000000000000000017c3fa6a659f8331010000000c00000077696e7262642d636570683114000000000100000000000000000000000000000000000100000002000000010000000200000002000000",
+ "expect": {
+  "type": 4,
+  "version": 1,
+  "compat": 1,
+  "priority": 196,
+  "front_len": 270,
+  "monmap": {
+   "epoch": 3,
+   "fsid": "52762725e19a11f1886d525400770001",
+   "struct_v": 10,
+   "struct_compat": 6,
+   "ranks": [
+    "winrbd-ceph1"
+   ],
+   "min_mon_release": 20,
+   "strategy": 1,
+   "auth_epoch": 0,
+   "auth_service_cipher": 1,
+   "auth_allowed_ciphers": [
+    1,
+    2
+   ],
+   "auth_preferred_cipher": 2,
+   "persistent_features": 6442455039,
+   "optional_features": 0,
+   "mons": {
+    "winrbd-ceph1": {
+     "priority": 0,
+     "weight": 0,
+     "addrs": [
+      {
+       "type": 2,
+       "ip": "10.77.0.10",
+       "port": 3300,
+       "nonce": 0
+      },
+      {
+       "type": 1,
+       "ip": "10.77.0.10",
+       "port": 6789,
+       "nonce": 0
+      }
+     ]
+    }
+   }
+  },
+  "note": "mon-client 2.4"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

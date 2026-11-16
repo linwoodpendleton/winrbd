@@ -1,0 +1,17 @@
+{
+ "_comment": "HMAC-SHA256(key = raw secret bytes of the session key, data = transcript). Synthetic key 00..0f (type 1) and 00..1f (type 2); synthetic transcript. Real transcripts contain challenges and tickets and are not committed.",
+ "cases": [
+  {
+   "session_key_type": 1,
+   "session_key_secret_hex": "000102030405060708090a0b0c0d0e0f",
+   "transcript_hex": "636570682076320a1000000102030405060708090a0b0c0d0e0f73796e7468657469632d7472616e736372697074",
+   "hmac_sha256_hex": "450ada11a620307946c08c4283356fad3af0b4d3554dc3a131759c2defee7be1"
+  },
+  {
+   "session_key_type": 2,
+   "session_key_secret_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+   "transcript_hex": "636570682076320a1000000102030405060708090a0b0c0d0e0f73796e7468657469632d7472616e736372697074",
+   "hmac_sha256_hex": "4cb8b1c3d51f6efbc689a0210dd9f9e0a48349ef59b54363bf2103a405ec36c1"
+  }
+ ]
+}

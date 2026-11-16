@@ -1,0 +1,8 @@
+{
+  "provenance": "client-usable block v10 of the epoch-42 full map, fsid zeroed; wrapper, OSD-only block and CRC omitted. Contains daemon addresses (lab 10.77.0.x) and daemon nonces (random process ids, not secrets)",
+  "length": 1927,
+  "epoch": 42,
+  "pools": [1, 2],
+  "max_osd": 3,
+  "block_struct_v": 10
+}

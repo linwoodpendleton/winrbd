@@ -1,0 +1,18 @@
+{
+ "id": "mmonsubscribe-derived-monmap-only",
+ "description": "The 28-byte example derived in mon-client.md section 5 (monmap only, hostname \"h\"); NOT captured: built from the layout, and equal to the bytes the real client produces for the same fields (checked by re-encoding every captured subscribe)",
+ "source": "derived from the note, verified by re-encoding captures",
+ "front_hex": "01000000060000006d6f6e6d61700000000000000000000100000068",
+ "expect": {
+  "front_len": 28,
+  "what": [
+   [
+    "monmap",
+    0,
+    0
+   ]
+  ],
+  "hostname": "h"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

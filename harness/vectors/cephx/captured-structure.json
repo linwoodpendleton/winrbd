@@ -1,0 +1,219 @@
+{
+ "description": "Structure observed in the 39 captures (lengths and versions only, no values). Ticket blob lengths vary a little between tickets because the opaque blob carries the name and capability text; msg_a lengths are fixed per key type.",
+ "handshake_sizes": {
+  "authorizer|svc=0x10|keytype=1|mode=1": [
+   {
+    "connection_secret_len": 0,
+    "first_proof_ct_len": 32,
+    "reply_v": 1,
+    "second_proof_ct_len": 32
+   }
+  ],
+  "authorizer|svc=0x10|keytype=1|mode=2": [
+   {
+    "connection_secret_len": 64,
+    "first_proof_ct_len": 32,
+    "reply_v": 2,
+    "second_proof_ct_len": 32
+   }
+  ],
+  "authorizer|svc=0x10|keytype=2|mode=1": [
+   {
+    "connection_secret_len": 0,
+    "first_proof_ct_len": 67,
+    "reply_v": 1,
+    "second_proof_ct_len": 67
+   }
+  ],
+  "authorizer|svc=0x10|keytype=2|mode=2": [
+   {
+    "connection_secret_len": 64,
+    "first_proof_ct_len": 67,
+    "reply_v": 2,
+    "second_proof_ct_len": 67
+   }
+  ],
+  "authorizer|svc=0x4|keytype=1|mode=1": [
+   {
+    "connection_secret_len": 0,
+    "first_proof_ct_len": 32,
+    "reply_v": 1,
+    "second_proof_ct_len": 32
+   }
+  ],
+  "authorizer|svc=0x4|keytype=1|mode=2": [
+   {
+    "connection_secret_len": 64,
+    "first_proof_ct_len": 32,
+    "reply_v": 2,
+    "second_proof_ct_len": 32
+   }
+  ],
+  "authorizer|svc=0x4|keytype=2|mode=1": [
+   {
+    "connection_secret_len": 0,
+    "first_proof_ct_len": 67,
+    "reply_v": 1,
+    "second_proof_ct_len": 67
+   }
+  ],
+  "authorizer|svc=0x4|keytype=2|mode=2": [
+   {
+    "connection_secret_len": 64,
+    "first_proof_ct_len": 67,
+    "reply_v": 2,
+    "second_proof_ct_len": 67
+   }
+  ],
+  "mon|keytype=1|mask=0x20|mode=1": [
+   {
+    "auth_msg_a_len": 48,
+    "auth_ticket_blob_len": 152,
+    "auth_validity_s": 259200,
+    "cbl_len": 20,
+    "connection_secret_len": 0,
+    "extra_len": 0
+   }
+  ],
+  "mon|keytype=1|mask=0x20|mode=2": [
+   {
+    "auth_msg_a_len": 48,
+    "auth_ticket_blob_len": 152,
+    "auth_validity_s": 259200,
+    "cbl_len": 84,
+    "connection_secret_len": 64,
+    "extra_len": 0
+   }
+  ],
+  "mon|keytype=1|mask=0x35|mode=1": [
+   {
+    "auth_msg_a_len": 48,
+    "auth_ticket_blob_len": 152,
+    "auth_validity_s": 259200,
+    "cbl_len": 20,
+    "connection_secret_len": 0,
+    "extra_len": 689
+   }
+  ],
+  "mon|keytype=1|mask=0x35|mode=2": [
+   {
+    "auth_msg_a_len": 48,
+    "auth_ticket_blob_len": 152,
+    "auth_validity_s": 259200,
+    "cbl_len": 84,
+    "connection_secret_len": 64,
+    "extra_len": 689
+   }
+  ],
+  "mon|keytype=2|mask=0x20|mode=1": [
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 163,
+    "auth_validity_s": 259200,
+    "cbl_len": 57,
+    "connection_secret_len": 0,
+    "extra_len": 0
+   },
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 164,
+    "auth_validity_s": 259200,
+    "cbl_len": 57,
+    "connection_secret_len": 0,
+    "extra_len": 0
+   },
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 166,
+    "auth_validity_s": 259200,
+    "cbl_len": 57,
+    "connection_secret_len": 0,
+    "extra_len": 0
+   }
+  ],
+  "mon|keytype=2|mask=0x20|mode=2": [
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 164,
+    "auth_validity_s": 259200,
+    "cbl_len": 121,
+    "connection_secret_len": 64,
+    "extra_len": 0
+   }
+  ],
+  "mon|keytype=2|mask=0x35|mode=1": [
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 163,
+    "auth_validity_s": 259200,
+    "cbl_len": 57,
+    "connection_secret_len": 0,
+    "extra_len": 876
+   },
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 164,
+    "auth_validity_s": 259200,
+    "cbl_len": 57,
+    "connection_secret_len": 0,
+    "extra_len": 887
+   },
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 166,
+    "auth_validity_s": 259200,
+    "cbl_len": 57,
+    "connection_secret_len": 0,
+    "extra_len": 862
+   }
+  ],
+  "mon|keytype=2|mask=0x35|mode=2": [
+   {
+    "auth_msg_a_len": 102,
+    "auth_ticket_blob_len": 164,
+    "auth_validity_s": 259200,
+    "cbl_len": 121,
+    "connection_secret_len": 64,
+    "extra_len": 887
+   }
+  ]
+ },
+ "extra_ticket_sizes": {
+  "extra_ticket|svc=0x10|keytype=1": [
+   {
+    "key_len": 16,
+    "msg_a_len": 48
+   }
+  ],
+  "extra_ticket|svc=0x10|keytype=2": [
+   {
+    "key_len": 32,
+    "msg_a_len": 102
+   }
+  ],
+  "extra_ticket|svc=0x1|keytype=1": [
+   {
+    "key_len": 16,
+    "msg_a_len": 48
+   }
+  ],
+  "extra_ticket|svc=0x1|keytype=2": [
+   {
+    "key_len": 32,
+    "msg_a_len": 102
+   }
+  ],
+  "extra_ticket|svc=0x4|keytype=1": [
+   {
+    "key_len": 16,
+    "msg_a_len": 48
+   }
+  ],
+  "extra_ticket|svc=0x4|keytype=2": [
+   {
+    "key_len": 32,
+    "msg_a_len": 102
+   }
+  ]
+ }
+}

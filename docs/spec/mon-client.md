@@ -10,6 +10,12 @@ Markers used below:
 - **[unverified]**: not pinned in the source we read; also listed in section 6.
 - **[confirm on capture]**: source says so, but the bytes must be checked on a live v20.2.5 cluster
   before the core relies on it; also listed in section 5.
+- **[confirmed: <capture / tool>]**: checked after the fact against the Phase 0 capture set (39 pcaps of a
+  stock Ceph 20.2.5 client on the lab cluster) with the independent checker
+  `harness/tools/monclient_check.py` (our own msgr2 / cephx / monitor-client decoders, no Ceph decoder in
+  the loop; ground truth from `ceph mon dump`, `ceph mon getmap` and the monitor-store copies of every
+  map). Scrubbed vectors: `harness/vectors/monclient/`. Items that were corrected instead of confirmed are
+  listed at the end of section 6 ("Corrections after capture").
 
 ## 1 Scope and sources
 
@@ -75,9 +81,12 @@ address vectors), `:70-72` (`mon_host` accepts the bracketed address-vector synt
   elements (`src/include/encoding.h:831-851` set, `:950-956` vector, `:1079-1087` map). Those are the
   generic encoders; for element types with a fixed-size integer encoding the code may pick the
   denc-based container encoders in `src/include/denc.h` instead (e.g. `set<u32>`, `vector<i32>` in the
-  MonMap). **[unverified]** that the denc containers are byte-identical (they also lead with a u32
-  count, `src/include/denc.h:982-989`; element bytes not traced), so the first MonMap capture (T2)
-  must confirm `removed_ranks` and `auth_allowed_ciphers`.
+  MonMap). Whether the denc containers are byte-identical (they also lead with a u32
+  count, `src/include/denc.h:982-989`; element bytes not traced): **[confirmed: every MMonMap in
+  `pcap/*`, `gt/mon-dump.json`]** for `vector<i32>` (`auth_allowed_ciphers` = u32 count 2, then the i32
+  values 1 and 2, equal to `ceph mon dump`) and for the count of the empty `set<u32>` / `set<string>`
+  fields; the element bytes of a NON-empty `set<u32>` (`removed_ranks`) stay **[unverified]** (the lab
+  monmap has no removed rank).
 - `epoch_t` = u32, `version_t` = u64, `ceph_tid_t` = u64 (`src/include/types.h:412-414`).
 - `uuid` (fsid) = 16 raw bytes, no length prefix (`src/include/uuid.h:70-72`).
 - `utime_t` and C++ `time_point` fields = u32 seconds + u32 nanoseconds
@@ -100,7 +109,7 @@ The full msgr2 message frame is described in the msgr2 note. The per-message hea
 | seq | u64 | per-session message sequence, owned by the messenger layer |
 | tid | u64 | transaction id; monclient does not set it on its own requests (see 2.7: version requests use `handle` in the body instead); a monitor copies the request tid into replies it builds for MMonGetVersion |
 | type | u16 | message type, table 2.2 |
-| priority | u16 | a message whose priority is still 0 gets the messenger default 127 (`CEPH_MSG_PRIO_DEFAULT`, `src/include/msgr.h:226`) when it is sent (`src/msg/async/AsyncConnection.cc:570-571`, default set at `src/msg/Messenger.cc:68`); no monclient message sets its own, so expect 127 on the wire **[confirm on capture]** |
+| priority | u16 | a message whose priority is still 0 gets the messenger default 127 (`CEPH_MSG_PRIO_DEFAULT`, `src/include/msgr.h:226`) when it is sent (`src/msg/async/AsyncConnection.cc:570-571`, default set at `src/msg/Messenger.cc:68`); no monclient message sets its own, so expect 127 on the wire **[confirmed: `pcap/*`, 714 of 714 messages the client sent to a monitor carry 127, and the monitor accepted all of them]**. Messages the MONITOR sends carry 196 (`CEPH_MSG_PRIO_HIGH`) on every reply and push (all 949 monitor messages checked); a client must not insist on 127 when receiving |
 | version | u16 | encoding version of the body (HEAD version of that message type) |
 | data_pre_padding_len | u32 | messenger layer |
 | data_off | u16 | messenger layer |
@@ -133,7 +142,7 @@ Constants: `src/include/ceph_fs.h:135-185`, `src/msg/Message.h:55-72, 120-121`.
 | 19 | CEPH_MSG_MON_GET_VERSION (MMonGetVersion) | client to mon | optional | v1 (wire compat 1) |
 | 20 | CEPH_MSG_MON_GET_VERSION_REPLY | mon to client | only if 19 is used | v2 (wire compat 2) |
 | 41 | CEPH_MSG_OSD_MAP (MOSDMap) | mon to client | required | v4, compat 3 for a full-feature client; v1 or v2 for a client lacking PGID64/PGPOOL3/OSDENC (2.6) |
-| 62 | MSG_CONFIG (MConfig) | mon to client | skip (only sent if subscribed to "config") | v1 |
+| 62 | MSG_CONFIG (MConfig) | mon to client | skip (only sent if subscribed to "config") | v1 (compat 1; **[confirmed: `pcap/*`]**, 188 bytes in the lab) |
 | 63 | MSG_GET_CONFIG | client to mon | skip | |
 | 50 / 51 | MSG_MON_COMMAND / _ACK | both | skip (not needed to read or write an image) | |
 | 52 / 53 | MSG_LOG / MSG_LOGACK | both | skip | |
@@ -144,9 +153,16 @@ Message types the reference MonClient dispatches (everything else is passed on o
 MOSDMap (41) is not handled by MonClient; the reference client's Objecter consumes it
 (`src/osdc/Objecter.cc:1068-1071`).
 
-A client must ignore (not abort on) message types it does not implement. **[confirm on capture]**
-that a monitor sends nothing unexpected on a fresh session when only "monmap" and "osdmap" are
-subscribed.
+A client must ignore (not abort on) message types it does not implement. **[confirmed:
+`pcap/*`, all 243 monitor connections]** that a monitor sends nothing unsolicited: every message it sent
+answers something the client sent first (MMonMap <- MMonGetMap or the "monmap" subscription, MConfig <-
+"config", MOSDMap <- "osdmap", the mgrmap push <- "mgrmap", MMonCommandAck <- MMonCommand, MAuthReply <-
+MAuth) and nothing arrives before the client's first message. Caveat: the stock tools always subscribe to
+"config" and "mgrmap" as well, so a session with ONLY {monmap, osdmap} was not captured. Types seen from
+the monitor over the whole set: 4, 18, 41, 51, 62 and 1796 (never 16, 19, 20, 6). The monitor-sent 1796
+(0x704) is the push for a "mgrmap" subscription (53,337 bytes in the lab); a minimal client never subscribes
+to it and never sees it. Note also that the stock `ceph` CLI pulls a 246,845-byte command description with
+MMonCommand (types 50 / 51) at start-up; that is tool behaviour, not needed here.
 
 ### 2.3 MMonGetMap (type 5), client to monitor
 
@@ -243,7 +259,7 @@ address of the same monitor, e.g. `[v2:10.0.0.1:3300/0, v1:10.0.0.1:6789/0]`.
 | marker | u8 | = 1 |
 | (envelope) | u8 struct_v = 1, u8 struct_compat = 1, u32 struct_len | `ENCODE_START(1, 1)` |
 | type | u32 | 0 none, 1 legacy (v1), 2 msgr2 (v2), 3 any, 4 cidr (`src/msg/msg_types.h:239-245`); when the receiver lacks SERVER_NAUTILUS the sender writes 3 as 1 (`src/msg/msg_types.h:488-497`) |
-| nonce | u32 | per-process nonce of the daemon; the connect target for msgr2 is ip:port, the nonce is part of the identity checked in the msgr2 handshake **[unverified]** whether a client must verify it |
+| nonce | u32 | per-process nonce of the daemon; the connect target for msgr2 is ip:port, the nonce is part of the identity checked in the msgr2 handshake **[unverified]** whether a client must verify it (observed: the lab monitor's nonce is 0 in the MonMap and the stock client sends exactly that address, nonce 0, as CLIENT_IDENT `target_addr`; no capture has a wrong nonce, so whether it is checked is not settled) |
 | elen | u32 | length of the sockaddr that follows (family field included); 0 means no sockaddr at all; a decoder must reject elen < 2 and an elen larger than the sockaddr it can hold (`src/msg/msg_types.h:538-550`) |
 | sa_family | u16, only if elen > 0 | 2 = IPv4, 10 = IPv6 (Windows builds map their own AF_INET6 to the Linux value 10 on the wire, `src/msg/msg_types.h:506-523`) |
 | sa_data | elen - 2 bytes | see below |
@@ -251,7 +267,7 @@ address of the same monitor, e.g. `[v2:10.0.0.1:3300/0, v1:10.0.0.1:6789/0]`.
 sa_data for IPv4 (elen = 16): 2 bytes port in network byte order, 4 bytes address, 8 zero bytes.
 For IPv6 (elen = 28): 2 bytes port (network order), 4 bytes flow info, 16 bytes address, 4 bytes
 scope id. These follow the in-memory C socket address structures (`src/msg/msg_types.h:321-329`
-gives the length rule); the exact byte positions **[confirm on capture]**.
+gives the length rule); the exact byte positions **[confirmed: `pcap/*` MonMap addresses, `gt/monmap.bin`]** for IPv4: struct_v 1 / compat 1 / struct_len 28, type, nonce, elen 16, family 2 (little endian), port big endian, 4 address bytes, 8 zero bytes, 14 `sa_data` bytes in total, and the whole MonMap blob is byte-identical to `ceph mon getmap`. The IPv6 layout stays **[confirm on capture]** (the lab has no IPv6 monitor address, T4).
 
 Pick rule for a connecting client: the reference messenger takes the first address in the vector
 whose type is v1 or v2 and skips entries of any other type; vector order decides, there is no
@@ -279,6 +295,8 @@ Item (9 bytes, packed, no envelope; `src/include/ceph_fs.h:271-274`, raw-encoded
 | start | u64 | first version (epoch) the client wants; 0 = "give me the latest" |
 | flags | u8 | bit 0 = ONETIME (`src/include/ceph_fs.h:269`): send once, then drop the subscription |
 
+**[confirmed: `pcap/*`, 445 of 445 MMonSubscribe the stock client sent, `harness/vectors/monclient/mmonsubscribe-*.json`]**: header version 3 / compat 1, the body is exactly map<string, 9-byte item> + hostname (decoding then re-encoding with the layout above reproduces the wire bytes), entries are in name order, flags are 0 or 1, the hostname is the short host name of the client machine. The derived 28-byte example in section 5 is the same encoding.
+
 If the connection lacks the SUBSCRIBE2 feature bit, the sender falls back to a version-0 body in an
 older layout (`src/messages/MMonSubscribe.h:80-93`). A client that advertises SUBSCRIBE2 never
 receives or sends that form.
@@ -289,12 +307,14 @@ Subscription names the monitor understands that matter here
 | Name | Needed capability | What the monitor sends |
 |---|---|---|
 | "monmap" | none | MMonMap whenever its epoch is at least `start` (immediately if `start` is 0 or already reached), then again on every change unless ONETIME (`src/mon/MonmapMonitor.cc:1548-1564`) |
-| "osdmap" | "osd" read | MOSDMap messages, see 2.6 and 3.5 |
+| "osdmap" | "osd" read (**corrected**: a user whose only cap is `mon r`, no osd caps at all, is answered; see Corrections) | MOSDMap messages, see 2.6 and 3.5 |
 | "config" | none | MConfig with config values for this entity; optional, a minimal client does not subscribe |
 | "mgrmap", "mdsmap", "fsmap", "servicemap", ... | various | not needed; any name other than the ones handled specially needs the "mon" read capability or it is dropped (`src/mon/Monitor.cc:5427-5431`) |
 
 A subscription for which the session lacks the capability is silently dropped: no error message
-comes back (`src/mon/Monitor.cc:5406-5412`). From the client's point of view this looks like
+comes back (`src/mon/Monitor.cc:5406-5412`) **[confirm on capture]** (not exercised: the only restricted
+users captured, `client.t0-noosd` with `mon r` only and `client.t0-ro` with `mon r, osd r pool=winrbd`, were BOTH
+answered with a MOSDMap, so neither lacked the capability; a user with narrower mon caps would be needed). From the client's point of view this looks like
 a monitor that never answers.
 
 Subscribing again with the same name replaces the previous entry of that name on that session
@@ -344,6 +364,8 @@ The "first" and "last" epoch of a message are the lowest and highest epoch among
 maps (`src/messages/MOSDMap.h:56-73`). A single message may contain a mix: incrementals for most
 epochs and a full map for the first one, or only a single full map.
 
+**[confirmed: `pcap/*`, all 97 MOSDMap received, `harness/vectors/monclient/mosdmap-v4-full-e42.json`]** for the stock client mask (2.9): header version 4 / compat 3, body order fsid, incremental_maps, maps, trim bound, newest_map, then exactly 4 zero bytes; fsid equal to the monmap fsid; each blob is one wrapper envelope (6 + struct_len = blob length) whose epoch and fsid match, passes the CRC rule of the OSDMap note, and (for the 88 whose epoch the monitor store holds) is byte-identical to the monitor-store copy (so the "canonical bytes" case of 2.8 of the OSDMap note is real). Only FULL maps were delivered in the captures (one per message); incrementals-only and mixed messages were never captured (T9 open); `harness/vectors/monclient/mosdmap-v4-inc-e42-e43-synthetic.json` is a synthetic stand-in built from stored Incrementals, labelled as such.
+
 The monitor re-encodes both kinds of blob for the feature set of the receiving connection when it
 differs from the monitor quorum's features (`src/mon/OSDMonitor.cc:4651-4671, 4795-4821`,
 `src/messages/MOSDMap.h:117-157`). Practical consequence: the OSDMap encoding version a client
@@ -386,7 +408,7 @@ daemon (`src/osd/OSD.cc:7244`). The monitor dispatches the request to the OSD ma
 (`src/mon/Monitor.cc:4738-4744`, whose comment says the caps are checked by the service); we found
 no capability check in `OSDMonitor::preprocess_get_osdmap` or `src/mon/PaxosService.cc`, but did not
 trace the whole service dispatch, so whether a plain client may use it is **[unverified]** and
-**[confirm on capture]**. Its value for a client is control over the size of
+**[confirm on capture]** (not settled by the Phase 0 captures: no stock tool sends type 6). Its value for a client is control over the size of
 the reply (section 3.5, "bounded memory").
 
 ### 2.9 Feature bits that gate these encodings
@@ -409,6 +431,8 @@ adds the marker bit 57, incarnation 3 adds bits 57 and 28.
 | MSGR_KEEPALIVE2 | 42 | client may time out on missing keepalive acks (`src/mon/MonClient.cc:1062-1070`) |
 | INCSUBOSDMAP | 10 (`src/include/ceph_features.h:96`) | a ONETIME osdmap subscription is answered with one message only (`src/mon/Monitor.cc:5455`, `src/mon/OSDMonitor.cc:4531-4580`) |
 | PGID64, PGPOOL3, OSDENC (bits 9, 11, 13) | | MOSDMap header version (1 / 2 / 4) and the OSDMap blob encoding the monitor uses (`src/messages/MOSDMap.h:103-115`) |
+
+**[confirmed: `pcap/*`, 243 of 243 monitor connections]**: the stock client's CLIENT_IDENT `supported` is exactly `0x3f07fffffffdffff`; the monitor's SERVER_IDENT `supported` is the same value; every bit of this table, including the incarnation marker bits 2, 28 and 57 that SERVER_NAUTILUS needs, is set in both, and with that mask the monitor sent MonMap v10, MMonSubscribe v3 was accepted and MOSDMap came as v4 / compat 3 with client block v10. Reduced masks (the minimal set) were not tried.
 
 We do NOT list the full advertised set here; that belongs in the msgr2 note
 (CEPH_FEATURES_ALL is at `src/include/ceph_features.h:194-262`; `msgr2.md` in this directory
@@ -536,6 +560,8 @@ parts that are monclient's business:
    build the MMonSubscribe once per session, send it after the handshake succeeded, on that
    connection only.
 
+Observed with the stock tools (`rbd`, `rados`, `ceph`, python rados; `pcap/*`): **every tool run opens TWO monitor connections.** The first is a bootstrap session of a separate MonClient: it asks only for the AUTH ticket (`other_keys` = 0x20), its CLIENT_IDENT has flags 0 and a non-zero cookie (a lossless session; `required` = MSG_ADDR2 only), and it subscribes to {"config" 0/0, "monmap" 0/0} (monmap start 0), receives MMonMap, MConfig, MMonMap and goes away. The second is the real session (lossy: flags 1, cookie 0, `required` = 0x0800000000001000): AUTH ticket plus MON, OSD and MGR tickets (`other_keys` = 0x35), the same first subscribe, then {"mgrmap" 0/0} and {"osdmap" 0, ONETIME}. A minimal client needs only the second kind, and needs neither "config" nor "mgrmap". Every one of the 106 osdmap subscriptions used ONETIME (flag 1). The first two messages of each connection, MMonGetMap and the first MMonSubscribe, went out together (identical capture timestamp) right after the handshake **[confirmed: `pcap/*`]**.
+
 What to subscribe to (the reference sends exactly this set at connect time,
 `src/mon/MonClient.cc:622-623`, plus the librados extras):
 
@@ -557,7 +583,11 @@ and (b) a MonMap with epoch greater than 0 was decoded.
 Expect TWO MMonMap messages on a fresh session: one answers MMonGetMap, and one is pushed because
 the "monmap" subscription (start 0, or at most the held epoch + 1) is satisfied at once
 (`src/mon/Monitor.cc:5471-5472`, `src/mon/MonmapMonitor.cc:1548-1564`). Both normally carry the
-same epoch; handling the second one must be idempotent.
+same epoch; handling the second one must be idempotent. **[confirmed: `pcap/*`, all 242 fresh
+sessions with a monmap start of 0 got exactly two, same epoch and byte-identical; `pcap/k2-mon-restart`: the
+reconnect that subscribed with monmap start 4 (held 3 + 1) got exactly one]**. With "config" subscribed the
+order on the wire is MMonMap (answer), MConfig, MMonMap (push); both MMonMap came after the client's
+MMonGetMap and subscribe, within a few milliseconds.
 
 Steps (`src/mon/MonClient.cc:429-485`):
 
@@ -605,6 +635,15 @@ also remembers per session the highest epoch it already sent and will not resend
 the client resubscribes with a lower start (`src/mon/OSDMonitor.cc:4544-4548`,
 `src/mon/Monitor.cc:5464-5467`).
 
+Capture status of this table (`pcap/*`, `harness/vectors/monclient/scenario-*.json`): row 1 is **[confirmed:
+`pcap/k2-rbd-info-default` and 36 more start-0 subscriptions]** for a start-0 subscription with the ONETIME flag: one
+MOSDMap, `maps` = {newest epoch}, `incremental_maps` empty, trim bound 1 (this monitor never trimmed),
+newest_map = the epoch, within 1 to 20 ms of the subscribe. Row 5 (start above the newest epoch) is
+**[confirmed: `pcap/k2-mon-restart`, `k2-renew-ttl60`]**: the re-subscribe with start 93 at epoch 92 got no
+message. Rows 2, 3, 4, 6 and 7 (start N inside the stored range, start older than the trim bound, continuous,
+ONETIME with and without INCSUBOSDMAP) and the chunk size 40 were not captured: the stock tools only ever
+subscribe with start 0, and the lab map history was never trimmed; they stay **[confirm on capture]**.
+
 Note that the monitor does not limit the BYTES of a subscription reply; only the epoch count (40)
 caps it in that path. The byte cap exists in the MMonGetOSDMap path (2.8). Worst case a message
 holds 40 maps. See Q9.
@@ -646,7 +685,11 @@ On receiving a MOSDMap `m` (follows the reference, `src/osdc/Objecter.cc:1208-13
 An incremental must also be applied only to the map of epoch `e - 1`; OSDMap::Incremental carries
 checksums of the full map and of itself (field names `full_crc`, `inc_crc`,
 `src/mon/OSDMonitor.cc:4673-4688` shows the monitor reading them). Whether the client must check
-them, and how, belongs in the OSDMap note. **[unverified]** in this note.
+them, and how, belongs in the OSDMap note. The rules there are **[confirmed: `gt3/inc`, `gt3/full`, every
+delivered MOSDMap]**: the CRC check of the OSDMap note (seed 0xFFFFFFFF, no final inversion) passes on all
+89 stored Incrementals (`inc_crc`) and on all 89 stored plus all 97 delivered full maps, and the `full_crc`
+at the end of each Incremental equals the CRC stored in the full map of the same epoch. Whether verifying is
+mandatory for a client is a policy choice, not a wire fact; it stays with the OSDMap note.
 
 #### 3.5.3 How to request a missing range
 
@@ -691,7 +734,14 @@ The reference timer (`src/mon/MonClient.cc:1025-1081, 1094-1108`):
 - If more than `mon_client_ping_interval` (10 s) passed since the last keepalive, the client sends
   a keepalive on the monitor connection. The keepalive frame is a msgr2 frame (KEEPALIVE2 carrying
   a timestamp, answered with KEEPALIVE2_ACK echoing it: `src/msg/async/ProtocolV2.cc:479-485,
-  651-663, 1687-1732`); the frame layout is in the msgr2 note.
+  651-663, 1687-1732`); the frame layout is in the msgr2 note. **[confirmed: `pcap/k2-idle75`,
+  `k1-idle75`, `k2-renew-ttl60`, `k1-renew-ttl60`, `k2-mon-restart`; 9 monitor connections, 61 keepalive
+  round trips]**: the
+  client sends KEEPALIVE2 every 10.0 s (9.9 to 11.1 s apart), the monitor answers with KEEPALIVE2_ACK
+  within 1 ms carrying the identical utime, and the stamp is the sender's wall clock. The FIRST keepalive
+  went out 3.0 s after the TCP connect (7.0 s on the connection made after a monitor restart), earlier than
+  "10 s since the last keepalive" suggests: the initial "last keepalive" time is evidently old, so do not
+  rely on a 10 s quiet period at start-up. The 30 s ack timeout was not exercised (every ack arrived).
 - If `mon_client_ping_timeout` is positive (default 30 s) and the peer has MSGR_KEEPALIVE2: when
   the newest keepalive ack is older than 30 s, treat the monitor as dead and reopen the session
   (hunt for another monitor). This check only runs on ticks that also send a keepalive, so it
@@ -780,6 +830,20 @@ msgr2 session is established, for new service tickets.
    reference ignores any monitor message not from the active (or a pending hunting) connection
    (`src/mon/MonClient.cc:343-358`).
 
+**[confirmed: `pcap/k2-renew-ttl60`, `k1-renew-ttl60`, `harness/vectors/monclient/mauth-*.json`]** (T14, Q4):
+with `auth_service_ticket_ttl` = 60 s the python rados client sent MAuth on its monitor session 45.0 s after
+it received the tickets (expiry minus validity / 4), then again every 45 s (three renewals in 150 s, 6 of 6
+exchanges). MAuth is header version 1 / compat 1 (the compat copied from version), body = PaxosServiceMessage
+prefix (u64 0, i16 -1, u64 0), protocol 2, auth_payload, monmap_epoch 0, no trailing bytes; the payload is
+request header 0x0200, an authorizer for service AUTH (0x20) with the held AUTH ticket blob and a proof under
+the AUTH session key (usage 0x10, have_challenge 0, no challenge round trip), then CephXServiceTicketRequest
+v1 with keys 0x15 (MON, OSD, MGR; AUTH bit clear). MAuthReply is version 1 / compat 1: protocol 2, result 0,
+global_id equal to the session's, result_bl = response header 0x0200 / status 0 + a ticket reply with
+ticket_enc 0 and `msg_a` under the AUTH session key (usage 4), result_msg empty. The monitor accepted a renewal
+on a session whose authentication happened in the msgr2 handshake. The validity values on the wire were 259,200
+s (72 h) for the AUTH ticket in every login and 3,600 s (60 s in the renew sessions) for service tickets.
+Renewing the AUTH ticket itself in-session was not exercised (it would need a 54 h run).
+
 Rotating secrets (`_check_auth_rotating`) are only needed by OSD, MDS and MGR daemons, not by a
 client (`src/auth/Auth.h:264-270`, `src/mon/MonClient.cc:1157-1165`); skip.
 
@@ -812,6 +876,12 @@ msgr2 / cephx notes.
   and never sets "may be omitted" works under either setting. The cephx request body layout
   (field `old_ticket`, `other_keys`) is in the cephx note
   (`src/auth/cephx/CephxClientHandler.cc:64-102`).
+- **[confirmed: `pcap/k2-mon-restart`]** (T15, first half): after the monitor restart the client dialled a new
+  connection (at t = 26.6 s; the monitor had been restarted at about t = 25 s) and sent the stored global_id in AUTH_REQUEST with a non-empty `old_ticket`
+  (the 151-byte AUTH ticket blob handed out by the first login) in CephXAuthenticate v3; the monitor returned
+  the same global_id in AUTH_DONE and the AUTH ticket reply used `ticket_enc` = 1 (the new blob encrypted under
+  the previous AUTH session key, usage 5, plaintext one bufferlist). It then sent MMonGetMap and a subscribe
+  with held + 1 starts (3.7). Reclaim with an expired old ticket was not captured (Q5 stays open).
 - If the monitor hands back a different global_id than the one we sent, the reference logs an
   error and carries on (`src/mon/MonClient.cc:1013-1020`). **[unverified]** what happens to
   existing OSD sessions in that case. A minimal client that wants identity continuity should treat a
@@ -917,64 +987,127 @@ cluster, plus the Ceph CLI output to cross-check.
 Derived (not captured) example bytes for T5, subscribing to the monmap only, all values hex,
 hostname "h": count 01 00 00 00; key length 06 00 00 00, "monmap" 6d 6f 6e 6d 61 70; start (8
 bytes) 00 00 00 00 00 00 00 00; flags 00; hostname length 01 00 00 00, 68. Total 4+4+6+8+1+4+1 = 28
-bytes. This is derived from the layout in 2.5.1 and must be compared with a real capture.
+bytes. This is derived from the layout in 2.5.1. **[confirmed: `pcap/*`]**: re-encoding every one of the 445
+captured MMonSubscribe from its decoded fields reproduces the wire bytes exactly, so this example is what the
+real client would send for those fields (the captured hostname is the machine's short host name; vectors use
+"host1"); `harness/vectors/monclient/mmonsubscribe-derived-monmap-only.json` holds it.
+
+Capture status of the table above (Phase 0 set, one-monitor lab cluster; details in the checker's check
+names): T1 **[confirmed]** (`mmongetmap.json`). T2: **[confirmed]** for the 1-monitor case, and the count of
+MMonMap (two); a 3-monitor map was not captured (the lab has one monitor). T3 not captured (no `auth_epoch`
+rotation). T4 not captured (no IPv6). T5 **[confirmed]**. T6: **[confirmed]** for start 0 + ONETIME and for start
+above the newest epoch; start N, continuous and the chunk size 40 not captured. T7 not captured. T8:
+**corrected** (see Corrections: both restricted users got the MOSDMap; the "silent drop" is not observed).
+T9: **[confirmed]** for a full map only (header v4 / compat 3, 4 zero bytes, field order); incrementals-only and
+mixed not captured. T10, T11 not captured (stock tools never send types 19 or 6). T12 **[confirmed]**. T13
+**[confirmed]** for the 10 s cadence and the ack; the unacked 30 s rule is not exercised. T14 **[confirmed]**.
+T15: **[confirmed]** with a valid old ticket; the expired-ticket case is not captured.
 
 ## 6 Open questions
 
-Resolved during review (kept so numbers stay stable): Q6, Q11 (marker 0 part), Q13, Q14.
+Resolved during review (kept so numbers stay stable): Q6, Q11 (marker 0 part), Q13, Q14. Resolved or
+changed by the Phase 0 capture set: Q1 (stock mask), Q3, Q4, Q14, Q15 (vector<i32> part), Q16 (IPv4 part), Q17;
+see each item and "Corrections after capture" at the end of this section.
 
-- Q1 [confirm on capture]: the exact set of msgr2 feature bits the client must advertise so that a
+- Q1 **[confirmed: `pcap/*`, 243 of 243 monitor connections, for the stock mask `0x3f07fffffffdffff`; the minimal
+  subset is NOT settled]**: the exact set of msgr2 feature bits the client must advertise so that a
   v20.2.5 monitor sends MonMap v10, MMonSubscribe is v3, and MOSDMap uses the encodings our
   OSDMap decoder supports (2.9, 2.6). The OSDMap note and the msgr2 note must agree on one
   advertised mask: they now do, both point to `msgr2.md` 4.4 (`0x3f07fffffffdffff`, the full v20.2.5 set); the capture check remains.
-- Q2: INCSUBOSDMAP is bit 10 (`src/include/ceph_features.h:96`); it only changes the ONETIME
+- Q2 (still open: the stock client always advertises the bit, and no captured subscription asked for more than
+  one chunk; needs our own client with a reduced mask): INCSUBOSDMAP is bit 10 (`src/include/ceph_features.h:96`); it only changes the ONETIME
   behaviour (one chunk versus all chunks). [confirm on capture] which behaviour a client without
   the bit sees; with a continuous subscription it is irrelevant.
-- Q3 [confirm on capture]: whether a v20.2.5 monitor sends anything unsolicited right after the
+- Q3 **[confirmed: `pcap/*`, nothing was sent before the client's first message and nothing unsolicited later; the
+  stock client's own subscription set included "config" and "mgrmap"]**: whether a v20.2.5 monitor sends anything unsolicited right after the
   msgr2 handshake (for example a MonMap or MConfig) when the client has not subscribed yet. The
   source shows only replies to requests and subscription pushes.
-- Q4 [confirm on capture]: the MAuth renewal payload and header in an established msgr2 session
+- Q4 **[confirmed: `pcap/k2-renew-ttl60`, `k1-renew-ttl60`]**: the MAuth renewal payload and header in an established msgr2 session
   (3.8), and that the monitor accepts a renewal when the original auth was done in the handshake.
-- Q5 [unverified]: what the monitor does with a client whose cephx old ticket has expired when it
+- Q5 [unverified] (not captured: the mon restart reclaim used a valid ticket): what the monitor does with a client whose cephx old ticket has expired when it
   reconnects (3.9). Fallback options: reauthenticate with global_id 0 and accept a new identity, or
   fail.
 - Q6 RESOLVED: the auth ticket lifetime is `auth_mon_ticket_ttl`, default 72 hours
-  (`src/common/options/global.yaml.in:2254-2262`). **[unverified]** here: how and when a client
-  renews the auth ticket itself (cephx note).
+  (`src/common/options/global.yaml.in:2254-2262`); **[confirmed: `pcap/*`]** the wire value is 259,200 s in
+  every login. **[unverified]** here: how and when a client renews the auth ticket itself (cephx note; not
+  exercised, it would need a run of about 54 hours).
 - Q7: resolver strategy for hostnames in `mon_host` in iPXE and in the Windows driver. The
   reference expands names to all A and AAAA records at start-up, blocking
   (`src/common/addr_parsing.c:45-135`). DNS SRV is also unread (`src/mon/MonMap.cc:891-939` for the
   crimson copy; the classic path is `src/mon/MonMap.cc:1054-1087`, not traced).
-- Q8 [unverified] / [confirm on capture]: whether a normal client user may send MMonGetOSDMap (2.8:
+- Q8 [unverified] / [confirm on capture] (not settled by the captures: no stock tool sends type 6): whether a normal client user may send MMonGetOSDMap (2.8:
   no capability check found, service dispatch not traced). The subscription path caps only the epoch
   count (`src/mon/OSDMonitor.cc:4550-4590`, the incremental builder has no byte test); the byte cap
   exists only in the MMonGetOSDMap path.
 - Q9: memory for the biggest MOSDMap: a large cluster's full OSDMap can be megabytes and a message
   can hold 40 incrementals; the message limit in the msgr2 layer must accommodate it. Needs a
   measurement on a larger test cluster.
-- Q10 [unverified]: whether a MOSDMap incremental must be verified against its CRC fields before
+- Q10 [unverified, wire part **[confirmed: `gt3/*`, `pcap/*`]**: the CRC rules verify on every stored and delivered
+  map, 3.5.2]: whether a MOSDMap incremental must be verified against its CRC fields before
   being trusted, and whether skipping verification is safe for a read-only boot disk (OSDMap
   note).
 - Q11: RESOLVED for the legacy address marker 0 (layout in 2.4.3). The removed-snaps gap map
   is always written empty by a v20.2.5 sender (`src/messages/MOSDMap.h:161-163`); its non-empty
   layout was not read **[unverified]**, moot for this release.
-- Q12 [unverified]: whether the entity_addr nonce of a monitor must be verified by the client during
+- Q12 [unverified] (observation only: the monitor's nonce is 0 and the stock client's target_addr nonce is 0; no
+  mismatch was captured): whether the entity_addr nonce of a monitor must be verified by the client during
   the msgr2 handshake (messenger note).
 - Q13 RESOLVED: monitor connections use the default lossy-client policy (3.7); only the fallback
   lookup for peer type MON is untraced.
 - Q14 RESOLVED: default message priority is 127, applied at send time when the message left it 0
-  (2.1). [confirm on capture] only that the monitor does not care.
-- Q15 [unverified]: that the denc-based container encoders used for `set<u32>` and `vector<i32>`
+  (2.1). **[confirmed: `pcap/*`]** the monitor does not care: it answered all 714 client messages sent with 127.
+- Q15 **[confirmed for `vector<i32>`: `pcap/*`, `gt/mon-dump.json`]**, [unverified] for the elements of a non-empty `set<u32>` (the lab map has no removed rank): that the denc-based container encoders used for `set<u32>` and `vector<i32>`
   in the MonMap are byte-identical to the generic ones (u32 count + elements); first capture (T2)
   settles it.
-- Q16 [confirm on capture]: exact sockaddr byte positions for IPv4 / IPv6 monitor addresses
+- Q16 **[confirmed for IPv4: `pcap/*`, `gt/monmap.bin`]**, [confirm on capture] for IPv6 (no IPv6 monitor in the lab): exact sockaddr byte positions for IPv4 / IPv6 monitor addresses
   (2.4.3, T4), including whether the IPv6 flow-info and scope-id words are little or big endian
   (they are raw C struct bytes, only the port is network order by definition of the C struct).
-- Q17 [confirm on capture]: that the monitor really sends two MMonMap (reply to MMonGetMap plus the
+- Q17 **[confirmed: `pcap/*`, 242 fresh sessions]**: that the monitor really sends two MMonMap (reply to MMonGetMap plus the
   subscription push) on a fresh session and that the second can be ignored when epochs are equal
   (3.4).
 - Q18 [unverified]: what the reference does to existing OSD sessions when the monitor hands back a
-  different global_id than the one sent (3.9); only the log line was read.
+  different global_id than the one sent (3.9); only the log line was read. (Not captured: every reclaim in
+  the set got the same id back.)
+
+### Corrections after capture
+
+What the Phase 0 captures changed in this note (each also fixed in place above):
+
+1. **Capability for the "osdmap" subscription (2.5.1, T8).** The note said the monitor needs an "osd" read
+   capability for "osdmap" and silently drops the subscription otherwise. Observed: `client.t0-noosd` (caps
+   `mon r` only) and `client.t0-ro` (`mon r`, `osd r pool=winrbd`) were both answered with a normal MOSDMap
+   (v4 / compat 3, epoch 92). The user without OSD caps fails later and elsewhere: each OSD connection ends in
+   AUTH_BAD_METHOD, result -13 (8 attempts in a row to the same OSD per command in the capture), so I/O stalls
+   until the tool's timeout. The "silent drop" claim itself was NOT observed and stays **[confirm on capture]**
+   (it needs a user with narrower mon caps).
+2. **Priority (2.1).** Client-sent messages carry 127 as predicted; messages sent BY the monitor carry 196
+   (high priority). The note only predicted the client side.
+3. **Message table (2.2).** Added the type the monitor sends after a "mgrmap" subscription (1796 / 0x704,
+   53,337 bytes) and the observation that the stock `ceph` CLI also uses MMonCommand (50 / 51) with a 246,845-byte
+   reply at start-up. Neither concerns a minimal client.
+4. **Two monitor connections per tool run (3.3).** Not in the source reading: the stock tools run a separate
+   bootstrap session first (AUTH ticket only, lossless policy, subscribes config + monmap) and then the real one.
+5. **MMonMap order (3.4).** Two MMonMap per fresh session confirmed; with "config" subscribed they arrive as
+   MMonMap, MConfig, MMonMap, so the second MMonMap is not the next message after the first.
+6. **First keepalive (3.6).** The first KEEPALIVE2 goes out about 3 s after connect, not after a 10 s quiet
+   period; later ones every 10.0 s.
+7. **Status marks.** [confirm on capture] / [unverified] turned into [confirmed: ...] for: priority 127 (Q14),
+   unsolicited messages (Q3), IPv4 sockaddr layout (Q16 IPv4 part), `vector<i32>` denc form (Q15 part), the
+   stock feature mask (Q1), two MMonMap (Q17), MAuth renewal (Q4), global_id reclaim (T15 first half), CRC rules
+   on delivered maps (Q10, wire part), and the T1, T2 (1-monitor), T5, T6 (two rows), T9 (full only), T12-T14
+   rows of section 5. Still open, and why: 3-monitor map, hunting and priority / weight (one monitor in the
+   lab); IPv6 (no IPv6 listener); `auth_epoch` rotation; start-N, continuous, trimmed-start and chunk-size rows of
+   3.5.1, incremental-only / mixed MOSDMap, MMonGetVersion and MMonGetOSDMap (stock tools do not send them; the
+   lab map was never trimmed); INCSUBOSDMAP behaviour and reduced feature masks (need our own client); the
+   30 s keepalive-ack timeout and expired-old-ticket reclaim (would need fault injection); non-empty
+   `set<u32>` bytes (`removed_ranks`); nonce verification (Q12); AUTH-ticket renewal (54 h).
+
+Observed differences from OTHER notes (not edited here, for the owners of those notes): `msgr2.md` 2.1 / 2.8
+expects frame-encoded addresses to keep type 3 (ANY), but both HELLO frames carry type 2 (MSGR2) for the
+addresses in every capture; `msgr2.md` 2.9 says message header `flags` is 1, every captured message in both
+directions has 3; `msgr2.md` 2.7 predicts `required` = 0x0800000000001000, flags 1, cookie 0 for the stock
+client, which holds for OSD, mgr and the real monitor session, but the bootstrap monitor session sends
+required 0x0800000000000000, flags 0 and a non-zero cookie.
 
 ## 7 Licensing questions
 

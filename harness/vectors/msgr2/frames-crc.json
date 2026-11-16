@@ -1,0 +1,891 @@
+{
+ "format": 1,
+ "description": "msgr2 rev-1 crc-mode frames; see README.md for provenance and scrubbing. Every frame is a complete, self-consistent frame (all CRCs verify).",
+ "frames": [
+  {
+   "name": "mon-hello-client",
+   "direction": "client_to_server",
+   "tag": 1,
+   "tag_name": "HELLO",
+   "source": "capture k2-rados-small",
+   "hex": "010124000000080000000000000000000000000000000000000000003fbd6b06080101011c00000002000000000000001000000002000ce40a4d000a0000000000000000f4d97703",
+   "size": 72,
+   "segment_lengths": [
+    36
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x066bbd3f",
+   "segment0_crc": "0x0377d9f4",
+   "fields": {
+    "entity_type": 8,
+    "peer_addr": {
+     "type": 2,
+     "nonce": 0,
+     "family": 2,
+     "ip": "10.77.0.10",
+     "port": 3300,
+     "hex": "0101011c00000002000000000000001000000002000ce40a4d000a0000000000000000"
+    }
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-hello-server",
+   "direction": "server_to_client",
+   "tag": 1,
+   "tag_name": "HELLO",
+   "source": "capture k2-rados-small",
+   "hex": "010124000000080000000000000000000000000000000000000000003fbd6b06010101011c0000000200000000000000100000000200b4500a4d001400000000000000006df7d94c",
+   "size": 72,
+   "segment_lengths": [
+    36
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x066bbd3f",
+   "segment0_crc": "0x4cd9f76d",
+   "fields": {
+    "entity_type": 1,
+    "peer_addr": {
+     "type": 2,
+     "nonce": 0,
+     "family": 2,
+     "ip": "10.77.0.20",
+     "port": 46160,
+     "hex": "0101011c0000000200000000000000100000000200b4500a4d00140000000000000000"
+    }
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-auth-request",
+   "direction": "client_to_server",
+   "tag": 2,
+   "tag_name": "AUTH_REQUEST",
+   "source": "capture k2-rados-small",
+   "hex": "0201270000000800000000000000000000000000000000000000000083da4a93020000000100000001000000170000000a080000000600000077696e7262640000000000000000005f5e36",
+   "size": 75,
+   "segment_lengths": [
+    39
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x934ada83",
+   "segment0_crc": "0x365e5f00",
+   "fields": {
+    "method": 2,
+    "modes": [
+     1
+    ],
+    "payload": {
+     "hex": "0a080000000600000077696e7262640000000000000000"
+    }
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "mon-auth-reply-more",
+   "direction": "server_to_client",
+   "tag": 4,
+   "tag_name": "AUTH_REPLY_MORE",
+   "source": "capture k2-rados-small",
+   "hex": "04010d000000080000000000000000000000000000000000000000006a094bc509000000018053aade22cbe62d36c000b4",
+   "size": 49,
+   "segment_lengths": [
+    13
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xc54b096a",
+   "segment0_crc": "0xb400c036",
+   "fields": {
+    "payload": {
+     "hex": "018053aade22cbe62d"
+    }
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "mon-auth-request-more",
+   "direction": "client_to_server",
+   "tag": 5,
+   "tag_name": "AUTH_REQUEST_MORE",
+   "source": "capture k2-rados-small",
+   "hex": "05012800000008000000000000000000000000000000000000000000b83ac75b240000000001039305df00138c07bd111111111111111101000000000000000000000000200000008c291792",
+   "size": 76,
+   "segment_lengths": [
+    40
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x5bc73ab8",
+   "segment0_crc": "0x9217298c",
+   "fields": {
+    "payload": {
+     "hex": "0001039305df00138c07bd11111111111111110100000000000000000000000020000000"
+    }
+   },
+   "scrubbing": "cephx proof (derived from the key) replaced by 0x1111111111111111 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-auth-done",
+   "direction": "server_to_client",
+   "tag": 6,
+   "tag_name": "AUTH_DONE",
+   "source": "capture k2-rados-small",
+   "hex": "0601740100000800000000000000000000000000000000000000000074dec5d3fb380000000000000100000064010000dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd317d18e7",
+   "size": 408,
+   "segment_lengths": [
+    372
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xd3c5de74",
+   "segment0_crc": "0xe7187d31",
+   "fields": {
+    "global_id": 14587,
+    "mode": 1,
+    "payload": {
+     "len": 356
+    }
+   },
+   "scrubbing": "cephx payload (encrypted tickets, session keys, connection secret) replaced by 0xDD fill of the same length (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-auth-signature-client",
+   "direction": "client_to_server",
+   "tag": 7,
+   "tag_name": "AUTH_SIGNATURE",
+   "source": "capture k2-rados-small",
+   "hex": "07012000000008000000000000000000000000000000000000000000a80c98725a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a41b1db8b",
+   "size": 68,
+   "segment_lengths": [
+    32
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x72980ca8",
+   "segment0_crc": "0x8bdbb141",
+   "fields": {
+    "sig": {
+     "hex": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    }
+   },
+   "scrubbing": "HMAC (derived from the session key) replaced by 32 x 0x5A (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-auth-signature-server",
+   "direction": "server_to_client",
+   "tag": 7,
+   "tag_name": "AUTH_SIGNATURE",
+   "source": "capture k2-rados-small",
+   "hex": "07012000000008000000000000000000000000000000000000000000a80c98725a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a41b1db8b",
+   "size": 68,
+   "segment_lengths": [
+    32
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x72980ca8",
+   "segment0_crc": "0x8bdbb141",
+   "fields": {
+    "sig": {
+     "hex": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    }
+   },
+   "scrubbing": "HMAC (derived from the session key) replaced by 32 x 0x5A (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-compression-request",
+   "direction": "client_to_server",
+   "tag": 21,
+   "tag_name": "COMPRESSION_REQUEST",
+   "source": "capture k2-rados-small",
+   "hex": "15010500000008000000000000000000000000000000000000000000fd3d250a0000000000ca898dba",
+   "size": 41,
+   "segment_lengths": [
+    5
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x0a253dfd",
+   "segment0_crc": "0xba8d89ca",
+   "fields": {
+    "is_compress": 0,
+    "methods": []
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "mon-compression-done",
+   "direction": "server_to_client",
+   "tag": 22,
+   "tag_name": "COMPRESSION_DONE",
+   "source": "capture k2-rados-small",
+   "hex": "1601050000000800000000000000000000000000000000000000000050d6f7e90000000000ca898dba",
+   "size": 41,
+   "segment_lengths": [
+    5
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xe9f7d650",
+   "segment0_crc": "0xba8d89ca",
+   "fields": {
+    "is_compress": 0,
+    "method": 0
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "mon-client-ident-first-connection",
+   "direction": "client_to_server",
+   "tag": 8,
+   "tag_name": "CLIENT_IDENT",
+   "source": "capture k2-rados-small",
+   "hex": "08017b00000008000000000000000000000000000000000000000000738a989502010000000101011c0000000300000061aed38910000000020000000a4d001400000000000000000101011c00000002000000000000001000000002000ce40a4d000a0000000000000000ffffffffffffffff0100000000000000fffffdffffff073f0000000000000008000000000000000055415b6a9b1ccb604ecf6c45",
+   "size": 159,
+   "segment_lengths": [
+    123
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x95988a73",
+   "segment0_crc": "0x456ccf4e",
+   "fields": {
+    "addrs": [
+     {
+      "type": 3,
+      "nonce": 2312351329,
+      "family": 2,
+      "ip": "10.77.0.20",
+      "port": 0,
+      "hex": "0101011c0000000300000061aed38910000000020000000a4d00140000000000000000"
+     }
+    ],
+    "target": {
+     "type": 2,
+     "nonce": 0,
+     "family": 2,
+     "ip": "10.77.0.10",
+     "port": 3300,
+     "hex": "0101011c00000002000000000000001000000002000ce40a4d000a0000000000000000"
+    },
+    "gid": -1,
+    "global_seq": 1,
+    "supported": 4541880224203014143,
+    "required": 576460752303423488,
+    "flags": 0,
+    "cookie": 6974699901743219029
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-server-ident",
+   "direction": "server_to_client",
+   "tag": 9,
+   "tag_name": "SERVER_IDENT",
+   "source": "capture k2-rados-small",
+   "hex": "09017b0000000800000000000000000000000000000000000000000047018d3702020000000101011c00000002000000000000001000000002000ce40a4d000a00000000000000000101011c00000001000000000000001000000002001a850a4d000a00000000000000000000000000000000ed01000000000000fffffdffffff073f000004420002010c010000000000000000000000000000004ef211f5",
+   "size": 159,
+   "segment_lengths": [
+    123
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x378d0147",
+   "segment0_crc": "0xf511f24e",
+   "fields": {
+    "addrs": [
+     {
+      "type": 2,
+      "nonce": 0,
+      "family": 2,
+      "ip": "10.77.0.10",
+      "port": 3300,
+      "hex": "0101011c00000002000000000000001000000002000ce40a4d000a0000000000000000"
+     },
+     {
+      "type": 1,
+      "nonce": 0,
+      "family": 2,
+      "ip": "10.77.0.10",
+      "port": 6789,
+      "hex": "0101011c00000001000000000000001000000002001a850a4d000a0000000000000000"
+     }
+    ],
+    "gid": 0,
+    "global_seq": 493,
+    "supported": 4541880224203014143,
+    "required": 864974803562659840,
+    "flags": 1,
+    "cookie": 0
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "mon-message-first-client",
+   "direction": "client_to_server",
+   "tag": 17,
+   "tag_name": "MESSAGE",
+   "source": "capture k2-rados-small",
+   "hex": "11012900000008000000000000000000000000000000000000000000af9604f00100000000000000000000000000000005007f00010000000000000000000000000000000301000000073be540",
+   "size": 77,
+   "segment_lengths": [
+    41
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xf00496af",
+   "segment0_crc": "0x40e53b07",
+   "fields": {
+    "seq": 1,
+    "tid": 0,
+    "type": 5,
+    "priority": 127,
+    "version": 1,
+    "pre_padding": 0,
+    "data_off": 0,
+    "ack_seq": 0,
+    "flags": 3,
+    "compat": 1,
+    "reserved": 0,
+    "front_len": 0,
+    "middle_len": 0,
+    "data_len": 0
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "mon-client-ident-lossless-intent",
+   "direction": "client_to_server",
+   "tag": 8,
+   "tag_name": "CLIENT_IDENT",
+   "source": "capture k2-rados-small",
+   "hex": "08017b00000008000000000000000000000000000000000000000000738a989502010000000101011c000000030000000b65505210000000020000000a4d001400000000000000000101011c00000002000000000000001000000002000ce40a4d000a0000000000000000ffffffffffffffff0100000000000000fffffdffffff073f00000000000000080000000000000000223fa1286d17b667d05cdad3",
+   "size": 159,
+   "segment_lengths": [
+    123
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x95988a73",
+   "segment0_crc": "0xd3da5cd0",
+   "fields": {
+    "addrs": [
+     {
+      "type": 3,
+      "nonce": 1381000459,
+      "family": 2,
+      "ip": "10.77.0.20",
+      "port": 0,
+      "hex": "0101011c000000030000000b65505210000000020000000a4d00140000000000000000"
+     }
+    ],
+    "target": {
+     "type": 2,
+     "nonce": 0,
+     "family": 2,
+     "ip": "10.77.0.10",
+     "port": 3300,
+     "hex": "0101011c00000002000000000000001000000002000ce40a4d000a0000000000000000"
+    },
+    "gid": -1,
+    "global_seq": 1,
+    "supported": 4541880224203014143,
+    "required": 576460752303423488,
+    "flags": 0,
+    "cookie": 7473186389268447010
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed) stock client second monitor connection: flags 0 and a non-zero cookie; the server still answers flags 1 / cookie 0",
+   "note": ""
+  },
+  {
+   "name": "mon-server-ident-answer-to-lossless-intent",
+   "direction": "server_to_client",
+   "tag": 9,
+   "tag_name": "SERVER_IDENT",
+   "source": "capture k2-rados-small",
+   "hex": "09017b0000000800000000000000000000000000000000000000000047018d3702020000000101011c00000002000000000000001000000002000ce40a4d000a00000000000000000101011c00000001000000000000001000000002001a850a4d000a00000000000000000000000000000000ee01000000000000fffffdffffff073f000004420002010c01000000000000000000000000000000c2bbbd96",
+   "size": 159,
+   "segment_lengths": [
+    123
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x378d0147",
+   "segment0_crc": "0x96bdbbc2",
+   "fields": {
+    "addrs": [
+     {
+      "type": 2,
+      "nonce": 0,
+      "family": 2,
+      "ip": "10.77.0.10",
+      "port": 3300,
+      "hex": "0101011c00000002000000000000001000000002000ce40a4d000a0000000000000000"
+     },
+     {
+      "type": 1,
+      "nonce": 0,
+      "family": 2,
+      "ip": "10.77.0.10",
+      "port": 6789,
+      "hex": "0101011c00000001000000000000001000000002001a850a4d000a0000000000000000"
+     }
+    ],
+    "gid": 0,
+    "global_seq": 494,
+    "supported": 4541880224203014143,
+    "required": 864974803562659840,
+    "flags": 1,
+    "cookie": 0
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-auth-request-authorizer",
+   "direction": "client_to_server",
+   "tag": 2,
+   "tag_name": "AUTH_REQUEST",
+   "source": "capture k2-rados-small",
+   "hex": "020123010000080000000000000000000000000000000000000000002201c40b0200000001000000010000001301000001fd380000000000000400000001aaaaaaaaaaaaaaaab2000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa43000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbc5df7230",
+   "size": 327,
+   "segment_lengths": [
+    291
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x0bc40122",
+   "segment0_crc": "0x3072dfc5",
+   "fields": {
+    "method": 2,
+    "modes": [
+     1
+    ],
+    "payload": {
+     "len": 275
+    }
+   },
+   "scrubbing": "ticket secret_id, ticket blob and encrypted proof replaced by 0xAA/0xBB fill of the same length (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-auth-reply-more-challenge",
+   "direction": "server_to_client",
+   "tag": 4,
+   "tag_name": "AUTH_REPLY_MORE",
+   "source": "capture k2-rados-small",
+   "hex": "04013e00000008000000000000000000000000000000000000000000bc0405c53a000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc957f209a",
+   "size": 98,
+   "segment_lengths": [
+    62
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xc50504bc",
+   "segment0_crc": "0x9a207f95",
+   "fields": {
+    "payload": {
+     "hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+   },
+   "scrubbing": "encrypted challenge replaced by 0xCC fill of the same length (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-auth-request-more-authorizer",
+   "direction": "client_to_server",
+   "tag": 5,
+   "tag_name": "AUTH_REQUEST_MORE",
+   "source": "capture k2-rados-small",
+   "hex": "0501170100000800000000000000000000000000000000000000000046ba9fab1301000001fd380000000000000400000001aaaaaaaaaaaaaaaab2000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa43000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb295fd31",
+   "size": 315,
+   "segment_lengths": [
+    279
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xab9fba46",
+   "segment0_crc": "0x31fd95b2",
+   "fields": {
+    "payload": {
+     "len": 275
+    }
+   },
+   "scrubbing": "ticket and encrypted proof replaced by fill (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-auth-done",
+   "direction": "server_to_client",
+   "tag": 6,
+   "tag_name": "AUTH_DONE",
+   "source": "capture k2-rados-small",
+   "hex": "06014e00000008000000000000000000000000000000000000000000b9ca89b8fd38000000000000010000003e000000dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd02708b35",
+   "size": 114,
+   "segment_lengths": [
+    78
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0xb889cab9",
+   "segment0_crc": "0x358b7002",
+   "fields": {
+    "global_id": 14589,
+    "mode": 1,
+    "payload": {
+     "hex": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+   },
+   "scrubbing": "cephx payload (encrypted tickets, session keys, connection secret) replaced by 0xDD fill of the same length (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-client-ident",
+   "direction": "client_to_server",
+   "tag": 8,
+   "tag_name": "CLIENT_IDENT",
+   "source": "capture k2-rados-small",
+   "hex": "08017b00000008000000000000000000000000000000000000000000738a989502010000000101011c00000003000000bbb3eb9b10000000020000000a4d001400000000000000000101011c00000002000000de275e6e1000000002001aa20a4d000a0000000000000000fd380000000000000300000000000000fffffdffffff073f001000000000000801000000000000000000000000000000b0b67fd0",
+   "size": 159,
+   "segment_lengths": [
+    123
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x95988a73",
+   "segment0_crc": "0xd07fb6b0",
+   "fields": {
+    "addrs": [
+     {
+      "type": 3,
+      "nonce": 2615915451,
+      "family": 2,
+      "ip": "10.77.0.20",
+      "port": 0,
+      "hex": "0101011c00000003000000bbb3eb9b10000000020000000a4d00140000000000000000"
+     }
+    ],
+    "target": {
+     "type": 2,
+     "nonce": 1851664350,
+     "family": 2,
+     "ip": "10.77.0.10",
+     "port": 6818,
+     "hex": "0101011c00000002000000de275e6e1000000002001aa20a4d000a0000000000000000"
+    },
+    "gid": 14589,
+    "global_seq": 3,
+    "supported": 4541880224203014143,
+    "required": 576460752303427584,
+    "flags": 1,
+    "cookie": 0
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-server-ident",
+   "direction": "server_to_client",
+   "tag": 9,
+   "tag_name": "SERVER_IDENT",
+   "source": "capture k2-rados-small",
+   "hex": "09017b0000000800000000000000000000000000000000000000000047018d3702020000000101011c00000002000000de275e6e1000000002001aa20a4d000a00000000000000000101011c00000001000000de275e6e1000000002001aa30a4d000a000000000000000002000000000000000700000000000000fffffdffffff073f000004420002010c01000000000000000000000000000000f2809b9f",
+   "size": 159,
+   "segment_lengths": [
+    123
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x378d0147",
+   "segment0_crc": "0x9f9b80f2",
+   "fields": {
+    "addrs": [
+     {
+      "type": 2,
+      "nonce": 1851664350,
+      "family": 2,
+      "ip": "10.77.0.10",
+      "port": 6818,
+      "hex": "0101011c00000002000000de275e6e1000000002001aa20a4d000a0000000000000000"
+     },
+     {
+      "type": 1,
+      "nonce": 1851664350,
+      "family": 2,
+      "ip": "10.77.0.10",
+      "port": 6819,
+      "hex": "0101011c00000001000000de275e6e1000000002001aa30a4d000a0000000000000000"
+     }
+    ],
+    "gid": 2,
+    "global_seq": 7,
+    "supported": 4541880224203014143,
+    "required": 864974803562659840,
+    "flags": 1,
+    "cookie": 0
+   },
+   "scrubbing": "client address of the capture replaced by 10.77.0.20 (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-message-four-segments-client",
+   "direction": "client_to_server",
+   "tag": 17,
+   "tag_name": "MESSAGE",
+   "source": "capture k2-rados-small",
+   "hex": "1104290000000800e0000000080000000000080064000000001000006b04139d010000000000000001000000000000002a003f000900000000000000000000000000000003030000003321edb00101120000000102000000000000001a000000ffffffffff3a69c6a42a00000024004008020215000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010101000000000000000048ccfa6aa0e3ab2206031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff0800000074302d736d616c6c01000222000000000000000000000000640000000000000000000000000000000000000064000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b80e756b3644ffffffff9ae4b4a6",
+   "size": 414,
+   "segment_lengths": [
+    41,
+    224,
+    0,
+    100
+   ],
+   "segment_alignments": [
+    8,
+    8,
+    8,
+    4096
+   ],
+   "preamble_crc": "0x9d13046b",
+   "segment0_crc": "0xb0ed2133",
+   "epilogue": {
+    "late_status": 14,
+    "crc_slots": [
+     "0x44366b75",
+     "0xffffffff",
+     "0xa6b4e49a"
+    ]
+   },
+   "fields": {
+    "seq": 1,
+    "tid": 1,
+    "type": 42,
+    "priority": 63,
+    "version": 9,
+    "pre_padding": 0,
+    "data_off": 0,
+    "ack_seq": 0,
+    "flags": 3,
+    "compat": 3,
+    "reserved": 0,
+    "front_len": 224,
+    "middle_len": 0,
+    "data_len": 100
+   },
+   "scrubbing": "data segment replaced by a counting pattern of the same length (CRCs recomputed)",
+   "note": ""
+  },
+  {
+   "name": "osd-message-two-segments-server",
+   "direction": "server_to_client",
+   "tag": 17,
+   "tag_name": "MESSAGE",
+   "source": "capture k2-rados-small",
+   "hex": "11022900000008009800000008000000000000000000000000000000b9b83180010000000000000001000000000000002b007f00080000000000000001000000000000000302000000337e41690800000074302d736d616c6c0102000000000000001a000000ffffffff25004008000000000000000003000000000000002a0000002a000000010000000222000000000000000000000000640000000000000000000000000000000000000000000000000000000000000003000000000000002a0000000300000000000000000000000000000000000000000000000000000000000000000e4869ae3d0000000000000000",
+   "size": 242,
+   "segment_lengths": [
+    41,
+    152
+   ],
+   "segment_alignments": [
+    8,
+    8
+   ],
+   "preamble_crc": "0x8031b8b9",
+   "segment0_crc": "0x69417e33",
+   "epilogue": {
+    "late_status": 14,
+    "crc_slots": [
+     "0x3dae6948",
+     "0x00000000",
+     "0x00000000"
+    ]
+   },
+   "fields": {
+    "seq": 1,
+    "tid": 1,
+    "type": 43,
+    "priority": 127,
+    "version": 8,
+    "pre_padding": 0,
+    "data_off": 0,
+    "ack_seq": 1,
+    "flags": 3,
+    "compat": 2,
+    "reserved": 0,
+    "front_len": 152,
+    "middle_len": 0,
+    "data_len": 0
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "keepalive2-client",
+   "direction": "client_to_server",
+   "tag": 18,
+   "tag_name": "KEEPALIVE2",
+   "source": "capture k2-idle75",
+   "hex": "12010800000008000000000000000000000000000000000000000000d8d5f5996fccfa6afc00202d1aea5c67",
+   "size": 44,
+   "segment_lengths": [
+    8
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x99f5d5d8",
+   "segment0_crc": "0x675cea1a",
+   "fields": {
+    "sec": 1794821231,
+    "nsec": 757072124
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "keepalive2-ack-server",
+   "direction": "server_to_client",
+   "tag": 19,
+   "tag_name": "KEEPALIVE2_ACK",
+   "source": "capture k2-idle75",
+   "hex": "13010800000008000000000000000000000000000000000000000000ec5ee03b6fccfa6afc00202d1aea5c67",
+   "size": 44,
+   "segment_lengths": [
+    8
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x3be05eec",
+   "segment0_crc": "0x675cea1a",
+   "fields": {
+    "sec": 1794821231,
+    "nsec": 757072124
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "wrongkey-auth-bad-method",
+   "direction": "server_to_client",
+   "tag": 3,
+   "tag_name": "AUTH_BAD_METHOD",
+   "source": "capture k2-wrongkey",
+   "hex": "03011c00000008000000000000000000000000000000000000000000e80a895902000000f3ffffff0100000002000000020000000200000001000000a77758eb",
+   "size": 64,
+   "segment_lengths": [
+    28
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x59890ae8",
+   "segment0_crc": "0xeb5877a7",
+   "fields": {
+    "method": 2,
+    "result": -13,
+    "methods": [
+     2
+    ],
+    "modes": [
+     2,
+     1
+    ]
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "no-osd-caps-auth-bad-method",
+   "direction": "server_to_client",
+   "tag": 3,
+   "tag_name": "AUTH_BAD_METHOD",
+   "source": "capture x-t0-noosd",
+   "hex": "03011c00000008000000000000000000000000000000000000000000e80a895902000000f3ffffff0100000002000000020000000100000002000000f7793e52",
+   "size": 64,
+   "segment_lengths": [
+    28
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x59890ae8",
+   "segment0_crc": "0x523e79f7",
+   "fields": {
+    "method": 2,
+    "result": -13,
+    "methods": [
+     2
+    ],
+    "modes": [
+     1,
+     2
+    ]
+   },
+   "scrubbing": "none (frame is byte-identical to the capture)",
+   "note": ""
+  },
+  {
+   "name": "ident-missing-features-probe",
+   "direction": "server_to_client",
+   "tag": 10,
+   "tag_name": "IDENT_MISSING_FEATURES",
+   "source": "live probe (re-encoded)",
+   "hex": "0a01080000000800000000000000000000000000000000000000000067c8e79e0000000000000008ba150ef9",
+   "size": 44,
+   "segment_lengths": [
+    8
+   ],
+   "segment_alignments": [
+    8
+   ],
+   "preamble_crc": "0x9ee7c867",
+   "segment0_crc": "0xf90e15ba",
+   "fields": {
+    "features": 576460752303423488
+   },
+   "scrubbing": "none (no secrets involved)",
+   "note": "server answer observed with msgr2_probe.py noaddr2 (CLIENT_IDENT whose supported mask lacks MSG_ADDR2); re-encoded here"
+  }
+ ]
+}

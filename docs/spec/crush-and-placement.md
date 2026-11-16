@@ -83,6 +83,16 @@ with the expected output in the tree for 688 mappings (jewel, hammer, legacy, bo
 tries-vs-retries, vary-r-0, vary-r-3; the first 16 to 40 values of `x` and a subset of replica counts
 each): 0 mismatches. The author's full 1752-mapping figure above was **not** re-run by the reviewer.
 
+Check against live captures (2026-11-16, lab cluster, Ceph v20.2.5, `harness/tools/crush_check.py`, written from this
+note and the OSDMap / msgr2 / osd-ops notes only, no Ceph decoder in the loop; vectors in `harness/vectors/crush/`):
+**80 checks pass, 0 fail** (636,903 individual comparisons). The pipeline of section 3 reproduces all 2,194 results of
+`ceph osd map` (1,914 `winrbd` names, 200 `.mgr` names, 80 with a namespace) and all 80,000 `crushtool` mappings of the
+lab map, both pools of `osdmaptool --test-map-pgs-dump-all`, and the target OSD of all 1,895 MOSDOp frames the stock
+client sent (its `hash` field, its masked pgid and the OSD connection it used). The CRUSH blob decoder, the OSDMap and
+Incremental decoders, the CRCs and the incremental replay of 2.7 agree with the monitor's own maps for every stored epoch
+1..89. The lab map is small (straw2 only, `choose firstn 0 type osd`, three devices, no `choose_args`), so the
+parts it cannot exercise keep their marks below, each with the reason.
+
 What this does NOT cover and is therefore marked **[unverified by a run]** below: `uniform`,
 `list` and `tree` bucket algorithms, `choose_args` (weight sets and ids), device-class shadow trees,
 MSR rules, and everything from the OSDMap side (upmap, temp, affinity). Those parts are described
@@ -113,10 +123,13 @@ Which optional parts a blob contains depends on the feature mask its encoder was
 a client, with `features & OSDMap::get_encoding_features()` (`OSDMonitor.cc:2007`, `:4644-4648`),
 and that set is a subset of `SIGNIFICANT_FEATURES` (`OSDMap.h:564-578`, `OSDMap.cc:3235-3270`).
 `SIGNIFICANT_FEATURES` contains `CRUSH_TUNABLES5`, `CRUSH_CHOOSE_ARGS` and `SERVER_LUMINOUS` but does
-**not** contain `CRUSH_MSR` or `SERVER_QUINCY`. Consequence for a v20.2.5 cluster, derived from code
-**[confirm on capture, C1/C7]**: the blob a client receives inside an OSDMap normally has
-(a) no MSR tunable pair (row 20), and (b) the stored `min_size` / `max_size` bytes in each rule
-instead of the constants 1 / 100 (rows 6e / 6f). A blob taken from `ceph osd getcrushmap` is encoded with
+**not** contain `CRUSH_MSR` or `SERVER_QUINCY`. Consequence for a v20.2.5 cluster, derived from code: the blob a client receives inside an OSDMap normally has
+(a) no MSR tunable pair (row 20) **[confirmed: crush_check.py on the captures: none of the 89 stored full maps and none of the 79 full maps
+that the stock client received in MOSDMap carries the pair, while all 10 stored incrementals that replace the CRUSH map do; the
+`getcrushmap` blob has it and is exactly the embedded blob plus the trailing eight bytes `64 00 00 00 64 00 00 00`]**, and
+(b) the stored `min_size` / `max_size` bytes in each rule instead of the constants 1 / 100 (rows 6e / 6f)
+**[confirm on capture]**: still open, because both lab rules store min 1 and max 100, which equals the constants, so the two encodings cannot be told
+apart on this cluster (it needs a rule with other stored values). A blob taken from `ceph osd getcrushmap` is encoded with
 the monitor-quorum feature set (`OSDMonitor.cc:5649`) and may therefore differ in exactly those two
 places. The same holds for the `crush` field of an incremental: the monitor fills it with the
 quorum feature set when an admin command changes the map (`OSDMonitor.cc:7485`, `:7596`, `:9638`),
@@ -240,7 +253,7 @@ After decoding, the reference calls `update_choose_args(nullptr)` and then `fina
    `CrushWrapper.h:1590-1598`) it logs and leaves the slot as it is; for a row whose length differs
    from the bucket size it re-allocates the row at the bucket size, copying the common prefix and
    zero-filling the rest. A well-formed map from a v20.2.5 monitor should not need any of this; a
-   client may reject the map if any of these conditions occurs. **[unverified by a run]**
+   client may reject the map if any of these conditions occurs. **[unverified by a run: the lab has no `choose_args`; the count of sets is 0 in every stored map]**
 
 ### 2.5 Tunables: defaults, profiles, and what a v20.2.5 server sends
 
@@ -476,12 +489,16 @@ variables **by reference**, so later `mix` calls see the updated values of every
 | `hash2(a, b)` | `seed ^ a ^ b` | `mix(a,b,h)`, `mix(X,a,h)`, `mix(b,Y,h)` |
 | `hash3(a, b, c)` | `seed ^ a ^ b ^ c` | `mix(a,b,h)`, `mix(c,X,h)`, `mix(Y,a,h)`, `mix(b,X,h)`, `mix(Y,c,h)` |
 | `hash4(a, b, c, d)` | `seed ^ a ^ b ^ c ^ d` | `mix(a,b,h)`, `mix(c,d,h)`, `mix(a,X,h)`, `mix(Y,b,h)`, `mix(c,X,h)`, `mix(Y,d,h)` |
+| `hash1(a)` (added after the capture check, see the corrections list in 6) | `seed ^ a` | with `b` a copy of `a`: `mix(b,X,h)`, `mix(Y,a,h)` |
 
 `X` and `Y` are local variables initialised to the constants at the start of every call; the second
-and later mixes consume them (and modify them). Result is `h`. The one-input and five-input
-variants (`hash.c:26-35`, `:75-90`) are never called by the mapper; they are needed only if you
-want to reproduce `crushtool` self-tests. **[verified against 1752 reference mappings via
-scratch implementation, section 1.3; independent hash vectors in 5.1]**
+and later mixes consume them (and modify them). Result is `h`. The one-input variant is in the table (it reproduces
+the three `hash1` vectors of 5.1; the mapper never calls it). The five-input variant (`hash.c:75-90`) is not described
+here; the mapper never calls it either. **[verified against 1752 reference mappings via
+scratch implementation, section 1.3; independent hash vectors in 5.1]** **[confirmed: crush_check.py, a third
+implementation written from the table above: the vectors of 5.1, and in aggregate every straw2 draw (`hash3`) and every
+`is_out` / `pps` computation (`hash2`) behind the 80,000 `crushtool` mappings and the 2,194 `ceph osd map` results of the lab cluster. `hash4` (list buckets) is
+exercised by no capture.]**
 
 ### 3.3 Running the rule (`do_rule`)
 
@@ -610,19 +627,19 @@ What the tables contain (my measurements against the pinned header, scratch comp
   bit-identical will eventually mis-place some objects. This is the biggest problem in this note;
   see 6 and 7.
 
-#### 3.4.3 straw (alg 4, legacy) **[unverified beyond the straw test maps in 1.3]**
+#### 3.4.3 straw (alg 4, legacy) **[unverified beyond the straw test maps in 1.3]** **[confirmed again, not on a capture: crush_check.py re-ran the in-tree known-answer files (600 mappings at the default x < 8, 3,000 at x < 40, all match) with an implementation written from this note; no capture contains a straw bucket]**
 
 For each item `i`: `draw_i = (hash3(x, items[i], r) & 0xffff) * straws[i]` (u64, `straws[i]` is
 the stored 32-bit value). The largest draw wins; first index wins ties. (`mapper.c:208-226`.) The
 `straws` array is decoded as stored; `straw_calc_version` is only for building maps.
 
-#### 3.4.4 list (alg 2, legacy) **[unverified by a run]**
+#### 3.4.4 list (alg 2, legacy) **[unverified by a run: no list bucket in the lab map, and none in the eight binary maps of the in-tree known-answer tests (they hold 251 straw and 14 straw2 buckets)]**
 
 Walk `i` from `size - 1` down to `0`: `w = hash4(x, items[i], r, bucket_id) & 0xffff`; `w = (w *
 sum_weights[i]) >> 16` (u64); if `w < item_weights[i]` return `items[i]`. If none qualifies return
 `items[0]`. (`mapper.c:122-145`.)
 
-#### 3.4.5 uniform (alg 1, legacy) **[unverified by a run]**
+#### 3.4.5 uniform (alg 1, legacy) **[unverified by a run: same reason as list]**. The permutation function is also the local-fallback chooser of 3.6 steps 4 and 8(b): the in-tree legacy-tunable runs of crush_check.py (3,000 mappings at x < 40) never reached it (0 uses), so that path is **[unverified by a run]** too; the collision local retry of step 8(a) was reached 3 times and matched.
 
 Uses a permutation of the item indexes (`mapper.c:54-119`). Let `pr = r mod size`. Start with the
 identity permutation `perm[0..size)`. For `p = 0, 1, ..., pr`, and only while `p < size - 1`: `j = p +
@@ -758,7 +775,7 @@ Let `pg = (pool, pg_seed)` from 3.2 step 1 and `pps` from 3.2 step 2.
      found and `to` is not present, write `to` there. Pairs apply sequentially (no simultaneous swap).
    - `pg_upmap_primaries[pg] = p`: if `p` is not NONE, `0 <= p < max_osd`, and `osd_weight[p] != 0`:
      look for `p` at positions `>= 1`; if found at index `k > 0`, swap `raw[k]` and `raw[0]`.
-     **[unverified by a run]**
+     **[unverified by a run: no `pg_upmap_primaries` entry exists in any captured epoch (it needs `require-min-compat-client reef`)]**
 4. **Up set** (`:2871-2894`): drop (compact) every OSD that does not exist or is down (a down OSD
    is one without the `UP` bit; `OSDMap.h:904-914`). The **up primary** is the first non-NONE member
    of the resulting list (`_pick_primary`, `:2793-2801`). This is the primary of the *up set after
@@ -769,7 +786,9 @@ Let `pg = (pool, pg_seed)` from 3.2 step 1 and `pps` from 3.2 step 2.
    such member as fallback and keep looking; else this member is the primary, stop. If nobody
    qualified, use the remembered fallback; if there was none, leave the primary unchanged. For a
    replicated pool, if the chosen primary is not at index 0, rotate it to the front by shifting the
-   entries before it one place to the right. **[unverified by a run]**
+   entries before it one place to the right. **[unverified by a run: the wire form is confirmed (the `osd_primary_affinity` vector of full maps 55 to 89 and
+   `new_primary_affinity` in incrementals 55 and 57 decode and replay correctly), but no mapping was captured while a non-default affinity
+   was in force, so the effect on the primary is not checked against any Ceph output]**
 6. **Temp overrides** (`:3060-3093`, `_get_temp_osds`): look `pg` up in `pg_temp`. Build `temp` by
    dropping every member that does not exist or is down (replicated: compact). Look `pg` up in
    `primary_temp`: if found, `temp_primary = that value` (no validity check at all); else if `temp`
@@ -783,6 +802,10 @@ Let `pg = (pool, pg_seed)` from 3.2 step 1 and `pps` from 3.2 step 2.
    - Edge cases worth a test: a `primary_temp` entry **without** a `pg_temp` entry yields `acting =
      up` but `acting_primary = primary_temp value` (which need not be a member of `acting`); a
      `pg_temp` whose members are all down/non-existent behaves as if absent.
+   - Steps 3, 6 and 7 (upmap, upmap items, pg temp, primary temp) are **[consistency only]** on the captures: stored maps with those entries
+     exist (upmap items in epochs 61-62, upmap 65-66, primary temp 69-87, pg temp in 10 epochs), the decode and the incremental apply rules are confirmed against the
+     monitor's own maps, and our pipeline gives the result the admin command asked for, but no Ceph mapping output exists for
+     those states.
 8. **Target OSD.** Send the op to `acting_primary` (`Objecter.cc:3175-3177`). If `acting` is empty
    or `acting_primary = -1`, the PG is currently unmappable: hold the op until a newer map arrives.
 
@@ -842,7 +865,7 @@ object (`Objecter.cc:3026-3033` does so).
 - Cache-tier overlays: refuse a pool with `read_tier >= 0` or `write_tier >= 0` or `tier_of >= 0`.
 - The "legacy `object_hash = 1`" and the non-HASHPSPOOL placement: trivial to code, but a v20.2.5
   cluster never creates such pools; supporting them costs nothing, testing them is impossible on a
-  new cluster **[confirm on capture if an old pool exists]**.
+  new cluster **[confirm on capture if an old pool exists]**: still open, both lab pools are `hashpspool` with `object_hash` 2.
 
 ### 4.3 Must reject with a clear message
 
@@ -875,7 +898,7 @@ object (`Objecter.cc:3026-3033` does so).
 
 ## 5 Test vectors needed
 
-### 5.1 Values already computed (all **[confirm on capture]** against a live cluster)
+### 5.1 Values already computed (live-cluster status is given under each table)
 
 Provenance: produced by the author's scratch implementation and **independently reproduced** by a
 second reviewer by compiling the pinned `src/crush/hash.c`, `src/common/ceph_hash.cc` and `mapper.c`
@@ -898,6 +921,10 @@ String hash (`ceph_str_hash_rjenkins`, u32 hex), computed from the algorithm in 
 | `rbd_data.1234abcd5678.0000000000000000` | `0x89a0b515` | `0xe9caf84f` |
 | `ns` + 0x1f + `foo` (namespace case) | `0xac17f0b6` | `0xccc913ee` |
 
+**[confirmed on capture, rjenkins column: the lab monitor printed raw pg hashes `0x7fc1f406` for `foo`, `0x0b1b3ea5` and `0x3122b031` for the 12- and 13-byte names,
+`0x30a98c1c` for `rbd_directory` and `0xac17f0b6` for the namespace case (`gt/osd-map-text-winrbd.txt`); the other rows follow from the same
+algorithm, which matches all 2,194 names of `gt/osd-map-all.jsonl`. Linux dcache column **[confirm on capture]**: no lab pool uses `object_hash` 1.]**
+
 (`foo` is also the object name used by `src/test/cli/osdmaptool/pool.t:22-29`, which checks only the
 `1\..*` shape of the result, so there is no in-tree expected value. Compare against `ceph osd map
 <pool> foo`: the printed raw pgid is `<poolid>.<hash hex>`.)
@@ -918,6 +945,9 @@ CRUSH hashes (u32 hex):
 | `hash4(0,0,0,0)` | `0x3fafb04d` |
 | `hash4(1,2,3,4)` | `0x696d1f16` |
 
+**[confirmed in aggregate, not value by value: a hash value is not visible on the wire; every straw2 draw uses `hash3` and every `is_out` / `pps` uses `hash2`, and all
+80,000 `crushtool` mappings and 2,194 `ceph osd map` results of the lab cluster agree. `hash1` (the three `hash1` values) and `hash4` are exercised by no capture.]**
+
 `stable_mod` and placement seed:
 
 | Case | Result |
@@ -930,6 +960,8 @@ CRUSH hashes (u32 hex):
 | HASHPSPOOL `pps`, pool 2, seed 6 | `hash2(6,2) = 0x37f72ca0` |
 | HASHPSPOOL `pps`, pool 1, seed 14 | `hash2(14,1) = 0xadee4b52` |
 | legacy `pps`, pool 1, seed 6 / pool 2, seed 6 (pgp_num 12) | 7 / 8 |
+
+**[confirmed in aggregate: the `pps` values are used by every placement above, pools 1 and 2, `pg_num` 1 and 32 (masks 0 and 31) only; non-power-of-two `pg_num` is not exercised (C9)]**
 
 `crush_ln` (hex, with the pinned tables):
 
@@ -945,6 +977,8 @@ CRUSH hashes (u32 hex):
 | 0x8000 | `0xf0002e2a60a0` |
 | 0xfffe | `0xfffffd61ad10` |
 | 0xffff | `0xfffff0000000` |
+
+**[confirmed: crush_check.py recomputes the ten values from the run-time-loaded tables; the live cluster confirms `crush_ln` only in aggregate through every straw2 decision]**
 
 `crush_ln` is not exposed by any Ceph tool, and it is `static` inside `mapper.c`. Confirm it either
 through the mapping vectors below (they depend on it for every straw2 decision), or by compiling
@@ -983,6 +1017,14 @@ Use these first; they need no live cluster. (`crushtool` itself is only needed t
 | C8 | Weight edge cases | an OSD with reweight `0.5` and one with `0` | C2/C3 pass; verifies `is_out` step 4 |
 | C9 | Split in progress | raise `pg_num` while `pgp_num` lags | `pps` uses `pgp_num` while PG key uses `pg_num`; C3 passes at each intermediate epoch |
 
+Status of the capture round (2026-11-16; details in `harness/vectors/crush/README.md`):
+
+- **C1 done.** Both blob forms decode and agree with the decompile / dencoder JSON; they differ exactly by the trailing MSR pair (2.1 (a)).
+- **C2 done.** 80,000 mappings, rules 0 and 1, 1 to 3 replicas, two `--pool-id` runs, all match. Lab weights were all 1.0 for these runs.
+- **C3 done for the baseline map only** (epoch 42: no upmap, no temp, no affinity, all OSDs up and in); the other states exist as maps but have no oracle output.
+- **C4 done.** 2,194 names. One oracle caveat: names with a code point above U+FFFF are hashed by the monitor in CESU-8 form (see the corrections list in 6).
+- **C5, C6, C7, C8, C9 not done** (no weight set, no class rule, no reduced-feature client, no fractional-reweight mapping, no `pg_num` split). Their marks stay.
+
 The oracle binaries (`crushtool`, `osdmaptool`, `ceph`) are used only at test time and are not
 shipped; any oracle helper compiled from Ceph sources must stay outside this repository tree.
 
@@ -995,28 +1037,29 @@ shipped; any oracle helper compiled from Ceph sources must stay outside this rep
    confirm it has been bit-identical in every release (Reef, Squid, Tentacle), and decide how the
    table enters the MIT core (section 7).
 2. `crush_ln` vectors in 5.1 and the `RH_LH` formula claims were computed with scratch code against
-   the table in the pinned header, not against a running cluster. **[confirm on capture]**
+   the table in the pinned header, not against a running cluster. **[confirmed: crush_check.py recomputed every table fact of 3.4.2 and the ten vectors from the header at run
+   time (21 / 212 / 23, 63,500 inputs, 343,343,104); a running cluster confirms them only in aggregate through the mappings, since `crush_ln` is not observable on its own]**
 3. `uniform`, `list` and `tree` algorithms and the permutation fallback are described from source
    only. Are such buckets still present in any supported cluster? (A cluster built since Hammer
    defaults to straw2; clusters upgraded from older releases may keep `straw` or `list`.)
 4. `choose_args` (weight sets and `ids`): position semantics (`outpos`, rows clipped to the last),
    the set-selection rule (pool id, then `-1`). Read from source (`mapper.c:290-307`, `:507-511`,
    `CrushWrapper.h:1471-1484`) but **[unverified by a run]** (C5). What a Tentacle monitor sends to a
-   client lacking `SERVER_LUMINOUS` is read from source (2.5) but also unrun (C7).
+   client lacking `SERVER_LUMINOUS` is read from source (2.5) but also unrun (C7). **[stays unverified: the lab has no choose_args set and no reduced-feature client was run]**
 5. `pg_upmap_primaries`: the swap uses only the position scan from index 1 (`OSDMap.cc:2855-2864`).
    `pg_to_raw_up` returns the primary of the **raw** list (`OSDMap.cc:3133`) while
    `_pg_to_up_acting_osds` (the one the client uses) takes the primary of the **up** list
    (`:3166`); both after upmap. Read from source; confirm on a PG with an upmap-primary whose target
-   is down. **[confirm on capture]**
+   is down. **[confirm on capture]**: still open, no `pg_upmap_primaries` entry was created (it needs `require-min-compat-client reef`, which is hard to undo on the lab).
 6. Primary affinity: rotation behaviour read from source (`OSDMap.cc:2942-2948`: entries before the
    chosen position shift one place toward the back, the chosen OSD goes to index 0); confirm on a
-   replicated pool with three members of which the first is rejected (C3).
+   replicated pool with three members of which the first is rejected (C3). **[still open]**: stored maps with affinity 0.5 on osd.1 exist (epochs 55-56), no mapping output does.
 7. `max_devices` recomputation (2.4): any case where the recomputed value differs from the encoded
-   one in a real map (a device in `name_map` but in no bucket)? It cannot change the result of a
+   one in a real map (a device in `name_map` but in no bucket)? **[answered for the lab: recomputed 3, encoded 3 in all 89 maps and the `getcrushmap` blob; no counter-example exists in the captures]** It cannot change the result of a
    selected item, but it changes whether `take <device>` is accepted.
 8. Behaviour of `x` values with the top bit set: the reference stores `x` in a signed int and the
    permutation cache compares `(u32) x`; hashes take the u32 bit pattern. No effect expected;
-   check with `hash2` vectors where `pps >= 0x80000000` (the `0xd77484f9` vector above is one).
+   check with `hash2` vectors where `pps >= 0x80000000` (the `0xd77484f9` vector above is one). **[confirmed in aggregate: 954 of the 2,194 live placements have such a `pps`, all match]**
 9. Items with weight >= `0x80000000` (signed-int quirk in 3.4.1): unreachable in practice but
    untested.
 10. An MSR-firstn rule on a replicated pool: rejected here. How likely is it in a Tentacle test
@@ -1024,7 +1067,7 @@ shipped; any oracle helper compiled from Ceph sources must stay outside this rep
     and both callers pass `pg_pool_t::TYPE_REPLICATED` = 1 (`OSDMap.cc:5042-5044`,
     `OSDMonitor.cc:11554-11555`), i.e. rule type 1 (resolved from source). A rule of type 4 can only
     come from an explicit administrator action; confirm the live rule type with
-    `ceph osd crush rule dump`.
+    `ceph osd crush rule dump`. **[confirmed: both lab rules have type 1 (replicated), decoded from the blob and equal to the dump]**
 11. Stretch-mode pools and `peering_crush_*` fields do not change placement but change which
     OSDs are usable; this note assumes none.
 12. The exact point at which the reference refuses a map that is internally inconsistent (for
@@ -1034,15 +1077,31 @@ shipped; any oracle helper compiled from Ceph sources must stay outside this rep
 13. **MSR pair and rule sizes in the embedded blob (2.1)**: derived from `SIGNIFICANT_FEATURES` not
     containing `CRUSH_MSR` / `SERVER_QUINCY`. Confirm by capturing a real full map and an incremental
     that carries a crush change (C1). If the blob does contain the pair, nothing in this note breaks
-    (the decoder reads it when present).
+    (the decoder reads it when present). **[confirmed for the MSR pair; the rule-size half stays open, see 2.1 (b)]**
 14. `test-map-jewel-tunables.crushmap` carries `allowed_bucket_algs` bytes that decode as `0x1600`
     (its tail is `... 01 01 00 16 00 00 01`) whereas the sibling hammer map decodes as `0x16`. The
     mapper does not use the field and the stable byte still sits last, so it is harmless, but do not
-    build a validator that insists `allowed_bucket_algs` is a plausible bitmask. **[unverified]**
-    which tool wrote that test file.
+    build a validator that insists `allowed_bucket_algs` is a plausible bitmask. **[confirmed: crush_check.py decodes that map to 0x1600 with `chooseleaf_stable` 1 and the hammer map to 0x16]**
+    **[unverified]** which tool wrote that test file (a capture cannot say).
 15. `uniform` buckets in the legacy reject / fallback paths (the permutation chooser) and `list`
     buckets are untested by any in-tree expected-output file that was compared; use C1/C2 on a map with
-    such buckets if one exists on the test cluster, otherwise decline them (4.1).
+    such buckets if one exists on the test cluster, otherwise decline them (4.1). **[still open: neither the lab map nor any binary map in the
+    in-tree tests has such a bucket]**
+
+### Corrections after capture (2026-11-16, `harness/tools/crush_check.py`)
+
+1. **3.2.1 had no `hash1`.** Section 5.1 lists three `hash1` vectors but 3.2.1 defined only hash2, hash3 and hash4, so the vectors could not be
+   reproduced from the note. Added the row `hash1(a)`; it reproduces all three vectors. The five-input variant is still not described (the mapper does not use it).
+2. **2.1 claim (a) confirmed, claim (b) not decidable.** MSR pair: confirmed (see 2.1). Rule min / max bytes: the lab rules store 1 / 100, equal to the constants, so the
+   claim stays marked **[confirm on capture]**.
+3. **C4 oracle caveat.** `ceph osd map` hashes names with a code point above U+FFFF in CESU-8 form (the JSON command path splits them into surrogate halves). Mapping
+   results for such names obtained from that command do not match a client that hashes UTF-8 bytes. A real client is not affected; test vectors must carry the bytes
+   that were hashed.
+4. **Status marks.** Marks on section 5.1 (hash values) and on 6 items 2, 4 to 8, 10, 13 to 15 were changed from "to confirm" to the confirmed / still-open wording above, each with the reason.
+   Everything else (uniform, list, tree, choose_args and weight sets, device-class rules, pg_upmap_primaries, the effect of primary affinity, split pools, legacy pools, the Linux dcache hash, reduced-feature clients) keeps its mark: no capture reaches it.
+5. **Observed, no text was wrong:** the lab tunables are exactly the Jewel column of 2.5 (`allowed_bucket_algs` 0x36, `straw_calc_version` 1); the shadow buckets of 2.6 are ordinary slots (ids -2 and -4);
+   rules are `take default`, `choose firstn 0 type osd`, `emit` (no `chooseleaf`); an incremental `new_pools` entry gets `last_change` = the incremental's epoch (3.5 step 8 of osdmap.md) in all 13 cases; the monitor's `Incremental` JSON
+   dump omits `new_primary_affinity`, so only the raw bytes show it (epochs 55 and 57).
 
 ---
 

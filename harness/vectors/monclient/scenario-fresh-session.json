@@ -1,0 +1,177 @@
+{
+ "id": "scenario-fresh-session",
+ "description": "Message sequence on the two monitor connections a stock tool opens at start-up (first one: bootstrap that fetches monmap + config; second one: the real session). Order is by capture time; both sides are listed. Types: 5 MMonGetMap, 15 MMonSubscribe, 4 MMonMap, 62 MConfig, 41 MOSDMap; 1796 is the mgrmap push (53 KB)",
+ "source": "session k2-rbd-info-default (crc mode, key type aes256k)",
+ "expect": {
+  "connections": [
+   [
+    {
+     "dir": "client->mon",
+     "type": 5,
+     "name": "MON_GET_MAP",
+     "version": 1,
+     "compat": 1,
+     "priority": 127
+    },
+    {
+     "dir": "client->mon",
+     "type": 15,
+     "name": "MON_SUBSCRIBE",
+     "version": 3,
+     "compat": 1,
+     "priority": 127,
+     "subscribe": [
+      [
+       "config",
+       0,
+       0
+      ],
+      [
+       "monmap",
+       0,
+       0
+      ]
+     ]
+    },
+    {
+     "dir": "mon->client",
+     "type": 4,
+     "name": "MON_MAP",
+     "version": 1,
+     "compat": 1,
+     "priority": 196,
+     "monmap_epoch": 3
+    },
+    {
+     "dir": "mon->client",
+     "type": 62,
+     "name": "CONFIG",
+     "version": 1,
+     "compat": 1,
+     "priority": 196
+    },
+    {
+     "dir": "mon->client",
+     "type": 4,
+     "name": "MON_MAP",
+     "version": 1,
+     "compat": 1,
+     "priority": 196,
+     "monmap_epoch": 3
+    }
+   ],
+   [
+    {
+     "dir": "client->mon",
+     "type": 5,
+     "name": "MON_GET_MAP",
+     "version": 1,
+     "compat": 1,
+     "priority": 127
+    },
+    {
+     "dir": "client->mon",
+     "type": 15,
+     "name": "MON_SUBSCRIBE",
+     "version": 3,
+     "compat": 1,
+     "priority": 127,
+     "subscribe": [
+      [
+       "config",
+       0,
+       0
+      ],
+      [
+       "monmap",
+       0,
+       0
+      ]
+     ]
+    },
+    {
+     "dir": "mon->client",
+     "type": 4,
+     "name": "MON_MAP",
+     "version": 1,
+     "compat": 1,
+     "priority": 196,
+     "monmap_epoch": 3
+    },
+    {
+     "dir": "mon->client",
+     "type": 62,
+     "name": "CONFIG",
+     "version": 1,
+     "compat": 1,
+     "priority": 196
+    },
+    {
+     "dir": "mon->client",
+     "type": 4,
+     "name": "MON_MAP",
+     "version": 1,
+     "compat": 1,
+     "priority": 196,
+     "monmap_epoch": 3
+    },
+    {
+     "dir": "client->mon",
+     "type": 15,
+     "name": "MON_SUBSCRIBE",
+     "version": 3,
+     "compat": 1,
+     "priority": 127,
+     "subscribe": [
+      [
+       "mgrmap",
+       0,
+       0
+      ]
+     ]
+    },
+    {
+     "dir": "client->mon",
+     "type": 15,
+     "name": "MON_SUBSCRIBE",
+     "version": 3,
+     "compat": 1,
+     "priority": 127,
+     "subscribe": [
+      [
+       "osdmap",
+       0,
+       1
+      ]
+     ]
+    },
+    {
+     "dir": "mon->client",
+     "type": 1796,
+     "name": "mgrmap push",
+     "version": 1,
+     "compat": 1,
+     "priority": 196
+    },
+    {
+     "dir": "mon->client",
+     "type": 41,
+     "name": "OSD_MAP",
+     "version": 4,
+     "compat": 3,
+     "priority": 196,
+     "mosdmap": {
+      "incremental_epochs": [],
+      "full_epochs": [
+       42
+      ],
+      "trim_lower_bound": 1,
+      "newest_map": 42
+     }
+    }
+   ]
+  ],
+  "note": "mon-client 3.3, 3.4, 3.5.1 row 1"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

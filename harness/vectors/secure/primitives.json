@@ -1,0 +1,175 @@
+{
+ "_comment": "Public / synthetic values only. crc32c(data, seed) is the raw Castagnoli update (no initial or final inversion of its own): the preamble uses seed 0, crc-mode segments seed 0xFFFFFFFF.",
+ "crc32c": [
+  {
+   "data_ascii": "foo bar baz",
+   "seed": 0,
+   "crc": 4119623852
+  },
+  {
+   "data_ascii": "foo bar baz",
+   "seed": 1234,
+   "crc": 881700046
+  },
+  {
+   "data_ascii": "whiz bang boom",
+   "seed": 0,
+   "crc": 2360230088
+  },
+  {
+   "data_ascii": "123456789",
+   "seed": 4294967295,
+   "crc": 486108540,
+   "note": "xor 0xFFFFFFFF gives the standard CRC-32C check value 0xE3069283"
+  },
+  {
+   "data_hex": "",
+   "seed": 4294967295,
+   "crc": 4294967295,
+   "note": "empty segment, crc-mode seed: 0xFFFFFFFF"
+  }
+ ],
+ "nonce_step": [
+  {
+   "start_hex": "aabbccddffffffffffffffff",
+   "after_one_step_hex": "aabbccdd0000000000000000",
+   "note": "msgr2.1: little-endian counter in bytes 4..11 wraps without carry into 0..3"
+  },
+  {
+   "start_hex": "1c1d1e1f2021222324252627",
+   "after_one_step_hex": "1c1d1e1f2121222324252627"
+  }
+ ],
+ "frame_sizes": [
+  {
+   "segment_lengths": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 1,
+   "wire_bytes": 96
+  },
+  {
+   "segment_lengths": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 1,
+   "wire_bytes": 96
+  },
+  {
+   "segment_lengths": [
+    48,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 1,
+   "wire_bytes": 96
+  },
+  {
+   "segment_lengths": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 128
+  },
+  {
+   "segment_lengths": [
+    0,
+    70,
+    0,
+    0
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 208
+  },
+  {
+   "segment_lengths": [
+    20,
+    70,
+    0,
+    350
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 560
+  },
+  {
+   "segment_lengths": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 176
+  },
+  {
+   "segment_lengths": [
+    105,
+    70,
+    0,
+    350
+   ],
+   "gcm_operations": 3,
+   "wire_bytes": 640
+  },
+  {
+   "segment_lengths": [
+    41,
+    10,
+    0,
+    0
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 144
+  },
+  {
+   "segment_lengths": [
+    41,
+    100,
+    0,
+    4096
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 4336
+  },
+  {
+   "segment_lengths": [
+    32,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 1,
+   "wire_bytes": 96
+  },
+  {
+   "segment_lengths": [
+    80,
+    0,
+    0,
+    0
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 144
+  },
+  {
+   "segment_lengths": [
+    41,
+    1,
+    1,
+    1
+   ],
+   "gcm_operations": 2,
+   "wire_bytes": 176
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "id": "keepalive2-pair",
+ "description": "KEEPALIVE2 (tag 18) from the client and the KEEPALIVE2_ACK (tag 19) echoing the same utime; 44-byte crc-mode frames (32 preamble + 8 payload + 4 crc, one segment, no epilogue). The stamp is a wall-clock time of the lab VM",
+ "source": "session k2-idle75 (crc mode) / first keepalive on the monitor connection",
+ "keepalive_frame_hex": "12010800000008000000000000000000000000000000000000000000d8d5f5996fccfa6afc00202d1aea5c67",
+ "ack_frame_hex": "13010800000008000000000000000000000000000000000000000000ec5ee03b6fccfa6afc00202d1aea5c67",
+ "expect": {
+  "frame_len": 44,
+  "stamp_sec": 1794821231,
+  "stamp_nsec": 757072124,
+  "ack_echoes_stamp": true,
+  "note": "mon-client 3.6"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

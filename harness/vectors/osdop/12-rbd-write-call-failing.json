@@ -1,0 +1,97 @@
+{
+ "name": "rbd-write-call-failing",
+ "note": "mutating CALL whose method fails: result -2 and rval -2, reply has ACK",
+ "reply": {
+  "compat_version": 2,
+  "data": {
+   "hex": "",
+   "length": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "front_hex": "0d0000007262645f6d6972726f72696e6701020000000000000006000000ffffffff2500c00800000000feffffff04000000000000002a0000002a00000001000000011400000000031300100000000000000000000000000000000000000000000000000000000000000000feffffff05000000000000002a000000020000000000000000000000000000000000000000000000000000000000000000",
+  "header2_hex": "0e000000000000005f000000000000002b007f0008000000000000000d000000000000000302000000",
+  "priority": 127,
+  "segment_lengths": [
+   41,
+   157,
+   0,
+   0
+  ],
+  "seq": 14,
+  "summary": {
+   "epoch": 42,
+   "flags": 146800677,
+   "oid": "rbd_mirroring",
+   "ops": [
+    {
+     "code": 5121,
+     "name": "CALL",
+     "payload_len": 0
+    }
+   ],
+   "pool": 2,
+   "replay_version": [
+    5,
+    42
+   ],
+   "result": -2,
+   "retry_attempt": 0,
+   "rvals": [
+    -2
+   ],
+   "seed": 6,
+   "user_version": 2
+  },
+  "tid": 95,
+  "type": 43,
+  "version": 8
+ },
+ "request": {
+  "compat_version": 3,
+  "data": {
+   "hex": "7262646d6972726f725f696d6167655f72656d6f76650c000000333931663834313134306532",
+   "length": 38,
+   "sha256": "511be2f087a26c1a837281ef76ea6424bf8c8fb7b6404e59fbee44132d466348"
+  },
+  "front_hex": "01011200000001020000000000000006000000ffffffffffe65347b72a0000002400c008020215000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010101000000000000000058ccfa6adba97c2106031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff0d0000007262645f6d6972726f72696e6701000114000000000313001000000000000000000000000000000000000000000000000026000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+  "header2_hex": "0d000000000000005f000000000000002a003f0009000000000000000d000000000000000303000000",
+  "priority": 63,
+  "segment_lengths": [
+   41,
+   229,
+   0,
+   38
+  ],
+  "seq": 13,
+  "summary": {
+   "client_inc": 0,
+   "epoch": 42,
+   "features": 4541880224203014143,
+   "flags": 146800676,
+   "hash": 3074905062,
+   "mtime_is_zero": false,
+   "oid": "rbd_mirroring",
+   "ops": [
+    {
+     "class_len": 3,
+     "code": 5121,
+     "flags": 0,
+     "indata_len": 16,
+     "method_len": 19,
+     "name": "CALL",
+     "payload_len": 38
+    }
+   ],
+   "pool": 2,
+   "retry_attempt": 0,
+   "seed": 6,
+   "snap_seq": 0,
+   "snapid": 18446744073709551614,
+   "snaps": []
+  },
+  "tid": 95,
+  "type": 42,
+  "version": 9
+ },
+ "source": "capture session k2-rbd-bench-default, tid 95 (private capture store)"
+}

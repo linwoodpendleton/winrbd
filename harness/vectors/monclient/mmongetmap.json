@@ -1,0 +1,20 @@
+{
+ "id": "mmongetmap",
+ "description": "MMonGetMap (type 5), client to monitor: header only, empty body; whole msgr2.1 crc-mode MESSAGE frame",
+ "source": "session k2-rbd-info-default (crc mode, key type aes256k) / connection to the monitor / first message sent",
+ "frame_hex": "11012900000008000000000000000000000000000000000000000000af9604f00100000000000000000000000000000005007f00010000000000000000000000000000000301000000073be540",
+ "header2_hex": "0100000000000000000000000000000005007f00010000000000000000000000000000000301000000",
+ "front_hex": "",
+ "expect": {
+  "type": 5,
+  "version": 1,
+  "compat": 1,
+  "priority": 127,
+  "tid": 0,
+  "seq": 1,
+  "segments": 1,
+  "frame_len": 77,
+  "note": "mon-client 2.3, 3.3.1"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

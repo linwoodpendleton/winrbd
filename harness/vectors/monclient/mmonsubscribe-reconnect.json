@@ -1,0 +1,40 @@
+{
+ "id": "mmonsubscribe-reconnect",
+ "description": "MMonSubscribe v3 re-sent after a monitor restart: monmap start 4 (held 3 + 1), osdmap start 93 ONETIME (held 92 + 1), config 0, mgrmap 0",
+ "source": "session k2-mon-restart (crc mode, key type aes256k), the connection made after the restart; hostname replaced by \"host1\" and the frame re-assembled with fresh lengths and CRCs",
+ "frame_hex": "11022900000008005900000008000000000000000000000000000000f227da84020000000000000000000000000000000f007f000300000000000000000000000000000003010000001f2504bd0400000006000000636f6e666967000000000000000000060000006d67726d6170000000000000000000060000006d6f6e6d6170040000000000000000060000006f73646d61705d000000000000000105000000686f7374310e257c44740000000000000000",
+ "header2_hex": "020000000000000000000000000000000f007f00030000000000000000000000000000000301000000",
+ "front_hex": "0400000006000000636f6e666967000000000000000000060000006d67726d6170000000000000000000060000006d6f6e6d6170040000000000000000060000006f73646d61705d000000000000000105000000686f737431",
+ "expect": {
+  "type": 15,
+  "version": 3,
+  "compat": 1,
+  "priority": 127,
+  "what": [
+   [
+    "config",
+    0,
+    0
+   ],
+   [
+    "mgrmap",
+    0,
+    0
+   ],
+   [
+    "monmap",
+    4,
+    0
+   ],
+   [
+    "osdmap",
+    93,
+    1
+   ]
+  ],
+  "hostname": "host1",
+  "front_len": 89,
+  "note": "mon-client 2.5.1"
+ },
+ "scrub": "No key material, tickets, signatures, nonces derived from keys or encrypted blobs are present. See README.md for what was kept / replaced."
+}

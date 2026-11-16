@@ -1,0 +1,26 @@
+{
+  "provenance": "lab cluster, Ceph v20.2.5, epoch 42; both blobs decode to the same map except the trailing MSR pair (msr_descents/msr_collision_tries = 100/100 present only in the getcrushmap form)",
+  "max_buckets": 8,
+  "max_rules": 2,
+  "max_devices_wire": 3,
+  "max_devices_recomputed": 3,
+  "buckets": [
+    {"slot": 0, "id": -1, "type": 11, "alg": 5, "hash": 0, "weight": 4797, "items": [-3], "item_weights": [4797], "name": "default"},
+    {"slot": 1, "id": -2, "type": 11, "alg": 5, "hash": 0, "weight": 4797, "items": [-4], "item_weights": [4797], "name": "default~hdd"},
+    {"slot": 2, "id": -3, "type": 1, "alg": 5, "hash": 0, "weight": 4797, "items": [0, 1, 2], "item_weights": [1599, 1599, 1599], "name": "winrbd-ceph1"},
+    {"slot": 3, "id": -4, "type": 1, "alg": 5, "hash": 0, "weight": 4797, "items": [0, 1, 2], "item_weights": [1599, 1599, 1599], "name": "winrbd-ceph1~hdd"}
+  ],
+  "rules": [
+    {"slot": 0, "type": 1, "min_size": 1, "max_size": 100, "steps": [[1, -1, 0], [2, 0, 0], [4, 0, 0]]},
+    {"slot": 1, "type": 1, "min_size": 1, "max_size": 100, "steps": [[1, -1, 0], [2, 0, 0], [4, 0, 0]]}
+  ],
+  "tunables": {"choose_local_tries": 0, "choose_local_fallback_tries": 0, "choose_total_tries": 50, "chooseleaf_descend_once": 1, "chooseleaf_vary_r": 1, "straw_calc_version": 1, "allowed_bucket_algs": 54, "chooseleaf_stable": 1, "msr_descents": 100, "msr_collision_tries": 100},
+  "class_map": {"-4": 0, "-2": 0, "0": 0, "1": 0, "2": 0},
+  "class_name": {"0": "hdd"},
+  "class_bucket": {
+    "-3": {"0": -4},
+    "-1": {"0": -2}
+  },
+  "type_map": {"0": "osd", "1": "host", "2": "chassis", "3": "rack", "4": "row", "5": "pdu", "6": "pod", "7": "room", "8": "datacenter", "9": "zone", "10": "region", "11": "root"},
+  "choose_args": {}
+}

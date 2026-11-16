@@ -1,0 +1,181 @@
+{
+ "_about": "Image byte range -> object extents (default and striped layout), data object names, and the sha256 of real objects written through the mapping. Write recipe in README.md.",
+ "worked_examples": [
+  {
+   "layout": {
+    "object_size": 4194304,
+    "stripe_unit": 4194304,
+    "stripe_count": 1
+   },
+   "offset": 10485760,
+   "length": 8388608,
+   "extents": [
+    [
+     2,
+     2097152,
+     2097152
+    ],
+    [
+     3,
+     0,
+     4194304
+    ],
+    [
+     4,
+     0,
+     2097152
+    ]
+   ]
+  },
+  {
+   "layout": {
+    "object_size": 4194304,
+    "stripe_unit": 65536,
+    "stripe_count": 4
+   },
+   "offset": 327680,
+   "length": 4096,
+   "extents": [
+    [
+     1,
+     65536,
+     4096
+    ]
+   ]
+  },
+  {
+   "layout": {
+    "object_size": 4194304,
+    "stripe_unit": 65536,
+    "stripe_count": 4
+   },
+   "offset": 16777216,
+   "length": 1,
+   "extents": [
+    [
+     4,
+     0,
+     1
+    ]
+   ]
+  }
+ ],
+ "object_names": [
+  {
+   "prefix": "rbd_data.37863d7ada59",
+   "objno": 0,
+   "name": "rbd_data.37863d7ada59.0000000000000000"
+  },
+  {
+   "prefix": "rbd_data.37863d7ada59",
+   "objno": 2,
+   "name": "rbd_data.37863d7ada59.0000000000000002"
+  },
+  {
+   "prefix": "rbd_data.37863d7ada59",
+   "objno": 255,
+   "name": "rbd_data.37863d7ada59.00000000000000ff"
+  },
+  {
+   "prefix": "rbd_data.37863d7ada59",
+   "objno": 1023,
+   "name": "rbd_data.37863d7ada59.00000000000003ff"
+  },
+  {
+   "prefix": "rbd_data.2.600ecac4b85c",
+   "objno": 255,
+   "name": "rbd_data.2.600ecac4b85c.00000000000000ff"
+  }
+ ],
+ "object_counts": [
+  {
+   "size": 4294967296,
+   "object_size": 4194304,
+   "stripe_unit": 4194304,
+   "stripe_count": 1,
+   "count": 1024
+  },
+  {
+   "size": 16777216,
+   "object_size": 4194304,
+   "stripe_unit": 65536,
+   "stripe_count": 4,
+   "count": 4
+  },
+  {
+   "size": 10,
+   "object_size": 4194304,
+   "stripe_unit": 65536,
+   "stripe_count": 4,
+   "count": 1
+  }
+ ],
+ "written_objects": [
+  {
+   "object_suffix": "0000000000000000",
+   "size": 4194304,
+   "sha256": "e597660144f65653aad5ea2116fd87dc7cdfc4412bee4de962b9bcb455c1efdd"
+  },
+  {
+   "object_suffix": "0000000000000001",
+   "size": 512,
+   "sha256": "fa9a8c1e34140e428973dcee288e17c237949bd79333be0a6aa4a3a419041dac"
+  },
+  {
+   "object_suffix": "0000000000000003",
+   "size": 5001,
+   "sha256": "441a0c59adef5e8c95e632bfc774ea65cb91e8f8b6489c6dd01f7bee5dfca20e"
+  },
+  {
+   "object_suffix": "0000000000000100",
+   "size": 1048576,
+   "sha256": "d2acf7d8423c08c03c993ee8de4f98271d7b7278066404a890658fac99b6b105"
+  },
+  {
+   "object_suffix": "00000000000003ff",
+   "size": 4194304,
+   "sha256": "f4a3874aa9eb1292e1dbbf499b96d00f24ffa0229ca9f7bd80986a5075bf2ad3"
+  }
+ ],
+ "write_recipe": {
+  "base": "bytes((i*7+3)&0xFF for i in range(1<<20)) written at image offsets 0 and 1073741824 (then copied with `rbd cp`)",
+  "patterns": "pat(n,k) = bytes((i*13+k)%251 for i in range(n))",
+  "writes": [
+   [
+    0,
+    4096,
+    1
+   ],
+   [
+    12388,
+    777,
+    2
+   ],
+   [
+    4193792,
+    1024,
+    3
+   ],
+   [
+    12582913,
+    5000,
+    4
+   ],
+   [
+    1073741824,
+    8192,
+    5
+   ],
+   [
+    4294963200,
+    4096,
+    6
+   ]
+  ],
+  "image": {
+   "size": 4294967296,
+   "order": 22,
+   "stripe": "default"
+  }
+ }
+}

@@ -1,0 +1,79 @@
+{
+ "format": 1,
+ "description": "msgr2.1 secure-mode frames (docs/spec/msgr2.md 2.6.3). SYNTHETIC: connection_secret = 0x00..0x3f (public test value), built by the checker and cross-checked by decrypting real captured secure frames with the same layout; no captured bytes. Key = secret[0:16], client-receive nonce = secret[16:28], client-transmit nonce = secret[28:40]; frames below are client-transmit direction and are consecutive (the nonce counter carries over).",
+ "connection_secret_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+ "frames": [
+  {
+   "description": "keepalive2 (1 segment, 8 bytes, padded to 16)",
+   "direction": "client_to_server",
+   "tag": 18,
+   "segments_hex": [
+    "0000005f01000000"
+   ],
+   "alignments": [
+    8
+   ],
+   "nonce_before_hex": "1c1d1e1f2021222324252627",
+   "nonce_after_hex": "1c1d1e1f2121222324252627",
+   "aead_operations": 1,
+   "wire_hex": "4be816477793cc7cbb381480b30cc69431dabdf879b50b483d403cfd6bc7a48146c636a2d24ff7965036a3b4f02908ecd7f8cc4f2688a28ab01f761aeee6fdba01654a9d4a848c689172d4521fcf8108d3c2c55cf539e1f36e78d49341798cec",
+   "wire_size": 96
+  },
+  {
+   "description": "client ident-sized control frame (123 bytes, spills past the 48-byte inline part)",
+   "direction": "client_to_server",
+   "tag": 8,
+   "segments_hex": [
+    "0104070a0d101316191c1f2225282b2e3134373a3d404346494c4f5255585b5e6164676a6d707376797c7f8285888b8e9194979a9da0a3a6a9acafb2b5b8bbbec1c4c7cacdd0d3d6d9dcdfe2e5e8ebeef1f4f7fafd000306090c0f1215181b1e2124272a2d303336393c3f4245484b4e5154575a5d606366696c6f"
+   ],
+   "alignments": [
+    8
+   ],
+   "nonce_before_hex": "1c1d1e1f2121222324252627",
+   "nonce_after_hex": "1c1d1e1f2321222324252627",
+   "aead_operations": 3,
+   "wire_hex": "812b546ff8ab6493c71f43d671c4a3a38a8577da66639b20d42f05052409521a53952011e51b1606950f9e593202de17d1a29298fd587f232c275a8212e145248891c2c0b1ac2026b35559c6a5911095450abce2efc11d16ed4b8c157703473c82b6f895b5ca09aa766c8ebbc214bec4fa2417784f24d2d35d1cdb261a384f2454bfe40608a04fc83886ca19a56280206406c44448ca2b549427767b4f8ccaa44b474b839bc9e5c5315054626cb0f5678660d675bd2fddcd5446f0fd57c439a9",
+   "wire_size": 192
+  },
+  {
+   "description": "message with header + front (2 segments)",
+   "direction": "client_to_server",
+   "tag": 17,
+   "segments_hex": [
+    "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728",
+    "616263"
+   ],
+   "alignments": [
+    8,
+    8
+   ],
+   "nonce_before_hex": "1c1d1e1f2321222324252627",
+   "nonce_after_hex": "1c1d1e1f2521222324252627",
+   "aead_operations": 5,
+   "wire_hex": "a59ad208ffd918edc0a6346ef4823c2069db34e81bf4d183e277466ff88f77d8ff06f543c751f0dfa665a7f5cf9e7340936c6170cff4e5c6cb212234ce0718fc886d5061a3d7b6fc1c14520b12b0a106ecb25567ac156692841f2ecfe0c9eed54b15505a9ca4653fb6edbb439a4dbbe5223f102855537e6caaed717837218d3b68230e126479b7ab56f6680e257add0a",
+   "wire_size": 144
+  },
+  {
+   "description": "message with 4 segments, empty middle",
+   "direction": "client_to_server",
+   "tag": 17,
+   "segments_hex": [
+    "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728",
+    "616263",
+    "",
+    "5758595a5758595a5758595a5758595a5758595a"
+   ],
+   "alignments": [
+    8,
+    8,
+    8,
+    4096
+   ],
+   "nonce_before_hex": "1c1d1e1f2521222324252627",
+   "nonce_after_hex": "1c1d1e1f2721222324252627",
+   "aead_operations": 7,
+   "wire_hex": "2cc290050ea2801a36a1e3892983b0975159f0cdc2c56488fb5db77dc65eeb7d275d14f64d43b132f86ac7d0e1681f863c22f87372e82d3e500a2c482449693e37f74edffd936326c498dcd27d47a91dab0ea4867e42c11b42a5ebef169950bf998e78fd2a5c5104ede350e2b99b5ba063990ecd43b0511bbd12b85a7abad23a288e27ae5f76a6f93ed55487c51fae18c583e1e24cfcd5b35455438f7a512ff82087d7d71b943f507722032cb6bebe32",
+   "wire_size": 176
+  }
+ ]
+}

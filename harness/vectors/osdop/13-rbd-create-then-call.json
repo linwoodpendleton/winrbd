@@ -1,0 +1,111 @@
+{
+ "name": "rbd-create-then-call",
+ "note": "CREATE followed by a CALL in one mutating message",
+ "reply": {
+  "compat_version": 2,
+  "data": {
+   "hex": "",
+   "length": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "front_hex": "120000007262645f69642e74302d62656e63682d6b3201020000000000000008000000ffffffff25004008000000000000000003000000000000002a0000002a000000020000000d22010000000000000000000000000000000000000000000000000000000000000000000000011400000000030600100000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000002a000000030000000000000000000000000000000000000000000000000000000000000000",
+  "header2_hex": "040000000000000006000000000000002b007f00080000000000000004000000000000000302000000",
+  "priority": 127,
+  "segment_lengths": [
+   41,
+   204,
+   0,
+   0
+  ],
+  "seq": 4,
+  "summary": {
+   "epoch": 42,
+   "flags": 138412069,
+   "oid": "rbd_id.t0-bench-k2",
+   "ops": [
+    {
+     "code": 8717,
+     "name": "CREATE",
+     "payload_len": 0
+    },
+    {
+     "code": 5121,
+     "name": "CALL",
+     "payload_len": 0
+    }
+   ],
+   "pool": 2,
+   "replay_version": [
+    3,
+    42
+   ],
+   "result": 0,
+   "retry_attempt": 0,
+   "rvals": [
+    0,
+    0
+   ],
+   "seed": 8,
+   "user_version": 3
+  },
+  "tid": 6,
+  "type": 43,
+  "version": 8
+ },
+ "request": {
+  "compat_version": 3,
+  "data": {
+   "hex": "7262647365745f69640c000000333931373231353632623366",
+   "length": 25,
+   "sha256": "cd719bb1a9ca6c01f98ae51cdb07400c60bdbe211bcda8cd74941129d5ffe3cb"
+  },
+  "front_hex": "01011200000001020000000000000008000000ffffffffffa8d595bd2a00000024004008020215000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010101000000000000000052ccfa6adb67131206031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff120000007262645f69642e74302d62656e63682d6b3202000d220100000000000000000000000000000000000000000000000000000000000000000000000114000000000306001000000000000000000000000000000000000000000000000019000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+  "header2_hex": "040000000000000006000000000000002a003f00090000000000000003000000000000000303000000",
+  "priority": 63,
+  "segment_lengths": [
+   41,
+   272,
+   0,
+   25
+  ],
+  "seq": 4,
+  "summary": {
+   "client_inc": 0,
+   "epoch": 42,
+   "features": 4541880224203014143,
+   "flags": 138412068,
+   "hash": 3180713384,
+   "mtime_is_zero": false,
+   "oid": "rbd_id.t0-bench-k2",
+   "ops": [
+    {
+     "code": 8717,
+     "flags": 1,
+     "length": 0,
+     "name": "CREATE",
+     "offset": 0,
+     "payload_len": 0
+    },
+    {
+     "class_len": 3,
+     "code": 5121,
+     "flags": 0,
+     "indata_len": 16,
+     "method_len": 6,
+     "name": "CALL",
+     "payload_len": 25
+    }
+   ],
+   "pool": 2,
+   "retry_attempt": 0,
+   "seed": 8,
+   "snap_seq": 0,
+   "snapid": 18446744073709551614,
+   "snaps": []
+  },
+  "tid": 6,
+  "type": 42,
+  "version": 9
+ },
+ "source": "capture session k2-rbd-bench-v1, tid 6 (private capture store)"
+}
