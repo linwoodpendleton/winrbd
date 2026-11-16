@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: MIT
+#
+# The portable core, built from a clean checkout and tested with gcc and clang: the one command a contributor runs
+#
+#   cmake -S harness -B build && cmake --build build && ctest --test-dir build
+#
+# in both compilers and in both Debug and Release. Warnings are errors (WR_WERROR is ON by default and is never turned
+# off here). The tests that need the lab Ceph cluster (label "lab", test_lab_mon) are excluded and would skip anyway
+# (they need WR_LAB_* variables, which CI does not have); nothing in this job reaches a network or a secret.
+#
+# What is inside that one ctest run: the unit tests of every module, the replay of the public captures, the mechanical
+# gates (no libc beyond memcpy/memmove/memset, no writable globals, sources list in sync), the freestanding smoke
+# (every core file as C99 with -ffreestanding, no system headers, linked with -nostdlib: what iPXE and the kernel
+# driver see), the footprint test, the documentation check, and a replay of every committed fuzz seed (a fuzz crasher
+# stays fixed). The longer matrix (sanitizers, 32-bit, iPXE flags, call depth, libFuzzer smoke) is harness.yml.
+name: core
+
+on:
+  push:
+    paths:
+      - "core/**"
+      - "harness/**"
+      - "docs/design/**"
+      - ".github/workflows/core.yml"
+  pull_request:
+    paths:
+      - "core/**"
+      - "harness/**"
+      - "docs/design/**"
+      - ".github/workflows/core.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: ${{ matrix.cc }} ${{ matrix.build_type }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+        build_type: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+
+      # libssl-dev: the differential crypto tests against OpenSSL (skipped by the build when absent). python3: the replay
+      # of the public captures. gcc-multilib: the freestanding smoke also links for 32 bits (skipped when absent).
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build libssl-dev python3 gcc-multilib \
+            ${{ matrix.cc == 'clang' && 'clang' || 'gcc' }}
+
+      - name: Configure
+        run: >
+          cmake -S harness -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_C_COMPILER=${{ matrix.cc }}
+
+      - name: Build
+        run: cmake --build build
+
+      # -LE lab: the live-cluster tests are not part of CI. --no-tests=error: an empty selection is a failure, not a pass.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -j 4 --timeout 600 -LE lab --no-tests=error
+
+      # The ctest summary of what skipped (a skip prints its reason); a failure was already fatal above.
+      - name: Skipped tests
+        if: always()
+        run: ctest --test-dir build -N -LE lab | tail -n 3

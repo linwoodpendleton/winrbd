@@ -1,0 +1,244 @@
+# SPDX-License-Identifier: MIT
+#
+# Builds the portable core and the Linux harness, runs the unit tests and the fuzz smoke runs.
+# Nothing here needs a secret, a lab cluster or the network beyond the package mirror: the live lab tests
+# (harness/lab, label "lab") are never part of CI. The Ceph run-time data of vectors.yml is not needed either.
+#
+#   build-test       gcc and clang, each plain and with -DWR_SANITIZE=address,undefined: cmake, -Werror build, ctest
+#   compile-matrix   compile-only: gcc -m32, clang -m32, and the iPXE-flag build of the core (gcc); the object code of
+#                    those builds goes through the no-libc and no-globals checks too
+#   object-gates     the no-libc / no-globals / sources-in-sync checks on OPTIMISED builds (Release and MinSizeRel, gcc and
+#                    clang): the test jobs build Debug, where a compiler never turns a loop into a library call
+#   static-limits    call depth and worst-case stack of the core, measured from gcc's call graph (no recursion)
+#   fuzz-smoke       clang + libFuzzer, 30 s per target, seeded from harness/fuzz/seeds (the checkout is not modified)
+#
+# Warnings are errors everywhere (WR_WERROR is ON by default and is never turned off here).
+name: harness
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: ${{ matrix.cc }}${{ matrix.sanitize != '' && ' + asan/ubsan' || '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+        sanitize: ["", "address,undefined"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build libssl-dev python3 ${{ matrix.cc == 'clang' && 'clang' || 'gcc' }}
+
+      # The 24.04 runner kernel randomises mmap addresses more widely than the AddressSanitizer runtimes of both
+      # compilers can place their shadow memory around, and the instrumented tests then die at start with a SEGV that
+      # has nothing to do with the code. Lowering the randomisation is the documented workaround; a failure to do so is
+      # reported (and then the tests tell if it mattered), it is not a reason to stop.
+      - name: Make AddressSanitizer start reliably
+        if: matrix.sanitize != ''
+        run: sudo sysctl -w vm.mmap_rnd_bits=28 || echo "::warning::could not lower vm.mmap_rnd_bits"
+
+      - name: Configure
+        run: >
+          cmake -S harness -B build/harness -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_COMPILER=${{ matrix.cc }}
+          -DWR_SANITIZE=${{ matrix.sanitize }}
+
+      - name: Build
+        run: cmake --build build/harness
+
+      # core_no_libc and core_no_globals look at the object code and are registered only in the plain builds (the sanitizer
+      # runtime adds symbols); the seed replays (fuzzseed.*) run in every flavour. The sanitizers are built with
+      # -fno-sanitize-recover=all (harness/cmake/WrWarnings.cmake), so a finding is a failing test, not a log line.
+      - name: Test
+        env:
+          ASAN_OPTIONS: strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+        run: ctest --test-dir build/harness --output-on-failure -j 4 --timeout 600
+
+  compile-matrix:
+    name: compile only (-m32, iPXE flags)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build libssl-dev python3 gcc-multilib ${{ matrix.cc == 'clang' && 'clang' || '' }}
+
+      # -fno-pie: the distro compilers default to position-independent code, whose objects name _GLOBAL_OFFSET_TABLE_;
+      # iPXE and the driver are not built that way, and the object gates below would flag the symbol.
+      # -fno-builtin-memcmp (clang): at -O2 clang rewrites memcmp(...) == 0 into a call to bcmp, which is not on the
+      # list of functions the core may reference (memcpy, memmove, memset, memcmp).
+      - name: Configure
+        run: |
+          flags="-fno-pie"
+          if [ "${{ matrix.cc }}" = clang ]; then flags="$flags -fno-builtin-memcmp"; fi
+          cmake -S harness -B build/harness -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_C_FLAGS="$flags" \
+            -DWR_WITH_OPENSSL=OFF
+
+      # wr_core_m32 (size_t and pointers are 32 bits, as on i386 iPXE) exists for gcc and clang; wr_core_ipxe_flags
+      # (-ffreestanding -Os and the warning set of the iPXE build) exists for gcc. Both are object-only targets.
+      - name: Build the 32-bit core
+        run: cmake --build build/harness --target wr_core_m32
+
+      - name: Build the core with the iPXE flags
+        if: matrix.cc == 'gcc'
+        run: cmake --build build/harness --target wr_core_ipxe_flags
+
+      - name: Every header compiles on its own
+        run: cmake --build build/harness --target wr_header_check
+
+      # The mechanical gates of the 64-bit library, applied to the object code that matters for the other hosts: no
+      # libc beyond memcpy/memmove/memset/memcmp and the compiler's own arithmetic helpers, no writable global.
+      - name: Gates on the 32-bit objects
+        run: |
+          ar rcs build/core_m32.a $(find build/harness/CMakeFiles/wr_core_m32.dir -name '*.o')
+          sh harness/tools/check_no_libc.sh build/core_m32.a
+          sh harness/tools/check_no_globals.sh build/core_m32.a
+
+      - name: Gates on the iPXE-flag objects
+        if: matrix.cc == 'gcc'
+        run: |
+          ar rcs build/core_ipxe.a $(find build/harness/CMakeFiles/wr_core_ipxe_flags.dir -name '*.o')
+          sh harness/tools/check_no_libc.sh build/core_ipxe.a
+          sh harness/tools/check_no_globals.sh build/core_ipxe.a
+
+  object-gates:
+    name: object gates (${{ matrix.cc }}, ${{ matrix.build_type }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+        build_type: [Release, MinSizeRel]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build python3 ${{ matrix.cc == 'clang' && 'clang' || 'gcc' }}
+
+      # Only the library is built (no tests, no host): the point is what the optimiser makes of the core. The
+      # -fno-builtin-memcmp for clang is explained in the compile-matrix job.
+      - name: Configure
+        run: |
+          flags=""
+          if [ "${{ matrix.cc }}" = clang ]; then flags="-fno-builtin-memcmp"; fi
+          cmake -S harness -B build/gates -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_C_FLAGS="$flags" \
+            -DWR_WITH_OPENSSL=OFF -DWR_BUILD_HOST=OFF
+
+      - name: Build the core
+        run: cmake --build build/gates --target wr_core
+
+      - name: core_sources_in_sync, core_no_libc, core_no_globals
+        run: ctest --test-dir build/gates --output-on-failure -R '^core_' --no-tests=error
+
+  static-limits:
+    name: call depth and stack
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc python3
+
+      # No recursion, at most 14 frames deep, at most 2 KiB of stack along any chain (measured values: 13 and about 1.5 KiB).
+      - name: Measure
+        run: python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 2048
+
+  fuzz-smoke:
+    name: fuzz smoke (clang, 30 s per target)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build clang python3
+
+      # WR_FUZZ=ON alone instruments only the fuzz target files, not the core library, so the fuzzer would see no coverage
+      # of the code under test. WR_SANITIZE puts ASan and UBSan on the core and the tests, and the global flag adds the
+      # libFuzzer coverage instrumentation to everything, core included.
+      - name: Configure
+        run: >
+          cmake -S harness -B build/fuzz -G Ninja
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_C_FLAGS=-fsanitize=fuzzer-no-link
+          -DWR_FUZZ=ON
+          -DWR_SANITIZE=address,undefined
+          -DWR_WITH_OPENSSL=OFF
+
+      - name: Build the fuzz targets
+        run: cmake --build build/fuzz
+
+      # Each target runs on a COPY of its seeds, so the new inputs libFuzzer finds stay out of the checkout.
+      # A crash leaves crash-* / oom-* / timeout-* files in build/fuzz-artifacts and fails the step.
+      - name: Run every target for 30 s
+        run: |
+          set -eu
+          mkdir -p build/fuzz-artifacts
+          status=0
+          for exe in build/fuzz/fuzz_*; do
+            [ -f "$exe" ] && [ -x "$exe" ] || continue
+            name=$(basename "$exe")
+            corpus="build/fuzz-corpus/$name"
+            mkdir -p "$corpus"
+            if [ -d "harness/fuzz/seeds/$name" ]; then
+              cp harness/fuzz/seeds/"$name"/* "$corpus"/ 2>/dev/null || true
+            fi
+            echo "::group::$name"
+            if ! "$exe" -max_total_time=30 -max_len=4096 -rss_limit_mb=4096 -timeout=60 \
+                 -artifact_prefix="build/fuzz-artifacts/${name}-" "$corpus"; then
+              echo "::error::$name failed"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $status
+
+      # Only on failure, and only the inputs libFuzzer wrote because they crashed a target. Those are made by the
+      # fuzzer from the committed seeds (public, scrubbed vectors); no key, token or lab file is ever part of a run.
+      - name: Keep the crashing inputs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes
+          path: build/fuzz-artifacts/
+          if-no-files-found: ignore
+          retention-days: 14

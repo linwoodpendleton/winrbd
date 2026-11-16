@@ -74,6 +74,18 @@ WNBD:
 10. Unit tests and fuzzing of every decoder (frames, OSDMap, CRUSH, replies). Memory-bounded mode: fixed budgets and no unbounded allocation, because iPXE has a 4 MiB heap and Windows needs preallocated pools.
 11. Optional stage: secure mode (AES-GCM) in addition to crc mode.
 
+**Status.** The wire and authentication half is done and hardened; the map, placement and I/O half has not started. The details, with the evidence, are in [`core/README.md`](../core/README.md) and [`harness/README.md`](../harness/README.md).
+
+| # | Milestone | State |
+|---|---|---|
+| 1 | Shim interface and Linux implementation | done: the core takes memory and time as data and calls the host only for `random` and `log`; the Linux host is in `harness/host/` |
+| 2 | msgr2 to a mon | done: banner, hello, frames, CRC-32C, crc mode, revision 1; checked against the public captures and the lab cluster |
+| 3 | cephx, tickets, renewal | done: both key types (`aes`, `aes256k`), mon and OSD tickets, the authorizer, renewal inside a session |
+| 4 | OSDMap | partly: the mon session subscribes and delivers `MMonMap` and `MOSDMap` as raw, size-checked bytes; no map decoding yet |
+| 5 to 9 | CRUSH, OSD sessions, RBD open, image I/O, krbd comparison | not started |
+| 10 | Unit tests, fuzzing, bounded memory | done for every module that exists: unit tests, replay of the public captures, libFuzzer targets for the msgr2 frame decoder, the cephx reply decoders, the mon message decoders and the whole engine (every committed seed is replayed by ctest), exact memory budgets per profile; the decoders of milestones 4 to 9 have to join them when they land |
+| 11 | secure mode | not started |
+
 **Deliverables.** `core/`, `harness/`, test scripts that build a test image on the test cluster and run the comparison.
 
 **Exit criteria.** Harness reads and writes an image written / read via krbd with zero byte differences over a long randomized run; survives killing and restarting an OSD and a mon mid-run without data loss or hang; decoders pass fuzzing without crashes for an agreed duration.
@@ -255,6 +267,18 @@ WNBD:
 9. 在同一镜像上与 krbd 逐字节比对,使用随机与规律模式的 I/O,包含不对齐和跨对象请求。
 10. 对每个解码器(帧、OSDMap、CRUSH、应答)做单元测试和模糊测试。内存受限模式:固定预算、不无限分配,因为 iPXE 只有 4 MiB 堆,Windows 则需要预分配的内存池。
 11. 可选阶段:在 crc 模式之外加入 secure 模式(AES-GCM)。
+
+**当前状态。** 线路与认证这一半已完成并加固;map、定位与 I/O 这一半尚未开始。细节与证据见 [`core/README.md`](../core/README.md) 和 [`harness/README.md`](../harness/README.md)。
+
+| # | 里程碑 | 状态 |
+|---|---|---|
+| 1 | 适配层接口与 Linux 实现 | 完成:核心以数据形式接收内存与时间,只回调宿主的 `random` 和 `log`;Linux 宿主在 `harness/host/` |
+| 2 | 经 msgr2 连接 mon | 完成:banner、hello、帧、CRC-32C,crc 模式,revision 1;已与公开抓包和实验集群核对 |
+| 3 | cephx、ticket、续期 | 完成:两种密钥(`aes`、`aes256k`)、mon 与 OSD 的 ticket、authorizer、会话内续期 |
+| 4 | OSDMap | 部分:mon 会话订阅并把 `MMonMap`、`MOSDMap` 以原始字节(已检查大小)交出;尚不解码 map |
+| 5 至 9 | CRUSH、OSD 会话、RBD 打开、镜像读写、与 krbd 比对 | 未开始 |
+| 10 | 单元测试、模糊测试、内存受限 | 已有的每个模块均完成:单元测试、公开抓包回放、针对 msgr2 帧解码器、cephx 应答解码器、mon 消息解码器和整个引擎的 libFuzzer 目标(每个提交的种子都由 ctest 回放)、每个配置档的精确内存预算;里程碑 4 至 9 的解码器落地时必须补上 |
+| 11 | secure 模式 | 未开始 |
 
 **交付物。** `core/`、`harness/`,以及在测试集群上建测试镜像并跑比对的测试脚本。
 
