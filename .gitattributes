@@ -1,0 +1,4 @@
+# Fuzz seeds and captured test vectors are raw bytes: never convert line endings.
+harness/fuzz/seeds/** -text
+harness/vectors/** -text
+*.pcap binary
