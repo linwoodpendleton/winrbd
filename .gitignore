@@ -96,3 +96,6 @@ keyring
 .DS_Store
 ._*
 Thumbs.db
+
+# Local lab configuration (harness/lab)
+harness/lab/lab.conf

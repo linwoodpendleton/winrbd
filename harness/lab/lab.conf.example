@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: MIT
+#
+# winrbd test lab: configuration template.
+#
+# Copy to lab.conf (git-ignored) next to the scripts, or point LAB_CONF at any
+# file. Every value can also be given as an environment variable; the
+# environment wins over the file. Nothing here is required except
+# LAB_SSH_PUBKEY_FILE; the rest are defaults you may override.
+
+# --- where things live (host side) ---------------------------------------
+# Everything the lab creates goes below LAB_DIR (images, disks, seed, logs,
+# facts). Keep it OUTSIDE the git working tree.
+#LAB_DIR="$HOME/.local/share/winrbd-lab"
+
+# Refuse to run when the filesystem holding LAB_DIR has less free space (GB).
+#LAB_MIN_FREE_GB=100
+
+# --- guest identity -------------------------------------------------------
+#LAB_HOSTNAME=winrbd-ceph1
+#LAB_SSH_USER=lab
+# Public key allowed to log in as LAB_SSH_USER (required, no passwords exist).
+LAB_SSH_PUBKEY_FILE="$HOME/.ssh/id_ed25519.pub"
+# Optional second key.
+#LAB_EXTRA_PUBKEY_FILE=
+
+# --- VM size --------------------------------------------------------------
+#LAB_VCPUS=8
+#LAB_MEM_MB=16384
+#LAB_ROOT_GB=60
+#LAB_OSD_COUNT=3
+#LAB_OSD_GB=25            # sparse qcow2, so this is a maximum, not a reservation
+#LAB_DISK_CACHE=none      # qemu cache mode for all disks
+#LAB_NICE=10              # nice level of the qemu process
+
+# --- networking (nothing on the host is touched) --------------------------
+# NIC1: QEMU user-mode (slirp) NAT for internet access; only SSH is forwarded,
+#       and only on the host's loopback address.
+#LAB_SSH_PORT=22221
+# NIC2: private L2 shared by every VM that joins the same multicast group.
+#       Several VMs on one host can talk to each other here. This is the Ceph
+#       public network.
+#LAB_MCAST=230.77.0.1:7701
+#LAB_MCAST_LOCALADDR=127.0.0.1
+#LAB_PRIV_CIDR=10.77.0.10/24     # this VM's address on the private L2
+#LAB_MAC_INET=52:54:00:77:00:01
+#LAB_MAC_PRIV=52:54:00:77:00:10
+
+# --- base image -----------------------------------------------------------
+# Any Ubuntu 24.04 cloud-image mirror works. The image is verified against the
+# SHA256SUMS file published next to it.
+#LAB_IMAGE_BASE_URL=https://cloud-images.ubuntu.com/noble/current
+#LAB_IMAGE_NAME=noble-server-cloudimg-amd64.img
+# Optional: a nearer package mirror for the guest, e.g. https://mirror.example/ubuntu
+#LAB_APT_MIRROR=
+
+# --- how the VM is run ----------------------------------------------------
+# systemd : transient unit (needs root and systemd-run), the default when possible
+# daemon  : plain background qemu with a pidfile
+#LAB_RUNNER=
+#LAB_UNIT=winrbd-lab-ceph
+
+# --- Ceph (used by the guest scripts) -------------------------------------
+#LAB_CEPH_RELEASE=tentacle
+#LAB_CEPH_VERSION=20.2.5
+# Container image. Point this at a registry mirror if the default is slow.
+#LAB_CEPH_IMAGE=quay.io/ceph/ceph:v20.2.5
+# Package repository for ceph-common / cephadm (a mirror of
+# download.ceph.com/debian-<release> works).
+#LAB_CEPH_APT_URL=https://download.ceph.com/debian-tentacle
+#LAB_CEPH_KEY_URL=https://download.ceph.com/keys/release.asc
+#LAB_POOL=winrbd
+#LAB_CEPHX_ID=winrbd      # client.<id> with caps limited to LAB_POOL
