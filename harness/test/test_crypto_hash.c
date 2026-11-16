@@ -458,7 +458,7 @@ static void test_hmac_rfc4231(void)
 
 static void test_hmac_key_sweep(void)
 {
-	uint8_t key[300], msg[100];
+	uint8_t key[300] = { 0 }, msg[100] = { 0 };
 	uint8_t acc256[301 * 32];
 	uint8_t acc384[301 * 48];
 	uint8_t d256[32], d384[48];
