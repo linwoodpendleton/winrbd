@@ -86,7 +86,7 @@ WNBD:
 
 ### Phase 2: iPXE `rbd://` SAN driver
 
-**Goal.** `sanboot rbd://...` in iPXE under QEMU + OVMF boots a Linux or WinPE image straight from RBD with no gateway.
+**Goal.** `sanboot rbd://...` in iPXE boots a Linux or WinPE image straight from RBD with no gateway, under both UEFI (QEMU + OVMF) and legacy BIOS (QEMU + SeaBIOS), from PXE or from local boot media.
 
 **Milestones.**
 1. Build the core into iPXE with a new SAN protocol option (config define, object requirement, URI opener), following the iSCSI / AoE pattern.
@@ -96,10 +96,12 @@ WNBD:
 5. `sanboot` of a Linux image, then a WinPE image.
 6. Handoff ACPI table (see `docs/design/handoff-table.md`) installed and visible in a Linux guest (`/sys/firmware/acpi/tables`) and dumpable.
 7. Boot-time robustness: reopen after a path failure, cached maps across reopen, sane behavior when a mon or OSD is down.
+8. Legacy BIOS: the same device exposed as an INT 13h disk through iPXE's generic SAN layer (`arch/x86/interface/pcbios/int13.c`). Under QEMU + SeaBIOS: `sanhook` visible to the BIOS, `sanboot` of an MBR-partitioned Linux image and a WinPE image, and the handoff table installed and visible as on UEFI.
+9. Boot media without PXE: `ipxe.usb` (written to a USB stick with `dd`, BIOS), `ipxe.iso`, and `ipxe.efi` as `EFI/BOOT/BOOTX64.EFI` on a USB stick (UEFI), each with an embedded script (`EMBED=`) that runs `sanboot rbd://...`. The cephx key may be embedded on the media: the user keeps the media safe like any other credential and revokes a lost one with `ceph auth rm`; use one cephx user per image so that revocation is narrow.
 
 **Deliverables.** `ipxe/` patch / driver files, build instructions pinned to the submodule revision, QEMU run scripts, the handoff table spec promoted from DRAFT to v1.
 
-**Exit criteria.** In QEMU with OVMF (Secure Boot off) the VM boots a Linux and a WinPE image over `rbd://`; the handoff table appears in the guest and matches the design.
+**Exit criteria.** In QEMU with OVMF (Secure Boot off) and in QEMU with SeaBIOS, the VM boots a Linux and a WinPE image over `rbd://`, both via PXE and from an iPXE USB image; the handoff table appears in the guest and matches the design.
 
 **Open questions / risks.**
 - Direct block ops (ATA / HTTP-block style) vs going through the SCSI layer (iSCSI / usbblk style): neither prototyped.
@@ -107,6 +109,7 @@ WNBD:
 - Choosing a table signature that does not collide with any registered ACPI signature; whether Windows tolerates iPXE's forced OEM ID fields.
 - Boot throughput with a one-command-at-a-time SAN layer while loading the kernel and boot-start drivers; mitigation is intra-command parallelism and readahead. Not measured.
 - 4 MiB `malloc()` heap versus map sizes; large buffers can come from `umalloc()` (EFI `AllocatePages`), which is not measured either.
+- Legacy BIOS: memory for large buffers comes from extended memory below 4 GiB rather than EFI pages; INT 13h addressing and transfer limits through the generic SAN layer, and how Windows on BIOS (MBR, `bootmgr` / `winload.exe`) reads through INT 13h at boot, are not tested.
 - Upstream iPXE has its own contribution policy: follow its `CONTRIBUTING.md` in full before proposing anything there (each submission needs an accountable author who has reviewed and understands it). New iPXE files also need a `FILE_LICENCE` and a `FILE_SECBOOT` decision; files not marked `FILE_SECBOOT ( PERMITTED )` are not allowed in UEFI Secure Boot signed iPXE builds, and per `compiler.h` third-party contributions need an approved security review to be marked permitted.
 - Licensing inside an iPXE build: tag core files `MIT` and glue files `GPL2_OR_LATER_OR_UBDL`, then run the iPXE licence check (`make bin/<target>.licence`) on a real build to confirm.
 
@@ -175,7 +178,7 @@ WNBD:
 
 ### Test environment
 
-- **Hypervisor:** QEMU / KVM with OVMF (UEFI), Secure Boot off; virtio or e1000e NIC depending on what the boot-start NIC driver story needs.
+- **Hypervisor:** QEMU / KVM with OVMF (UEFI), Secure Boot off, and with SeaBIOS (legacy BIOS); virtio or e1000e NIC depending on what the boot-start NIC driver story needs.
 - **Windows:** test-signing enabled (`bcdedit /set testsigning on`); a debuggee VM with WinDbg attached over serial, or KDNET over a **separate** NIC (so debugging traffic does not share the NIC under test).
 - **Ceph:** a small test cluster, for example single host deployed with cephadm, 3 OSDs on files or loop devices, with a replicated pool for RBD. Enough to test CRUSH and map changes; a second multi-host cluster later for failure testing. Dedicated cephx entity with caps limited to the test pool.
 - **Oracle:** a Linux machine with krbd mapping the same images; `ceph osd map`, `crushtool --test`, `rbd info` for ground truth.
@@ -265,7 +268,7 @@ WNBD:
 
 ### Phase 2:iPXE `rbd://` SAN 驱动
 
-**目标。** 在 QEMU + OVMF 下的 iPXE 里执行 `sanboot rbd://...`,不经任何网关,直接从 RBD 启动 Linux 或 WinPE 镜像。
+**目标。** 在 iPXE 里执行 `sanboot rbd://...`,不经任何网关,直接从 RBD 启动 Linux 或 WinPE 镜像;UEFI(QEMU + OVMF)和传统 BIOS(QEMU + SeaBIOS)都要支持,既能经 PXE,也能从本地启动介质启动。
 
 **里程碑。**
 1. 把核心编进 iPXE,新增一个 SAN 协议选项(配置宏、对象依赖、URI opener),照 iSCSI / AoE 的模式做。
@@ -275,10 +278,12 @@ WNBD:
 5. `sanboot` 启动 Linux 镜像,再启动 WinPE 镜像。
 6. 交接 ACPI 表(见 `docs/design/handoff-table.md`)已安装,并能在 Linux 客户机里看到(`/sys/firmware/acpi/tables`)和导出。
 7. 启动期健壮性:路径故障后重新打开,重新打开时复用已缓存的 map,mon 或 OSD 不可用时行为合理。
+8. 传统 BIOS:同一个设备经 iPXE 的通用 SAN 层(`arch/x86/interface/pcbios/int13.c`)以 INT 13h 磁盘提供。在 QEMU + SeaBIOS 下:`sanhook` 之后 BIOS 能看到该镜像,`sanboot` 能启动 MBR 分区的 Linux 镜像和 WinPE 镜像,交接表也能像 UEFI 下一样安装并可见。
+9. 不经 PXE 的启动介质:`ipxe.usb`(用 `dd` 写进 U 盘,BIOS 用)、`ipxe.iso`,以及放在 U 盘 `EFI/BOOT/BOOTX64.EFI` 的 `ipxe.efi`(UEFI 用),都内嵌执行 `sanboot rbd://...` 的启动脚本(`EMBED=`)。cephx 密钥可以直接放在介质里:用户像保管其他凭据一样保管介质,丢失后用 `ceph auth rm` 注销;每个镜像用一个单独的 cephx 用户,注销时只影响这一个。
 
 **交付物。** `ipxe/` 补丁 / 驱动文件、固定在子模块版本上的构建说明、QEMU 运行脚本、从草案升为 v1 的交接表规格。
 
-**退出标准。** 在 QEMU + OVMF(Secure Boot 关闭)下,虚拟机通过 `rbd://` 启动 Linux 和 WinPE 镜像;交接表在客户机里可见且与设计一致。
+**退出标准。** 在 QEMU + OVMF(Secure Boot 关闭)和 QEMU + SeaBIOS 下,虚拟机都能通过 `rbd://` 启动 Linux 和 WinPE 镜像,经 PXE 和从 iPXE U 盘镜像各通过一次;交接表在客户机里可见且与设计一致。
 
 **未决问题 / 风险。**
 - 直接实现块操作(ATA / HTTP-block 风格)还是走 SCSI 层(iSCSI / usbblk 风格):两种都没做过原型。
@@ -286,6 +291,7 @@ WNBD:
 - 选一个不与任何已注册 ACPI 签名冲突的表签名;Windows 是否容忍 iPXE 强制写入的 OEM 字段。
 - SAN 层一次一条命令,加载内核和启动期驱动时的启动吞吐如何;缓解办法是命令内并行和预读。尚未测量。
 - 4 MiB 的 `malloc()` 堆与 map 体积的矛盾;大缓冲区可以从 `umalloc()`(EFI `AllocatePages`)取,这一点同样没有测量过。
+- 传统 BIOS:大缓冲区来自 4 GiB 以下的扩展内存,而不是 EFI 页;经通用 SAN 层的 INT 13h 寻址与单次传输上限,以及 BIOS 下的 Windows(MBR,`bootmgr` / `winload.exe`)启动时怎样经 INT 13h 读盘,都没有测试过。
 - iPXE 上游有自己的贡献政策:向它提交任何东西之前,必须完整遵守其 `CONTRIBUTING.md`(每份提交都要有对其负责、审阅过并理解的作者)。新的 iPXE 文件还需要决定 `FILE_LICENCE` 和 `FILE_SECBOOT`;没有标记 `FILE_SECBOOT ( PERMITTED )` 的文件不允许进入 UEFI Secure Boot 签名构建,而按 `compiler.h` 的说明,第三方贡献要通过认可的安全审查才能标记为 permitted。
 - iPXE 构建里的许可:核心文件标 `MIT`,粘合文件标 `GPL2_OR_LATER_OR_UBDL`,再拿真实构建跑一次 iPXE 的许可检查(`make bin/<target>.licence`)确认。
 
@@ -354,7 +360,7 @@ WNBD:
 
 ### 测试环境
 
-- **虚拟化:** QEMU / KVM 加 OVMF(UEFI),Secure Boot 关闭;网卡用 virtio 还是 e1000e,取决于启动期网卡驱动这条线需要什么。
+- **虚拟化:** QEMU / KVM 加 OVMF(UEFI,Secure Boot 关闭)以及 SeaBIOS(传统 BIOS);网卡用 virtio 还是 e1000e,取决于启动期网卡驱动这条线需要什么。
 - **Windows:** 开启测试签名(`bcdedit /set testsigning on`);被调试虚拟机通过串口接 WinDbg,或在**另一块**网卡上用 KDNET(调试流量不要和被测网卡混用)。
 - **Ceph:** 小型测试集群,例如用 cephadm 部署的单机集群,3 个 OSD 放在文件或 loop 设备上,建一个副本存储池给 RBD。足够测试 CRUSH 和 map 变化;之后再用一个多机集群做故障测试。使用专用的 cephx 实体,权限限定在测试存储池。
 - **标准答案:** 一台 Linux 机器用 krbd 映射同样的镜像;用 `ceph osd map`、`crushtool --test`、`rbd info` 作对照。
