@@ -10,7 +10,7 @@ recomputes. Nothing is copied from Ceph's source or test data.
 ## Running the checker
 
 ```
-python3 harness/tools/crush_check.py --captures <captures-dir> [--ref <ceph-reference-tree>]
+python3 harness/tools/crush_check.py [--captures <captures-dir>] [--ceph-src <dir>]
 ```
 
 * Exit status 0 when every check passes, 1 when a check fails, 2 when an input is missing.
@@ -18,8 +18,8 @@ python3 harness/tools/crush_check.py --captures <captures-dir> [--ref <ceph-refe
   directory (`ceph osd map`, `crushtool`, `osdmaptool`, `ceph-dencoder` JSON, the stored monitor maps).
 * The checker reads no keys and prints none. It does not decrypt anything (secure-mode streams are recognised by their
   failing preamble CRC and skipped).
-* `<captures-dir>` must contain `gt/`, `gt3/` and `pcap/` as laid out by the capture round (`MANIFEST.md` there).
-  `--ref` defaults to `<captures-dir>/../ceph-v20.2.5`. The reference tree is read **at run time** for the two tables of
+* `<captures-dir>` (default: the public set `harness/vectors/public`) must contain `gt/`, `gt3/` and `pcap/` as laid out by the capture round (`MANIFEST.md` there).
+  `--ceph-src` (alias `--ref`) defaults to `$WINRBD_CEPH_SRC`, else `harness/.ceph-ref`, which `harness/tools/fetch-ceph-ref.sh` fills from the pinned Ceph commit. The Ceph data is read **at run time** for the two tables of
   `src/crush/crush_ln_table.h` (parsed from the header text, never embedded here) and for the in-tree known-answer
   tests of group F.
 * Options: `--quick` (skip data-segment CRCs above 64 KiB and group F), `--no-pcap`, `--no-tree`,

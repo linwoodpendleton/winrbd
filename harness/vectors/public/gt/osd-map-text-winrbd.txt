@@ -1,0 +1,20 @@
+$ ceph osd map winrbd rbd_data.37841afbd1d7.0000000000000000
+osdmap e141 pool 'winrbd' (2) object 'rbd_data.37841afbd1d7.0000000000000000' -> pg 2.8e025328 (2.8) -> up ([0,2,1], p0) acting ([0,2,1], p0)
+$ ceph osd map winrbd rbd_data.37841afbd1d7.0000000000000001
+osdmap e141 pool 'winrbd' (2) object 'rbd_data.37841afbd1d7.0000000000000001' -> pg 2.4ac227ef (2.f) -> up ([0,1,2], p0) acting ([0,1,2], p0)
+$ ceph osd map winrbd rbd_header.37841afbd1d7
+osdmap e141 pool 'winrbd' (2) object 'rbd_header.37841afbd1d7' -> pg 2.981be352 (2.12) -> up ([2,1,0], p2) acting ([2,1,0], p2)
+$ ceph osd map winrbd rbd_id.img-v1
+osdmap e141 pool 'winrbd' (2) object 'rbd_id.img-v1' -> pg 2.ce128433 (2.13) -> up ([0,2,1], p0) acting ([0,2,1], p0)
+$ ceph osd map winrbd rbd_directory
+osdmap e141 pool 'winrbd' (2) object 'rbd_directory' -> pg 2.30a98c1c (2.1c) -> up ([0,1,2], p0) acting ([0,1,2], p0)
+$ ceph osd map winrbd foo
+osdmap e141 pool 'winrbd' (2) object 'foo' -> pg 2.7fc1f406 (2.6) -> up ([1,0,2], p1) acting ([1,0,2], p1)
+$ ceph osd map winrbd abcdefghijkl
+osdmap e141 pool 'winrbd' (2) object 'abcdefghijkl' -> pg 2.b1b3ea5 (2.5) -> up ([1,0,2], p1) acting ([1,0,2], p1)
+$ ceph osd map winrbd abcdefghijklm
+osdmap e141 pool 'winrbd' (2) object 'abcdefghijklm' -> pg 2.3122b031 (2.11) -> up ([0,1,2], p0) acting ([0,1,2], p0)
+$ ceph osd map winrbd foo (nspace ns)
+osdmap e141 pool 'winrbd' (2) object 'ns/foo' -> pg 2.ac17f0b6 (2.16) -> up ([0,1,2], p0) acting ([0,1,2], p0)
+$ ceph osd map winrbd rbd_directory (nspace ns)
+osdmap e141 pool 'winrbd' (2) object 'ns/rbd_directory' -> pg 2.119ef2ee (2.e) -> up ([2,0,1], p2) acting ([2,0,1], p2)

@@ -41,11 +41,11 @@ cryptography is covered by the synthetic vectors and by the checker's runs on th
 ## Running the checker
 
 ```
-python3 harness/tools/msgr2_check.py --captures <capture dir> [--keys <keyring dir>] [-v] [--only SESSION,...]
+python3 harness/tools/msgr2_check.py [--captures <capture dir>] [--keys <keyring dir>] [-v] [--only SESSION,...]
 ```
 
-* `<capture dir>` is the private capture set (`pcap/<session>.pcap`, optionally `secrets/session-secrets/<session>.txt`); it is never committed.
-* `--keys` is the directory with the lab keyrings (default: `lab-secrets` next to the capture dir). Keys are read at run time and never printed.
+* `<capture dir>` is a capture set (`pcap/<session>.pcap`, optionally `secrets/session-secrets/<session>.txt`); default: the public set `harness/vectors/public`. A private capture set is never committed.
+* `--keys` is the directory with the keyrings (default: `harness/vectors/public/keys` for the public set, else `lab-secrets` next to the capture dir). Keys are read at run time and never printed.
 * Needs Python 3 and the `cryptography` package; nothing else. It does not use any Ceph decoder or library.
 * Exit status 0 only if every check passed. `-v` also prints the observed values (counters of what the captures actually contained).
 * The vector files can be re-verified without any capture: `python3 harness/tools/msgr2_check.py --check-vectors harness/vectors/msgr2`. A normal run with `--captures` also verifies them when this directory exists.

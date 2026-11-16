@@ -1,0 +1,17 @@
+# Revert proof: cluster state snapshot before the capture run (taken 2026-11-16T11:10Z, with both throwaway users absent)
+# versus after the run and after the throwaway users were deleted (taken 2026-11-16T11:40Z). sha256 of each snapshot file.
+# Every file is identical; the content of the config dump is not published (it names the container registry used by the lab).
+file                   sha256_before_and_after                                          result
+auth-caps.json         2bf0b89101ba30a6a84343e8b1f62a8afe96b5dde75af124eb0f377d9869197a identical
+config-dump.txt        0936000e2a08753eaaa7cd71dcde9d337227dce9d503f956911f08134320795d identical
+crush-dump.json        962e9f6440f1d7f8c10c3d1c93f82c8da68792bfdcc3c744ba1ffdada90b7aa7 identical
+health.txt             70ba61ad6e507f330f029aecf5a52e6b320d471dad759481044a001d4ee931a4 identical
+mon-dump.txt           d99b2f99fbb9b59b6cf5c7d58a5ebd244782757abe110afd6745233bf187f66e identical
+osd-dump.txt           728acfe7d014c48792041a1c527f94d113d9e5b01721689c5a7f980ed1502683 identical
+osd-tree.txt           406abc41cccbf5a31423e97459761c83ba9cabba6e8d016017f83b88053a2352 identical
+pool-detail.txt        f0b68b84c6f005fb2320775fc564a85db33f62f2048911d07fd648fabc5374a3 identical
+pool-get-mgr.txt       03dbe75eb30e4bb3f69e60fa0f57f26613bbbd9f9bcda9345dd31d921e17a75d identical
+pool-get-winrbd.txt    d83822bd1250ddc63b590017ad6f81bf98bd02d6d28b95ecd03d1b6fd262bd4d identical
+rados-ls-winrbd.txt    dd91f21d3a75d2e8c2fd98d7a8b270570e11753c439958b3d5c673109d57cf06 identical
+rbd-ls.txt             6315f69448ad10ab6f767b0aea6fca6260278269e8eb932a1ab96b2b0f33e701 identical
+osdmap.bin             0dc122a18a1078a371f7fa018db2ae3417a645f5229529fa87ffbb5ebdc62d02 identical

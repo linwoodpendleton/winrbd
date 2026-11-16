@@ -8,14 +8,18 @@ Written from the NOTES only (not from Ceph source, not using any Ceph decoder).
 Standard library plus the 'cryptography' package.
 
 Usage:
-    python3 harness/tools/msgr2_check.py --captures <captures dir> [--keys <keyring dir>]
+    python3 harness/tools/msgr2_check.py [--captures <captures dir>] [--keys <keyring dir>]
                                          [--only SESSION[,SESSION...]] [-v]
                                          [--emit-vectors <dir>]
 
+Without arguments it checks the public vector set (harness/vectors/public) with the public throw-away keys
+(harness/vectors/public/keys); nothing outside the repository is needed.
+
 <captures dir> contains pcap/<session>.pcap and (for the cephx / secure-mode
-checks) the session-secret notes in secrets/session-secrets/<session>.txt, which
-are used ONLY as a cross-check of the keys this tool derives by itself.  The lab
-keyrings are read at run time from --keys (default: sibling directory
+checks, only in a private capture set) the session-secret notes in
+secrets/session-secrets/<session>.txt, which are used ONLY as a cross-check of the
+keys this tool derives by itself.  Keyrings are read at run time from --keys
+(default: harness/vectors/public/keys for the public set, else the sibling directory
 ../lab-secrets of the captures dir); key material is never printed.
 
 Exit status 0 only if every check passed.
@@ -37,6 +41,9 @@ import os
 import re
 import struct
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
 
 try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -2263,6 +2270,12 @@ def check_vectors(vdir):
 # 6. command line / report
 # ---------------------------------------------------------------------------
 
+SKIP_REASONS = {
+    'NEG-2': 'needs a session by a client without OSD write caps (read-only / no-OSD user); not in the public set',
+    'AUT-11': "needs the stock client's own debug_auth logs (they print session keys); they are not published",
+}
+
+
 def report(verbose):
     ok_total, fail_total = R.total()
     print()
@@ -2275,6 +2288,11 @@ def report(verbose):
             print('            e.g. %s' % ex)
     print()
     print('TOTAL: %d passed, %d failed' % (ok_total, fail_total))
+    # a declared check that saw no input at all is a SKIP, not a pass and not a failure
+    for cid in R.order:
+        e = R.info[cid]
+        if e['ok'] == 0 and e['fail'] == 0:
+            pubset.skip('msgr2_check', cid, SKIP_REASONS.get(cid, 'no input for this check in the capture set'))
     if verbose:
         print()
         print('Observed values (not pass/fail):')
@@ -2287,23 +2305,27 @@ def report(verbose):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--captures', help='capture set directory (contains pcap/); optional with --check-vectors')
-    ap.add_argument('--keys', help='directory with the lab keyrings (default: <captures>/../lab-secrets)')
+    ap.add_argument('--captures', help='capture set directory (contains pcap/); default: harness/vectors/public '
+                                       '(not used when only --check-vectors is given)')
+    ap.add_argument('--keys', help='directory with the keyrings (default: harness/vectors/public/keys for the public set, '
+                                   'else <captures>/../lab-secrets)')
     ap.add_argument('--only', help='comma separated session names (default: all pcaps)')
     ap.add_argument('--emit-vectors', help='write scrubbed test vectors into this directory (needs the captures)')
     ap.add_argument('--check-vectors', help='verify the vector files in this directory (default: harness/vectors/msgr2 next to this tool, if present)')
     ap.add_argument('-v', '--verbose', action='store_true')
     args = ap.parse_args(argv)
-    if not args.captures:
-        if not args.check_vectors:
-            ap.error('--captures is required (or use --check-vectors alone)')
+    if not args.captures and args.check_vectors:
         declare_all()
         check_note_vectors()
         check_vectors(args.check_vectors)
         report(args.verbose)
+        pubset.emit_result('msgr2_check', R.total()[0], R.total()[1])
         return 0 if R.total()[1] == 0 else 1
-    caps = os.path.abspath(args.captures)
-    keysdir = args.keys or os.path.join(os.path.dirname(caps), 'lab-secrets')
+    caps = pubset.captures_dir(args.captures)
+    if not os.path.isdir(os.path.join(caps, 'pcap')):
+        sys.stderr.write('no pcap/ directory under %s (use --captures)\n' % caps)
+        return 2
+    keysdir = args.keys or pubset.default_keys_dir(caps)
     secrets_dir = os.path.join(caps, 'secrets')
     keyrings = load_keyrings([keysdir, os.path.join(secrets_dir, 'keys')])
     if not keyrings:
@@ -2337,6 +2359,7 @@ def main(argv=None):
         print('WARNINGS (capture defects, not note defects):')
         for w in warnings:
             print('  ' + w)
+    pubset.emit_result('msgr2_check', R.total()[0], R.total()[1])
     return 0 if R.total()[1] == 0 else 1
 
 

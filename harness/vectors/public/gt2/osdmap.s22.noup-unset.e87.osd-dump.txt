@@ -1,0 +1,25 @@
+epoch 87
+fsid 52762725-e19a-11f1-886d-525400770001
+created 2026-11-16T08:47:23.599179+0000
+modified 2026-11-16T09:45:22.669713+0000
+flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+crush_version 11
+full_ratio 0.95
+backfillfull_ratio 0.9
+nearfull_ratio 0.85
+require_min_compat_client luminous
+min_compat_client jewel
+require_osd_release tentacle
+stretch_mode_enabled false
+pool 1 '.mgr' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode on last_change 15 flags hashpspool stripe_width 0 pg_num_max 32 pg_num_min 1 application mgr read_balance_score 2.99
+pool 2 'winrbd' replicated size 3 min_size 2 crush_rule 1 object_hash rjenkins pg_num 32 pgp_num 32 autoscale_mode off last_change 60 flags hashpspool,selfmanaged_snaps stripe_width 0 application rbd read_balance_score 1.13
+max_osd 3
+osd.0 up   in  weight 1 up_from 36 up_thru 86 down_at 33 last_clean_interval [6,32) [v2:10.77.0.10:6802/1930698577,v1:10.77.0.10:6803/1930698577] [v2:10.77.0.10:6804/1930698577,v1:10.77.0.10:6805/1930698577] exists,up e16ab129-2c46-4939-babe-801957516aa5
+osd.1 up   in  weight 1 up_from 33 up_thru 86 down_at 30 last_clean_interval [11,30) [v2:10.77.0.10:6810/70365276,v1:10.77.0.10:6811/70365276] [v2:10.77.0.10:6812/70365276,v1:10.77.0.10:6813/70365276] exists,up ef20c5dd-9035-4f92-bfce-166191786842
+osd.2 up   in  weight 1 up_from 86 up_thru 86 down_at 82 last_clean_interval [41,85) [v2:10.77.0.10:6818/1851664350,v1:10.77.0.10:6819/1851664350] [v2:10.77.0.10:6826/1852664350,v1:10.77.0.10:6827/1852664350] exists,up de2ccfde-7eb7-4130-ab61-d7a6bf332ffe
+primary_temp 1.0 0
+blocklist 10.77.0.10:0/2357651815 expires 2026-11-17T08:47:41.246086+0000
+blocklist 10.77.0.10:0/3807397462 expires 2026-11-17T08:47:41.246086+0000
+blocklist 10.77.0.10:6801/741950234 expires 2026-11-17T08:47:41.246086+0000
+blocklist 10.77.0.10:6800/741950234 expires 2026-11-17T08:47:41.246086+0000
+blocklist 10.77.0.10:0/1104892680 expires 2026-11-17T08:47:41.246086+0000

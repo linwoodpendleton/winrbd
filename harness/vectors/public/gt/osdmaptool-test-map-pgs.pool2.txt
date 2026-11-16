@@ -1,0 +1,11 @@
+osdmaptool: osdmap file 'osdmap.bin'
+pool 2 pg_num 32
+#osd	count	first	primary	c wt	wt
+osd.0	32	12	12	0.0243988	1
+osd.1	32	11	11	0.0243988	1
+osd.2	32	9	9	0.0243988	1
+ in 3
+ avg 32 stddev 0 (0x) (expected 4.6188 0.144338x))
+ min osd.0 32
+ max osd.0 32
+size 3	32

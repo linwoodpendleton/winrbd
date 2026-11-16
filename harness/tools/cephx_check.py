@@ -6,6 +6,7 @@ Written from the spec notes only (docs/spec/cephx.md, msgr2.md, msgr2-secure-mod
 not from Ceph source. Uses the standard library plus 'cryptography'.
 
 Usage:
+    python3 harness/tools/cephx_check.py                    (public vector set + committed vectors; nothing else needed)
     python3 harness/tools/cephx_check.py --captures <captures-dir> [--keys <dir>] [--jobs N]
     python3 harness/tools/cephx_check.py --vectors harness/vectors/cephx        (offline only)
     python3 harness/tools/cephx_check.py --emit-vectors harness/vectors/cephx   (regenerate synthetic vectors)
@@ -24,8 +25,11 @@ import struct
 import sys
 from collections import Counter, defaultdict
 
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
+
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes  # noqa: E402
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM  # noqa: E402
 
 # --------------------------------------------------------------------------------------
 # constants taken from the notes (cephx.md 2.1, msgr2.md 2.4)
@@ -1573,12 +1577,19 @@ def read_sessions(captures):
 
 
 def run_captures(a):
-    captures = a.captures
-    keydirs = a.keys or [os.path.join(os.path.dirname(captures.rstrip("/")), "lab-secrets"),
-                         os.path.join(captures, "secrets", "keys")]
+    captures = pubset.captures_dir(a.captures)
+    if a.keys:
+        keydirs = a.keys
+    elif pubset.is_public_set(captures):
+        keydirs = [pubset.PUBLIC_KEYS]
+    else:
+        keydirs = [pubset.default_keys_dir(captures), os.path.join(captures, "secrets", "keys")]
     secrets_dir = os.path.join(captures, "secrets")
     if not os.path.isdir(secrets_dir):
         secrets_dir = None
+        pubset.skip("cephx_check", "cephx.decrypted_session_keys_equal_client_log",
+                    "needs the stock client's own debug_auth logs (<captures>/secrets/session-secrets), which print "
+                    "session keys and are not published; the tickets are still decrypted and cross-checked against the wire")
     sess = read_sessions(captures)
     total = Results()
     check_keyring_shapes(keydirs, total)
@@ -1619,8 +1630,9 @@ def report(total, title="checks"):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--captures", help="capture directory (contains pcap/, sessions.tsv, secrets/)")
-    ap.add_argument("--keys", action="append", help="directory with keyring files (default: ../lab-secrets and secrets/keys)")
+    ap.add_argument("--captures", help="capture directory (contains pcap/, sessions.tsv; default: harness/vectors/public)")
+    ap.add_argument("--keys", action="append", help="directory with keyring files (default: harness/vectors/public/keys "
+                                                    "for the public set, else ../lab-secrets and secrets/keys)")
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--only", help="substring filter on pcap names")
     ap.add_argument("--summary-json", help="write the per-connection structure summary (no secrets) here")
@@ -1630,24 +1642,32 @@ def main(argv=None):
     a = ap.parse_args(argv)
     nfail = 0
     ran = False
+    if not (a.captures or a.vectors or a.emit_vectors):
+        # no arguments: the public capture set and the committed vectors
+        a.captures = pubset.PUBLIC_SET
+        a.vectors = os.path.join(pubset.REPO, "harness", "vectors", "cephx")
     if a.emit_vectors:
         ran = True
         emit_vectors(a.emit_vectors, a.captures, a.summary_json)
+    npass = 0
     if a.vectors:
         ran = True
         t = Results()
         check_vectors(a.vectors, t)
         nfail += report(t, "vector checks")
+        npass += sum(t.counts.values())
     if a.captures:
         ran = True
         total, summaries = run_captures(a)
         nfail += report(total, "capture checks")
+        npass += sum(total.counts.values())
         if a.summary_json and not a.emit_vectors:
             with open(a.summary_json, "w") as f:
                 json.dump(summaries, f, indent=1, default=str)
     if not ran:
         ap.error("give --captures and/or --vectors")
     print("\nRESULT: %s" % ("ALL CHECKS PASSED" if nfail == 0 else "%d FAILURES" % nfail))
+    pubset.emit_result("cephx_check", npass, nfail)
     return 0 if nfail == 0 else 1
 
 
@@ -1913,7 +1933,7 @@ def emit_vectors(d, captures=None, summary=None):
 def emit_scrubbed(d, captures, summary_path=None):
     """Real frame bytes from the captures with every random / secret-derived field replaced, CRCs recomputed."""
     ph_sc, ph_cc, ph_proof = 0x1122334455667788, 0x99AABBCCDDEEFF00, 0x0123456789ABCDEF
-    keydirs = [os.path.join(os.path.dirname(captures.rstrip("/")), "lab-secrets"), os.path.join(captures, "secrets", "keys")]
+    keydirs = [pubset.default_keys_dir(captures), os.path.join(captures, "secrets", "keys")]
     out = dict(description="Frames taken from real captures with every random or key-derived field replaced by a marked "
                            "placeholder and the CRCs recomputed. The structure (lengths, versions, tags) is the real "
                            "one. Placeholders: challenges 0x1122334455667788 / 0x99aabbccddeeff00, proof "

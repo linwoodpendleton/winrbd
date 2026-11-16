@@ -90,12 +90,13 @@ Nothing secret is in these files. Rules applied (and checked by the generator):
 ## Verifying and regenerating
 
 ```
+python3 harness/tools/monclient_check.py                          # the public vector set (harness/vectors/public)
 python3 harness/tools/monclient_check.py --captures <capture dir>
 ```
 
-needs Python 3, the `cryptography` package and the capture directory (`pcap/`, `sessions.tsv`, `gt/`, `gt3/`,
-`data/`; the lab keyrings are read from `<capture dir>/../lab-secrets` or `--secrets <dir>`). It analyses all 39
-sessions (a few seconds on a multi-core machine), prints every failed check with an example, lists
+needs Python 3, the `cryptography` package and a capture directory (default: the public set; `pcap/`, `sessions.tsv`, `gt/`, `gt3/`,
+`data/`; the keyrings are read from `harness/vectors/public/keys` for the public set, else from `<capture dir>/../lab-secrets`, or `--secrets <dir>`). It analyses every
+session (a few seconds on a multi-core machine), prints every failed check with an example, lists
 informational observations, verifies the vectors in this directory, and exits 0 only when every check passes.
 The vectors are also checked on their own terms: frame CRCs, header2, front bytes, decoded fields and
 re-encoding, MonMap and MOSDMap contents, CRC of every embedded map blob.

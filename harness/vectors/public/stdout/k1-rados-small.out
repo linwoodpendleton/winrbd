@@ -1,0 +1,12 @@
+### [1] rados -p winrbd put t0-small <data>/small.bin
+### rc=0
+### [2] rados -p winrbd stat t0-small
+winrbd/t0-small mtime 2026-11-16T11:36:30.000000+0000, size 100
+### rc=0
+### [3] rados -p winrbd get t0-small <data>/small.k1.get
+### rc=0
+### [4] rados -p winrbd get t0-missing-k1 <data>/missing.k1.get
+error getting winrbd/t0-missing-k1: (2) No such file or directory
+### rc=1
+### [5] rados -p winrbd rm t0-small
+### rc=0

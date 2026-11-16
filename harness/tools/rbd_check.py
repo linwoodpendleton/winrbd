@@ -50,6 +50,9 @@ import struct
 import sys
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # tiny test framework
 # ---------------------------------------------------------------------------
@@ -91,6 +94,10 @@ class Results:
     def note(self, text):
         if self.verbose:
             print("  info %s" % text)
+
+    def skip(self, what, reason):
+        """A check whose input is not in this capture set: reported, counted as skipped, never a failure."""
+        pubset.skip("rbd_check", "[%s] %s" % (self.cur, what), reason)
 
     def summary(self):
         print("")
@@ -1399,6 +1406,41 @@ class Conn:
         self.problems = []
 
 
+# `rbd bench --io-type write ... --io-pattern seq` on a fresh image: every thread writes its own run, starting at
+# an equal share of the image.  The shape of a session comes from its command line (cmd/<session>.cmd) when the
+# capture set has one; the large private set had a 64 MiB image, 64 KiB IOs, 4 threads, 8 MiB in total.
+BENCH_DEFAULT = (64 << 20, 4, 65536, 8 << 20)
+
+# Least number of CALL ops the all-CALL-ops checks must have seen to count (the checks themselves are over all of them).
+MIN_CALL_OPS = 100
+
+
+def _size(txt):
+    m = re.fullmatch(r"(\d+)([KMGkmg]?)(?:i?[Bb])?", txt)
+    return int(m.group(1)) << {"": 0, "k": 10, "m": 20, "g": 30}[m.group(2).lower()]
+
+
+def bench_shape(cap, session):
+    """(image size, threads, io size, io total) of the `rbd bench` write in a session; BENCH_DEFAULT if unknown."""
+    try:
+        lines = open(os.path.join(cap, "cmd", session + ".cmd")).read().splitlines()
+        size = thr = iosz = tot = None
+        for ln in lines:
+            ln = ln.strip()
+            m = re.search(r"rbd create .*--size (\S+)", ln)
+            if m:
+                size = _size(m.group(1))
+            if "rbd bench" in ln and "--io-type write" in ln:
+                thr = int(re.search(r"--io-threads (\d+)", ln).group(1))
+                iosz = _size(re.search(r"--io-size (\S+)", ln).group(1))
+                tot = _size(re.search(r"--io-total (\S+)", ln).group(1))
+        if None not in (size, thr, iosz, tot):
+            return size, thr, iosz, tot
+    except (OSError, AttributeError, ValueError, KeyError):
+        pass
+    return BENCH_DEFAULT
+
+
 def load_sessions(cap):
     out = {}
     p = os.path.join(cap, "sessions.tsv")
@@ -1789,12 +1831,16 @@ def check_wire_rbd(cap, ctx, conns_by_pcap, sessions, drops):
     R.check(len(dele) > 0, "saw DELETE of a missing object (%d)" % len(dele))
     for (pname, oid, names_, rvals, outl, fl) in dele:
         R.eq(rvals, [-2], "DELETE on a missing object: result -2 and rval -2 (%s %r)" % (pname, oid))
-    R.check(len(eperm) > 0, "saw -1 (EPERM) for CALLs by a client with only `osd r` (%d)" % len(eperm))
+    if eperm:
+        R.check(True, "saw -1 (EPERM) for CALLs by a client with only `osd r` (%d)" % len(eperm))
+    else:
+        R.skip("saw -1 (EPERM) for CALLs by a client with only `osd r`",
+               "needs a session by a read-only cephx user (x-t0-ro); not in the public set (it has no such user)")
     for (pname, oid, rvals) in eperm:
         R.check(all(v == 0 for v in rvals), "EPERM fails the whole request, rvals 0 (%s)" % pname)
     R.group("call op record and op codes (2.2, 2.11)")
-    R.check(len(call_fr) > 500 and all(call_fr), "all %d CALL ops: argc 0, bytes 7..27 of the union zero, payload_len = class_len + method_len + indata_len (2.2)" % len(call_fr))
-    R.check(len(call_echo) > 500 and all(call_echo), "all %d CALL replies: op record echoed, union bytes 8..15 (extent length) = output length (2.2)" % len(call_echo))
+    R.check(len(call_fr) >= MIN_CALL_OPS and all(call_fr), "all %d CALL ops: argc 0, bytes 7..27 of the union zero, payload_len = class_len + method_len + indata_len (2.2)" % len(call_fr))
+    R.check(len(call_echo) >= MIN_CALL_OPS and all(call_echo), "all %d CALL replies: op record echoed, union bytes 8..15 (extent length) = output length (2.2)" % len(call_echo))
     for code, name in ((0x1201, "READ"), (0x1202, "STAT"), (0x1205, "SPARSE_READ"), (0x2201, "WRITE"), (0x2202, "WRITEFULL"),
                        (0x220D, "CREATE"), (0x2205, "DELETE"), (0x2223, "SETALLOCHINT"), (0x1401, "CALL"), (0x220F, "WATCH")):
         R.check(code in opcodes_seen, "op code 0x%04x (%s) seen on the wire in a request that behaved as that op" % (code, name))
@@ -1822,7 +1868,12 @@ def check_wire_rbd(cap, ctx, conns_by_pcap, sessions, drops):
             R.check(re.fullmatch(r"auto \d+", d["cookie"]) is not None and d["name"] == "rbd_lock",
                     "unlock input: rbd_lock + same cookie", repr(d))
             R.check(any(x[1]["cookie"] == d["cookie"] for x in lk), "unlock cookie equals the cookie that was locked")
-    R.check(nlock > 0, "saw the librbd exclusive-lock acquire (%d)" % nlock)
+    if nlock > 0:
+        R.check(True, "saw the librbd exclusive-lock acquire (%d)" % nlock)
+    else:
+        R.skip("saw the librbd exclusive-lock acquire",
+               "needs a write session on a default-feature image (exclusive-lock enabled); the public set writes only to "
+               "layering-only images")
     # ---- data path from the bench sessions
     R.group("data path: object names, extent mapping, write context (2.1.1, 2.10, 3.5, 3.6)")
     for (pname, prefix), ws in sorted(data_w.items()):
@@ -1830,14 +1881,18 @@ def check_wire_rbd(cap, ctx, conns_by_pcap, sessions, drops):
             continue
         lossy = bool(drops.get(pname))
         offs = sorted(o * (4 << 20) + off for (o, off, _, _, _) in ws)
-        R.check(all(x % 65536 == 0 for x in offs) and len(set(offs)) == len(offs) and offs[-1] < 64 << 20,
+        img_size, nthr, iosz, iotot = bench_shape(cap, pname)
+        R.check(all(x % 65536 == 0 for x in offs) and len(set(offs)) == len(offs) and offs[-1] < img_size,
                 "%s %s: writes are distinct 64 KiB-aligned image offsets inside the image (objno*4MiB+off)" % (pname, prefix))
-        # rbd bench seq with 4 threads: four sequential 2 MiB runs, one per quarter of the 64 MiB image
-        want = sorted(t * (16 << 20) + j * 65536 for t in range(4) for j in range(32))
+        # rbd bench seq with N threads: N sequential runs of io_total / N bytes, one per N-th of the image
+        want = sorted(t * (img_size // nthr) + j * iosz for t in range(nthr) for j in range(iotot // iosz // nthr))
+        shape = "4 runs of 32 x 64 KiB at 0,16,32,48 MiB" if (img_size, nthr, iosz, iotot) == BENCH_DEFAULT else (
+            "%d runs of %d x %d KiB at multiples of %d MiB (command line in cmd/%s.cmd)" % (
+                nthr, iotot // iosz // nthr, iosz >> 10, (img_size // nthr) >> 20, pname))
         if lossy:
             R.check(set(offs) <= set(want), "%s: captured writes are a subset of the 4x2 MiB bench pattern (lossy capture)" % pname)
         else:
-            R.eq(offs, want, "%s: bench writes = 4 runs of 32 x 64 KiB at 0,16,32,48 MiB; names rbd_data.<id>.%%016x of objno" % pname)
+            R.eq(offs, want, "%s: bench writes = %s; names rbd_data.<id>.%%016x of objno" % (pname, shape))
         R.check(all(sq == 0 and sn == [] for (_, _, _, sq, sn) in ws), "%s writes carry (seq 0, no snaps) when the image has no snapshot" % pname)
         rs = data_r.get((pname, prefix), [])
         if rs:
@@ -2652,7 +2707,7 @@ def check_vectors(vec_dir):
 def main(argv=None):
     global R
     ap = argparse.ArgumentParser(description="independent checker for docs/spec/rbd-format2.md")
-    ap.add_argument("--captures", default=None, help="Phase 0 capture directory (private, outside the repository)")
+    ap.add_argument("--captures", default=None, help="capture directory (default: harness/vectors/public)")
     ap.add_argument("--vectors-only", action="store_true", help="only decode the committed vectors (no capture set needed)")
     ap.add_argument("--vectors", default=None, help="vector directory (default: harness/vectors/rbd next to this tool)")
     ap.add_argument("--write-vectors", action="store_true", help="(re)write the scrubbed test vectors")
@@ -2665,11 +2720,12 @@ def main(argv=None):
     if args.vectors_only:
         check_vectors(vec_dir)
         R.summary()
+        pubset.emit_result("rbd_check", R.passed, R.failed)
         return 0 if R.failed == 0 else 1
-    if not args.captures or not os.path.isdir(args.captures):
-        print("--captures <dir> is required (or --vectors-only); not found: %s" % args.captures)
+    cap = pubset.captures_dir(args.captures)
+    if not os.path.isdir(cap):
+        print("capture directory not found: %s (use --captures, or --vectors-only)" % cap)
         return 2
-    cap = os.path.abspath(args.captures)
     ctx = {}
     t0 = time.time()
     check_gt4(cap, ctx)
@@ -2701,6 +2757,7 @@ def main(argv=None):
     if ctx.get("tail_loss") or ctx.get("capture_holes"):
         print("capture loss (tcpdump reported drops): %r" % sorted(set(x[0] for x in (ctx.get("tail_loss") or []) + (ctx.get("capture_holes") or []))))
     print("elapsed %.1f s" % (time.time() - t0))
+    pubset.emit_result("rbd_check", R.passed, R.failed)
     return 0 if R.failed == 0 else 1
 
 

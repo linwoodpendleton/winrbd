@@ -1,0 +1,9 @@
+### [1] rados -p winrbd put t0-big <data>/big.bin
+### rc=0
+### [2] rados -p winrbd stat t0-big
+winrbd/t0-big mtime 2026-11-16T11:13:45.000000+0000, size 1049810
+### rc=0
+### [3] rados -p winrbd get t0-big <data>/big.k2.get
+### rc=0
+### [4] rados -p winrbd rm t0-big
+### rc=0

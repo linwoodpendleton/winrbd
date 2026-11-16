@@ -1,0 +1,12 @@
+monmaptool: monmap file monmap.bin
+epoch 3
+fsid 52762725-e19a-11f1-886d-525400770001
+last_changed 2026-11-16T08:52:28.737497+0000
+created 2026-11-16T08:47:19.830675+0000
+min_mon_release 20 (tentacle)
+election_strategy: 1
+0: [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] mon.winrbd-ceph1
+auth_epoch 0
+auth_service_cipher aes
+auth_allowed_ciphers aes, aes256k
+auth_preferred_cipher aes256k

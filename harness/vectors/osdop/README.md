@@ -59,10 +59,12 @@ The packet captures themselves are not in the repository.
 `cryptography` package (`pip install --user cryptography`).
 
 ```
-# full run against the private capture directory (about 10 s on 8 cores)
-python3 harness/tools/osdop_check.py --captures <captures dir>
+# full run against the public vector set (about 10 s on 8 cores)
+python3 harness/tools/osdop_check.py
+#   or against another capture set:  --captures <captures dir>
 
-# optional: --keys <dir with client.*.keyring>   (default: <captures dir>/../lab-secrets)
+# optional: --keys <dir with client.*.keyring>   (default: harness/vectors/public/keys for the public set,
+#                                                  else <captures dir>/../lab-secrets)
 #           --only k2-omap,k2-rados-small        (some sessions only)
 #           --evidence                           (print what the captures show, used to settle the note)
 #           -v                                   (one line per session)

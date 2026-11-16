@@ -1,0 +1,177 @@
+== img-v1 (37841afbd1d7)
+access_timestamp
+value (8 bytes) :
+00000000  6c d1 fa 6a 75 8f 04 1b                           |l..ju...|
+00000008
+
+create_timestamp
+value (8 bytes) :
+00000000  99 c3 fa 6a 66 3e 7a 08                           |...jf>z.|
+00000008
+
+features
+value (8 bytes) :
+00000000  01 00 00 00 00 00 00 00                           |........|
+00000008
+
+modify_timestamp
+value (8 bytes) :
+00000000  99 c3 fa 6a 66 3e 7a 08                           |...jf>z.|
+00000008
+
+object_prefix
+value (25 bytes) :
+00000000  15 00 00 00 72 62 64 5f  64 61 74 61 2e 33 37 38  |....rbd_data.378|
+00000010  34 31 61 66 62 64 31 64  37                       |41afbd1d7|
+00000019
+
+order
+value (1 bytes) :
+00000000  16                                                |.|
+00000001
+
+size
+value (8 bytes) :
+00000000  00 00 00 00 01 00 00 00                           |........|
+00000008
+
+snap_seq
+value (8 bytes) :
+00000000  00 00 00 00 00 00 00 00                           |........|
+00000008
+
+== img-default (37863d7ada59)
+access_timestamp
+value (8 bytes) :
+00000000  6d d1 fa 6a 1d 0f 8b 07                           |m..j....|
+00000008
+
+create_timestamp
+value (8 bytes) :
+00000000  99 c3 fa 6a bf 5a d9 10                           |...j.Z..|
+00000008
+
+features
+value (8 bytes) :
+00000000  3d 00 00 00 00 00 00 00                           |=.......|
+00000008
+
+modify_timestamp
+value (8 bytes) :
+00000000  99 c3 fa 6a bf 5a d9 10                           |...j.Z..|
+00000008
+
+object_prefix
+value (25 bytes) :
+00000000  15 00 00 00 72 62 64 5f  64 61 74 61 2e 33 37 38  |....rbd_data.378|
+00000010  36 33 64 37 61 64 61 35  39                       |63d7ada59|
+00000019
+
+order
+value (1 bytes) :
+00000000  16                                                |.|
+00000001
+
+size
+value (8 bytes) :
+00000000  00 00 00 00 01 00 00 00                           |........|
+00000008
+
+snap_seq
+value (8 bytes) :
+00000000  00 00 00 00 00 00 00 00                           |........|
+00000008
+
+== t0-copy-v1 (3bf2f22b7b0f)
+access_timestamp
+value (8 bytes) :
+00000000  6c d1 fa 6a ba f9 34 19                           |l..j..4.|
+00000008
+
+create_timestamp
+value (8 bytes) :
+00000000  6c d1 fa 6a ba f9 34 19                           |l..j..4.|
+00000008
+
+features
+value (8 bytes) :
+00000000  01 00 00 00 00 00 00 00                           |........|
+00000008
+
+modify_timestamp
+value (8 bytes) :
+00000000  6c d1 fa 6a ba f9 34 19                           |l..j..4.|
+00000008
+
+object_prefix
+value (25 bytes) :
+00000000  15 00 00 00 72 62 64 5f  64 61 74 61 2e 33 62 66  |....rbd_data.3bf|
+00000010  32 66 32 32 62 37 62 30  66                       |2f22b7b0f|
+00000019
+
+order
+value (1 bytes) :
+00000000  16                                                |.|
+00000001
+
+size
+value (8 bytes) :
+00000000  00 00 00 00 01 00 00 00                           |........|
+00000008
+
+snap_seq
+value (8 bytes) :
+00000000  03 00 00 00 00 00 00 00                           |........|
+00000008
+
+snapshot_0000000000000003
+value (65 bytes) :
+00000000  08 08 3b 00 00 00 03 00  00 00 00 00 00 00 07 00  |..;.............|
+00000010  00 00 74 30 73 6e 61 70  31 00 00 00 00 01 00 00  |..t0snap1.......|
+00000020  00 00 00 00 00 00 00 00  00 00 01 01 04 00 00 00  |................|
+00000030  00 00 00 00 90 d1 fa 6a  7d 28 64 2c 00 00 00 00  |.......j}(d,....|
+00000040  00                                                |.|
+00000041
+
+== t0-copy-def (3bf4f7033da2)
+access_timestamp
+value (8 bytes) :
+00000000  6d d1 fa 6a 10 25 3e 05                           |m..j.%>.|
+00000008
+
+create_timestamp
+value (8 bytes) :
+00000000  6d d1 fa 6a 10 25 3e 05                           |m..j.%>.|
+00000008
+
+features
+value (8 bytes) :
+00000000  3d 00 00 00 00 00 00 00                           |=.......|
+00000008
+
+modify_timestamp
+value (8 bytes) :
+00000000  6d d1 fa 6a 10 25 3e 05                           |m..j.%>.|
+00000008
+
+object_prefix
+value (25 bytes) :
+00000000  15 00 00 00 72 62 64 5f  64 61 74 61 2e 33 62 66  |....rbd_data.3bf|
+00000010  34 66 37 30 33 33 64 61  32                       |4f7033da2|
+00000019
+
+order
+value (1 bytes) :
+00000000  16                                                |.|
+00000001
+
+size
+value (8 bytes) :
+00000000  00 00 00 00 01 00 00 00                           |........|
+00000008
+
+snap_seq
+value (8 bytes) :
+00000000  00 00 00 00 00 00 00 00                           |........|
+00000008
+

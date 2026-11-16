@@ -1,0 +1,5 @@
+rule 1 (winrbd_osd), x = 0..9999, numrep = 3..3
+rule 1 (winrbd_osd) num_rep 3 result size == 3:	10000/10000
+  device 0:		 stored : 10000	 expected : 10000
+  device 1:		 stored : 10000	 expected : 10000
+  device 2:		 stored : 10000	 expected : 10000

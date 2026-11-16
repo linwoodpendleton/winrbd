@@ -1,0 +1,267 @@
+{
+    "epoch": 36,
+    "fsid": "52762725-e19a-11f1-886d-525400770001",
+    "modified": "2026-11-16T08:59:54.089719+0000",
+    "new_last_up_change": "2026-11-16T08:59:54.089719+0000",
+    "new_last_in_change": "0.000000",
+    "new_pool_max": -1,
+    "new_flags": -1,
+    "new_full_ratio": -1,
+    "new_nearfull_ratio": -1,
+    "new_backfillfull_ratio": -1,
+    "new_require_min_compat_client": 255,
+    "new_require_osd_release": 255,
+    "mutate_allow_crimson": 0,
+    "new_max_osd": -1,
+    "new_pools": [],
+    "new_pool_names": [],
+    "old_pools": [],
+    "new_up_osds": [
+        {
+            "osd": 0,
+            "public_addr": "v1:10.77.0.10:6803/1930698577",
+            "public_addrs": {
+                "addrvec": [
+                    {
+                        "type": "v2",
+                        "addr": "10.77.0.10:6802",
+                        "nonce": 1930698577
+                    },
+                    {
+                        "type": "v1",
+                        "addr": "10.77.0.10:6803",
+                        "nonce": 1930698577
+                    }
+                ]
+            },
+            "cluster_addr": "v1:10.77.0.10:6805/1930698577",
+            "cluster_addrs": {
+                "addrvec": [
+                    {
+                        "type": "v2",
+                        "addr": "10.77.0.10:6804",
+                        "nonce": 1930698577
+                    },
+                    {
+                        "type": "v1",
+                        "addr": "10.77.0.10:6805",
+                        "nonce": 1930698577
+                    }
+                ]
+            },
+            "heartbeat_back_addrs": {
+                "addrvec": [
+                    {
+                        "type": "v2",
+                        "addr": "10.77.0.10:6808",
+                        "nonce": 1930698577
+                    },
+                    {
+                        "type": "v1",
+                        "addr": "10.77.0.10:6809",
+                        "nonce": 1930698577
+                    }
+                ]
+            },
+            "heartbeat_front_addrs": {
+                "addrvec": [
+                    {
+                        "type": "v2",
+                        "addr": "10.77.0.10:6806",
+                        "nonce": 1930698577
+                    },
+                    {
+                        "type": "v1",
+                        "addr": "10.77.0.10:6807",
+                        "nonce": 1930698577
+                    }
+                ]
+            }
+        }
+    ],
+    "new_weight": [],
+    "osd_state_xor": [],
+    "new_pg_temp": [
+        {
+            "pgid": "1.0",
+            "osds": []
+        },
+        {
+            "pgid": "2.0",
+            "osds": []
+        },
+        {
+            "pgid": "2.1",
+            "osds": []
+        },
+        {
+            "pgid": "2.2",
+            "osds": []
+        },
+        {
+            "pgid": "2.3",
+            "osds": []
+        },
+        {
+            "pgid": "2.4",
+            "osds": []
+        },
+        {
+            "pgid": "2.5",
+            "osds": []
+        },
+        {
+            "pgid": "2.6",
+            "osds": []
+        },
+        {
+            "pgid": "2.7",
+            "osds": []
+        },
+        {
+            "pgid": "2.8",
+            "osds": []
+        },
+        {
+            "pgid": "2.9",
+            "osds": []
+        },
+        {
+            "pgid": "2.a",
+            "osds": []
+        },
+        {
+            "pgid": "2.b",
+            "osds": []
+        },
+        {
+            "pgid": "2.c",
+            "osds": []
+        },
+        {
+            "pgid": "2.d",
+            "osds": []
+        },
+        {
+            "pgid": "2.e",
+            "osds": []
+        },
+        {
+            "pgid": "2.f",
+            "osds": []
+        },
+        {
+            "pgid": "2.10",
+            "osds": []
+        },
+        {
+            "pgid": "2.11",
+            "osds": []
+        },
+        {
+            "pgid": "2.12",
+            "osds": []
+        },
+        {
+            "pgid": "2.13",
+            "osds": []
+        },
+        {
+            "pgid": "2.14",
+            "osds": []
+        },
+        {
+            "pgid": "2.15",
+            "osds": []
+        },
+        {
+            "pgid": "2.16",
+            "osds": []
+        },
+        {
+            "pgid": "2.17",
+            "osds": []
+        },
+        {
+            "pgid": "2.18",
+            "osds": []
+        },
+        {
+            "pgid": "2.19",
+            "osds": []
+        },
+        {
+            "pgid": "2.1a",
+            "osds": []
+        },
+        {
+            "pgid": "2.1b",
+            "osds": []
+        },
+        {
+            "pgid": "2.1c",
+            "osds": []
+        },
+        {
+            "pgid": "2.1d",
+            "osds": []
+        },
+        {
+            "pgid": "2.1e",
+            "osds": []
+        },
+        {
+            "pgid": "2.1f",
+            "osds": []
+        }
+    ],
+    "primary_temp": [],
+    "new_pg_upmap": [],
+    "old_pg_upmap": [],
+    "new_pg_upmap_items": [],
+    "old_pg_upmap_items": [],
+    "new_pg_upmap_primaries": [],
+    "old_pg_upmap_primaries": [],
+    "new_up_thru": [],
+    "new_lost": [],
+    "new_last_clean_interval": [
+        {
+            "osd": 0,
+            "first": 6,
+            "last": 32
+        }
+    ],
+    "new_blocklist": [],
+    "old_blocklist": [],
+    "new_range_blocklist": [],
+    "old_range_blocklist": [],
+    "new_xinfo": [
+        {
+            "osd": 0,
+            "down_stamp": "0.000000",
+            "laggy_probability": 0,
+            "laggy_interval": 0,
+            "features": 4541880224203014143,
+            "old_weight": 0,
+            "last_purged_snaps_scrub": "2026-11-16T08:48:27.513399+0000",
+            "dead_epoch": 31
+        }
+    ],
+    "new_uuid": [],
+    "erasure_code_profiles": {},
+    "old_erasure_code_profiles": [],
+    "new_removed_snaps": [],
+    "new_purged_snaps": [
+        [],
+        [],
+        {
+            "change_stretch_mode": false,
+            "stretch_mode_enabled": false,
+            "new_stretch_bucket_count": 0,
+            "new_degraded_stretch_mode": 0,
+            "new_recovering_stretch_mode": 0,
+            "new_stretch_mode_bucket": 0
+        }
+    ]
+}
+

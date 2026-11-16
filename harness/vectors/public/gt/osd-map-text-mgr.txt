@@ -1,0 +1,4 @@
+$ ceph osd map .mgr foo
+osdmap e141 pool '.mgr' (1) object 'foo' -> pg 1.7fc1f406 (1.0) -> up ([1,0], p1) acting ([1,0], p1)
+$ ceph osd map .mgr a
+osdmap e141 pool '.mgr' (1) object 'a' -> pg 1.29eec818 (1.0) -> up ([1,0], p1) acting ([1,0], p1)

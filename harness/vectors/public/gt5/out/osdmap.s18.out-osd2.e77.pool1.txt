@@ -1,0 +1,11 @@
+osdmaptool: osdmap file 'in/osdmap.s18.out-osd2.e77.bin'
+pool 1 pg_num 1
+1.0 raw ([1,0], p1) up ([1,0], p1) acting ([1,0], p0)
+#osd	count	first	primary	c wt	wt
+osd.0	1	0	1	0.0243988	1
+osd.1	1	1	0	0.0243988	1
+ in 2
+ avg 1 stddev 0 (0x) (expected 0.707107 0.707107x))
+ min osd.0 1
+ max osd.0 1
+size 2	1

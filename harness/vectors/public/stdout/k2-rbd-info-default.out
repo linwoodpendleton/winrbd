@@ -1,0 +1,18 @@
+### [1] rbd info winrbd/img-default
+rbd image 'img-default':
+	size 4 GiB in 1024 objects
+	order 22 (4 MiB objects)
+	snapshot_count: 0
+	id: 37863d7ada59
+	block_name_prefix: rbd_data.37863d7ada59
+	format: 2
+	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten
+	op_features: 
+	flags: 
+	create_timestamp: Mon Nov 16 08:49:29 2026
+	access_timestamp: Mon Nov 16 09:48:29 2026
+	modify_timestamp: Mon Nov 16 08:49:29 2026
+### rc=0
+### [2] rbd info --format json winrbd/img-default
+{"name":"img-default","id":"37863d7ada59","size":4294967296,"objects":1024,"order":22,"object_size":4194304,"snapshot_count":0,"block_name_prefix":"rbd_data.37863d7ada59","format":2,"features":["layering","exclusive-lock","object-map","fast-diff","deep-flatten"],"op_features":[],"flags":[],"create_timestamp":"Mon Nov 16 08:49:29 2026","access_timestamp":"Mon Nov 16 09:48:29 2026","modify_timestamp":"Mon Nov 16 08:49:29 2026"}
+### rc=0

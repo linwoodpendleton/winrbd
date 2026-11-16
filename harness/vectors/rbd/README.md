@@ -43,9 +43,10 @@ sha256 of `rados get`. The checker rebuilds them from the recipe and the note's 
 ## Checking
 
 ```
-python3 harness/tools/rbd_check.py --captures <capture dir>            # every check, exit 0 when all pass
+python3 harness/tools/rbd_check.py                                       # public vector set (harness/vectors/public), exit 0 when all pass
+python3 harness/tools/rbd_check.py --captures <capture dir>              # another capture set
 python3 harness/tools/rbd_check.py --captures <capture dir> --write-vectors
-python3 harness/tools/rbd_check.py --captures <capture dir> --skip-pcap  # ground truth only (seconds)
+python3 harness/tools/rbd_check.py --skip-pcap                           # ground truth only (seconds)
 ```
 
 The capture directory is the private Phase 0 set (not in the repository). Without it, the vectors alone can still be checked:

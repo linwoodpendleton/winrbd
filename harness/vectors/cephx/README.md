@@ -8,18 +8,20 @@ any real cluster is committed.
 
 ```
 python3 harness/tools/cephx_check.py --vectors harness/vectors/cephx                 # offline, seconds
-python3 harness/tools/cephx_check.py --captures <captures-dir> [--jobs N]           # needs the private capture set
+python3 harness/tools/cephx_check.py                                                 # public vector set + these vectors (what harness/tools/run-all.sh runs)
+python3 harness/tools/cephx_check.py --captures <captures-dir> [--jobs N]           # another capture set
 python3 harness/tools/cephx_check.py --captures <dir> --vectors harness/vectors/cephx
 ```
 
 Exit status is 0 only if every check passed. Needs Python 3 and the `cryptography` package
 (`pip install --user cryptography`).
 
-`--captures <dir>` expects the layout of the Phase 0 capture set: `pcap/*.pcap`, `sessions.tsv`, and keyrings at
-`<dir>/../lab-secrets/*` and `<dir>/secrets/keys/*` (override with `--keys <dir>`, repeatable). Keys are read at
+Without arguments the tool checks the public set `harness/vectors/public/` with the keys in `harness/vectors/public/keys/`.
+`--captures <dir>` expects the layout of a capture set: `pcap/*.pcap`, `sessions.tsv`, and (for a set other than the public one)
+keyrings at `<dir>/../lab-secrets/*` and `<dir>/secrets/keys/*` (override with `--keys <dir>`, repeatable). Keys are read at
 run time and never printed; the optional `<dir>/secrets/session-secrets/*.txt` (client `debug_auth` logs) is used
 only as an after-the-fact cross-check of the decrypted session keys, and `<dir>/stdout/*.tcpdump.err` to explain
-packets the capture host dropped. The captures themselves are private and are not part of this repository.
+packets the capture host dropped. The private Phase 0 captures are not part of this repository; the public set is.
 
 The checker was written from the spec notes only (`cephx.md`, `msgr2.md`, `msgr2-secure-mode.md`), not from Ceph
 source. What it does per pcap: reassembles the TCP streams; parses every msgr2 frame in both directions and

@@ -35,11 +35,12 @@ and entity names) was run on the generated files and found nothing.
 
 ```sh
 pip install --user cryptography           # only third-party dependency
+python3 harness/tools/secure_check.py                              # the public vector set (harness/vectors/public)
 python3 harness/tools/secure_check.py --captures <captures dir>
 ```
 
-`<captures dir>` is the lab capture set (it needs `pcap/*.pcap`; keys are read at run time from `<captures dir>/../lab-secrets`
-and `<captures dir>/secrets/keys`, override the first with `--keys <dir>`). The keys are never printed. Exit status
+`<captures dir>` is a capture set (default: the public set; it needs `pcap/*.pcap`; keys are read at run time from
+`harness/vectors/public/keys` for the public set, else from `<captures dir>/../lab-secrets` and `<captures dir>/secrets/keys`; override the first with `--keys <dir>`). The keys are never printed. Exit status
 0 means every check passed **and** every claim of the note is covered by the set; 1 means a failed check or an
 uncovered claim, 2 means bad arguments or no pcaps. Useful options: `--only <substring>` (subset of pcaps; then
 claims that need the whole set are only reported), `--export-vectors <dir>` (rewrite these files, then re-verify them),

@@ -1,0 +1,15 @@
+$ osdmaptool osdmap.bin --test-map-object foo --pool 2
+osdmaptool: osdmap file 'osdmap.bin'
+ object 'foo' -> 2.6 -> [1,0,2]
+$ osdmaptool osdmap.bin --test-map-object rbd_directory --pool 2
+osdmaptool: osdmap file 'osdmap.bin'
+ object 'rbd_directory' -> 2.1c -> [0,1,2]
+$ osdmaptool osdmap.bin --test-map-object rbd_header.37841afbd1d7 --pool 2
+osdmaptool: osdmap file 'osdmap.bin'
+ object 'rbd_header.37841afbd1d7' -> 2.12 -> [2,1,0]
+$ osdmaptool osdmap.bin --test-map-object rbd_data.37841afbd1d7.0000000000000000 --pool 2
+osdmaptool: osdmap file 'osdmap.bin'
+ object 'rbd_data.37841afbd1d7.0000000000000000' -> 2.8 -> [0,2,1]
+$ osdmaptool osdmap.bin --test-map-object rbd_id.img-v1 --pool 2
+osdmaptool: osdmap file 'osdmap.bin'
+ object 'rbd_id.img-v1' -> 2.13 -> [0,2,1]

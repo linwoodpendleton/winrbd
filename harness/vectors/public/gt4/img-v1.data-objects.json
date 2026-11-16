@@ -1,0 +1,12 @@
+[
+ {
+  "object": "rbd_data.37841afbd1d7.0000000000000000",
+  "size": 1048576,
+  "sha256": "172c15dc2e12b50e523d8e657cbe7fbb11c1053252bbf1e1431077d57d8128fd"
+ },
+ {
+  "object": "rbd_data.37841afbd1d7.0000000000000100",
+  "size": 1048576,
+  "sha256": "172c15dc2e12b50e523d8e657cbe7fbb11c1053252bbf1e1431077d57d8128fd"
+ }
+]

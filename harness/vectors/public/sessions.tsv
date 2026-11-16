@@ -1,0 +1,22 @@
+k2-rbd-info-v1	aes256k	client.vec-k2	crc	1	ms=5,auth=10	2026-11-16T11:13:23Z	2026-11-16T11:13:29Z	94515	198	rbd info of the layering-only image (cls calls, header reads)
+k2-rbd-info-default	aes256k	client.vec-k2	crc	2	ms=5,auth=10	2026-11-16T11:13:29Z	2026-11-16T11:13:35Z	189554	402	rbd info of the default-feature image (object-map, exclusive-lock, lock info)
+k2-rados-small	aes256k	client.vec-k2	crc	5	ms=5,auth=10	2026-11-16T11:13:36Z	2026-11-16T11:13:42Z	409011	758	rados put/stat/get/rm of a 100-byte object, plus read of a missing object (ENOENT)
+k2-rados-big	aes256k	client.vec-k2	crc	4	ms=5,auth=10	2026-11-16T11:13:42Z	2026-11-16T11:13:48Z	2435230	711	rados put/stat/get/rm of a 1 MiB + 1234 byte object
+k2-rbd-bench-v1	aes256k	client.vec-k2	crc	4	ms=5,auth=10	2026-11-16T11:13:49Z	2026-11-16T11:13:55Z	2549736	1085	rbd create (layering only, 16 MiB), bench write 1 MiB then read 1 MiB (seq 64K), rm
+k2-ceph-cli	aes256k	client.vec-k2	crc	3	ms=5,auth=10	2026-11-16T11:13:56Z	2026-11-16T11:14:04Z	967613	339	ceph CLI: mon dump, osd getmap (full map delivery), osd stat
+k2-idle40	aes256k	client.vec-k2	crc	1	ms=5,auth=10	2026-11-16T11:14:05Z	2026-11-16T11:14:50Z	81027	152	python rados: connect, stat, 40 s idle, stat (keepalive on mon and OSD sessions)
+k2-def-rbd-info	aes256k	client.vec-k2	def	4	ms=5,auth=10	2026-11-16T11:14:51Z	2026-11-16T11:14:57Z	347533	656	DEFAULT client options (mon connection secure, OSD crc): rbd info img-v1, rados put/get/rm of a 100-byte object
+k2-sec-rbd-info	aes256k	client.vec-k2	sec	4	ms=5,auth=30	2026-11-16T11:14:58Z	2026-11-16T11:15:03Z	350508	652	BOTH forced secure (ms_client_mode=secure ms_mon_client_mode=secure): rbd info img-v1, rados put/get/rm of a 100-byte object
+k1-rbd-info-v1	aes	client.vec-k1	crc	1	ms=5,auth=10	2026-11-16T11:15:04Z	2026-11-16T11:15:10Z	93475	198	rbd info of the layering-only image (cls calls, header reads)
+k1-ceph-cli	aes	client.vec-k1	crc	3	ms=5,auth=10	2026-11-16T11:15:37Z	2026-11-16T11:15:45Z	965715	337	ceph CLI: mon dump, osd getmap (full map delivery), osd stat
+k1-idle40	aes	client.vec-k1	crc	1	ms=5,auth=10	2026-11-16T11:15:46Z	2026-11-16T11:16:31Z	80131	150	python rados: connect, stat, 40 s idle, stat (keepalive on mon and OSD sessions)
+k2-wrongkey	aes256k	client.vec-k2	crc	1	ms=5,auth=10	2026-11-16T11:16:45Z	2026-11-16T11:16:51Z	1976	18	WRONG key (random secret of the right type) for client.vec-k2: expect authentication failure
+k1-wrongkey	aes	client.vec-k1	crc	1	ms=5,auth=10	2026-11-16T11:16:51Z	2026-11-16T11:16:57Z	1976	18	WRONG key (random secret of the right type) for client.vec-k1: expect authentication failure
+k2-renew-ttl60	aes256k	client.vec-k2	crc	1	ms=5,auth=10	2026-11-16T11:24:56Z	2026-11-16T11:27:32Z	89588	194	auth_service_ticket_ttl=60 on the mon: python rados client, op, 150 s idle, op (ticket renewal / re-auth)
+k1-renew-ttl60	aes	client.vec-k1	crc	1	ms=5,auth=10	2026-11-16T11:27:33Z	2026-11-16T11:30:08Z	88238	196	auth_service_ticket_ttl=60 on the mon: python rados client, op, 150 s idle, op (ticket renewal / re-auth)
+k1-rbd-info-default	aes	client.vec-k1	crc	2	ms=5,auth=10	2026-11-16T11:32:40Z	2026-11-16T11:32:45Z	187472	401	rbd info of the default-feature image (object-map, exclusive-lock, lock info)
+k1-rados-big	aes	client.vec-k1	crc	4	ms=5,auth=10	2026-11-16T11:32:53Z	2026-11-16T11:32:59Z	2430720	694	rados put/stat/get/rm of a 1 MiB + 1234 byte object
+k1-rbd-bench-v1	aes	client.vec-k1	crc	4	ms=5,auth=10	2026-11-16T11:33:00Z	2026-11-16T11:33:06Z	2545820	1087	rbd create (layering only, 16 MiB), bench write 1 MiB then read 1 MiB (seq 64K), rm
+k1-def-rbd-info	aes	client.vec-k1	def	4	ms=5,auth=10	2026-11-16T11:33:07Z	2026-11-16T11:33:12Z	344966	663	DEFAULT client options (mon connection secure, OSD crc): rbd info img-v1, rados put/get/rm of a 100-byte object
+k1-sec-rbd-info	aes	client.vec-k1	sec	4	ms=5,auth=30	2026-11-16T11:33:13Z	2026-11-16T11:33:19Z	347917	659	BOTH forced secure (ms_client_mode=secure ms_mon_client_mode=secure): rbd info img-v1, rados put/get/rm of a 100-byte object
+k1-rados-small	aes	client.vec-k1	crc	5	ms=5,auth=10	2026-11-16T11:36:27Z	2026-11-16T11:36:33Z	406120	770	rados put/stat/get/rm of a 100-byte object, plus read of a missing object (ENOENT)

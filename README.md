@@ -79,6 +79,16 @@ What we have checked so far, against the pinned source trees:
 - WNBD's current `wnbd.sys` is a storport virtual miniport with no network code; every disk is created at run time by a user-space process. It does not boot a system volume today. An older in-kernel NBD client over WSK existed in WNBD's history (removed in commit `59da53f`) and is a useful reference for structure.
 - Some Ceph wire-level details are in the public docs (for example the msgr2 frame preamble, CRC-32C parameters and the secure-mode nonce layout, on [docs.ceph.com/en/latest/dev/msgr2/](https://docs.ceph.com/en/latest/dev/msgr2/)). Many others are not: numeric tags, the full message header layout, secure-mode key derivation, cephx cipher / IV / digest details, OSDMap and CRUSH encodings, and the RBD header method names for size, features and snap context. Those have to be established from Ceph's source and a live cluster, and are tracked as open questions in the roadmap, not assumed.
 
+### Verify the notes yourself
+
+The protocol notes in [docs/spec/](docs/spec/README.md) are checked against real bytes: a public set of packet captures of a stock Ceph 20.2.5 client, made with two throwaway cephx users that were deleted from the lab cluster right afterwards (their keys are published and authenticate nothing). Eight independent checkers read that set. From a fresh clone, with only Python 3, the `cryptography` package and `curl`, run one command:
+
+```sh
+harness/tools/run-all.sh
+```
+
+It downloads the few Ceph files the checkers need at run time (from the pinned Ceph commit, sha256-checked, into a git-ignored directory; they are never part of this repository), runs all eight checkers and prints a pass / fail / skip table. See [harness/tools/README.md](harness/tools/README.md) and [harness/vectors/README.md](harness/vectors/README.md).
+
 ### Scope
 
 - Test networks and research. This is not a product.
@@ -229,6 +239,16 @@ UEFI 固件不做任何修改。`ExitBootServices` 之后 iPXE 的块设备和�
 - iPXE 有通用的 SAN 层和 EFI_BLOCK_IO 后端,也有通用的 ACPI 表机制(iBFT 和 AoE 的 aBFT 都在用)。目前没有 `rbd` 或 `ceph` 的 URI 方案。
 - WNBD 当前的 `wnbd.sys` 是一个 storport 虚拟 miniport,驱动里没有网络代码;每块盘都由用户态进程在运行时创建。它现在不能启动系统卷。WNBD 的历史里曾有过走 WSK 的内核态 NBD 客户端(在提交 `59da53f` 中移除),结构上可作参考。
 - Ceph 线上协议有一部分细节在公开文档里(例如 msgr2 的帧前导、CRC-32C 参数和 secure 模式的 nonce 布局,见 [docs.ceph.com/en/latest/dev/msgr2/](https://docs.ceph.com/en/latest/dev/msgr2/))。很多细节则没有:数字 tag、完整的消息头布局、secure 模式的密钥派生、cephx 的加密算法 / IV / 摘要细节、OSDMap 与 CRUSH 的编码,以及 RBD 头部中 size、features、snap context 对应的方法名。这些需要从 Ceph 源码和真实集群里确认,在路线图里作为未决问题列出,而不是想当然。
+
+### 自己验证这些笔记
+
+[docs/spec/](docs/spec/README.md) 里的协议笔记都对照真实字节检查过:一套公开的抓包,来自标准 Ceph 20.2.5 客户端,使用两个一次性的 cephx 用户,这两个用户在抓包结束后立刻从实验集群里删除了(密钥是公开的,已经不能认证任何东西)。八个相互独立的检查器读取这套抓包。从一份全新的克隆开始,只需要 Python 3、`cryptography` 包和 `curl`,运行一条命令:
+
+```sh
+harness/tools/run-all.sh
+```
+
+它会先下载检查器运行时需要的少量 Ceph 文件(取自固定的 Ceph 提交,做 sha256 校验,放进被 git 忽略的目录,绝不属于本仓库),然后运行全部八个检查器,并打印通过 / 失败 / 跳过的汇总表。详见 [harness/tools/README.md](harness/tools/README.md) 和 [harness/vectors/README.md](harness/vectors/README.md)。
 
 ### 范围
 

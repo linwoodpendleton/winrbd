@@ -1,0 +1,15 @@
+### [1] rbd create --size 16M --image-feature layering winrbd/t0-bench-k2
+### rc=0
+### [2] rbd bench --io-type write --io-size 65536 --io-threads 4 --io-total 1M --io-pattern seq winrbd/t0-bench-k2
+bench  type write io_size 65536 io_threads 4 bytes 1048576 pattern sequential
+  SEC       OPS   OPS/SEC   BYTES/SEC
+elapsed: 0   ops: 16   ops/sec: 533.333   bytes/sec: 33 MiB/s
+### rc=0
+### [3] rbd bench --io-type read --io-size 65536 --io-threads 4 --io-total 1M --io-pattern seq winrbd/t0-bench-k2
+bench  type read io_size 65536 io_threads 4 bytes 1048576 pattern sequential
+  SEC       OPS   OPS/SEC   BYTES/SEC
+elapsed: 0   ops: 16   ops/sec: 1454.55   bytes/sec: 91 MiB/s
+### rc=0
+### [4] rbd rm winrbd/t0-bench-k2
+Removing image: 25% complete...Removing image: 50% complete...Removing image: 75% complete...Removing image: 100% complete...done.
+### rc=0

@@ -1,0 +1,278 @@
+{
+    "epoch": 32,
+    "fsid": "52762725-e19a-11f1-886d-525400770001",
+    "modified": "2026-11-16T08:59:44.230591+0000",
+    "new_last_up_change": "0.000000",
+    "new_last_in_change": "0.000000",
+    "new_pool_max": -1,
+    "new_flags": -1,
+    "new_full_ratio": -1,
+    "new_nearfull_ratio": -1,
+    "new_backfillfull_ratio": -1,
+    "new_require_min_compat_client": 255,
+    "new_require_osd_release": 255,
+    "mutate_allow_crimson": 0,
+    "crush": {
+        "devices": [
+            {
+                "id": 0,
+                "name": "osd.0",
+                "class": "hdd"
+            },
+            {
+                "id": 1,
+                "name": "osd.1",
+                "class": "hdd"
+            },
+            {
+                "id": 2,
+                "name": "osd.2",
+                "class": "hdd"
+            }
+        ],
+        "types": [
+            {
+                "type_id": 0,
+                "name": "osd"
+            },
+            {
+                "type_id": 1,
+                "name": "host"
+            },
+            {
+                "type_id": 2,
+                "name": "chassis"
+            },
+            {
+                "type_id": 3,
+                "name": "rack"
+            },
+            {
+                "type_id": 4,
+                "name": "row"
+            },
+            {
+                "type_id": 5,
+                "name": "pdu"
+            },
+            {
+                "type_id": 6,
+                "name": "pod"
+            },
+            {
+                "type_id": 7,
+                "name": "room"
+            },
+            {
+                "type_id": 8,
+                "name": "datacenter"
+            },
+            {
+                "type_id": 9,
+                "name": "zone"
+            },
+            {
+                "type_id": 10,
+                "name": "region"
+            },
+            {
+                "type_id": 11,
+                "name": "root"
+            }
+        ],
+        "buckets": [
+            {
+                "id": -1,
+                "name": "default",
+                "type_id": 11,
+                "type_name": "root",
+                "weight": 4797,
+                "alg": "straw2",
+                "hash": "rjenkins1",
+                "items": [
+                    {
+                        "id": -3,
+                        "weight": 4797,
+                        "pos": 0
+                    }
+                ]
+            },
+            {
+                "id": -2,
+                "name": "default~hdd",
+                "type_id": 11,
+                "type_name": "root",
+                "weight": 4797,
+                "alg": "straw2",
+                "hash": "rjenkins1",
+                "items": [
+                    {
+                        "id": -4,
+                        "weight": 4797,
+                        "pos": 0
+                    }
+                ]
+            },
+            {
+                "id": -3,
+                "name": "winrbd-ceph1",
+                "type_id": 1,
+                "type_name": "host",
+                "weight": 4797,
+                "alg": "straw2",
+                "hash": "rjenkins1",
+                "items": [
+                    {
+                        "id": 0,
+                        "weight": 1599,
+                        "pos": 0
+                    },
+                    {
+                        "id": 1,
+                        "weight": 1599,
+                        "pos": 1
+                    },
+                    {
+                        "id": 2,
+                        "weight": 1599,
+                        "pos": 2
+                    }
+                ]
+            },
+            {
+                "id": -4,
+                "name": "winrbd-ceph1~hdd",
+                "type_id": 1,
+                "type_name": "host",
+                "weight": 4797,
+                "alg": "straw2",
+                "hash": "rjenkins1",
+                "items": [
+                    {
+                        "id": 0,
+                        "weight": 1599,
+                        "pos": 0
+                    },
+                    {
+                        "id": 1,
+                        "weight": 1599,
+                        "pos": 1
+                    },
+                    {
+                        "id": 2,
+                        "weight": 1599,
+                        "pos": 2
+                    }
+                ]
+            }
+        ],
+        "rules": [
+            {
+                "rule_id": 0,
+                "rule_name": "replicated_rule",
+                "type": 1,
+                "steps": [
+                    {
+                        "op": "take",
+                        "item": -1,
+                        "item_name": "default"
+                    },
+                    {
+                        "op": "choose_firstn",
+                        "num": 0,
+                        "type": "osd"
+                    },
+                    {
+                        "op": "emit"
+                    }
+                ]
+            },
+            {
+                "rule_id": 1,
+                "rule_name": "winrbd_osd",
+                "type": 1,
+                "steps": [
+                    {
+                        "op": "take",
+                        "item": -1,
+                        "item_name": "default"
+                    },
+                    {
+                        "op": "choose_firstn",
+                        "num": 0,
+                        "type": "osd"
+                    },
+                    {
+                        "op": "emit"
+                    }
+                ]
+            }
+        ],
+        "tunables": {
+            "choose_local_tries": 0,
+            "choose_local_fallback_tries": 0,
+            "choose_total_tries": 50,
+            "chooseleaf_descend_once": 1,
+            "chooseleaf_vary_r": 1,
+            "chooseleaf_stable": 1,
+            "msr_descents": 100,
+            "msr_collision_tries": 100,
+            "straw_calc_version": 1,
+            "allowed_bucket_algs": 54,
+            "profile": "jewel",
+            "optimal_tunables": 1,
+            "legacy_tunables": 0,
+            "minimum_required_version": "jewel",
+            "require_feature_tunables": 1,
+            "require_feature_tunables2": 1,
+            "has_v2_rules": 0,
+            "require_feature_tunables3": 1,
+            "has_v3_rules": 0,
+            "has_v4_buckets": 1,
+            "require_feature_tunables5": 1,
+            "has_v5_rules": 0,
+            "has_msr_rules": 0
+        },
+        "choose_args": {}
+    },
+    "new_max_osd": -1,
+    "new_pools": [],
+    "new_pool_names": [],
+    "old_pools": [],
+    "new_up_osds": [],
+    "new_weight": [],
+    "osd_state_xor": [],
+    "new_pg_temp": [],
+    "primary_temp": [],
+    "new_pg_upmap": [],
+    "old_pg_upmap": [],
+    "new_pg_upmap_items": [],
+    "old_pg_upmap_items": [],
+    "new_pg_upmap_primaries": [],
+    "old_pg_upmap_primaries": [],
+    "new_up_thru": [],
+    "new_lost": [],
+    "new_last_clean_interval": [],
+    "new_blocklist": [],
+    "old_blocklist": [],
+    "new_range_blocklist": [],
+    "old_range_blocklist": [],
+    "new_xinfo": [],
+    "new_uuid": [],
+    "erasure_code_profiles": {},
+    "old_erasure_code_profiles": [],
+    "new_removed_snaps": [],
+    "new_purged_snaps": [
+        [],
+        [],
+        {
+            "change_stretch_mode": false,
+            "stretch_mode_enabled": false,
+            "new_stretch_bucket_count": 0,
+            "new_degraded_stretch_mode": 0,
+            "new_recovering_stretch_mode": 0,
+            "new_stretch_mode_bucket": 0
+        }
+    ]
+}
+

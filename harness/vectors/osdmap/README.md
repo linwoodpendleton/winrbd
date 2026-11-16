@@ -10,23 +10,26 @@ not through Ceph's decoders).
 
 ```sh
 # committed vectors only, a few seconds, needs nothing but Python 3:
+python3 -I harness/tools/osdmap_check.py --vectors-only
+
+# everything, against the public vector set (about one minute; run harness/tools/fetch-ceph-ref.sh once first):
 python3 -I harness/tools/osdmap_check.py
 
-# everything, against the private capture set (about one minute):
-python3 -I harness/tools/osdmap_check.py --captures <winrbd-ref>/captures
+# against another capture set, e.g. the private Phase 0 one:
+python3 -I harness/tools/osdmap_check.py --captures <captures dir>
 
-# regenerate these vectors from the capture set (scrubs, recomputes the CRCs, then verifies them):
-python3 -I harness/tools/osdmap_check.py --captures <winrbd-ref>/captures --write-vectors
+# regenerate these vectors from a capture set that holds gt2 / gt3 / gt5 (scrubs, recomputes the CRCs, then verifies them):
+python3 -I harness/tools/osdmap_check.py --captures <captures dir> --write-vectors
 ```
 
 Exit status 0 means every check passed. Placement checks need the two CRUSH log tables. They are **not** in this
 repository: the checker parses `src/crush/crush_ln_table.h` from the pinned Ceph reference tree at run time
-(`--ref <tree>`, default `../winrbd-ref/ceph-v20.2.5` next to this repository). Without it those checks are reported as
-skipped, not as passed.
+(`--ceph-src <dir>`, alias `--ref`; default `$WINRBD_CEPH_SRC`, else `harness/.ceph-ref`, which `harness/tools/fetch-ceph-ref.sh`
+fills from the pinned Ceph commit). Without it those checks are reported as skipped, not as passed.
 
-Without `--captures` the run covers: the arithmetic known answers of the notes (CRC-32C, string hashes, CRUSH hashes,
+With `--vectors-only` the run covers: the arithmetic known answers of the notes (CRC-32C, string hashes, CRUSH hashes,
 `stable_mod`, `crush_ln`), all files below, and the negative / robustness tests (synthetic mutations of `full-e42.hex`).
-With `--captures` it adds: every stored map and incremental of epochs 1 to 89 against `ceph-dencoder` JSON, the 24
+Against a capture set (the default) it adds: every stored map and incremental of epochs 1 to 89 against `ceph-dencoder` JSON, the 24
 intermediate maps, 39 pcaps (every msgr2 frame CRC; MOSDMap and MMonSubscribe messages), CRUSH blob decoding against the
 monitor's dump, and 80,000 `crushtool` mappings, 2,194 `ceph osd map` answers and 825 `osdmaptool` PG results over 25 map states.
 

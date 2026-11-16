@@ -1,0 +1,43 @@
+== rbd_directory
+id_37841afbd1d7
+value (10 bytes) :
+00000000  06 00 00 00 69 6d 67 2d  76 31                    |....img-v1|
+0000000a
+
+id_37863d7ada59
+value (15 bytes) :
+00000000  0b 00 00 00 69 6d 67 2d  64 65 66 61 75 6c 74     |....img-default|
+0000000f
+
+id_3bf2f22b7b0f
+value (14 bytes) :
+00000000  0a 00 00 00 74 30 2d 63  6f 70 79 2d 76 31        |....t0-copy-v1|
+0000000e
+
+id_3bf4f7033da2
+value (15 bytes) :
+00000000  0b 00 00 00 74 30 2d 63  6f 70 79 2d 64 65 66     |....t0-copy-def|
+0000000f
+
+name_img-default
+value (16 bytes) :
+00000000  0c 00 00 00 33 37 38 36  33 64 37 61 64 61 35 39  |....37863d7ada59|
+00000010
+
+name_img-v1
+value (16 bytes) :
+00000000  0c 00 00 00 33 37 38 34  31 61 66 62 64 31 64 37  |....37841afbd1d7|
+00000010
+
+name_t0-copy-def
+value (16 bytes) :
+00000000  0c 00 00 00 33 62 66 34  66 37 30 33 33 64 61 32  |....3bf4f7033da2|
+00000010
+
+name_t0-copy-v1
+value (16 bytes) :
+00000000  0c 00 00 00 33 62 66 32  66 32 32 62 37 62 30 66  |....3bf2f22b7b0f|
+00000010
+
+== rbd_info
+== rbd_trash

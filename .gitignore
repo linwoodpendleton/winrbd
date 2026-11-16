@@ -101,6 +101,14 @@ Thumbs.db
 # Local lab configuration (harness/lab)
 harness/lab/lab.conf
 
+# Ceph run-time data fetched by harness/tools/fetch-ceph-ref.sh (Ceph's files, never part of this repository)
+harness/.ceph-ref/
+
+# The public test vector set is committed on purpose: its keyrings belong to throwaway cephx users that were deleted
+# from the lab cluster (see harness/vectors/public/keys/README.md), and gt5/out holds captured tool output.
+!/harness/vectors/public/keys/*.keyring
+!/harness/vectors/public/gt5/out/
+
 # Python bytecode
 __pycache__/
 *.pyc

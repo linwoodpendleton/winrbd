@@ -1,0 +1,27 @@
+start 2026-11-16T09:40:06Z
+01	baseline	true	epoch 42 -> 42	rc=0	 
+02	reweight-osd0-0.95	sudo -n ceph osd reweight 0 0.95	epoch 42 -> 45	rc=0	reweighted osd.0 to 0.95 (f333) 
+03	reweight-osd0-1	sudo -n ceph osd reweight 0 1	epoch 45 -> 48	rc=0	reweighted osd.0 to 1 (10000) 
+04	reweight-osd2-0.5	sudo -n ceph osd reweight 2 0.5	epoch 48 -> 51	rc=0	reweighted osd.2 to 0.5 (8000) 
+05	reweight-osd2-1	sudo -n ceph osd reweight 2 1	epoch 51 -> 54	rc=0	reweighted osd.2 to 1 (10000) 
+06	paff-osd1-0.5	sudo -n ceph osd primary-affinity osd.1 0.5	epoch 54 -> 56	rc=0	set osd.1 primary-affinity to 0.5 (8327682) 
+07	paff-osd1-1	sudo -n ceph osd primary-affinity osd.1 1	epoch 56 -> 58	rc=0	set osd.1 primary-affinity to 1 (8655362) 
+08	app-set	sudo -n ceph osd pool application set winrbd rbd t0-marker 1	epoch 58 -> 59	rc=0	set application 'rbd' key 't0-marker' to '1' on pool 'winrbd' 
+09	app-rm	sudo -n ceph osd pool application rm winrbd rbd t0-marker	epoch 59 -> 60	rc=0	removed application 'rbd' key 't0-marker' on pool 'winrbd' 
+pg 1.0 up before: [1,0]
+10	upmap-items-set	sudo -n ceph osd pg-upmap-items 1.0 0 2	epoch 60 -> 62	rc=0	set 1.0 pg_upmap_items mapping to [0->2] 
+11	upmap-items-rm	sudo -n ceph osd rm-pg-upmap-items 1.0	epoch 62 -> 64	rc=0	clear 1.0 pg_upmap_items mapping 
+12	upmap-full-set	sudo -n ceph osd pg-upmap 1.0 0 2	epoch 64 -> 66	rc=0	set 1.0 pg_upmap mapping to [0,2] 
+13	upmap-full-rm	sudo -n ceph osd rm-pg-upmap 1.0	epoch 66 -> 68	rc=0	clear 1.0 pg_upmap mapping 
+14	primary-temp-set	sudo -n ceph osd primary-temp 1.0 0	epoch 68 -> 70	rc=0	set 1.0 primary_temp mapping to 0 
+15	primary-temp-rm	sudo -n ceph osd primary-temp 1.0 -1	epoch 70 -> 70	rc=22	Invalid command: osd id -1 is less than 0 osd primary-temp <pgid> <id|osd.id> : set primary_temp mapping pgid:<id> (deve
+16	pg-temp-set	sudo -n ceph osd pg-temp 2.0 0 1 2	epoch 70 -> 73	rc=0	set 2.0 pg_temp mapping to [0,1,2] 
+17	pg-temp-rm	sudo -n ceph osd pg-temp 2.0	epoch 73 -> 74	rc=0	done cleaning up pg_temp of 2.0 
+18	out-osd2	sudo -n ceph osd out 2	epoch 74 -> 77	rc=0	marked out osd.2. 
+19	in-osd2	sudo -n ceph osd in 2	epoch 77 -> 80	rc=0	marked in osd.2. 
+20	noup-set	sudo -n ceph osd set noup	epoch 80 -> 81	rc=0	noup is set 
+21	osd2-marked-down	sudo -n ceph osd down 2	epoch 81 -> 84	rc=0	marked down osd.2. 
+22	noup-unset	sudo -n ceph osd unset noup	epoch 84 -> 87	rc=0	noup is unset 
+23	final	true	epoch 87 -> 87	rc=0	 
+end 2026-11-16T09:45:41Z
+24	primary-temp-rm2	ceph osd rm-primary-temp 1.0 (the earlier step 15 with -1 was rejected)	epoch -> 89

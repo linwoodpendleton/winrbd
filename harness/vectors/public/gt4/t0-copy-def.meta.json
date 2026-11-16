@@ -1,0 +1,191 @@
+{
+ "cls_calls": [
+  {
+   "call": "rbd.get_size",
+   "in": "feffffffffffffff",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "160000000001000000",
+   "rc": 9
+  },
+  {
+   "call": "rbd.get_features",
+   "in": "feffffffffffffff",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "3d000000000000003d00000000000000",
+   "rc": 16
+  },
+  {
+   "call": "rbd.get_features",
+   "in": "feffffffffffffff01",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "3d000000000000000100000000000000",
+   "rc": 16
+  },
+  {
+   "call": "rbd.get_object_prefix",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "150000007262645f646174612e336266346637303333646132",
+   "rc": 25
+  },
+  {
+   "call": "rbd.get_flags",
+   "in": "feffffffffffffff",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "0000000000000000",
+   "rc": 8
+  },
+  {
+   "call": "rbd.get_snapcontext",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "000000000000000000000000",
+   "rc": 12
+  },
+  {
+   "call": "rbd.get_data_pool",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "ffffffffffffffff",
+   "rc": 8
+  },
+  {
+   "call": "rbd.get_stripe_unit_count",
+   "err": "OSError('Ioctx.read(winrbd): failed to read rbd_header.3bf4f7033da2')",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2"
+  },
+  {
+   "call": "rbd.parent_get",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "010118000000ffffffffffffffff0000000000000000feffffffffffffff",
+   "rc": 30
+  },
+  {
+   "call": "rbd.get_parent",
+   "in": "feffffffffffffff",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "ffffffffffffffff00000000feffffffffffffff0000000000000000",
+   "rc": 28
+  },
+  {
+   "call": "rbd.op_features_get",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "0000000000000000",
+   "rc": 8
+  },
+  {
+   "call": "rbd.get_all_features",
+   "in": "",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "ff0f000000000000",
+   "rc": 8
+  },
+  {
+   "call": "rbd.metadata_list",
+   "in": "000000000004000000000000",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "00000000",
+   "rc": 4
+  },
+  {
+   "call": "lock.get_info",
+   "in": "01010c000000080000007262645f6c6f636b",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "010111000000000000000108000000696e7465726e616c",
+   "rc": 23
+  },
+  {
+   "call": "rbd.get_id",
+   "in": "",
+   "oid": "rbd_id.t0-copy-def",
+   "out": "0c000000336266346637303333646132",
+   "rc": 16
+  },
+  {
+   "call": "rbd.dir_get_id",
+   "in": "0b00000074302d636f70792d646566",
+   "oid": "rbd_directory",
+   "out": "0c000000336266346637303333646132",
+   "rc": 16
+  },
+  {
+   "call": "rbd.dir_get_name",
+   "in": "0c000000336266346637303333646132",
+   "oid": "rbd_directory",
+   "out": "0b00000074302d636f70792d646566",
+   "rc": 15
+  },
+  {
+   "call": "rbd.dir_list",
+   "in": "000000000004000000000000",
+   "oid": "rbd_directory",
+   "out": "040000000b000000696d672d64656661756c740c00000033373836336437616461353906000000696d672d76310c0000003337383431616662643164370b00000074302d636f70792d6465660c0000003362663466373033336461320a00000074302d636f70792d76310c000000336266326632326237623066",
+   "rc": 122
+  },
+  {
+   "call": "rbd.get_features",
+   "in": "ffffffffffffffff",
+   "oid": "rbd_header.3bf4f7033da2",
+   "out": "3d000000000000003d00000000000000",
+   "rc": 16
+  }
+ ],
+ "header_object": "rbd_header.3bf4f7033da2",
+ "header_omap": [
+  [
+   "access_timestamp",
+   "6dd1fa6a10253e05"
+  ],
+  [
+   "create_timestamp",
+   "6dd1fa6a10253e05"
+  ],
+  [
+   "features",
+   "3d00000000000000"
+  ],
+  [
+   "modify_timestamp",
+   "6dd1fa6a10253e05"
+  ],
+  [
+   "object_prefix",
+   "150000007262645f646174612e336266346637303333646132"
+  ],
+  [
+   "order",
+   "16"
+  ],
+  [
+   "size",
+   "0000000001000000"
+  ],
+  [
+   "snap_seq",
+   "0000000000000000"
+  ]
+ ],
+ "id": "3bf4f7033da2",
+ "image": "t0-copy-def",
+ "rbd_id_object_hex": "0c000000336266346637303333646132",
+ "stat": {
+  "rbd_header.3bf4f7033da2": [
+   "0",
+   "time.struct_time(tm_year=2026, tm_mon=11, tm_mday=16, tm_hour=9, tm_min=48, tm_sec=30, tm_wday=0, tm_yday=320, tm_isdst=0)"
+  ],
+  "rbd_id.t0-copy-def": [
+   "16",
+   "time.struct_time(tm_year=2026, tm_mon=11, tm_mday=16, tm_hour=9, tm_min=48, tm_sec=29, tm_wday=0, tm_yday=320, tm_isdst=0)"
+  ]
+ },
+ "watchers": "n/a",
+ "xattrs": {
+  "rbd_header.3bf4f7033da2": {
+   "lock.rbd_lock": "010111000000000000000108000000696e7465726e616c"
+  },
+  "rbd_id.t0-copy-def": {}
+ }
+}

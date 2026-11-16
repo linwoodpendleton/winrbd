@@ -1,0 +1,15 @@
+### [1] rbd info winrbd/img-v1
+rbd image 'img-v1':
+	size 4 GiB in 1024 objects
+	order 22 (4 MiB objects)
+	snapshot_count: 0
+	id: 37841afbd1d7
+	block_name_prefix: rbd_data.37841afbd1d7
+	format: 2
+	features: layering
+	op_features: 
+	flags: 
+	create_timestamp: Mon Nov 16 08:49:29 2026
+	access_timestamp: Mon Nov 16 09:48:28 2026
+	modify_timestamp: Mon Nov 16 08:49:29 2026
+### rc=0

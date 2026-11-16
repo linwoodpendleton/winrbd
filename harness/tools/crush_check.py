@@ -9,8 +9,13 @@ tools (ceph-dencoder, crushtool, osdmaptool, `ceph osd map`) appear only as ORAC
 directory; they are never run.
 
 Usage:
-    python3 harness/tools/crush_check.py --captures <dir> [--ref <ceph-ref-tree>] [--quick] [--no-pcap]
+    python3 harness/tools/crush_check.py [--captures <dir>] [--ceph-src <dir>] [--quick] [--no-pcap]
                                          [--tree-x N] [--emit-vectors <dir>] [-v]
+
+Without arguments it checks the public vector set (harness/vectors/public).  The Ceph data it reads at run time
+(src/crush/crush_ln_table.h and the in-tree crushtool known-answer tests, src/test/cli/crushtool/) comes from
+--ceph-src (alias --ref), else $WINRBD_CEPH_SRC, else harness/.ceph-ref, which harness/tools/fetch-ceph-ref.sh fills
+from the pinned Ceph commit.  Nothing of it is part of this repository.
 
 Exit status 0 when every check passes, 1 when any fails, 2 on usage / missing-input errors.
 
@@ -36,6 +41,9 @@ import struct
 import sys
 import time
 from decimal import Decimal, getcontext
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
 
 M32 = 0xFFFFFFFF
 S64_MIN = -(1 << 63)
@@ -2100,9 +2108,21 @@ def grp_osdmap(res, C, ctx):
             jb.append((e, dj[:3]))
     res.check(g, "incremental decoder (epochs 1..89) equals ceph-dencoder JSON (new_weight, state xor, pools, temps, upmaps)",
               not jb, str(jb[:3]), 89)
-    mm = decode_osdmap(read_bytes(C + "/gt/osdmap.bin"))
-    res.check(g, "gt/osdmap.bin (getmap, epoch 42) decodes, CRC ok, equals gt3 full map 42 byte for byte",
-              mm.crc_ok and read_bytes(C + "/gt/osdmap.bin") == read_bytes(C + "/gt3/full/full.00042.bin"), "", 1)
+    gtb = read_bytes(C + "/gt/osdmap.bin")
+    mm = decode_osdmap(gtb)
+    # gt/osdmap.bin is the `osd getmap` output of whatever epoch the set was captured at (42 in the first private
+    # set, 141 in the public one).  gt3 holds the stored maps of epochs 1..89 only.
+    if mm.epoch in fulls:
+        res.check(g, "gt/osdmap.bin (getmap, epoch %d) decodes, CRC ok, equals gt3 full map %d byte for byte" % (mm.epoch, mm.epoch),
+                  mm.crc_ok and gtb == read_bytes(C + "/gt3/full/full.%05d.bin" % mm.epoch), "", 1)
+    else:
+        bl = C + "/baseline/baseline-after/osdmap.bin"
+        res.check(g, "gt/osdmap.bin (getmap, epoch %d) decodes and its CRC is ok" % mm.epoch, mm.crc_ok, "", 1)
+        pubset.skip("crush_check", "gt/osdmap.bin equals the stored full map of its epoch",
+                    "gt/osdmap.bin is epoch %d; the stored full maps (gt3) cover epochs 1..89 only" % mm.epoch)
+        if os.path.exists(bl):
+            res.check(g, "gt/osdmap.bin is byte-identical to baseline/baseline-after/osdmap.bin (both `osd getmap`, epoch %d)" % mm.epoch,
+                      gtb == read_bytes(bl), "", 1)
     ctx["full42"] = mm
     # primary affinity incrementals (JSON omits them)
     aff = {e: i.new_primary_affinity for e, i in incs.items() if i.new_primary_affinity}
@@ -2440,7 +2460,8 @@ def grp_tree(res, ref, maxx, ctx):
     for fn in files:
         p = os.path.join(td, fn)
         if not os.path.exists(p):
-            res.info(g, fn, "missing in reference tree")
+            res.info(g, fn, "missing in the Ceph run-time data (%s)" % pubset.ceph_hint(ref))
+            pubset.skip("crush_check", "F %s" % fn, "not under --ceph-src; run harness/tools/fetch-ceph-ref.sh")
             continue
         toks, exp = parse_t_file(p, td)
         opts = {"weights": {}}
@@ -2869,8 +2890,10 @@ def grp_emit(res, C, ctx, outdir):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="independent checker for docs/spec/crush-and-placement.md")
-    ap.add_argument("--captures", required=True, help="capture directory (contains gt/ gt3/ pcap/ ...)")
-    ap.add_argument("--ref", help="reference Ceph tree (default: <captures>/../ceph-v20.2.5); needed for crush_ln tables and group F")
+    ap.add_argument("--captures", help="capture directory (contains gt/ gt3/ pcap/ ...; default: harness/vectors/public)")
+    ap.add_argument("--ceph-src", "--ref", dest="ref", metavar="DIR",
+                    help="directory with the Ceph run-time data: crush_ln tables and group F (default: $WINRBD_CEPH_SRC, "
+                         "else harness/.ceph-ref, see harness/tools/fetch-ceph-ref.sh)")
     ap.add_argument("--quick", action="store_true", help="skip CRC of segments > 64 KiB and the in-tree crushtool group")
     ap.add_argument("--no-pcap", action="store_true", help="skip group E")
     ap.add_argument("--no-tree", action="store_true", help="skip group F")
@@ -2878,11 +2901,15 @@ def main(argv=None):
     ap.add_argument("--emit-vectors", metavar="DIR", help="write scrubbed test vectors to DIR")
     ap.add_argument("-v", "--verbose", action="store_true")
     a = ap.parse_args(argv)
-    C = os.path.abspath(a.captures).rstrip("/")
-    ref = os.path.abspath(a.ref) if a.ref else os.path.join(os.path.dirname(C), "ceph-v20.2.5")
-    hdr = os.path.join(ref, "src/crush/crush_ln_table.h")
-    if not os.path.isdir(C + "/gt3") or not os.path.exists(hdr):
-        print("need <captures>/gt3 and %s (use --captures / --ref)" % hdr, file=sys.stderr)
+    C = pubset.captures_dir(a.captures).rstrip("/")
+    ref = pubset.ceph_src(a.ref)
+    hdr = os.path.join(ref, pubset.CRUSH_LN_TABLE)
+    if not os.path.isdir(C + "/gt3"):
+        print("need <captures>/gt3 (use --captures)", file=sys.stderr)
+        return 2
+    if not os.path.exists(hdr):
+        print("need %s" % hdr, file=sys.stderr)
+        print(pubset.ceph_hint(ref), file=sys.stderr)
         return 2
     global LN
     LN = LnTables(hdr)
@@ -2915,6 +2942,11 @@ def main(argv=None):
     for grp, name, st, detail in res.rows:
         if st == "FAIL":
             print("FAIL [%s] %s: %s" % (grp, name, detail))
+    if a.quick or a.no_tree:
+        pubset.skip("crush_check", "F in-tree known answers", "switched off by --quick / --no-tree")
+    if a.no_pcap:
+        pubset.skip("crush_check", "E pcaps", "switched off by --no-pcap")
+    pubset.emit_result("crush_check", p, f)
     return 0 if f == 0 else 1
 
 

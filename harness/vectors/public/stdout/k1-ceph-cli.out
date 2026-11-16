@@ -1,0 +1,1196 @@
+### [1] ceph mon dump
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: none
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.296+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) removing any cephx auth method as loading cephx key failed: unable to find a keyring via 'keyring' config /etc/ceph/..keyring,/etc/ceph/.keyring,/etc/ceph/keyring,/etc/ceph/keyring.bin: (2) No such file or directory
+2026-11-16T11:15:40.314+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: none
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.314+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.314+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.314+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.314+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c2127b03e0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: none
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c2127b03e0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c2127b03e0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.315+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c20c04d0b0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: none
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c20c04d0b0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c20c04d0b0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.315+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c20c04d0b0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: cephx
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding auth protocol: none
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: secure
+2026-11-16T11:15:40.315+0000 79c2127b16c0  5 AuthRegistry(0x79c20c04d0b0) adding con mode: crc
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c20c04d0b0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.315+0000 79c2127b16c0 10 AuthRegistry(0x79c20c04d0b0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.315+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.316+0000 79c210d276c0  2 Event(0x79c20c0567c8 nevent=5000 time_id=1).set_owner center_id=0 owner=133874412844736
+2026-11-16T11:15:40.317+0000 79c20bfff6c0  2 Event(0x79c20c066678 nevent=5000 time_id=1).set_owner center_id=1 owner=133874331940544
+2026-11-16T11:15:40.317+0000 79c20b7fe6c0  2 Event(0x79c20c067b58 nevent=5000 time_id=1).set_owner center_id=2 owner=133874323547840
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 --1-  >>  conn(0x79c20c069670 0x79c20c069ae0 :-1 s=NONE pgs=0 cs=0 l=0).con
+2026-11-16T11:15:40.317+0000 79c2127b16c0  1  Processor -- start
+2026-11-16T11:15:40.317+0000 79c2127b16c0  1 --  start start
+2026-11-16T11:15:40.317+0000 79c2127b16c0 10 AuthRegistry(0x79c2127b03e0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: cephx
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: cephx
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: cephx
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding auth protocol: none
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: secure
+2026-11-16T11:15:40.317+0000 79c2127b16c0  5 AuthRegistry(0x79c2127b03e0) adding con mode: crc
+2026-11-16T11:15:40.317+0000 79c2127b16c0 10 AuthRegistry(0x79c2127b03e0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.317+0000 79c2127b16c0 10 AuthRegistry(0x79c2127b03e0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.317+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.317+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.317+0000 79c2127b16c0 10 RKR(0x79c20c06e3a0).RotatingKeyRing con
+2026-11-16T11:15:40.318+0000 79c2127b16c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=NONE pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:40.318+0000 79c2127b16c0  1 --  --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_getmap magic: 0 -- 0x79c20c06d450 con 0x79c20c06c3f0
+2026-11-16T11:15:40.318+0000 79c2127b16c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=START_CONNECT pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_getmap magic: 0
+2026-11-16T11:15:40.318+0000 79c20bfff6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:40.319+0000 79c20bfff6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=1 peer_addr_for_me=v2:10.78.0.2:35372/0
+2026-11-16T11:15:40.319+0000 79c20bfff6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:35372 when talking to v2:10.77.0.10:3300/0
+2026-11-16T11:15:40.319+0000 79c20bfff6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello peer v2:10.77.0.10:3300/0 says I am v2:10.78.0.2:35372/0 (socket says 10.78.0.2:35372)
+2026-11-16T11:15:40.319+0000 79c20bfff6c0  1 -- 10.78.0.2:0/2637004746 learned_addr learned my addr 10.78.0.2:0/2637004746 (peer_addr_for_me v2:10.78.0.2:0/0)
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 RKR(0x79c20c06e3a0).get_keyring 
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): reset
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx: validate_tickets want 32 have 0 need 32
+2026-11-16T11:15:40.319+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=9
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): 0x79c1f8006db0 handle_response ret = 0
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0):  got initial server challenge 64608b386b279564
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): validate_tickets: want=32 need=32 have=0
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx: validate_tickets want 32 have 0 need 32
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): want=32 need=32 have=0
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): build_request
+2026-11-16T11:15:40.319+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): get auth session key: client_challenge ecb2ac45d9d16329
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0): 0x79c1f8006db0 handle_response ret = 0
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0):  get_auth_session_key
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply got 1 keys
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx: got key for service_id auth
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket.secret_id=2
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply service auth secret_id 2 session_key AQDc5fpqr3ccExAA/q31cspui974BnhkTr5lnQ== validity=259200.000000
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-19T11:15:40.321073+0000 renew_after=2026-11-18T17:15:40.321073+0000
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0):  want=32 need=32 have=0
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0):  got connection bl 20 and extra tickets 0
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx_client(0x79c1f8006db0):  got connection_secret 0 bytes
+2026-11-16T11:15:40.320+0000 79c20bfff6c0 10 cephx: validate_tickets want 32 have 32 need 0
+2026-11-16T11:15:40.320+0000 79c20bfff6c0  1 -- 10.78.0.2:0/2637004746 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({config=0+,monmap=0+}) -- 0x79c20c06d860 con 0x79c20c06c3f0
+2026-11-16T11:15:40.320+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2637004746 target=v2:10.77.0.10:3300/0 gid=-1 global_seq=1 features_supported=3f07fffffffdffff features_required=800000000000000 flags=0 cookie=dc08ee462c866612
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] gid=0 global_seq=972 features_supported=3f07fffffffdffff features_required=c01020042040000 flags=1 cookie=0
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  1 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READY pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mon.0 client_cookie=dc08ee462c866612 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READY pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c06d450 seq=1 mon_getmap magic: 0
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READY pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c06d860 seq=2 mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=THROTTLE_DONE pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:40.324+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READ_MESSAGE_COMPLETE pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f802ca80 seq=1 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:40.325+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=THROTTLE_DONE pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 188 + 0 + 0 byte message. envelope type=62 src mon.0 off 0
+2026-11-16T11:15:40.325+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READ_MESSAGE_COMPLETE pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f802cd40 seq=2 from=mon.0 type=62 config(3 keys)
+2026-11-16T11:15:40.325+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=THROTTLE_DONE pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:40.325+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READ_MESSAGE_COMPLETE pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f800a1b0 seq=3 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:40.325+0000 79c20affd6c0  1 -- 10.78.0.2:0/2637004746 <== mon.0 v2:10.77.0.10:3300/0 1 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x79c1f802ca80 con 0x79c20c06c3f0
+2026-11-16T11:15:40.325+0000 79c20affd6c0 10 cephx: validate_tickets want 32 have 32 need 0
+2026-11-16T11:15:40.325+0000 79c20affd6c0  1 -- 10.78.0.2:0/2637004746 <== mon.0 v2:10.77.0.10:3300/0 2 ==== config(3 keys) ==== 188+0+0 (crc 0 0 0) 0x79c1f802cd40 con 0x79c20c06c3f0
+2026-11-16T11:15:40.325+0000 79c20affd6c0  1 -- 10.78.0.2:0/2637004746 <== mon.0 v2:10.77.0.10:3300/0 3 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x79c1f800a1b0 con 0x79c20c06c3f0
+2026-11-16T11:15:40.326+0000 79c2127b16c0  1 -- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 msgr2=0x79c20c06c850 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:40.326+0000 79c2127b16c0  1 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READY pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:40.326+0000 79c2127b16c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=READY pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:40.326+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=CLOSED pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:40.326+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 crc :-1 s=CLOSED pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:40.326+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=CLOSED pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:40.327+0000 79c2127b16c0  1 -- 10.78.0.2:0/2637004746 shutdown_connections 
+2026-11-16T11:15:40.327+0000 79c2127b16c0  5 -- 10.78.0.2:0/2637004746 shutdown_connections mark down [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] 0x79c20c06c3f0
+2026-11-16T11:15:40.327+0000 79c2127b16c0  1 --2- 10.78.0.2:0/2637004746 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c06c850 unknown :-1 s=CLOSED pgs=972 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:40.327+0000 79c2127b16c0  5 -- 10.78.0.2:0/2637004746 shutdown_connections delete 0x79c20c06c3f0
+2026-11-16T11:15:40.327+0000 79c2127b16c0  1 -- 10.78.0.2:0/2637004746 >> 10.78.0.2:0/2637004746 conn(0x79c20c069670 msgr2=0x79c20c069ae0 unknown :-1 s=STATE_NONE l=0).mark_down
+2026-11-16T11:15:40.327+0000 79c2127b16c0  2 --1- 10.78.0.2:0/2637004746 >> 10.78.0.2:0/2637004746 conn(0x79c20c069670 0x79c20c069ae0 :-1 s=NONE pgs=0 cs=0 l=0).stop
+2026-11-16T11:15:40.327+0000 79c2127b16c0  5 --1- 10.78.0.2:0/2637004746 >> 10.78.0.2:0/2637004746 conn(0x79c20c069670 0x79c20c069ae0 :-1 s=NONE pgs=0 cs=0 l=0).reset_recv_state
+2026-11-16T11:15:40.327+0000 79c210d276c0  5 --1- 10.78.0.2:0/2637004746 >> 10.78.0.2:0/2637004746 conn(0x79c20c069670 0x79c20c069ae0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_recv_state (warped) reseting security handlers
+2026-11-16T11:15:40.327+0000 79c210d276c0  5 --1- 10.78.0.2:0/2637004746 >> 10.78.0.2:0/2637004746 conn(0x79c20c069670 0x79c20c069ae0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_security
+2026-11-16T11:15:40.327+0000 79c2127b16c0  1 -- 10.78.0.2:0/2637004746 shutdown_connections 
+2026-11-16T11:15:40.327+0000 79c2127b16c0  5 -- 10.78.0.2:0/2637004746 shutdown_connections delete 0x79c20c069670
+2026-11-16T11:15:40.327+0000 79c2127b16c0  1 -- 10.78.0.2:0/2637004746 wait complete.
+2026-11-16T11:15:40.327+0000 79c2127b16c0  5 --1- 10.78.0.2:0/2637004746 >> 10.78.0.2:0/2637004746 conn(0x79c20c069670 0x79c20c069ae0 :-1 s=CLOSED pgs=0 cs=0 l=0).des
+2026-11-16T11:15:40.327+0000 79c2127b16c0 10 RKR(0x79c20c06e3a0).~RotatingKeyRing des
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: none
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.328+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c1a0900) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: none
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c1a0900) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c1a0900) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.328+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c1a0900) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: cephx
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding auth protocol: none
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: secure
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 AuthRegistry(0x79c20c1a0900) adding con mode: crc
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c1a0900) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.328+0000 79c2127b16c0 10 AuthRegistry(0x79c20c1a0900) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.328+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.328+0000 79c2127b16c0  5 --1-  >>  conn(0x79c20c069670 0x79c20c1c2bd0 :-1 s=NONE pgs=0 cs=0 l=0).con
+2026-11-16T11:15:40.329+0000 79c2127b16c0  1  Processor -- start
+2026-11-16T11:15:40.329+0000 79c2127b16c0  1 --  start start
+2026-11-16T11:15:40.329+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: cephx
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding auth protocol: none
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: secure
+2026-11-16T11:15:40.329+0000 79c2127b16c0  5 AuthRegistry(0x79c20c050720) adding con mode: crc
+2026-11-16T11:15:40.329+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:40.329+0000 79c2127b16c0 10 AuthRegistry(0x79c20c050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:40.329+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.330+0000 79c2127b16c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:40.330+0000 79c2127b16c0 10 RKR(0x79c20c06c0c0).RotatingKeyRing con
+2026-11-16T11:15:40.330+0000 79c2127b16c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=NONE pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:40.330+0000 79c2127b16c0  1 --  --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_getmap magic: 0 -- 0x79c20c06e070 con 0x79c20c06c3f0
+2026-11-16T11:15:40.330+0000 79c2127b16c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=START_CONNECT pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_getmap magic: 0
+2026-11-16T11:15:40.330+0000 79c20bfff6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:40.330+0000 79c20bfff6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=1 peer_addr_for_me=v2:10.78.0.2:35388/0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:35388 when talking to v2:10.77.0.10:3300/0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello peer v2:10.77.0.10:3300/0 says I am v2:10.78.0.2:35388/0 (socket says 10.78.0.2:35388)
+2026-11-16T11:15:40.331+0000 79c20bfff6c0  1 -- 10.78.0.2:0/1522008578 learned_addr learned my addr 10.78.0.2:0/1522008578 (peer_addr_for_me v2:10.78.0.2:0/0)
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 RKR(0x79c20c06c0c0).get_keyring 
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): reset
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service mon
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service osd
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service mgr
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: validate_tickets want 53 have 0 need 53
+2026-11-16T11:15:40.331+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=9
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): 0x79c1f802c830 handle_response ret = 0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830):  got initial server challenge a23a4c04b9c2fa65
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): validate_tickets: want=53 need=53 have=0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service mon
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service osd
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service mgr
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: validate_tickets want 53 have 0 need 53
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): want=53 need=53 have=0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): build_request
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): get auth session key: client_challenge d1e7a898b8402d60
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830): 0x79c1f802c830 handle_response ret = 0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830):  get_auth_session_key
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply got 1 keys
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: got key for service_id auth
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket.secret_id=2
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply service auth secret_id 2 session_key AQDc5fpq4qHQExAAfIL4aoBl0BjUrLVaHAL+DQ== validity=259200.000000
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-19T11:15:40.332849+0000 renew_after=2026-11-18T17:15:40.332849+0000
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830):  want=53 need=53 have=0
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830):  got connection bl 20 and extra tickets 677
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830):  got connection_secret 0 bytes
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply got 3 keys
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: got key for service_id mon
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply service mon secret_id 3 session_key AQDc5fpq+pLRExAAz+Onw2QVQ2Ib2czjySEcPQ== validity=3600.000000
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:40.332885+0000 renew_after=2026-11-16T12:00:40.332885+0000
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: got key for service_id osd
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply service osd secret_id 3 session_key AQDc5fpqS7XRExAAyxNdJYpe2BC+1jZj+12Klg== validity=3600.000000
+2026-11-16T11:15:40.331+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:40.332903+0000 renew_after=2026-11-16T12:00:40.332903+0000
+2026-11-16T11:15:40.332+0000 79c20bfff6c0 10 cephx: got key for service_id mgr
+2026-11-16T11:15:40.332+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:40.332+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply service mgr secret_id 3 session_key AQDc5fpq39XRExAA+/JI3FJzusohqwAmd9L5bA== validity=3600.000000
+2026-11-16T11:15:40.332+0000 79c20bfff6c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:40.332955+0000 renew_after=2026-11-16T12:00:40.332955+0000
+2026-11-16T11:15:40.332+0000 79c20bfff6c0 10 cephx_client(0x79c1f802c830):  got extra service_tickets
+2026-11-16T11:15:40.332+0000 79c20bfff6c0 10 cephx: validate_tickets want 53 have 53 need 0
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  1 -- 10.78.0.2:0/1522008578 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({config=0+,monmap=0+}) -- 0x79c20c1cbed0 con 0x79c20c06c3f0
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/1522008578 target=v2:10.77.0.10:3300/0 gid=-1 global_seq=1 features_supported=3f07fffffffdffff features_required=800000000001000 flags=1 cookie=0
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] gid=0 global_seq=973 features_supported=3f07fffffffdffff features_required=c01020042040000 flags=1 cookie=0
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mon.0 client_cookie=0 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c06e070 seq=1 mon_getmap magic: 0
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c1cbed0 seq=2 mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:40.332+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f8005040 seq=1 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 188 + 0 + 0 byte message. envelope type=62 src mon.0 off 0
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f8005300 seq=2 from=mon.0 type=62 config(3 keys)
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f8005770 seq=3 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:40.333+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 1 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x79c1f8005040 con 0x79c20c06c3f0
+2026-11-16T11:15:40.333+0000 79c2097fa6c0 10 cephx: validate_tickets want 53 have 53 need 0
+2026-11-16T11:15:40.333+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 2 ==== config(3 keys) ==== 188+0+0 (crc 0 0 0) 0x79c1f8005300 con 0x79c20c06c3f0
+2026-11-16T11:15:40.333+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 3 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x79c1f8005770 con 0x79c20c06c3f0
+2026-11-16T11:15:40.333+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({mgrmap=0+}) -- 0x79c20c1cc680 con 0x79c20c06c3f0
+2026-11-16T11:15:40.333+0000 79c2127b16c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({mgrmap=0+})
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c1cc680 seq=3 mon_subscribe({mgrmap=0+})
+2026-11-16T11:15:40.333+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({osdmap=0}) -- 0x79c20c1ccf00 con 0x79c20c06c3f0
+2026-11-16T11:15:40.333+0000 79c2127b16c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({osdmap=0})
+2026-11-16T11:15:40.333+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c1ccf00 seq=4 mon_subscribe({osdmap=0})
+2026-11-16T11:15:40.335+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 53337 + 0 + 0 byte message. envelope type=1796 src mon.0 off 0
+2026-11-16T11:15:40.335+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_command({"prefix": "get_command_descriptions"} v 0) -- 0x79c20c06ec90 con 0x79c20c06c3f0
+2026-11-16T11:15:40.335+0000 79c2127b16c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_command({"prefix": "get_command_descriptions"} v 0)
+2026-11-16T11:15:40.336+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f802d040 seq=4 from=mon.0 type=1796 mgrmap(e 9)
+2026-11-16T11:15:40.336+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 3212 + 0 + 0 byte message. envelope type=41 src mon.0 off 0
+2026-11-16T11:15:40.336+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f80735b0 seq=5 from=mon.0 type=41 osd_map(141..141 src has 1..141)
+2026-11-16T11:15:40.336+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 4 ==== mgrmap(e 9) ==== 53337+0+0 (crc 0 0 0) 0x79c1f802d040 con 0x79c20c06c3f0
+2026-11-16T11:15:40.336+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c06ec90 seq=5 mon_command({"prefix": "get_command_descriptions"} v 0)
+2026-11-16T11:15:40.337+0000 79c2097fa6c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=NONE pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:40.337+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 5 ==== osd_map(141..141 src has 1..141) ==== 3212+0+0 (crc 0 0 0) 0x79c1f80735b0 con 0x79c20c06c3f0
+2026-11-16T11:15:40.338+0000 79c20b7fe6c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:40.338+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=16 peer_addr_for_me=v2:10.78.0.2:55932/0
+2026-11-16T11:15:40.338+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:55932 when talking to v2:10.77.0.10:6800/4268372011
+2026-11-16T11:15:40.338+0000 79c20b7fe6c0 10 cephx_client(0x79c1f802c830): build_authorizer for service mgr
+2026-11-16T11:15:40.338+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=32
+2026-11-16T11:15:40.339+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/1522008578 target=v2:10.77.0.10:6800/4268372011 gid=25083 global_seq=2 features_supported=3f07fffffffdffff features_required=800000000001000 flags=1 cookie=0
+2026-11-16T11:15:40.339+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] gid=14118 global_seq=1165 features_supported=3f07fffffffdffff features_required=800000000000000 flags=1 cookie=0
+2026-11-16T11:15:40.339+0000 79c20b7fe6c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=READY pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mgr.14118 client_cookie=0 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:40.352+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 72 + 0 + 246845 byte message. envelope type=51 src mon.0 off 0
+2026-11-16T11:15:40.352+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f80192c0 seq=6 from=mon.0 type=51 mon_command_ack([{"prefix": "get_command_descriptions"}]=0  v0)
+2026-11-16T11:15:40.352+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 6 ==== mon_command_ack([{"prefix": "get_command_descriptions"}]=0  v0) ==== 72+0+246845 (crc 0 0 0) 0x79c1f80192c0 con 0x79c20c06c3f0
+2026-11-16T11:15:40.870+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_command({"prefix": "mon dump"} v 0) -- 0x79c20c1c4520 con 0x79c20c06c3f0
+2026-11-16T11:15:40.870+0000 79c2127b16c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_command({"prefix": "mon dump"} v 0)
+2026-11-16T11:15:40.870+0000 79c20bfff6c0  2 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x79c20c1c4520 seq=6 mon_command({"prefix": "mon dump"} v 0)
+2026-11-16T11:15:40.872+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=THROTTLE_DONE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 77 + 0 + 351 byte message. envelope type=51 src mon.0 off 0
+2026-11-16T11:15:40.872+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x79c1f80078c0 seq=7 from=mon.0 type=51 mon_command_ack([{"prefix": "mon dump"}]=0 dumped monmap epoch 3 v3)
+2026-11-16T11:15:40.872+0000 79c2097fa6c0  1 -- 10.78.0.2:0/1522008578 <== mon.0 v2:10.77.0.10:3300/0 7 ==== mon_command_ack([{"prefix": "mon dump"}]=0 dumped monmap epoch 3 v3) ==== 77+0+351 (crc 0 0 0) 0x79c1f80078c0 con 0x79c20c06c3f0
+epoch 3
+fsid 52762725-e19a-11f1-886d-525400770001
+last_changed 2026-11-16T08:52:28.737497+0000
+created 2026-11-16T08:47:19.830675+0000
+min_mon_release 20 (tentacle)
+election_strategy: 1
+0: [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] mon.winrbd-ceph1
+auth_epoch 0
+auth_service_cipher aes
+auth_allowed_ciphers aes, aes256k
+auth_preferred_cipher aes256k
+dumped monmap epoch 3
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 msgr2=0x79c1e0060760 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=READY pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=READY pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 msgr2=0x79c20c1cb5c0 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=READY pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:40.877+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=CLOSED pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:40.877+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 crc :-1 s=CLOSED pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:40.877+0000 79c20b7fe6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=CLOSED pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:40.877+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=CLOSED pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:40.877+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 crc :-1 s=CLOSED pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:40.877+0000 79c20bfff6c0  5 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=CLOSED pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 shutdown_connections 
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 -- 10.78.0.2:0/1522008578 shutdown_connections mark down [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] 0x79c1e00402a0
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x79c1e00402a0 0x79c1e0060760 unknown :-1 s=CLOSED pgs=1165 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 -- 10.78.0.2:0/1522008578 shutdown_connections mark down [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] 0x79c20c06c3f0
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 --2- 10.78.0.2:0/1522008578 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x79c20c06c3f0 0x79c20c1cb5c0 unknown :-1 s=CLOSED pgs=973 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 -- 10.78.0.2:0/1522008578 shutdown_connections delete 0x79c1e00402a0
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 -- 10.78.0.2:0/1522008578 shutdown_connections delete 0x79c20c06c3f0
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 >> 10.78.0.2:0/1522008578 conn(0x79c20c069670 msgr2=0x79c20c1c2bd0 unknown :-1 s=STATE_NONE l=0).mark_down
+2026-11-16T11:15:40.877+0000 79c2127b16c0  2 --1- 10.78.0.2:0/1522008578 >> 10.78.0.2:0/1522008578 conn(0x79c20c069670 0x79c20c1c2bd0 :-1 s=NONE pgs=0 cs=0 l=0).stop
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 --1- 10.78.0.2:0/1522008578 >> 10.78.0.2:0/1522008578 conn(0x79c20c069670 0x79c20c1c2bd0 :-1 s=NONE pgs=0 cs=0 l=0).reset_recv_state
+2026-11-16T11:15:40.877+0000 79c210d276c0  5 --1- 10.78.0.2:0/1522008578 >> 10.78.0.2:0/1522008578 conn(0x79c20c069670 0x79c20c1c2bd0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_recv_state (warped) reseting security handlers
+2026-11-16T11:15:40.877+0000 79c210d276c0  5 --1- 10.78.0.2:0/1522008578 >> 10.78.0.2:0/1522008578 conn(0x79c20c069670 0x79c20c1c2bd0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_security
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 shutdown_connections 
+2026-11-16T11:15:40.877+0000 79c2127b16c0  5 -- 10.78.0.2:0/1522008578 shutdown_connections delete 0x79c20c069670
+2026-11-16T11:15:40.877+0000 79c2127b16c0  1 -- 10.78.0.2:0/1522008578 wait complete.
+2026-11-16T11:15:40.878+0000 79c2127b16c0  5 --1- 10.78.0.2:0/1522008578 >> 10.78.0.2:0/1522008578 conn(0x79c20c069670 0x79c20c1c2bd0 :-1 s=CLOSED pgs=0 cs=0 l=0).des
+2026-11-16T11:15:40.878+0000 79c2127b16c0 10 RKR(0x79c20c06c0c0).~RotatingKeyRing des
+### rc=0
+### [2] ceph osd getmap -o <data>/getmap.k1.bin
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: none
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.127+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) removing any cephx auth method as loading cephx key failed: unable to find a keyring via 'keyring' config /etc/ceph/..keyring,/etc/ceph/.keyring,/etc/ceph/keyring,/etc/ceph/keyring.bin: (2) No such file or directory
+2026-11-16T11:15:41.145+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: none
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.145+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.145+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.145+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.146+0000 7facab1eb6c0 10 AuthRegistry(0x7facab1ea3e0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: none
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.146+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.146+0000 7facab1eb6c0 10 AuthRegistry(0x7facab1ea3e0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.146+0000 7facab1eb6c0 10 AuthRegistry(0x7facab1ea3e0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.147+0000 7facab1eb6c0 10 AuthRegistry(0x7faca404d0b0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: none
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0 10 AuthRegistry(0x7faca404d0b0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.147+0000 7facab1eb6c0 10 AuthRegistry(0x7faca404d0b0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.147+0000 7facab1eb6c0 10 AuthRegistry(0x7faca404d0b0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding auth protocol: none
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: secure
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  5 AuthRegistry(0x7faca404d0b0) adding con mode: crc
+2026-11-16T11:15:41.147+0000 7facab1eb6c0 10 AuthRegistry(0x7faca404d0b0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.147+0000 7facab1eb6c0 10 AuthRegistry(0x7faca404d0b0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.147+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.148+0000 7faca97616c0  2 Event(0x7faca40567c8 nevent=5000 time_id=1).set_owner center_id=0 owner=140379554191040
+2026-11-16T11:15:41.148+0000 7faca8f606c0  2 Event(0x7faca4066678 nevent=5000 time_id=1).set_owner center_id=1 owner=140379545798336
+2026-11-16T11:15:41.148+0000 7fac9bfff6c0  2 Event(0x7faca4067b58 nevent=5000 time_id=1).set_owner center_id=2 owner=140379328345792
+2026-11-16T11:15:41.148+0000 7facab1eb6c0  5 --1-  >>  conn(0x7faca4069670 0x7faca4069ae0 :-1 s=NONE pgs=0 cs=0 l=0).con
+2026-11-16T11:15:41.148+0000 7facab1eb6c0  1  Processor -- start
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  1 --  start start
+2026-11-16T11:15:41.149+0000 7facab1eb6c0 10 AuthRegistry(0x7facab1ea3e0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding auth protocol: none
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: secure
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 AuthRegistry(0x7facab1ea3e0) adding con mode: crc
+2026-11-16T11:15:41.149+0000 7facab1eb6c0 10 AuthRegistry(0x7facab1ea3e0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.149+0000 7facab1eb6c0 10 AuthRegistry(0x7facab1ea3e0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.149+0000 7facab1eb6c0 10 RKR(0x7faca406e3a0).RotatingKeyRing con
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=NONE pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  1 --  --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_getmap magic: 0 -- 0x7faca406d450 con 0x7faca406c3f0
+2026-11-16T11:15:41.149+0000 7facab1eb6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=START_CONNECT pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_getmap magic: 0
+2026-11-16T11:15:41.150+0000 7faca8f606c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:41.150+0000 7faca8f606c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=1 peer_addr_for_me=v2:10.78.0.2:35390/0
+2026-11-16T11:15:41.150+0000 7faca8f606c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:35390 when talking to v2:10.77.0.10:3300/0
+2026-11-16T11:15:41.150+0000 7faca8f606c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello peer v2:10.77.0.10:3300/0 says I am v2:10.78.0.2:35390/0 (socket says 10.78.0.2:35390)
+2026-11-16T11:15:41.150+0000 7faca8f606c0  1 -- 10.78.0.2:0/2848261039 learned_addr learned my addr 10.78.0.2:0/2848261039 (peer_addr_for_me v2:10.78.0.2:0/0)
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 RKR(0x7faca406e3a0).get_keyring 
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): reset
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx: validate_tickets want 32 have 0 need 32
+2026-11-16T11:15:41.150+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=9
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): 0x7fac94006db0 handle_response ret = 0
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0):  got initial server challenge b3282ca05875ccdb
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): validate_tickets: want=32 need=32 have=0
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx: validate_tickets want 32 have 0 need 32
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): want=32 need=32 have=0
+2026-11-16T11:15:41.150+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): build_request
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): get auth session key: client_challenge 265cead6a3085026
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0): 0x7fac94006db0 handle_response ret = 0
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0):  get_auth_session_key
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply got 1 keys
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx: got key for service_id auth
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket.secret_id=2
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply service auth secret_id 2 session_key AQDd5fpqhmsRCRAAIzBVNrLon84YF1eAzS3qwA== validity=259200.000000
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-19T11:15:41.152625+0000 renew_after=2026-11-18T17:15:41.152625+0000
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0):  want=32 need=32 have=0
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0):  got connection bl 20 and extra tickets 0
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx_client(0x7fac94006db0):  got connection_secret 0 bytes
+2026-11-16T11:15:41.151+0000 7faca8f606c0 10 cephx: validate_tickets want 32 have 32 need 0
+2026-11-16T11:15:41.151+0000 7faca8f606c0  1 -- 10.78.0.2:0/2848261039 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({config=0+,monmap=0+}) -- 0x7faca406d860 con 0x7faca406c3f0
+2026-11-16T11:15:41.151+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.155+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2848261039 target=v2:10.77.0.10:3300/0 gid=-1 global_seq=1 features_supported=3f07fffffffdffff features_required=800000000000000 flags=0 cookie=6cbf11403510744a
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] gid=0 global_seq=974 features_supported=3f07fffffffdffff features_required=c01020042040000 flags=1 cookie=0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  1 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READY pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mon.0 client_cookie=6cbf11403510744a server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READY pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca406d450 seq=1 mon_getmap magic: 0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READY pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca406d860 seq=2 mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=THROTTLE_DONE pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READ_MESSAGE_COMPLETE pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9402ca80 seq=1 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=THROTTLE_DONE pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 188 + 0 + 0 byte message. envelope type=62 src mon.0 off 0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READ_MESSAGE_COMPLETE pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9402cd40 seq=2 from=mon.0 type=62 config(3 keys)
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=THROTTLE_DONE pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.156+0000 7fac9b7fe6c0  1 -- 10.78.0.2:0/2848261039 <== mon.0 v2:10.77.0.10:3300/0 1 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7fac9402ca80 con 0x7faca406c3f0
+2026-11-16T11:15:41.156+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READ_MESSAGE_COMPLETE pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9400a1b0 seq=3 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.156+0000 7fac9b7fe6c0 10 cephx: validate_tickets want 32 have 32 need 0
+2026-11-16T11:15:41.156+0000 7fac9b7fe6c0  1 -- 10.78.0.2:0/2848261039 <== mon.0 v2:10.77.0.10:3300/0 2 ==== config(3 keys) ==== 188+0+0 (crc 0 0 0) 0x7fac9402cd40 con 0x7faca406c3f0
+2026-11-16T11:15:41.156+0000 7fac9b7fe6c0  1 -- 10.78.0.2:0/2848261039 <== mon.0 v2:10.77.0.10:3300/0 3 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7fac9400a1b0 con 0x7faca406c3f0
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 msgr2=0x7faca406c850 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  1 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READY pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=READY pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:41.158+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=CLOSED pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:41.158+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 crc :-1 s=CLOSED pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:41.158+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=CLOSED pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2848261039 shutdown_connections 
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2848261039 shutdown_connections mark down [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] 0x7faca406c3f0
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  1 --2- 10.78.0.2:0/2848261039 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca406c850 unknown :-1 s=CLOSED pgs=974 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2848261039 shutdown_connections delete 0x7faca406c3f0
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2848261039 >> 10.78.0.2:0/2848261039 conn(0x7faca4069670 msgr2=0x7faca4069ae0 unknown :-1 s=STATE_NONE l=0).mark_down
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  2 --1- 10.78.0.2:0/2848261039 >> 10.78.0.2:0/2848261039 conn(0x7faca4069670 0x7faca4069ae0 :-1 s=NONE pgs=0 cs=0 l=0).stop
+2026-11-16T11:15:41.158+0000 7facab1eb6c0  5 --1- 10.78.0.2:0/2848261039 >> 10.78.0.2:0/2848261039 conn(0x7faca4069670 0x7faca4069ae0 :-1 s=NONE pgs=0 cs=0 l=0).reset_recv_state
+2026-11-16T11:15:41.158+0000 7faca97616c0  5 --1- 10.78.0.2:0/2848261039 >> 10.78.0.2:0/2848261039 conn(0x7faca4069670 0x7faca4069ae0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_recv_state (warped) reseting security handlers
+2026-11-16T11:15:41.159+0000 7faca97616c0  5 --1- 10.78.0.2:0/2848261039 >> 10.78.0.2:0/2848261039 conn(0x7faca4069670 0x7faca4069ae0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_security
+2026-11-16T11:15:41.159+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2848261039 shutdown_connections 
+2026-11-16T11:15:41.159+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2848261039 shutdown_connections delete 0x7faca4069670
+2026-11-16T11:15:41.159+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2848261039 wait complete.
+2026-11-16T11:15:41.159+0000 7facab1eb6c0  5 --1- 10.78.0.2:0/2848261039 >> 10.78.0.2:0/2848261039 conn(0x7faca4069670 0x7faca4069ae0 :-1 s=CLOSED pgs=0 cs=0 l=0).des
+2026-11-16T11:15:41.159+0000 7facab1eb6c0 10 RKR(0x7faca406e3a0).~RotatingKeyRing des
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: none
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca41a0830) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: none
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca41a0830) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca41a0830) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca41a0830) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: cephx
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding auth protocol: none
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: secure
+2026-11-16T11:15:41.160+0000 7facab1eb6c0  5 AuthRegistry(0x7faca41a0830) adding con mode: crc
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca41a0830) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.160+0000 7facab1eb6c0 10 AuthRegistry(0x7faca41a0830) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.161+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.161+0000 7facab1eb6c0  5 --1-  >>  conn(0x7faca4069670 0x7faca41c2b30 :-1 s=NONE pgs=0 cs=0 l=0).con
+2026-11-16T11:15:41.161+0000 7facab1eb6c0  1  Processor -- start
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  1 --  start start
+2026-11-16T11:15:41.162+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: cephx
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding auth protocol: none
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: secure
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  5 AuthRegistry(0x7faca4050720) adding con mode: crc
+2026-11-16T11:15:41.162+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.162+0000 7facab1eb6c0 10 AuthRegistry(0x7faca4050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.162+0000 7facab1eb6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.162+0000 7facab1eb6c0 10 RKR(0x7faca406c0c0).RotatingKeyRing con
+2026-11-16T11:15:41.163+0000 7facab1eb6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=NONE pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:41.163+0000 7facab1eb6c0  1 --  --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_getmap magic: 0 -- 0x7faca406e070 con 0x7faca406c3f0
+2026-11-16T11:15:41.163+0000 7facab1eb6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=START_CONNECT pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_getmap magic: 0
+2026-11-16T11:15:41.163+0000 7faca8f606c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:41.163+0000 7faca8f606c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=1 peer_addr_for_me=v2:10.78.0.2:35398/0
+2026-11-16T11:15:41.163+0000 7faca8f606c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:35398 when talking to v2:10.77.0.10:3300/0
+2026-11-16T11:15:41.163+0000 7faca8f606c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello peer v2:10.77.0.10:3300/0 says I am v2:10.78.0.2:35398/0 (socket says 10.78.0.2:35398)
+2026-11-16T11:15:41.163+0000 7faca8f606c0  1 -- 10.78.0.2:0/2545275403 learned_addr learned my addr 10.78.0.2:0/2545275403 (peer_addr_for_me v2:10.78.0.2:0/0)
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 RKR(0x7faca406c0c0).get_keyring 
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): reset
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service mon
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service osd
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service mgr
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.163+0000 7faca8f606c0 10 cephx: validate_tickets want 53 have 0 need 53
+2026-11-16T11:15:41.164+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=9
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): 0x7fac9402c830 handle_response ret = 0
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830):  got initial server challenge cf3fb0f4fff9eae5
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): validate_tickets: want=53 need=53 have=0
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service mon
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service osd
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service mgr
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: validate_tickets want 53 have 0 need 53
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): want=53 need=53 have=0
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): build_request
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): get auth session key: client_challenge 664328516d0d0d32
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830): 0x7fac9402c830 handle_response ret = 0
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830):  get_auth_session_key
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply got 1 keys
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: got key for service_id auth
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket.secret_id=2
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply service auth secret_id 2 session_key AQDd5fpq5vvYCRAAUiYT0TLsXSkr3Jn7RTig0A== validity=259200.000000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-19T11:15:41.165680+0000 renew_after=2026-11-18T17:15:41.165680+0000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830):  want=53 need=53 have=0
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830):  got connection bl 20 and extra tickets 677
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830):  got connection_secret 0 bytes
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply got 3 keys
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: got key for service_id mon
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply service mon secret_id 3 session_key AQDd5fpq4CTaCRAAPZtWRaHVs360bi3cSmbaUA== validity=3600.000000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:41.165713+0000 renew_after=2026-11-16T12:00:41.165713+0000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: got key for service_id osd
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply service osd secret_id 3 session_key AQDd5fpqnE7aCRAAF9bSFy1J8V8Pt6LKZ0XSCA== validity=3600.000000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:41.165732+0000 renew_after=2026-11-16T12:00:41.165732+0000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: got key for service_id mgr
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply service mgr secret_id 3 session_key AQDd5fpq03faCRAAIMOA2IJeqAvFEhwlucd4fA== validity=3600.000000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:41.165748+0000 renew_after=2026-11-16T12:00:41.165748+0000
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx_client(0x7fac9402c830):  got extra service_tickets
+2026-11-16T11:15:41.164+0000 7faca8f606c0 10 cephx: validate_tickets want 53 have 53 need 0
+2026-11-16T11:15:41.164+0000 7faca8f606c0  1 -- 10.78.0.2:0/2545275403 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({config=0+,monmap=0+}) -- 0x7faca41cbe80 con 0x7faca406c3f0
+2026-11-16T11:15:41.164+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.165+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2545275403 target=v2:10.77.0.10:3300/0 gid=-1 global_seq=1 features_supported=3f07fffffffdffff features_required=800000000001000 flags=1 cookie=0
+2026-11-16T11:15:41.165+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] gid=0 global_seq=975 features_supported=3f07fffffffdffff features_required=c01020042040000 flags=1 cookie=0
+2026-11-16T11:15:41.165+0000 7faca8f606c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mon.0 client_cookie=0 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:41.165+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca406e070 seq=1 mon_getmap magic: 0
+2026-11-16T11:15:41.165+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca41cbe80 seq=2 mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.165+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.165+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9400a7c0 seq=1 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.166+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 188 + 0 + 0 byte message. envelope type=62 src mon.0 off 0
+2026-11-16T11:15:41.166+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9400aa80 seq=2 from=mon.0 type=62 config(3 keys)
+2026-11-16T11:15:41.166+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.166+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9402f040 seq=3 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.166+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 1 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7fac9400a7c0 con 0x7faca406c3f0
+2026-11-16T11:15:41.166+0000 7fac99ffb6c0 10 cephx: validate_tickets want 53 have 53 need 0
+2026-11-16T11:15:41.166+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 2 ==== config(3 keys) ==== 188+0+0 (crc 0 0 0) 0x7fac9400aa80 con 0x7faca406c3f0
+2026-11-16T11:15:41.166+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 3 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7fac9402f040 con 0x7faca406c3f0
+2026-11-16T11:15:41.166+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({mgrmap=0+}) -- 0x7faca41cc630 con 0x7faca406c3f0
+2026-11-16T11:15:41.166+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({mgrmap=0+})
+2026-11-16T11:15:41.166+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca41cc630 seq=3 mon_subscribe({mgrmap=0+})
+2026-11-16T11:15:41.166+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({osdmap=0}) -- 0x7faca41cceb0 con 0x7faca406c3f0
+2026-11-16T11:15:41.166+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({osdmap=0})
+2026-11-16T11:15:41.166+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca41cceb0 seq=4 mon_subscribe({osdmap=0})
+2026-11-16T11:15:41.168+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 53337 + 0 + 0 byte message. envelope type=1796 src mon.0 off 0
+2026-11-16T11:15:41.168+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_command({"prefix": "get_command_descriptions"} v 0) -- 0x7faca406ec90 con 0x7faca406c3f0
+2026-11-16T11:15:41.168+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_command({"prefix": "get_command_descriptions"} v 0)
+2026-11-16T11:15:41.169+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9402f230 seq=4 from=mon.0 type=1796 mgrmap(e 9)
+2026-11-16T11:15:41.169+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 3212 + 0 + 0 byte message. envelope type=41 src mon.0 off 0
+2026-11-16T11:15:41.169+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac94073660 seq=5 from=mon.0 type=41 osd_map(141..141 src has 1..141)
+2026-11-16T11:15:41.169+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 4 ==== mgrmap(e 9) ==== 53337+0+0 (crc 0 0 0) 0x7fac9402f230 con 0x7faca406c3f0
+2026-11-16T11:15:41.169+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca406ec90 seq=5 mon_command({"prefix": "get_command_descriptions"} v 0)
+2026-11-16T11:15:41.170+0000 7fac99ffb6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=NONE pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:41.170+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 5 ==== osd_map(141..141 src has 1..141) ==== 3212+0+0 (crc 0 0 0) 0x7fac94073660 con 0x7faca406c3f0
+2026-11-16T11:15:41.171+0000 7fac9bfff6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:41.171+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=16 peer_addr_for_me=v2:10.78.0.2:55938/0
+2026-11-16T11:15:41.171+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:55938 when talking to v2:10.77.0.10:6800/4268372011
+2026-11-16T11:15:41.171+0000 7fac9bfff6c0 10 cephx_client(0x7fac9402c830): build_authorizer for service mgr
+2026-11-16T11:15:41.171+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=32
+2026-11-16T11:15:41.172+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2545275403 target=v2:10.77.0.10:6800/4268372011 gid=25085 global_seq=2 features_supported=3f07fffffffdffff features_required=800000000001000 flags=1 cookie=0
+2026-11-16T11:15:41.172+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] gid=14118 global_seq=1166 features_supported=3f07fffffffdffff features_required=800000000000000 flags=1 cookie=0
+2026-11-16T11:15:41.172+0000 7fac9bfff6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=READY pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mgr.14118 client_cookie=0 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:41.184+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 72 + 0 + 246845 byte message. envelope type=51 src mon.0 off 0
+2026-11-16T11:15:41.184+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac940192c0 seq=6 from=mon.0 type=51 mon_command_ack([{"prefix": "get_command_descriptions"}]=0  v0)
+2026-11-16T11:15:41.185+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 6 ==== mon_command_ack([{"prefix": "get_command_descriptions"}]=0  v0) ==== 72+0+246845 (crc 0 0 0) 0x7fac940192c0 con 0x7faca406c3f0
+2026-11-16T11:15:41.582+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_command({"prefix": "osd getmap"} v 0) -- 0x7faca41c4480 con 0x7faca406c3f0
+2026-11-16T11:15:41.582+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_command({"prefix": "osd getmap"} v 0)
+2026-11-16T11:15:41.582+0000 7faca8f606c0  2 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7faca41c4480 seq=6 mon_command({"prefix": "osd getmap"} v 0)
+2026-11-16T11:15:41.583+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=THROTTLE_DONE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 78 + 0 + 3168 byte message. envelope type=51 src mon.0 off 0
+2026-11-16T11:15:41.583+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READ_MESSAGE_COMPLETE pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7fac9403fd80 seq=7 from=mon.0 type=51 mon_command_ack([{"prefix": "osd getmap"}]=0 got osdmap epoch 141 v141)
+2026-11-16T11:15:41.583+0000 7fac99ffb6c0  1 -- 10.78.0.2:0/2545275403 <== mon.0 v2:10.77.0.10:3300/0 7 ==== mon_command_ack([{"prefix": "osd getmap"}]=0 got osdmap epoch 141 v141) ==== 78+0+3168 (crc 0 0 0) 0x7fac9403fd80 con 0x7faca406c3f0
+got osdmap epoch 141
+2026-11-16T11:15:41.587+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 msgr2=0x7fac80060760 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:41.587+0000 7facab1eb6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=READY pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.587+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=READY pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:41.587+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 msgr2=0x7faca41cb570 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:41.587+0000 7facab1eb6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.587+0000 7facab1eb6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=READY pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:41.587+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=CLOSED pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:41.587+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 crc :-1 s=CLOSED pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:41.587+0000 7fac9bfff6c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=CLOSED pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:41.587+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=CLOSED pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:41.587+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 crc :-1 s=CLOSED pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:41.587+0000 7faca8f606c0  5 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=CLOSED pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 shutdown_connections 
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2545275403 shutdown_connections mark down [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] 0x7fac800402a0
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7fac800402a0 0x7fac80060760 unknown :-1 s=CLOSED pgs=1166 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2545275403 shutdown_connections mark down [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] 0x7faca406c3f0
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  1 --2- 10.78.0.2:0/2545275403 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7faca406c3f0 0x7faca41cb570 unknown :-1 s=CLOSED pgs=975 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2545275403 shutdown_connections delete 0x7fac800402a0
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2545275403 shutdown_connections delete 0x7faca406c3f0
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 >> 10.78.0.2:0/2545275403 conn(0x7faca4069670 msgr2=0x7faca41c2b30 unknown :-1 s=STATE_NONE l=0).mark_down
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  2 --1- 10.78.0.2:0/2545275403 >> 10.78.0.2:0/2545275403 conn(0x7faca4069670 0x7faca41c2b30 :-1 s=NONE pgs=0 cs=0 l=0).stop
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 --1- 10.78.0.2:0/2545275403 >> 10.78.0.2:0/2545275403 conn(0x7faca4069670 0x7faca41c2b30 :-1 s=NONE pgs=0 cs=0 l=0).reset_recv_state
+2026-11-16T11:15:41.588+0000 7faca97616c0  5 --1- 10.78.0.2:0/2545275403 >> 10.78.0.2:0/2545275403 conn(0x7faca4069670 0x7faca41c2b30 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_recv_state (warped) reseting security handlers
+2026-11-16T11:15:41.588+0000 7faca97616c0  5 --1- 10.78.0.2:0/2545275403 >> 10.78.0.2:0/2545275403 conn(0x7faca4069670 0x7faca41c2b30 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_security
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 shutdown_connections 
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 -- 10.78.0.2:0/2545275403 shutdown_connections delete 0x7faca4069670
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  1 -- 10.78.0.2:0/2545275403 wait complete.
+2026-11-16T11:15:41.588+0000 7facab1eb6c0  5 --1- 10.78.0.2:0/2545275403 >> 10.78.0.2:0/2545275403 conn(0x7faca4069670 0x7faca41c2b30 :-1 s=CLOSED pgs=0 cs=0 l=0).des
+2026-11-16T11:15:41.589+0000 7facab1eb6c0 10 RKR(0x7faca406c0c0).~RotatingKeyRing des
+### rc=0
+### [3] ceph osd stat
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: none
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.844+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) removing any cephx auth method as loading cephx key failed: unable to find a keyring via 'keyring' config /etc/ceph/..keyring,/etc/ceph/.keyring,/etc/ceph/keyring,/etc/ceph/keyring.bin: (2) No such file or directory
+2026-11-16T11:15:41.862+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: none
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.862+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.862+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.862+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.863+0000 7721dcfff6c0 10 AuthRegistry(0x7721dcffe3e0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: none
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.863+0000 7721dcfff6c0 10 AuthRegistry(0x7721dcffe3e0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.863+0000 7721dcfff6c0 10 AuthRegistry(0x7721dcffe3e0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.863+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.864+0000 7721dcfff6c0 10 AuthRegistry(0x7721d804d0b0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: none
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0 10 AuthRegistry(0x7721d804d0b0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.864+0000 7721dcfff6c0 10 AuthRegistry(0x7721d804d0b0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.864+0000 7721dcfff6c0 10 AuthRegistry(0x7721d804d0b0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: cephx
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding auth protocol: none
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: secure
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  5 AuthRegistry(0x7721d804d0b0) adding con mode: crc
+2026-11-16T11:15:41.864+0000 7721dcfff6c0 10 AuthRegistry(0x7721d804d0b0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.864+0000 7721dcfff6c0 10 AuthRegistry(0x7721d804d0b0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.864+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.866+0000 7721d6d766c0  2 Event(0x7721d80567c8 nevent=5000 time_id=1).set_owner center_id=0 owner=130987222066880
+2026-11-16T11:15:41.866+0000 7721d65756c0  2 Event(0x7721d804ddf8 nevent=5000 time_id=1).set_owner center_id=1 owner=130987213674176
+2026-11-16T11:15:41.866+0000 7721d5d746c0  2 Event(0x7721d806c058 nevent=5000 time_id=1).set_owner center_id=2 owner=130987205281472
+2026-11-16T11:15:41.866+0000 7721dcfff6c0  5 --1-  >>  conn(0x7721d806db70 0x7721d806dfe0 :-1 s=NONE pgs=0 cs=0 l=0).con
+2026-11-16T11:15:41.866+0000 7721dcfff6c0  1  Processor -- start
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  1 --  start start
+2026-11-16T11:15:41.867+0000 7721dcfff6c0 10 AuthRegistry(0x7721dcffe3e0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: cephx
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding auth protocol: none
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: secure
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  5 AuthRegistry(0x7721dcffe3e0) adding con mode: crc
+2026-11-16T11:15:41.867+0000 7721dcfff6c0 10 AuthRegistry(0x7721dcffe3e0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.867+0000 7721dcfff6c0 10 AuthRegistry(0x7721dcffe3e0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.867+0000 7721dcfff6c0 10 RKR(0x7721d812a410).RotatingKeyRing con
+2026-11-16T11:15:41.867+0000 7721dcfff6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=NONE pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:41.868+0000 7721dcfff6c0  1 --  --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_getmap magic: 0 -- 0x7721d81294c0 con 0x7721d8128670
+2026-11-16T11:15:41.868+0000 7721dcfff6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=START_CONNECT pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_getmap magic: 0
+2026-11-16T11:15:41.868+0000 7721d65756c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=0 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:41.868+0000 7721d65756c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=1 peer_addr_for_me=v2:10.78.0.2:35402/0
+2026-11-16T11:15:41.868+0000 7721d65756c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:35402 when talking to v2:10.77.0.10:3300/0
+2026-11-16T11:15:41.868+0000 7721d65756c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello peer v2:10.77.0.10:3300/0 says I am v2:10.78.0.2:35402/0 (socket says 10.78.0.2:35402)
+2026-11-16T11:15:41.868+0000 7721d65756c0  1 -- 10.78.0.2:0/2480575842 learned_addr learned my addr 10.78.0.2:0/2480575842 (peer_addr_for_me v2:10.78.0.2:0/0)
+2026-11-16T11:15:41.868+0000 7721d65756c0 10 RKR(0x7721d812a410).get_keyring 
+2026-11-16T11:15:41.868+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): reset
+2026-11-16T11:15:41.868+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.868+0000 7721d65756c0 10 cephx: validate_tickets want 32 have 0 need 32
+2026-11-16T11:15:41.869+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=9
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): 0x7721cc006db0 handle_response ret = 0
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0):  got initial server challenge bc1eea7532ecb49f
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): validate_tickets: want=32 need=32 have=0
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: validate_tickets want 32 have 0 need 32
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): want=32 need=32 have=0
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): build_request
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): get auth session key: client_challenge f222c2ba47b583ea
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0): 0x7721cc006db0 handle_response ret = 0
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0):  get_auth_session_key
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: verify_service_ticket_reply got 1 keys
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: got key for service_id auth
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket.secret_id=2
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: verify_service_ticket_reply service auth secret_id 2 session_key AQDd5fpqLY/fMxAA3B9IjOQO7PfSVljPmnvbNg== validity=259200.000000
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-19T11:15:41.870729+0000 renew_after=2026-11-18T17:15:41.870729+0000
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0):  want=32 need=32 have=0
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0):  got connection bl 20 and extra tickets 0
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx_client(0x7721cc006db0):  got connection_secret 0 bytes
+2026-11-16T11:15:41.869+0000 7721d65756c0 10 cephx: validate_tickets want 32 have 32 need 0
+2026-11-16T11:15:41.869+0000 7721d65756c0  1 -- 10.78.0.2:0/2480575842 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({config=0+,monmap=0+}) -- 0x7721d81298d0 con 0x7721d8128670
+2026-11-16T11:15:41.869+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.873+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2480575842 target=v2:10.77.0.10:3300/0 gid=-1 global_seq=1 features_supported=3f07fffffffdffff features_required=800000000000000 flags=0 cookie=2e7ef6b268f15a17
+2026-11-16T11:15:41.874+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=0 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] gid=0 global_seq=976 features_supported=3f07fffffffdffff features_required=c01020042040000 flags=1 cookie=0
+2026-11-16T11:15:41.874+0000 7721d65756c0  1 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READY pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mon.0 client_cookie=2e7ef6b268f15a17 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:41.874+0000 7721d65756c0  2 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READY pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d81294c0 seq=1 mon_getmap magic: 0
+2026-11-16T11:15:41.874+0000 7721d65756c0  2 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READY pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d81298d0 seq=2 mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.878+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=THROTTLE_DONE pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.878+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc02ca80 seq=1 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.878+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=THROTTLE_DONE pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 188 + 0 + 0 byte message. envelope type=62 src mon.0 off 0
+2026-11-16T11:15:41.878+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc02cd40 seq=2 from=mon.0 type=62 config(3 keys)
+2026-11-16T11:15:41.878+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=THROTTLE_DONE pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.878+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READ_MESSAGE_COMPLETE pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc00a1b0 seq=3 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.878+0000 7721d55736c0  1 -- 10.78.0.2:0/2480575842 <== mon.0 v2:10.77.0.10:3300/0 1 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7721cc02ca80 con 0x7721d8128670
+2026-11-16T11:15:41.878+0000 7721d55736c0 10 cephx: validate_tickets want 32 have 32 need 0
+2026-11-16T11:15:41.878+0000 7721d55736c0  1 -- 10.78.0.2:0/2480575842 <== mon.0 v2:10.77.0.10:3300/0 2 ==== config(3 keys) ==== 188+0+0 (crc 0 0 0) 0x7721cc02cd40 con 0x7721d8128670
+2026-11-16T11:15:41.878+0000 7721d55736c0  1 -- 10.78.0.2:0/2480575842 <== mon.0 v2:10.77.0.10:3300/0 3 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7721cc00a1b0 con 0x7721d8128670
+2026-11-16T11:15:41.879+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 msgr2=0x7721d8128ad0 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:41.879+0000 7721dcfff6c0  1 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READY pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.879+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=READY pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:41.879+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=CLOSED pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:41.880+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 crc :-1 s=CLOSED pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:41.880+0000 7721d65756c0  5 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=CLOSED pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2480575842 shutdown_connections 
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2480575842 shutdown_connections mark down [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] 0x7721d8128670
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  1 --2- 10.78.0.2:0/2480575842 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8128ad0 unknown :-1 s=CLOSED pgs=976 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2480575842 shutdown_connections delete 0x7721d8128670
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2480575842 >> 10.78.0.2:0/2480575842 conn(0x7721d806db70 msgr2=0x7721d806dfe0 unknown :-1 s=STATE_NONE l=0).mark_down
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  2 --1- 10.78.0.2:0/2480575842 >> 10.78.0.2:0/2480575842 conn(0x7721d806db70 0x7721d806dfe0 :-1 s=NONE pgs=0 cs=0 l=0).stop
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  5 --1- 10.78.0.2:0/2480575842 >> 10.78.0.2:0/2480575842 conn(0x7721d806db70 0x7721d806dfe0 :-1 s=NONE pgs=0 cs=0 l=0).reset_recv_state
+2026-11-16T11:15:41.880+0000 7721d6d766c0  5 --1- 10.78.0.2:0/2480575842 >> 10.78.0.2:0/2480575842 conn(0x7721d806db70 0x7721d806dfe0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_recv_state (warped) reseting security handlers
+2026-11-16T11:15:41.880+0000 7721d6d766c0  5 --1- 10.78.0.2:0/2480575842 >> 10.78.0.2:0/2480575842 conn(0x7721d806db70 0x7721d806dfe0 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_security
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2480575842 shutdown_connections 
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2480575842 shutdown_connections delete 0x7721d806db70
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2480575842 wait complete.
+2026-11-16T11:15:41.880+0000 7721dcfff6c0  5 --1- 10.78.0.2:0/2480575842 >> 10.78.0.2:0/2480575842 conn(0x7721d806db70 0x7721d806dfe0 :-1 s=CLOSED pgs=0 cs=0 l=0).des
+2026-11-16T11:15:41.880+0000 7721dcfff6c0 10 RKR(0x7721d812a410).~RotatingKeyRing des
+2026-11-16T11:15:41.881+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: none
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.881+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.881+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.881+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.882+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8109ef0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: cephx
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: cephx
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: cephx
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: none
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8109ef0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.882+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8109ef0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.882+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8109ef0) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: cephx
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: cephx
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: cephx
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding auth protocol: none
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: secure
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8109ef0) adding con mode: crc
+2026-11-16T11:15:41.882+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8109ef0) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.882+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8109ef0) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.882+0000 7721dcfff6c0  5 --1-  >>  conn(0x7721d806db70 0x7721d8057d60 :-1 s=NONE pgs=0 cs=0 l=0).con
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  1  Processor -- start
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  1 --  start start
+2026-11-16T11:15:41.883+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config: conf values  cluster_required=cephx service_required=cephx client_required=cephx, none
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: cephx
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding auth protocol: none
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: secure
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  5 AuthRegistry(0x7721d8050720) adding con mode: crc
+2026-11-16T11:15:41.883+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config cluster_methods [2] service_methods [2] client_methods [2,1]
+2026-11-16T11:15:41.883+0000 7721dcfff6c0 10 AuthRegistry(0x7721d8050720) _refresh_config mon_cluster_modes [2,1] mon_service_modes [2,1] mon_client_modes [1]; cluster_modes [1,2] service_modes [1,2] client_modes [1]
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  2 auth: KeyRing::load: loaded key file <keys>/ceph.client.vec-k1.keyring
+2026-11-16T11:15:41.883+0000 7721dcfff6c0 10 RKR(0x7721d8128340).RotatingKeyRing con
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=NONE pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:41.883+0000 7721dcfff6c0  1 --  --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_getmap magic: 0 -- 0x7721d812a0e0 con 0x7721d8128670
+2026-11-16T11:15:41.884+0000 7721dcfff6c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=START_CONNECT pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_getmap magic: 0
+2026-11-16T11:15:41.884+0000 7721d65756c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:41.884+0000 7721d65756c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=1 peer_addr_for_me=v2:10.78.0.2:35406/0
+2026-11-16T11:15:41.884+0000 7721d65756c0  5 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:35406 when talking to v2:10.77.0.10:3300/0
+2026-11-16T11:15:41.884+0000 7721d65756c0  1 --2-  >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello peer v2:10.77.0.10:3300/0 says I am v2:10.78.0.2:35406/0 (socket says 10.78.0.2:35406)
+2026-11-16T11:15:41.884+0000 7721d65756c0  1 -- 10.78.0.2:0/2221332567 learned_addr learned my addr 10.78.0.2:0/2221332567 (peer_addr_for_me v2:10.78.0.2:0/0)
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 RKR(0x7721d8128340).get_keyring 
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): reset
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service mon
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service osd
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service mgr
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: validate_tickets want 53 have 0 need 53
+2026-11-16T11:15:41.884+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=9
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): 0x7721cc02c830 handle_response ret = 0
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx_client(0x7721cc02c830):  got initial server challenge 36be05140f876f3b
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): validate_tickets: want=53 need=53 have=0
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service mon
+2026-11-16T11:15:41.884+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service osd
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service mgr
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: set_have_need_key no handler for service auth
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: validate_tickets want 53 have 0 need 53
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): want=53 need=53 have=0
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): build_request
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): get auth session key: client_challenge 4d2297beffab870
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830): 0x7721cc02c830 handle_response ret = 0
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830):  get_auth_session_key
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply got 1 keys
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: got key for service_id auth
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket.secret_id=2
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply service auth secret_id 2 session_key AQDd5fpqUnvSNBAAqMLGZnYarhvt0jS5CbdMqQ== validity=259200.000000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-19T11:15:41.886779+0000 renew_after=2026-11-18T17:15:41.886779+0000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830):  want=53 need=53 have=0
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830):  got connection bl 20 and extra tickets 677
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830):  got connection_secret 0 bytes
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply got 3 keys
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: got key for service_id mon
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply service mon secret_id 3 session_key AQDd5fpqNFPUNBAA2FGKSNXVSNJZuGgZiNGFuA== validity=3600.000000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:41.886813+0000 renew_after=2026-11-16T12:00:41.886813+0000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: got key for service_id osd
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply service osd secret_id 3 session_key AQDd5fpqnYbUNBAAXzh2+DDD6mEzAB6byoPW2g== validity=3600.000000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:41.886831+0000 renew_after=2026-11-16T12:00:41.886831+0000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: got key for service_id mgr
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket.secret_id=3
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply service mgr secret_id 3 session_key AQDd5fpqm6/UNBAA8tbB6NW4DpwSseqSny4sIA== validity=3600.000000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: verify_service_ticket_reply ticket expires=2026-11-16T12:15:41.886853+0000 renew_after=2026-11-16T12:00:41.886853+0000
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx_client(0x7721cc02c830):  got extra service_tickets
+2026-11-16T11:15:41.885+0000 7721d65756c0 10 cephx: validate_tickets want 53 have 53 need 0
+2026-11-16T11:15:41.885+0000 7721d65756c0  1 -- 10.78.0.2:0/2221332567 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({config=0+,monmap=0+}) -- 0x7721d8119990 con 0x7721d8128670
+2026-11-16T11:15:41.885+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.886+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2221332567 target=v2:10.77.0.10:3300/0 gid=-1 global_seq=1 features_supported=3f07fffffffdffff features_required=800000000001000 flags=1 cookie=0
+2026-11-16T11:15:41.886+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] gid=0 global_seq=977 features_supported=3f07fffffffdffff features_required=c01020042040000 flags=1 cookie=0
+2026-11-16T11:15:41.886+0000 7721d65756c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mon.0 client_cookie=0 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:41.886+0000 7721d65756c0  2 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d812a0e0 seq=1 mon_getmap magic: 0
+2026-11-16T11:15:41.886+0000 7721d65756c0  2 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d8119990 seq=2 mon_subscribe({config=0+,monmap=0+})
+2026-11-16T11:15:41.904+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.904+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc005040 seq=1 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.904+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 188 + 0 + 0 byte message. envelope type=62 src mon.0 off 0
+2026-11-16T11:15:41.904+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc005300 seq=2 from=mon.0 type=62 config(3 keys)
+2026-11-16T11:15:41.904+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 270 + 0 + 0 byte message. envelope type=4 src mon.0 off 0
+2026-11-16T11:15:41.904+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc005770 seq=3 from=mon.0 type=4 mon_map magic: 0
+2026-11-16T11:15:41.904+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 1 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7721cc005040 con 0x7721d8128670
+2026-11-16T11:15:41.904+0000 7721bf7fe6c0 10 cephx: validate_tickets want 53 have 53 need 0
+2026-11-16T11:15:41.904+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 2 ==== config(3 keys) ==== 188+0+0 (crc 0 0 0) 0x7721cc005300 con 0x7721d8128670
+2026-11-16T11:15:41.904+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 3 ==== mon_map magic: 0 ==== 270+0+0 (crc 0 0 0) 0x7721cc005770 con 0x7721d8128670
+2026-11-16T11:15:41.904+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({mgrmap=0+}) -- 0x7721d811a140 con 0x7721d8128670
+2026-11-16T11:15:41.904+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({mgrmap=0+})
+2026-11-16T11:15:41.904+0000 7721d65756c0  2 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d811a140 seq=3 mon_subscribe({mgrmap=0+})
+2026-11-16T11:15:41.904+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_subscribe({osdmap=0}) -- 0x7721d811a9c0 con 0x7721d8128670
+2026-11-16T11:15:41.904+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_subscribe({osdmap=0})
+2026-11-16T11:15:41.905+0000 7721d65756c0  2 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d811a9c0 seq=4 mon_subscribe({osdmap=0})
+2026-11-16T11:15:41.906+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 53337 + 0 + 0 byte message. envelope type=1796 src mon.0 off 0
+2026-11-16T11:15:41.907+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_command({"prefix": "get_command_descriptions"} v 0) -- 0x7721d814ad10 con 0x7721d8128670
+2026-11-16T11:15:41.907+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_command({"prefix": "get_command_descriptions"} v 0)
+2026-11-16T11:15:41.908+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc02d040 seq=4 from=mon.0 type=1796 mgrmap(e 9)
+2026-11-16T11:15:41.908+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 3212 + 0 + 0 byte message. envelope type=41 src mon.0 off 0
+2026-11-16T11:15:41.908+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc073560 seq=5 from=mon.0 type=41 osd_map(141..141 src has 1..141)
+2026-11-16T11:15:41.908+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 4 ==== mgrmap(e 9) ==== 53337+0+0 (crc 0 0 0) 0x7721cc02d040 con 0x7721d8128670
+2026-11-16T11:15:41.908+0000 7721d65756c0  2 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d814ad10 seq=5 mon_command({"prefix": "get_command_descriptions"} v 0)
+2026-11-16T11:15:41.909+0000 7721bf7fe6c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=NONE pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0).connect
+2026-11-16T11:15:41.909+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 5 ==== osd_map(141..141 src has 1..141) ==== 3212+0+0 (crc 0 0 0) 0x7721cc073560 con 0x7721d8128670
+2026-11-16T11:15:41.909+0000 7721d5d746c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=BANNER_CONNECTING pgs=0 cs=0 l=1 rev1=0 crypto rx=0 tx=0 comp rx=0 tx=0)._handle_peer_banner_payload supported=3 required=0
+2026-11-16T11:15:41.909+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello received hello: peer_type=16 peer_addr_for_me=v2:10.78.0.2:55948/0
+2026-11-16T11:15:41.909+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=HELLO_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_hello getsockname says I am 10.78.0.2:55948 when talking to v2:10.77.0.10:6800/4268372011
+2026-11-16T11:15:41.909+0000 7721d5d746c0 10 cephx_client(0x7721cc02c830): build_authorizer for service mgr
+2026-11-16T11:15:41.910+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=AUTH_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_auth_reply_more auth reply more len=32
+2026-11-16T11:15:41.911+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_client_ident sending identification: addrs=10.78.0.2:0/2221332567 target=v2:10.77.0.10:6800/4268372011 gid=25087 global_seq=2 features_supported=3f07fffffffdffff features_required=800000000001000 flags=1 cookie=0
+2026-11-16T11:15:41.911+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=SESSION_CONNECTING pgs=0 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_server_ident received server identification: addrs=[v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] gid=14118 global_seq=1167 features_supported=3f07fffffffdffff features_required=800000000000000 flags=1 cookie=0
+2026-11-16T11:15:41.911+0000 7721d5d746c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=READY pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).ready entity=mgr.14118 client_cookie=0 server_cookie=0 in_seq=0 out_seq=0
+2026-11-16T11:15:41.923+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 72 + 0 + 246845 byte message. envelope type=51 src mon.0 off 0
+2026-11-16T11:15:41.923+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc0192c0 seq=6 from=mon.0 type=51 mon_command_ack([{"prefix": "get_command_descriptions"}]=0  v0)
+2026-11-16T11:15:41.923+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 6 ==== mon_command_ack([{"prefix": "get_command_descriptions"}]=0  v0) ==== 72+0+246845 (crc 0 0 0) 0x7721cc0192c0 con 0x7721d8128670
+2026-11-16T11:15:42.306+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 --> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] -- mon_command({"prefix": "osd stat"} v 0) -- 0x7721d80596b0 con 0x7721d8128670
+2026-11-16T11:15:42.306+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).send_message enqueueing message m=mon_command({"prefix": "osd stat"} v 0)
+2026-11-16T11:15:42.306+0000 7721d65756c0  2 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).write_message sending message m=0x7721d80596b0 seq=6 mon_command({"prefix": "osd stat"} v 0)
+2026-11-16T11:15:42.307+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=THROTTLE_DONE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message got 56 + 0 + 56 byte message. envelope type=51 src mon.0 off 0
+2026-11-16T11:15:42.307+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READ_MESSAGE_COMPLETE pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).handle_message received message m=0x7721cc0078c0 seq=7 from=mon.0 type=51 mon_command_ack([{"prefix": "osd stat"}]=0  v141)
+2026-11-16T11:15:42.307+0000 7721bf7fe6c0  1 -- 10.78.0.2:0/2221332567 <== mon.0 v2:10.77.0.10:3300/0 7 ==== mon_command_ack([{"prefix": "osd stat"}]=0  v141) ==== 56+0+56 (crc 0 0 0) 0x7721cc0078c0 con 0x7721d8128670
+3 osds: 3 up (since 90m), 3 in (since 90m); epoch: e141
+2026-11-16T11:15:42.311+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 msgr2=0x7721b0060800 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:42.311+0000 7721dcfff6c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=READY pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:42.311+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=READY pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:42.311+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 msgr2=0x7721d8119080 crc :-1 s=STATE_CONNECTION_ESTABLISHED l=1).mark_down
+2026-11-16T11:15:42.311+0000 7721dcfff6c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:42.311+0000 7721dcfff6c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=READY pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state
+2026-11-16T11:15:42.311+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=CLOSED pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:42.311+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 crc :-1 s=CLOSED pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:42.311+0000 7721d5d746c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=CLOSED pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:42.311+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=CLOSED pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_recv_state (warped) reseting crypto and compression handlers
+2026-11-16T11:15:42.311+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 crc :-1 s=CLOSED pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_security
+2026-11-16T11:15:42.311+0000 7721d65756c0  5 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=CLOSED pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).reset_compression
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 shutdown_connections 
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2221332567 shutdown_connections mark down [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] 0x7721b0040340
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:6800/4268372011,v1:10.77.0.10:6801/4268372011] conn(0x7721b0040340 0x7721b0060800 unknown :-1 s=CLOSED pgs=1167 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2221332567 shutdown_connections mark down [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] 0x7721d8128670
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  1 --2- 10.78.0.2:0/2221332567 >> [v2:10.77.0.10:3300/0,v1:10.77.0.10:6789/0] conn(0x7721d8128670 0x7721d8119080 unknown :-1 s=CLOSED pgs=977 cs=0 l=1 rev1=1 crypto rx=0 tx=0 comp rx=0 tx=0).stop
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2221332567 shutdown_connections delete 0x7721b0040340
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2221332567 shutdown_connections delete 0x7721d8128670
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 >> 10.78.0.2:0/2221332567 conn(0x7721d806db70 msgr2=0x7721d8057d60 unknown :-1 s=STATE_NONE l=0).mark_down
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  2 --1- 10.78.0.2:0/2221332567 >> 10.78.0.2:0/2221332567 conn(0x7721d806db70 0x7721d8057d60 :-1 s=NONE pgs=0 cs=0 l=0).stop
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 --1- 10.78.0.2:0/2221332567 >> 10.78.0.2:0/2221332567 conn(0x7721d806db70 0x7721d8057d60 :-1 s=NONE pgs=0 cs=0 l=0).reset_recv_state
+2026-11-16T11:15:42.312+0000 7721d6d766c0  5 --1- 10.78.0.2:0/2221332567 >> 10.78.0.2:0/2221332567 conn(0x7721d806db70 0x7721d8057d60 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_recv_state (warped) reseting security handlers
+2026-11-16T11:15:42.312+0000 7721d6d766c0  5 --1- 10.78.0.2:0/2221332567 >> 10.78.0.2:0/2221332567 conn(0x7721d806db70 0x7721d8057d60 :-1 s=CLOSED pgs=0 cs=0 l=0).reset_security
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 shutdown_connections 
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 -- 10.78.0.2:0/2221332567 shutdown_connections delete 0x7721d806db70
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  1 -- 10.78.0.2:0/2221332567 wait complete.
+2026-11-16T11:15:42.312+0000 7721dcfff6c0  5 --1- 10.78.0.2:0/2221332567 >> 10.78.0.2:0/2221332567 conn(0x7721d806db70 0x7721d8057d60 :-1 s=CLOSED pgs=0 cs=0 l=0).des
+2026-11-16T11:15:42.313+0000 7721dcfff6c0 10 RKR(0x7721d8128340).~RotatingKeyRing des
+### rc=0

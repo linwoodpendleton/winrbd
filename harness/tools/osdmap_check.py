@@ -20,15 +20,17 @@ the checkers of their own notes (no keyring is read here).
 Standard library only.
 
 Usage:
-    python3 -I harness/tools/osdmap_check.py --captures <winrbd-ref/captures> [--ref <ceph tree>]
-    python3 -I harness/tools/osdmap_check.py                  # committed vectors only
+    python3 -I harness/tools/osdmap_check.py                  # public vector set + committed vectors
+    python3 -I harness/tools/osdmap_check.py --captures <dir> [--ceph-src <dir>]
+    python3 -I harness/tools/osdmap_check.py --vectors-only   # committed vectors only
 
 Exit status 0 when every check passes, 1 otherwise.
 
 Run time data (never embedded here, see CONTRIBUTING and licensing question 1 of
 the crush note): the two CRUSH log tables are parsed at run time from
-<ref>/src/crush/crush_ln_table.h; without --ref (default: ../winrbd-ref/ceph-v20.2.5
-next to the repository) the checks that need them are skipped and reported as such.
+<ceph-src>/src/crush/crush_ln_table.h.  <ceph-src> is --ceph-src (alias --ref), else $WINRBD_CEPH_SRC, else
+harness/.ceph-ref, which harness/tools/fetch-ceph-ref.sh fills from the pinned Ceph commit.  If the file is not
+there the checks that need it are skipped and reported as such.
 """
 
 import argparse
@@ -40,6 +42,9 @@ import os
 import re
 import struct
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
 
 # --------------------------------------------------------------------------
 # tiny test framework
@@ -2654,8 +2659,17 @@ def sec_gt_maps(ctx):
     errs = osdmap_vs_json(m42, j, "gt/osdmap.bin")
     R.check(not errs, "gt/osdmap.bin (epoch 42) equals dencoder-OSDMap.json field by field", "; ".join(errs[:3]))
     R.check(m42["crc_ok"] and m42["wrapper_v"] == 8, "gt/osdmap.bin crc ok")
-    if "fb" in ctx:
-        R.check(ctx["fb"][42] == b42, "the map returned by `osd getmap` is byte-identical to the stored epoch 42 map")
+    # (the name m42 is historical: gt/osdmap.bin is the map of whatever epoch the set was captured at)
+    if "fb" in ctx and m42["epoch"] in ctx["fb"]:
+        R.check(ctx["fb"][m42["epoch"]] == b42,
+                "the map returned by `osd getmap` is byte-identical to the stored epoch %d map" % m42["epoch"])
+    elif "fb" in ctx:
+        pubset.skip("osdmap_check", "the map returned by `osd getmap` equals the stored map of its epoch",
+                    "gt/osdmap.bin is epoch %d; the stored full maps (gt3) cover epochs 1..89 only. It is compared with the "
+                    "monitor's own `osd getmap` output of the same epoch in baseline/baseline-after instead" % m42["epoch"])
+        if have(ctx, "baseline", "baseline-after", "osdmap.bin"):
+            R.check(read_file(captures_path(ctx, "baseline", "baseline-after", "osdmap.bin")) == b42,
+                    "gt/osdmap.bin is byte-identical to baseline/baseline-after/osdmap.bin (both `osd getmap`, epoch %d)" % m42["epoch"])
     # gt2 steps
     steps = {}
     for f in sorted(glob.glob(captures_path(ctx, "gt2", "osdmap.s*.bin"))):
@@ -3425,10 +3439,7 @@ def find_default_paths(args):
     repo = os.path.normpath(os.path.join(here, "..", ".."))
     if args.vectors is None:
         args.vectors = os.path.join(repo, "harness", "vectors", "osdmap")
-    if args.ref is None:
-        cand = os.path.normpath(os.path.join(repo, "..", "winrbd-ref", "ceph-v20.2.5"))
-        if os.path.isdir(cand):
-            args.ref = cand
+    args.ref = pubset.ceph_src(args.ref)
     note = os.path.join(repo, "docs", "spec", "osdmap.md")
     return note
 
@@ -3436,8 +3447,11 @@ def find_default_paths(args):
 def main(argv=None):
     global R
     ap = argparse.ArgumentParser(description="independent checker for docs/spec/osdmap.md")
-    ap.add_argument("--captures", help="capture directory (winrbd-ref/captures); without it only the committed vectors are checked")
-    ap.add_argument("--ref", help="Ceph reference tree, only to read crush_ln_table.h at run time (default: ../winrbd-ref/ceph-v20.2.5)")
+    ap.add_argument("--captures", help="capture directory (default: harness/vectors/public)")
+    ap.add_argument("--vectors-only", action="store_true", help="check only the committed vectors, no capture set")
+    ap.add_argument("--ceph-src", "--ref", dest="ref", metavar="DIR",
+                    help="directory with the Ceph run-time data (only src/crush/crush_ln_table.h is read); default: "
+                         "$WINRBD_CEPH_SRC, else harness/.ceph-ref (see harness/tools/fetch-ceph-ref.sh)")
     ap.add_argument("--vectors", help="vector directory (default harness/vectors/osdmap)")
     ap.add_argument("--write-vectors", action="store_true", help="regenerate the scrubbed vectors from the captures into --vectors")
     ap.add_argument("--max-pcap-mb", type=int, default=0, help="skip pcaps larger than this (speed); 0 = all")
@@ -3445,6 +3459,10 @@ def main(argv=None):
     args = ap.parse_args(argv)
     R = Results(args.verbose)
     note = find_default_paths(args)
+    if args.vectors_only:
+        args.captures = None
+    elif not args.captures:
+        args.captures = pubset.PUBLIC_SET
     ctx = {"cap": args.captures, "ref": args.ref, "note": note, "max_pcap_mb": args.max_pcap_mb}
     if args.captures and not os.path.isdir(args.captures):
         print("no such capture directory: %s" % args.captures)
@@ -3454,6 +3472,7 @@ def main(argv=None):
             load_ln_tables(args.ref)
         except (OSError, DecodeError) as e:
             print("cannot load crush_ln tables from %s: %s" % (args.ref, e))
+            print(pubset.ceph_hint(args.ref))
             ctx["ref"] = None
     sec_selftest(ctx)
     if args.captures:
@@ -3487,6 +3506,7 @@ def main(argv=None):
     print("  checks: %d passed, %d failed" % (R.passed, R.failed))
     for f in R.failures:
         print("  FAILED: %s" % f)
+    pubset.emit_result("osdmap_check", R.passed, R.failed, [(x, "input not available, see the message above") for x in SKIPPED])
     return 0 if R.failed == 0 and not any(v[0] is False for v in CLAIMS.values()) else 1
 
 

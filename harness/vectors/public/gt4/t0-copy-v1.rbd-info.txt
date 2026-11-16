@@ -1,0 +1,13 @@
+rbd image 't0-copy-v1':
+	size 4 GiB in 1024 objects
+	order 22 (4 MiB objects)
+	snapshot_count: 0
+	id: 3bf2f22b7b0f
+	block_name_prefix: rbd_data.3bf2f22b7b0f
+	format: 2
+	features: layering
+	op_features: 
+	flags: 
+	create_timestamp: Mon Nov 16 09:48:28 2026
+	access_timestamp: Mon Nov 16 09:48:28 2026
+	modify_timestamp: Mon Nov 16 09:48:28 2026

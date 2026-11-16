@@ -34,8 +34,9 @@ What it checks (see the summary at the end of a run)
 
 Usage
 -----
-    python3 harness/tools/secure_check.py --captures <captures dir>
-        [--keys <dir with the lab keyrings>]   (default: <captures>/../lab-secrets)
+    python3 harness/tools/secure_check.py [--captures <captures dir>]   (default: harness/vectors/public)
+        [--keys <dir with the keyrings>]       (default: harness/vectors/public/keys for the public set,
+                                                else <captures>/../lab-secrets)
         [--only <substring>]                   (only pcaps whose name contains it)
         [--export-vectors <dir>]               (write the scrubbed vectors, see
                                                 harness/vectors/secure/README.md)
@@ -55,6 +56,9 @@ import os
 import struct
 import sys
 import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
 
 try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -136,6 +140,9 @@ class Results:
 
 
 R = Results()
+
+CLAIM_SKIP_REASON = ("needs the stock client's own debug_auth logs (secrets/logs-full), which print session keys "
+                     "and are not published; the connection-secret lengths are still checked against the wire")
 
 
 class ProtoError(Exception):
@@ -1959,16 +1966,17 @@ def group_ok(prefixes):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--captures", required=True, help="directory with pcap/ (the capture set)")
-    ap.add_argument("--keys", help="directory with the lab keyrings (default: <captures>/../lab-secrets)")
+    ap.add_argument("--captures", help="directory with pcap/ (the capture set; default: harness/vectors/public)")
+    ap.add_argument("--keys", help="directory with the keyrings (default: harness/vectors/public/keys for the public set, "
+                                   "else <captures>/../lab-secrets)")
     ap.add_argument("--only", help="only pcaps whose name contains this")
     ap.add_argument("--export-vectors", help="write scrubbed vectors into this directory")
     ap.add_argument("-v", "--verbose", action="store_true")
     ap.add_argument("--json", help="write the machine-readable result here")
     a = ap.parse_args()
 
-    cap = os.path.abspath(a.captures)
-    keysdir = a.keys or os.path.join(os.path.dirname(cap), "lab-secrets")
+    cap = pubset.captures_dir(a.captures)
+    keysdir = a.keys or pubset.default_keys_dir(cap)
     keydirs = [keysdir, os.path.join(cap, "secrets", "keys")]
     ks = KeyStore(keydirs)
     t00 = time.time()
@@ -2006,7 +2014,8 @@ def main():
         for m in msgs:
             print("  FAIL [%s] %s" % (g, m))
     print()
-    statuses = report_claims(results)
+    claims = report_claims(results, cap)
+    statuses = [st for _t, st in claims]
     if a.export_vectors:
         export_vectors(a.export_vectors, results, cap)
         print("vectors written to", a.export_vectors)
@@ -2016,16 +2025,22 @@ def main():
     summarize_observations(results)
     if a.json:
         json.dump({"pass": tp, "fail": tf, "groups": R.counts}, open(a.json, "w"), indent=1)
-    if R.total[1]:
+    # a claim that needs input the capture set does not have is a SKIP (reported, never a failure)
+    for text, st in claims:
+        if st == "skipped":
+            pubset.skip("secure_check", "claim: " + text, CLAIM_SKIP_REASON)
+    tp, tf = R.total
+    pubset.emit_result("secure_check", tp, tf)
+    if tf:
         return 1
     # a full run must also cover every claim; a --only subset may legitimately not
-    if not a.only and any(x != "confirmed" for x in statuses):
+    if not a.only and any(x not in ("confirmed", "skipped") for x in statuses):
         print("a claim is not covered by the capture set")
         return 1
     return 0
 
 
-def report_claims(results):
+def report_claims(results, cap):
     """Aggregate the check groups into the statements the note makes."""
     offers = collections.Counter()
     for r in results:
@@ -2062,6 +2077,8 @@ def report_claims(results):
     ]
     print("== claims of the note ==")
     statuses = []
+    texts = []
+    have_logs = bool(glob.glob(os.path.join(cap, "secrets", "logs-full", "*")))
     for text, prefixes, extra in rows:
         ran = fail = 0
         for g, (p_, f_) in R.counts.items():
@@ -2072,13 +2089,16 @@ def report_claims(results):
             ran = sum(offers.values())
         if fail:
             st = "FAILED"
+        elif ran == 0 and prefixes == ["log_crosscheck"] and not have_logs:
+            st = "skipped"
         elif ran == 0 or not extra:
             st = "not covered"
         else:
             st = "confirmed"
         statuses.append(st)
+        texts.append(text)
         print("  [%-11s] %s  (%d checks)" % (st, text, ran))
-    return statuses
+    return list(zip(texts, statuses))
 
 
 def summarize_observations(results):

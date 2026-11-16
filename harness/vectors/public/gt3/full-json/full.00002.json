@@ -1,0 +1,64 @@
+{
+    "epoch": 2,
+    "fsid": "52762725-e19a-11f1-886d-525400770001",
+    "created": "2026-11-16T08:47:23.599179+0000",
+    "modified": "2026-11-16T08:47:41.246131+0000",
+    "last_up_change": "0.000000",
+    "last_in_change": "0.000000",
+    "flags": "sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit",
+    "flags_num": 5799936,
+    "flags_set": [
+        "pglog_hardlimit",
+        "purged_snapdirs",
+        "recovery_deletes",
+        "sortbitwise"
+    ],
+    "crush_version": 1,
+    "full_ratio": 0.94999998807907104,
+    "backfillfull_ratio": 0.89999997615814209,
+    "nearfull_ratio": 0.85000002384185791,
+    "cluster_snapshot": "",
+    "pool_max": 0,
+    "max_osd": 0,
+    "require_min_compat_client": "luminous",
+    "min_compat_client": "jewel",
+    "require_osd_release": "tentacle",
+    "allow_crimson": false,
+    "pools": [],
+    "osds": [],
+    "osd_xinfo": [],
+    "pg_upmap": [],
+    "pg_upmap_items": [],
+    "pg_upmap_primaries": [],
+    "pg_temp": [],
+    "primary_temp": [],
+    "blocklist": {
+        "10.77.0.10:0/2357651815": "2026-11-17T08:47:41.246086+0000",
+        "10.77.0.10:0/3807397462": "2026-11-17T08:47:41.246086+0000",
+        "10.77.0.10:6801/741950234": "2026-11-17T08:47:41.246086+0000",
+        "10.77.0.10:6800/741950234": "2026-11-17T08:47:41.246086+0000",
+        "10.77.0.10:0/1104892680": "2026-11-17T08:47:41.246086+0000"
+    },
+    "range_blocklist": {},
+    "erasure_code_profiles": {
+        "default": {
+            "k": "2",
+            "m": "2",
+            "plugin": "isa",
+            "technique": "reed_sol_van"
+        }
+    },
+    "removed_snaps_queue": [],
+    "new_removed_snaps": [],
+    "new_purged_snaps": [],
+    "crush_node_flags": {},
+    "device_class_flags": {},
+    "stretch_mode": {
+        "stretch_mode_enabled": false,
+        "stretch_bucket_count": 0,
+        "degraded_stretch_mode": 0,
+        "recovering_stretch_mode": 0,
+        "stretch_mode_bucket": 0
+    }
+}
+

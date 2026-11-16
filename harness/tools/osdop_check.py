@@ -10,7 +10,8 @@ read Ceph source and does not call any Ceph decoder.  Standard library plus the
 'cryptography' package.
 
     python3 harness/tools/osdop_check.py --captures <captures dir>
-                [--keys <dir with client.*.keyring>]   (default: <captures>/../lab-secrets)
+                [--keys <dir with client.*.keyring>]   (default: harness/vectors/public/keys for the public set,
+                                                        else <captures>/../lab-secrets)
                 [--vectors <dir>]                      (default: harness/vectors/osdop)
                 [--only SESSION[,SESSION...]] [--jobs N] [-v]
                 [--emit-vectors <dir>]                 (write scrubbed vectors, see vectors/osdop/README.md)
@@ -24,7 +25,8 @@ What is read from <captures dir>:
   secrets/session-secrets/*.txt    ONLY as a cross-check of the session keys this tool derives itself
   secrets/keys/*.keyring           throw-away keyrings of the extra sessions
   gt/ gt4/ data/                   ground truth (ceph osd map, rbd info json, source data files)
-Lab keyrings are read at run time from --keys; key material is never printed or written.
+Keyrings are read at run time from --keys; key material is never printed or written.
+Without arguments the tool checks the public vector set (harness/vectors/public) with the public throw-away keys.
 
 Layout of this file
     1  primitives: crc32c, reader, string hash, stable modulo
@@ -52,6 +54,9 @@ import re
 import struct
 import sys
 import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
 
 try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -2451,8 +2456,10 @@ def print_evidence(ev, out):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    ap.add_argument('--captures', help='capture directory (contains pcap/, sessions.tsv, gt/, gt4/, data/)')
-    ap.add_argument('--keys', help='directory with client.*.keyring (default: <captures>/../lab-secrets)')
+    ap.add_argument('--captures', help='capture directory (contains pcap/, sessions.tsv, gt/, gt4/, data/; '
+                                       'default: harness/vectors/public)')
+    ap.add_argument('--keys', help='directory with client.*.keyring (default: harness/vectors/public/keys for the public '
+                                   'set, else <captures>/../lab-secrets)')
     ap.add_argument('--vectors', help='vector directory (default: harness/vectors/osdop next to this tool)')
     ap.add_argument('--vectors-only', action='store_true', help='only run the offline vector self-test')
     ap.add_argument('--emit-vectors', metavar='DIR', help='write scrubbed vectors to DIR (needs --captures)')
@@ -2469,10 +2476,8 @@ def main(argv=None):
         n = check_vectors(vdir, R)
         print("vectors: %d files" % n)
     else:
-        if not a.captures:
-            ap.error('--captures is required (or use --vectors-only)')
-        cap = os.path.abspath(a.captures)
-        keydir = os.path.abspath(a.keys) if a.keys else os.path.normpath(os.path.join(cap, '..', 'lab-secrets'))
+        cap = pubset.captures_dir(a.captures)
+        keydir = os.path.abspath(a.keys) if a.keys else pubset.default_keys_dir(cap)
         if a.emit_vectors:
             for fn in emit_vectors(a.emit_vectors, cap, keydir):
                 print("wrote", fn)
@@ -2516,6 +2521,7 @@ def main(argv=None):
         if len(msgs) > 5:
             print("  ... %d more in %s" % (len(msgs) - 5, g))
     print("TOTAL: %d checks, %d passed, %d failed (%.0f s)" % (tp + tf, tp, tf, time.time() - t0))
+    pubset.emit_result('osdop_check', tp, tf)
     return 0 if tf == 0 and tp > 0 else 1
 
 

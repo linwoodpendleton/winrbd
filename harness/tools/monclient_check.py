@@ -18,12 +18,14 @@ What it does, per pcap:
 and across pcaps compares MonMap with `ceph mon dump`, MOSDMap blobs byte-for-byte with the monitor-store copies,
 and so on.
 
-Usage:  python3 harness/tools/monclient_check.py --captures <dir> [--secrets <dir>] [-v] [--jobs N]
+Usage:  python3 harness/tools/monclient_check.py [--captures <dir>] [--secrets <dir>] [-v] [--jobs N]
                 [--write-vectors <dir>] [--only <substring>]
+Without arguments it checks the public vector set (harness/vectors/public) with the public throw-away keys.
 Exit status 0 when every check passes, 1 otherwise.
 
-Secrets: keyrings are read from <captures>/../lab-secrets (override with --secrets); the optional session-key
-cross-check reads <captures>/secrets/session-secrets/*.txt when present.  Nothing secret is ever printed or
+Secrets: keyrings are read from harness/vectors/public/keys for the public set, else from <captures>/../lab-secrets
+(override with --secrets); the optional session-key cross-check reads <captures>/secrets/session-secrets/*.txt when
+present.  Nothing secret is ever printed or
 written by this tool (vectors written with --write-vectors are scrubbed, see harness/vectors/monclient/README.md).
 """
 
@@ -40,6 +42,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pubset  # noqa: E402
 import wire  # noqa: E402
 from wire import Rd, WireError  # noqa: E402
 
@@ -1222,6 +1225,7 @@ def find_keyring(cap, lab_dir, name, entity):
     cands = []
     if 'wrongkey' in name:
         cands.append(os.path.join(keys_dir, 'wrong.%s.keyring' % ident))
+        cands.append(os.path.join(lab_dir, 'wrong.%s.keyring' % ident))   # public set: keys/wrong.<id>.keyring
     cands.append(os.path.join(lab_dir, 'client.%s.keyring' % ident))
     cands.append(os.path.join(keys_dir, 'ceph.client.%s.keyring' % ident))
     for p in cands:
@@ -1474,16 +1478,17 @@ def global_checks(cap, results, tl, verbose):
 
 def main():
     ap = argparse.ArgumentParser(description='independent checker for docs/spec/mon-client.md')
-    ap.add_argument('--captures', required=True)
-    ap.add_argument('--secrets', help='directory with the lab keyrings (default <captures>/../lab-secrets)')
+    ap.add_argument('--captures', help='capture directory (default: harness/vectors/public)')
+    ap.add_argument('--secrets', help='directory with the keyrings (default: harness/vectors/public/keys for the public '
+                                      'set, else <captures>/../lab-secrets)')
     ap.add_argument('--jobs', type=int, default=0)
     ap.add_argument('--only', help='run only sessions whose name contains this text')
     ap.add_argument('--write-vectors', metavar='DIR', help='regenerate the scrubbed test vectors from the captures into DIR')
     ap.add_argument('--vectors', metavar='DIR', help='verify the vectors in DIR (default harness/vectors/monclient)')
     ap.add_argument('-v', '--verbose', action='store_true')
     a = ap.parse_args()
-    cap = os.path.abspath(a.captures)
-    lab = os.path.abspath(a.secrets) if a.secrets else os.path.join(os.path.dirname(cap), 'lab-secrets')
+    cap = pubset.captures_dir(a.captures)
+    lab = os.path.abspath(a.secrets) if a.secrets else pubset.default_keys_dir(cap)
     t0 = time.time()
     sessions = load_sessions(cap)
     names = [n for n in sessions if os.path.exists(os.path.join(cap, 'pcap', n + '.pcap'))]
@@ -1501,7 +1506,7 @@ def main():
         print('no pcap sessions found under %s' % cap)
         return 2
     if not os.path.isdir(lab):
-        print('lab keyrings not found: %s (use --secrets)' % lab)
+        print('keyrings not found: %s (use --secrets)' % lab)
         return 2
     jobs = a.jobs or min(len(names), os.cpu_count() or 2)
     work = [(cap, lab, n, sessions[n], False) for n in sorted(names, key=lambda n: -os.path.getsize(os.path.join(cap, 'pcap', n + '.pcap')))]
@@ -1553,6 +1558,7 @@ def main():
             print('  ', k, MT.get(k[1], '?'), v)
     if a.write_vectors:
         write_vectors(cap, lab, a.write_vectors, sessions)
+    pubset.emit_result('monclient_check', nchk - nfail, nfail)
     return 1 if nfail else 0
 
 

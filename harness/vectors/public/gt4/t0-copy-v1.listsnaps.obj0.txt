@@ -1,0 +1,4 @@
+rbd_data.3bf2f22b7b0f.0000000000000000 (seq:3):
+cloneid	snaps	size	overlap
+3	3	4194304	[512~4193792]
+head	-	4194304
