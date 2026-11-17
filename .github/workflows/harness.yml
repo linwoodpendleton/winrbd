@@ -9,8 +9,10 @@
 #                    those builds goes through the no-libc and no-globals checks too
 #   object-gates     the no-libc / no-globals / sources-in-sync checks on OPTIMISED builds (Release and MinSizeRel, gcc and
 #                    clang): the test jobs build Debug, where a compiler never turns a loop into a library call
-#   static-limits    call depth and worst-case stack of the core, measured from gcc's call graph (no recursion)
-#   fuzz-smoke       clang + libFuzzer, 30 s per target, seeded from harness/fuzz/seeds (the checkout is not modified)
+#   static-limits    call depth and worst-case stack of the core, measured from gcc's call graph (no recursion); the chains of
+#                    part B (map decode, incremental apply, placement) also have a budget of their own
+#   fuzz-smoke       clang + libFuzzer, 30 s per target, seeded from harness/fuzz/seeds (the checkout is not modified); a
+#                    target that was not built, or has no committed seeds, fails the job (the five targets of part B are named)
 #
 # Warnings are errors everywhere (WR_WERROR is ON by default and is never turned off here).
 name: harness
@@ -90,7 +92,8 @@ jobs:
       # -fno-pie: the distro compilers default to position-independent code, whose objects name _GLOBAL_OFFSET_TABLE_;
       # iPXE and the driver are not built that way, and the object gates below would flag the symbol.
       # -fno-builtin-memcmp (clang): at -O2 clang rewrites memcmp(...) == 0 into a call to bcmp, which is not on the
-      # list of functions the core may reference (memcpy, memmove, memset, memcmp).
+      # list of functions the core may reference (memcpy, memmove, memset). The core compares with wri_ct_memeq and has no memcmp
+      # of its own, so the flag only keeps a compiler from inventing one.
       - name: Configure
         run: |
           flags="-fno-pie"
@@ -114,7 +117,7 @@ jobs:
         run: cmake --build build/harness --target wr_header_check
 
       # The mechanical gates of the 64-bit library, applied to the object code that matters for the other hosts: no
-      # libc beyond memcpy/memmove/memset/memcmp and the compiler's own arithmetic helpers, no writable global.
+      # libc beyond memcpy/memmove/memset and the compiler's own arithmetic helpers, no writable global.
       - name: Gates on the 32-bit objects
         run: |
           ar rcs build/core_m32.a $(find build/harness/CMakeFiles/wr_core_m32.dir -name '*.o')
@@ -175,9 +178,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc python3
 
-      # No recursion, at most 14 frames deep, at most 2 KiB of stack along any chain (measured values: 13 and about 1.5 KiB).
+      # No recursion, at most 14 frames deep, at most 3,328 bytes of stack along any chain (measured with gcc 13: 13 frames
+      # and 3,064 bytes, the largest chain being the incremental apply of the map store, which decodes the full map embedded
+      # in an incremental and audits its rules). The per-entry budgets are ratchets about 8 % above the measured stack of
+      # each part B entry point (placement 1,528, store step 2,792, full-map decode 1,720, incremental apply 2,488, CRUSH
+      # decode 568, rule interpreter 696 bytes); an entry that is renamed away is an error, not a pass. An earlier version of
+      # the check read the sizes in directory order and let a node without a size (a function a file only calls) overwrite
+      # the size of its definition, which reported 1,632 bytes for the same chain; the check now keeps the largest size.
+      # Calls through function pointers (the store's I/O hooks, 16 bytes at most) end a chain in this measurement.
       - name: Measure
-        run: python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 2048
+        run: >
+          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 3328
+          --entry wr_client_map_target=1664
+          --entry wri_mapstore_step=3072
+          --entry wri_osdmap_decode_full=1920
+          --entry wri_osdmap_apply_inc=2752
+          --entry wri_crush_decode=640
+          --entry wri_crush_do_rule=768
 
   fuzz-smoke:
     name: fuzz smoke (clang, 30 s per target)
@@ -207,6 +224,16 @@ jobs:
       - name: Build the fuzz targets
         run: cmake --build build/fuzz
 
+      # The loop below runs whatever was built. This step is what makes a missing part B target a red job instead of a
+      # shorter run: the five targets of the OSD map, CRUSH and map store modules must exist and must have committed seeds.
+      - name: The part B targets exist and have seeds
+        run: |
+          set -eu
+          for t in fuzz_crush_dec fuzz_crush_map fuzz_osdmap_full fuzz_osdmap_inc fuzz_mapstore; do
+            [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
+            [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
+          done
+
       # Each target runs on a COPY of its seeds, so the new inputs libFuzzer finds stay out of the checkout.
       # A crash leaves crash-* / oom-* / timeout-* files in build/fuzz-artifacts and fails the step.
       - name: Run every target for 30 s
@@ -222,8 +249,10 @@ jobs:
             if [ -d "harness/fuzz/seeds/$name" ]; then
               cp harness/fuzz/seeds/"$name"/* "$corpus"/ 2>/dev/null || true
             fi
+            # 64 KiB for every target, as in tools/fuzz_long.sh: the map and CRUSH targets take whole maps and the committed
+            # seeds of several targets are larger than 4 KiB (up to 53 KB), which a 4 KiB cap would cut.
             echo "::group::$name"
-            if ! "$exe" -max_total_time=30 -max_len=4096 -rss_limit_mb=4096 -timeout=60 \
+            if ! "$exe" -max_total_time=30 -max_len=65536 -rss_limit_mb=4096 -timeout=60 \
                  -artifact_prefix="build/fuzz-artifacts/${name}-" "$corpus"; then
               echo "::error::$name failed"
               status=1

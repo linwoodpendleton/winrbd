@@ -135,19 +135,22 @@ typedef enum wr_ev_kind {
 	WR_EV_CLUSTER_UNREACHABLE = 4, /* a full round of monitors failed; still retrying */
 	WR_EV_MAPMSG = 5,              /* a raw map message is waiting: wr_client_mapmsg_peek() */
 	WR_EV_TICKETS_RENEWED = 6,
-	WR_EV_FATAL = 7                /* unrecoverable (bad config, no random); err says why */
+	WR_EV_FATAL = 7,               /* unrecoverable (bad config, no random, a first map that can never be decoded); err says why */
+	WR_EV_MAP = 8,                 /* wr_map.h: a new OSD map epoch was adopted (event.epoch); re-target outstanding ops */
+	WR_EV_MAP_RESYNC = 9           /* wr_map.h: a gap or a bad map made the engine ask for a full map; err says why (informational) */
 } wr_ev_kind;
 
 typedef struct wr_event {
 	wr_ev_kind kind;
-	uint32_t epoch; /* WR_EV_MAPMSG: newest epoch in the message, else 0 */
+	uint32_t epoch; /* WR_EV_MAPMSG: newest epoch in the message; WR_EV_MAP: the epoch adopted; else 0 */
 	wr_errinfo err; /* DOWN / AUTH_FAILED / UNREACHABLE / FATAL */
 } wr_event;
 
 int wr_client_next_event(wr_client *c, wr_event *out); /* 1 = filled, 0 = none */
 
 /*
- * Raw map messages from the monitor, handed over undecoded: this milestone ends at delivery.
+ * Raw map messages from the monitor, handed over undecoded (milestones 1 to 3; the engine consumes them itself, and
+ * stops delivering them, when wr_config.map_slot_bytes is non-zero: see wr_map.h).
  * kind MONMAP: front is an MMonMap front (contains the MonMap blob). OSDMAP: front is an MOSDMap
  * front (fsid, incrementals, full maps, bounds). The bytes are the msgr2 front segment exactly
  * as received, already checksum-verified. front points into the bulk region and stays valid

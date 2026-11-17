@@ -50,16 +50,39 @@ typedef struct wr_config {
 
 	/* ---- policy ------------------------------------------------------------------------- */
 	uint8_t mode_policy;     /* WR_MODE_* */
-	uint8_t reserved8[3];
+	uint8_t map_verify_crc;  /* check the CRC of every full map and incremental (0 = trust the transport's CRC) */
+	uint8_t reserved8[2];
+
+	/* ---- OSD map and placement (docs/design/core-architecture.md section 15) -------------- */
+	/* The engine decodes the monitor's maps itself only when map_slot_bytes is non-zero; with 0 (what the three
+	 * profiles give) it keeps delivering the raw messages (wr_client_mapmsg_peek) as in milestones 1 to 3.
+	 * wr_config_enable_maps() fills these fields with the budgets of a profile. wr_client_mem_required() and
+	 * wr_client_create() refuse (WR_E_INVAL) a non-zero map_slot_bytes below 16 KiB, map_pools outside 1 .. 8, map_max_osd 0
+	 * or above the hard cap of the map store (262144), and crush_work_max 0. */
+	uint32_t map_slot_bytes; /* bytes of EACH of the two compact map slots (bulk region); 0 = maps disabled */
+	uint32_t map_max_osd;    /* largest max_osd of a map we accept (the per-OSD arrays are sized by the real value) */
+	uint16_t map_pools;      /* pools the client tracks, 1 .. 8; the map keeps entries only for these */
+	uint16_t map_pg_cache;   /* placement cache entries (arena), 0 = no cache */
+	uint32_t map_refetch_ms; /* minimum time between full-map re-requests after a gap or a failure */
+	uint32_t crush_work_max; /* bucket evaluations one mapping may spend before WR_E_CRUSH_WORK */
 
 	/* Room for the later milestones (OSD client, image, secure mode) without an ABI break:
 	 * a milestone names words here; the profile functions zero them. */
-	uint32_t reserved[24];
+	uint32_t reserved[19];
 } wr_config;
 
-/* Fill *cfg with a profile. They set size and abi and zero everything else first. */
+/* Fill *cfg with a profile. They set size and abi and zero everything else first. The OSD map module is off. */
 void wr_config_profile_ipxe(wr_config *cfg);    /* 4 MiB malloc heap + umalloc for bulk */
 void wr_config_profile_kernel(wr_config *cfg);  /* non-paged preallocated pools */
 void wr_config_profile_harness(wr_config *cfg); /* generous, for the Linux harness and tests */
+
+/*
+ * Switch the OSD map module on with the budgets that go with a profile (architecture 15.3): the two map slots, the largest
+ * max_osd, tracked pools, placement cache and the CRUSH work budget. Call it after wr_config_profile_*() and before
+ * wr_client_mem_required(): the regions grow by two slots (256 KiB each for iPXE, 1 MiB kernel, 4 MiB harness).
+ * Individual fields may be adjusted afterwards.
+ */
+typedef enum wr_map_profile { WR_MAPS_IPXE = 1, WR_MAPS_KERNEL = 2, WR_MAPS_HARNESS = 3 } wr_map_profile;
+void wr_config_enable_maps(wr_config *cfg, wr_map_profile p);
 
 #endif /* WR_CONFIG_H */

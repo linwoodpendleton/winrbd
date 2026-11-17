@@ -14,7 +14,8 @@
  *
  * Source layout: wr_client.c (public lifecycle, run, events, state), wri_client_conn.c (connection
  * table, the host-facing wr_conn_* calls, derived actions, the monitor link hooks),
- * wri_client_mem.c (configuration check, memory layout, create-time carving).
+ * wri_client_mem.c (configuration check, memory layout, create-time carving), wri_client_map.c (the map store's
+ * stage of a run and its io adapter over the monitor client), wr_map.c (the public map API, wr_map.h).
  *
  * Memory rule: every allocation of the engine uses an alignment of at most 16 bytes, so the arena
  * bytes a create consumes do not depend on how the host's (16-byte aligned) base is aligned beyond
@@ -28,6 +29,7 @@
 #include "wri_cx.h"
 #include "wri_m2_conn.h"
 #include "wri_mem.h"
+#include "wri_mapstore.h"
 #include "wri_mon.h"
 
 #define WRI_CLIENT_MAGIC 0x57524331u /* "WRC1" */
@@ -76,6 +78,8 @@ struct wr_client {
 	wri_cx_client cx;
 	wri_mon mon;
 	wri_mon_link link;     /* hooks the monitor client uses to drive connections */
+	wri_mapstore map;      /* the OSD map store (enabled only when cfg.map_slot_bytes != 0, inert otherwise) */
+	wri_map_io map_io;     /* what the store sees of the monitor client and the event ring */
 
 	wri_cslot *slot;       /* x.cfg.max_conns entries */
 	uint32_t n_slot;
@@ -151,9 +155,29 @@ int wri_client_conn_step_all(wr_client *c, uint32_t *budget);
 /* Fill the connection and handshake fields of a wr_stats. */
 void wri_client_conn_stats(const wr_client *c, wr_stats *out);
 
+/* ---- the OSD map stage (wri_client_map.c) ---------------------------------------------------------------- */
+
+/* Point the store's io at the monitor client and the event ring (create time, after the store was initialised). */
+void wri_client_map_io_init(wr_client *c);
+
+/*
+ * One run's map stage, after the monitor step: the store consumes the monitor's map messages (at most one epoch of
+ * work, never fewer than one entry even when the connections used the whole budget, so a busy link cannot starve it).
+ * A fatal first map ends the client the way a failed random source does (state WR_CS_FAILED, connections closed).
+ * Returns 1 when more is ready. 0 and no effect when maps are disabled.
+ */
+int wri_client_map_step(wr_client *c, uint32_t budget);
+
+/* The earliest time the store wants to run (a rate-limited full-map request), WR_DEADLINE_NONE if none or disabled. */
+uint64_t wri_client_map_deadline(const wr_client *c);
+
 /* ---- events (wr_client.c) ------------------------------------------------------------------------- */
 
-/* Queue a public event (used by the monitor client through its link). */
+/*
+ * Queue a public event (used by the monitor client through its link and by the map store). WR_EV_MAP is coalesced: a
+ * pending one is updated in place (newest epoch) instead of queued again, and like WR_EV_FATAL it is never the event
+ * dropped when the ring is full.
+ */
 void wri_client_push_event(wr_client *c, wr_ev_kind kind, uint32_t epoch, const wr_errinfo *err);
 
 #endif /* WRI_CLIENT_H */

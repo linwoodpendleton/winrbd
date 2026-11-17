@@ -10,7 +10,11 @@
  *     40 ..  79   msgr2 (framing, handshake, connection)
  *     80 ..  99   cephx (keys, tickets, authorizer)
  *    100 .. 119   monitor client (monmap, subscription, hunting)
- *    120 .. 239   reserved: osdmap, crush, osd client, rbd (later milestones)
+ *    120 .. 139   OSD map and incrementals (decoding, applying, the map store)
+ *    140 .. 159   pools (lookup, unsupported configurations)
+ *    160 .. 179   CRUSH (decoding, rules, mapping)
+ *    180 .. 199   object placement
+ *    200 .. 239   reserved: osd client, rbd (later milestones)
  *
  * Adding a code = appending one line to the right block of WR_STATUS_LIST. The text is
  * English, static, and never formatted: hosts that want another language key off the code.
@@ -81,7 +85,27 @@
 	X(WR_E_MON_FSID, 103, "cluster id mismatch (wrong cluster?)")                             \
 	X(WR_E_MON_MSG_TOOBIG, 104, "monitor message larger than the configured limit")           \
 	X(WR_E_MON_PROTO, 105, "unexpected monitor message")                                      \
-	X(WR_E_MON_HOSTS_SYNTAX, 106, "monitor address list could not be parsed")
+	X(WR_E_MON_HOSTS_SYNTAX, 106, "monitor address list could not be parsed")                  \
+	/* OSD map */                                                                             \
+	X(WR_E_MAP_NONE, 120, "no OSD map received yet")                                          \
+	X(WR_E_MAP_FSID, 121, "OSD map belongs to another cluster (fsid mismatch)")               \
+	X(WR_E_MAP_VERSION, 122, "OSD map or incremental encoding version not supported")         \
+	X(WR_E_MAP_CORRUPT, 123, "malformed OSD map or incremental")                              \
+	X(WR_E_MAP_EPOCH, 124, "incremental does not follow the held epoch")                      \
+	X(WR_E_MAP_BUDGET, 125, "OSD map does not fit the configured map budget (cluster too large for this profile)") \
+	X(WR_E_MAP_CRC, 126, "OSD map checksum mismatch")                                         \
+	X(WR_E_MAP_RESYNC, 127, "OSD map cannot be advanced incrementally, a full map is needed") \
+	/* pools */                                                                               \
+	X(WR_E_POOL_NOT_FOUND, 140, "pool not found in the OSD map")                              \
+	X(WR_E_POOL_UNSUPPORTED, 141, "pool configuration not supported (erasure coded, cache tier, stretch or unsupported hash)") \
+	/* CRUSH */                                                                               \
+	X(WR_E_CRUSH_ENCODING, 160, "malformed CRUSH map")                                        \
+	X(WR_E_CRUSH_UNSUPPORTED, 161, "CRUSH map uses an unsupported bucket algorithm, rule step or tunable") \
+	X(WR_E_CRUSH_NO_RULE, 162, "the pool's CRUSH rule does not exist or is not a replicated rule") \
+	X(WR_E_CRUSH_LOOP, 163, "CRUSH hierarchy too deep or cyclic")                             \
+	X(WR_E_CRUSH_WORK, 164, "CRUSH evaluation exceeded its work budget")                      \
+	/* placement */                                                                           \
+	X(WR_E_PLACE_UNMAPPABLE, 180, "no usable OSD currently serves this placement group")
 
 enum {
 #define WR_X_ENUM(name, code, text) name = -(code),
@@ -98,7 +122,9 @@ const char *wr_status_name(wr_status st);
 /*
  * Structured detail for the first failure of a machine (connection, client). "First failure
  * wins": later errors caused by the same failure do not overwrite it, so the root cause is
- * what the host reads. All pointers are to static strings.
+ * what the host reads. All pointers are to static strings. A caller that passes one to a core
+ * function zeroes it first: the core reads `status` to keep the first failure and leaves the
+ * structure alone when it already holds one.
  */
 typedef struct wr_errinfo {
 	wr_status status;

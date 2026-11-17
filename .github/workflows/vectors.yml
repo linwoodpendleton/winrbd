@@ -29,3 +29,12 @@ jobs:
           key: ceph-ref-ed27c686770872022f4c1de04f6b0ac5d5384ded-${{ hashFiles('harness/tools/fetch-ceph-ref.sh') }}
 
       - run: sh harness/tools/run-all.sh
+
+      # The part B vectors (OSD map, CRUSH, placement) need python3 only. They are also ctests of the harness workflow
+      # (vectors_mapb_check, vectors_placement_check, which run in every flavour); here they run beside the Phase 0 checkers
+      # so a damaged or unscrubbed vector fails this job even when nobody built the core.
+      - name: Map vectors (sizes, hashes, scrub, CRCs, mapper cross-checks)
+        run: bash harness/vectors/public/scripts/capture_mapb.sh --check
+
+      - name: Live placement vectors (hashes, chain, epochs, no stray file)
+        run: python3 -I harness/vectors/public/scripts/check_placement.py

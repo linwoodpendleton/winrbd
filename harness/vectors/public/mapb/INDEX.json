@@ -1,0 +1,1897 @@
+{
+ "answers": {
+  "file": "answers.json",
+  "rows": 58
+ },
+ "base_epoch": 666,
+ "base_map": "base-e666.hex",
+ "baseline": {
+  "crush_version": 65,
+  "epoch_at_start": 666
+ },
+ "ceph": "v20.2.5 (ed27c686770872022f4c1de04f6b0ac5d5384ded)",
+ "crush": [
+  {
+   "algs": [
+    "list",
+    "straw",
+    "uniform"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm01-host-straw-rack-list-root-uniform.crush.hex",
+   "description": "crushtool --build --num_osds 24 host straw 4 rack list 3 root uniform 0 (6 hosts of 4 OSDs, 2 racks of 3 hosts); the standard rule set r0..r7 replaces the rule --build makes",
+   "device_classes": 0,
+   "mappings": "crush/cm01-host-straw-rack-list-root-uniform.mappings.json",
+   "name": "cm01-host-straw-rack-list-root-uniform",
+   "rules": 8,
+   "text": "crush/cm01-host-straw-rack-list-root-uniform.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2",
+    "tree"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm02-host-tree-rack-tree-root-straw2.crush.hex",
+   "description": "crushtool --build --num_osds 24 host tree 4 rack tree 3 root straw2 0 (6 hosts of 4 OSDs, 2 racks of 3 hosts); the standard rule set r0..r7 replaces the rule --build makes",
+   "device_classes": 0,
+   "mappings": "crush/cm02-host-tree-rack-tree-root-straw2.mappings.json",
+   "name": "cm02-host-tree-rack-tree-root-straw2",
+   "rules": 8,
+   "text": "crush/cm02-host-tree-rack-tree-root-straw2.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "list",
+    "straw",
+    "tree"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm03-host-list-rack-straw-root-tree.crush.hex",
+   "description": "crushtool --build --num_osds 24 host list 4 rack straw 3 root tree 0 (6 hosts of 4 OSDs, 2 racks of 3 hosts); the standard rule set r0..r7 replaces the rule --build makes",
+   "device_classes": 0,
+   "mappings": "crush/cm03-host-list-rack-straw-root-tree.mappings.json",
+   "name": "cm03-host-list-rack-straw-root-tree",
+   "rules": 8,
+   "text": "crush/cm03-host-list-rack-straw-root-tree.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "list",
+    "straw2",
+    "uniform"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm04-host-uniform-rack-straw2-root-list.crush.hex",
+   "description": "crushtool --build --num_osds 24 host uniform 4 rack straw2 3 root list 0 (6 hosts of 4 OSDs, 2 racks of 3 hosts); the standard rule set r0..r7 replaces the rule --build makes",
+   "device_classes": 0,
+   "mappings": "crush/cm04-host-uniform-rack-straw2-root-list.mappings.json",
+   "name": "cm04-host-uniform-rack-straw2-root-list",
+   "rules": 8,
+   "text": "crush/cm04-host-uniform-rack-straw2-root-list.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm05-all-straw2-unequal.crush.hex",
+   "description": "straw2 at every level, unequal OSD weights (0.1 to 3.0)",
+   "device_classes": 0,
+   "mappings": "crush/cm05-all-straw2-unequal.mappings.json",
+   "name": "cm05-all-straw2-unequal",
+   "rules": 8,
+   "text": "crush/cm05-all-straw2-unequal.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm06-all-straw-unequal-calc1.crush.hex",
+   "description": "straw at every level, unequal weights, straw_calc_version 1",
+   "device_classes": 0,
+   "mappings": "crush/cm06-all-straw-unequal-calc1.mappings.json",
+   "name": "cm06-all-straw-unequal-calc1",
+   "rules": 8,
+   "text": "crush/cm06-all-straw-unequal-calc1.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm07-all-straw-unequal-calc0.crush.hex",
+   "description": "the same buckets with straw_calc_version 0 (the original, wrong-for-changed-weights straw lengths)",
+   "device_classes": 0,
+   "mappings": "crush/cm07-all-straw-unequal-calc0.mappings.json",
+   "name": "cm07-all-straw-unequal-calc0",
+   "rules": 8,
+   "text": "crush/cm07-all-straw-unequal-calc0.txt",
+   "tunables": {
+    "allowed_bucket_algs": 22,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 0,
+    "chooseleaf_vary_r": 0,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 0
+   }
+  },
+  {
+   "algs": [
+    "list",
+    "tree",
+    "uniform"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm08-argonaut-uniform-list-tree.crush.hex",
+   "description": "argonaut tunables (local tries 2, local fallback tries 5, total tries 19, descend_once 0, vary_r 0, stable 0, straw_calc 0): uniform hosts, list racks, tree root; permutation fallback + local retries",
+   "device_classes": 0,
+   "mappings": "crush/cm08-argonaut-uniform-list-tree.mappings.json",
+   "name": "cm08-argonaut-uniform-list-tree",
+   "rules": 8,
+   "text": "crush/cm08-argonaut-uniform-list-tree.txt",
+   "tunables": {
+    "allowed_bucket_algs": 22,
+    "choose_local_fallback_tries": 5,
+    "choose_local_tries": 2,
+    "choose_total_tries": 19,
+    "chooseleaf_descend_once": 0,
+    "chooseleaf_stable": 0,
+    "chooseleaf_vary_r": 0,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 0
+   }
+  },
+  {
+   "algs": [
+    "list",
+    "straw",
+    "tree"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm09-bobtail-list-straw-tree.crush.hex",
+   "description": "bobtail tunables (descend_once 1, vary_r 0, stable 0), list hosts, straw racks, tree root, unequal weights",
+   "device_classes": 0,
+   "mappings": "crush/cm09-bobtail-list-straw-tree.mappings.json",
+   "name": "cm09-bobtail-list-straw-tree",
+   "rules": 8,
+   "text": "crush/cm09-bobtail-list-straw-tree.txt",
+   "tunables": {
+    "allowed_bucket_algs": 22,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 0,
+    "chooseleaf_vary_r": 0,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 0
+   }
+  },
+  {
+   "algs": [
+    "straw2",
+    "tree"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm10-firefly-tree-tree-straw2.crush.hex",
+   "description": "firefly tunables (vary_r 1, stable 0), tree hosts and racks, straw2 root",
+   "device_classes": 0,
+   "mappings": "crush/cm10-firefly-tree-tree-straw2.mappings.json",
+   "name": "cm10-firefly-tree-tree-straw2",
+   "rules": 8,
+   "text": "crush/cm10-firefly-tree-tree-straw2.txt",
+   "tunables": {
+    "allowed_bucket_algs": 22,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 0,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 0
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm11-hammer-straw2.crush.hex",
+   "description": "hammer tunables (vary_r 1, stable 0), straw2 everywhere, unequal weights",
+   "device_classes": 0,
+   "mappings": "crush/cm11-hammer-straw2.mappings.json",
+   "name": "cm11-hammer-straw2",
+   "rules": 8,
+   "text": "crush/cm11-hammer-straw2.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 0,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "list",
+    "straw",
+    "uniform"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm12-argonaut-fallback-stress.crush.hex",
+   "description": "argonaut tunables with straw hosts, uniform racks, list root, unequal weights: with many devices out the retry, local-retry and fallback paths run constantly",
+   "device_classes": 0,
+   "mappings": "crush/cm12-argonaut-fallback-stress.mappings.json",
+   "name": "cm12-argonaut-fallback-stress",
+   "rules": 8,
+   "text": "crush/cm12-argonaut-fallback-stress.txt",
+   "tunables": {
+    "allowed_bucket_algs": 22,
+    "choose_local_fallback_tries": 5,
+    "choose_local_tries": 2,
+    "choose_total_tries": 19,
+    "chooseleaf_descend_once": 0,
+    "chooseleaf_stable": 0,
+    "chooseleaf_vary_r": 0,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 0
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm13-device-classes.crush.hex",
+   "description": "device classes (ssd on OSD 0,4,8,...; nvme where i%7==3; the rest hdd): rules over the shadow roots default~hdd, default~ssd, default~nvme",
+   "device_classes": 3,
+   "mappings": "crush/cm13-device-classes.mappings.json",
+   "name": "cm13-device-classes",
+   "rules": 6,
+   "text": "crush/cm13-device-classes.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [],
+   "crush": "crush/cm13b-device-classes-hdd-rule0.crush.hex",
+   "description": "the same map with the hdd rule as rule 0 (the pool of osdmap om05 uses it)",
+   "device_classes": 3,
+   "mappings": "crush/cm13b-device-classes-hdd-rule0.mappings.json",
+   "name": "cm13b-device-classes-hdd-rule0",
+   "rules": 6,
+   "text": "crush/cm13b-device-classes-hdd-rule0.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [
+    0
+   ],
+   "crush": "crush/cm14a-choose-args-key0-positional.crush.hex",
+   "description": "choose_args key 0: a positional weight set (3 positions) with replaced ids, straw2 everywhere; the only set crushtool --test can select by itself (crushtool --test always asks for choose_args key 0 and falls back to the compat key -1; --pool-id only changes the hash of x)",
+   "device_classes": 0,
+   "mappings": "crush/cm14a-choose-args-key0-positional.mappings.json",
+   "name": "cm14a-choose-args-key0-positional",
+   "rules": 8,
+   "text": "crush/cm14a-choose-args-key0-positional.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [
+    0
+   ],
+   "crush": "crush/cm14b-choose-args-key0-flat.crush.hex",
+   "description": "choose_args key 0: a flat weight set (one position, no ids) (crushtool --test always asks for choose_args key 0 and falls back to the compat key -1; --pool-id only changes the hash of x)",
+   "device_classes": 0,
+   "mappings": "crush/cm14b-choose-args-key0-flat.mappings.json",
+   "name": "cm14b-choose-args-key0-flat",
+   "rules": 8,
+   "text": "crush/cm14b-choose-args-key0-flat.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [
+    -1,
+    1
+   ],
+   "crush": "crush/cm14c-choose-args-pool1-and-compat.crush.hex",
+   "description": "choose_args keys 1 (positional, ids) and -1 (compat, flat): for crushtool only the compat set can apply (key 0 absent); an OSDMap pool with id 1 uses key 1, every other pool the compat set (crushtool --test always asks for choose_args key 0 and falls back to the compat key -1; --pool-id only changes the hash of x)",
+   "device_classes": 0,
+   "mappings": "crush/cm14c-choose-args-pool1-and-compat.mappings.json",
+   "name": "cm14c-choose-args-pool1-and-compat",
+   "rules": 8,
+   "text": "crush/cm14c-choose-args-pool1-and-compat.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  },
+  {
+   "algs": [
+    "straw2"
+   ],
+   "choose_args_keys": [
+    -1
+   ],
+   "crush": "crush/cm15-choose-args-zero.crush.hex",
+   "description": "choose_args with only the compat set (key -1) holding a zero weight for one item of every bucket (crushtool --test always asks for choose_args key 0 and falls back to the compat key -1; --pool-id only changes the hash of x)",
+   "device_classes": 0,
+   "mappings": "crush/cm15-choose-args-zero.mappings.json",
+   "name": "cm15-choose-args-zero",
+   "rules": 8,
+   "text": "crush/cm15-choose-args-zero.txt",
+   "tunables": {
+    "allowed_bucket_algs": 54,
+    "choose_local_fallback_tries": 0,
+    "choose_local_tries": 0,
+    "choose_total_tries": 50,
+    "chooseleaf_descend_once": 1,
+    "chooseleaf_stable": 1,
+    "chooseleaf_vary_r": 1,
+    "msr_collision_tries": 100,
+    "msr_descents": 100,
+    "straw_calc_version": 1
+   }
+  }
+ ],
+ "files": {
+  "answers.json": {
+   "bytes": 5129,
+   "sha256": "f78f0d1ff613ad721d77ac474d9daaadf07d0bc52199a88edc3f58fe621ee51f"
+  },
+  "base-e666.hex": {
+   "bytes": 6647,
+   "sha256": "86f52921cc44b8f092c0f25f0445c5345fdafa14e7c9f654b21cec0a7ba9b826"
+  },
+  "crush/cm01-host-straw-rack-list-root-uniform.crush.hex": {
+   "bytes": 3847,
+   "sha256": "9d571a064659d94723fb592d4e482fcd13e41442206a98c188727c5fac23a56f"
+  },
+  "crush/cm01-host-straw-rack-list-root-uniform.mappings.json": {
+   "bytes": 11718,
+   "sha256": "54f6f078528e76ba1533ce0cd787ad596b6b5e843446672ad639286bb88e20b5"
+  },
+  "crush/cm01-host-straw-rack-list-root-uniform.txt": {
+   "bytes": 3726,
+   "sha256": "1d41b0c526ebdbcb45f65a710f1b57d28d8bda2d7095fa047812faa484a03a0a"
+  },
+  "crush/cm02-host-tree-rack-tree-root-straw2.crush.hex": {
+   "bytes": 3899,
+   "sha256": "fad19c592acf300cad5df2029fbdb19700a4e9ba05003879c10964a9a7e71234"
+  },
+  "crush/cm02-host-tree-rack-tree-root-straw2.mappings.json": {
+   "bytes": 3132,
+   "sha256": "7f0a617c25e83cb0398dca57b7bbdc508698c390339e52e3c993f39e7b8e1aa3"
+  },
+  "crush/cm02-host-tree-rack-tree-root-straw2.txt": {
+   "bytes": 4141,
+   "sha256": "3cd0490a32c284a8181130b6a4106528e7e8357cebe20a81ab6cbc23ffb87540"
+  },
+  "crush/cm03-host-list-rack-straw-root-tree.crush.hex": {
+   "bytes": 3867,
+   "sha256": "d98a6d1dec42300ba28810df3c30c7cd1704260d49e01c59dac2fd1657522f9b"
+  },
+  "crush/cm03-host-list-rack-straw-root-tree.mappings.json": {
+   "bytes": 3111,
+   "sha256": "408b4d59af63a71e354fa8009626e98fa8bf4ed778c0fa4fff83d753ea12e40a"
+  },
+  "crush/cm03-host-list-rack-straw-root-tree.txt": {
+   "bytes": 3974,
+   "sha256": "a14ee9238d798785a1ef4f1b7704230a9e5f21fb08576ca0ce0ec4a9013aa2ce"
+  },
+  "crush/cm04-host-uniform-rack-straw2-root-list.crush.hex": {
+   "bytes": 3485,
+   "sha256": "a236b92e23f9dd75405a7847a3b22661843f793ab6dd975db4e1a1f81242fb9f"
+  },
+  "crush/cm04-host-uniform-rack-straw2-root-list.mappings.json": {
+   "bytes": 3156,
+   "sha256": "a3b59fbd478817b7ae315a405579e6f9da4e0268e1411acbe314bbd11194a5b0"
+  },
+  "crush/cm04-host-uniform-rack-straw2-root-list.txt": {
+   "bytes": 4039,
+   "sha256": "3dd035e1d31314fe840633a85aa67fa7dacea88fcd5bacb8c244ef837d5e5ae3"
+  },
+  "crush/cm05-all-straw2-unequal.crush.hex": {
+   "bytes": 3447,
+   "sha256": "6c7bb55e3ae5fa3eda23d20ab69761448f723320bfc8dc7922d8b00d0a32ea12"
+  },
+  "crush/cm05-all-straw2-unequal.mappings.json": {
+   "bytes": 6713,
+   "sha256": "874ba7fd279986321dfaad7e6d7baaea52b18cde34f18749ed984b75b55d6fd0"
+  },
+  "crush/cm05-all-straw2-unequal.txt": {
+   "bytes": 3553,
+   "sha256": "ebb5cd8459dbfeef7832997cba94ee20c42c49822d55274c21dbf4a3bb2eabfc"
+  },
+  "crush/cm06-all-straw-unequal-calc1.crush.hex": {
+   "bytes": 3715,
+   "sha256": "a07848a50408a091866b297ff6615bf258e3b3feb4f4784bf33292cb06343598"
+  },
+  "crush/cm06-all-straw-unequal-calc1.mappings.json": {
+   "bytes": 2961,
+   "sha256": "1daeed74fc43f292c92d7117e4d00722b9e17e135ff62c522cfb9f75a198a57f"
+  },
+  "crush/cm06-all-straw-unequal-calc1.txt": {
+   "bytes": 3544,
+   "sha256": "2a4872f882f619061cd3d84ae459512e6f628cffc2b97cbc351712e8f46168b6"
+  },
+  "crush/cm07-all-straw-unequal-calc0.crush.hex": {
+   "bytes": 3754,
+   "sha256": "84aad13e5e0facb685014c24871fd51c088f0dbffe9c7ac0ac9e1adbfb327eeb"
+  },
+  "crush/cm07-all-straw-unequal-calc0.mappings.json": {
+   "bytes": 2997,
+   "sha256": "05eaba48c6c1d752090282ca825ebb4eaf33dd490082de9c9a134673f26b7455"
+  },
+  "crush/cm07-all-straw-unequal-calc0.txt": {
+   "bytes": 3428,
+   "sha256": "5525b260c3f8b3afbe67e8a9bb87bea708da8e956349b80e3dbb8cd11b805b04"
+  },
+  "crush/cm08-argonaut-uniform-list-tree.crush.hex": {
+   "bytes": 3521,
+   "sha256": "cd8c576a64b90b113535b8839e83e05a6d4bf134d17de496dc3fdddcd5540854"
+  },
+  "crush/cm08-argonaut-uniform-list-tree.mappings.json": {
+   "bytes": 11067,
+   "sha256": "0b30a4d763ebffaf70ab5c708060e25ee2b8bd0f549367df83c79795b968c11e"
+  },
+  "crush/cm08-argonaut-uniform-list-tree.txt": {
+   "bytes": 3915,
+   "sha256": "2f0b157119c80bed6032c438a3c808d456d17b90eb304133173f0119d7e9843d"
+  },
+  "crush/cm09-bobtail-list-straw-tree.crush.hex": {
+   "bytes": 3764,
+   "sha256": "6994179014e32a6fd80ac7c0d0a0981e5d4523f9dac86d9e5305eb36f54bce10"
+  },
+  "crush/cm09-bobtail-list-straw-tree.mappings.json": {
+   "bytes": 5902,
+   "sha256": "d31d271f5ed6730a454a910962263aff03898f1beb71052efc39fc202f803cfb"
+  },
+  "crush/cm09-bobtail-list-straw-tree.txt": {
+   "bytes": 3858,
+   "sha256": "62c7d4a6df7b9b927f064c64e8d54442a6c765ebb26dd0d0d8c93a51276fff99"
+  },
+  "crush/cm10-firefly-tree-tree-straw2.crush.hex": {
+   "bytes": 3761,
+   "sha256": "8d08cd10fd2b3eb1b10e7800e0b7ad96c34d1f946a9bf4b90a523f1213f34df7"
+  },
+  "crush/cm10-firefly-tree-tree-straw2.mappings.json": {
+   "bytes": 2988,
+   "sha256": "e8534454ef8d8d95ec0243d7815018dc072470e979e59ef5a0d4ea9d26aada4b"
+  },
+  "crush/cm10-firefly-tree-tree-straw2.txt": {
+   "bytes": 4053,
+   "sha256": "bf698f7e9d71e8a387591fdffba68b5238d50b0d6f8fa7c187379a0464b356fa"
+  },
+  "crush/cm11-hammer-straw2.crush.hex": {
+   "bytes": 3459,
+   "sha256": "16ff0f7a544ad3864354c778f1c54c4522b7531c0d6c830f5b8383f0c678ed89"
+  },
+  "crush/cm11-hammer-straw2.mappings.json": {
+   "bytes": 4640,
+   "sha256": "5e2c949515cab6342ca1b94b507e0e1fdec76e92827302332c15b56e6c7134c7"
+  },
+  "crush/cm11-hammer-straw2.txt": {
+   "bytes": 3525,
+   "sha256": "cca58eed972fe9d15d9e2a671ac2510ebe2b63103a246b48a929827cf4ce5a99"
+  },
+  "crush/cm12-argonaut-fallback-stress.crush.hex": {
+   "bytes": 3733,
+   "sha256": "ec47a6d6e40f34285b1ca129a729a8555b30c90f98d81c7ebca077dbb62b3c97"
+  },
+  "crush/cm12-argonaut-fallback-stress.mappings.json": {
+   "bytes": 7271,
+   "sha256": "382e39d398f45072126f783a726c4fa54a7b21b104789edc510f1d90de5f4824"
+  },
+  "crush/cm12-argonaut-fallback-stress.txt": {
+   "bytes": 3490,
+   "sha256": "c4b68d0047377bec3996c5d72cf8baffb0497d8b873520a46018604fcfa5af84"
+  },
+  "crush/cm13-device-classes.crush.hex": {
+   "bytes": 7615,
+   "sha256": "c465f99f2846c14722bfe3d1101cdd2fab240a2b2076fbd6e38edc8427108143"
+  },
+  "crush/cm13-device-classes.mappings.json": {
+   "bytes": 3956,
+   "sha256": "ea5080e5bfde065a196c888604ad4008e3f9a98455f01bdba6e28c9c7e4692a5"
+  },
+  "crush/cm13-device-classes.txt": {
+   "bytes": 4875,
+   "sha256": "75e6d58162730d7523c84faba4d726238d44f316b86ad4526c1423f4810f1445"
+  },
+  "crush/cm13b-device-classes-hdd-rule0.crush.hex": {
+   "bytes": 7562,
+   "sha256": "c81d0ca18a9cfcdeba84048404447a1ada6d789023f9e1bbcda8bd6ef85b5b2c"
+  },
+  "crush/cm13b-device-classes-hdd-rule0.mappings.json": {
+   "bytes": 1306,
+   "sha256": "ce45ebea8089e0809f6915630ca5b51df2a20c7e2e907b33e07cfe23c0d67328"
+  },
+  "crush/cm13b-device-classes-hdd-rule0.txt": {
+   "bytes": 4875,
+   "sha256": "a75caff5e3a0aeadc379a11248d9e1b2f9a872d44b9c0a0fa5847b4d240e3196"
+  },
+  "crush/cm14a-choose-args-key0-positional.crush.hex": {
+   "bytes": 5170,
+   "sha256": "df4433ffc4b30bd06861192d23fcecace02687f9f8825c243151944b9a9d79a5"
+  },
+  "crush/cm14a-choose-args-key0-positional.mappings.json": {
+   "bytes": 4473,
+   "sha256": "9dedc4b49688adb8abdb31dd1425be4539cb894844c6bbde341f709835d9be4a"
+  },
+  "crush/cm14a-choose-args-key0-positional.txt": {
+   "bytes": 5360,
+   "sha256": "1b97694b5c7bf10b842c697d9b2505851befddb807a2fe26fa5ddef90e6dfe00"
+  },
+  "crush/cm14b-choose-args-key0-flat.crush.hex": {
+   "bytes": 4156,
+   "sha256": "6387e84b8594ee6f511c345343a43599be956f7f246ec455e8076fd9a4e83677"
+  },
+  "crush/cm14b-choose-args-key0-flat.mappings.json": {
+   "bytes": 3228,
+   "sha256": "67f1763b120f16c60a292fb43d64953252558011a471a3357e031d4fd6f3bc6c"
+  },
+  "crush/cm14b-choose-args-key0-flat.txt": {
+   "bytes": 4366,
+   "sha256": "26d81a2fb03748f011523418dbc44eaf7c4636816b7a51c19118d8c0396c1c3b"
+  },
+  "crush/cm14c-choose-args-pool1-and-compat.crush.hex": {
+   "bytes": 5788,
+   "sha256": "cd4e0f4ca5af6caf0864674883045fc67582cce79f4b2e0fdc3f67f2b829567f"
+  },
+  "crush/cm14c-choose-args-pool1-and-compat.mappings.json": {
+   "bytes": 4450,
+   "sha256": "0cc23661fd7ff13e90bc0fde2992122aa487d1f4cbbda40877d534509fa7c9ae"
+  },
+  "crush/cm14c-choose-args-pool1-and-compat.txt": {
+   "bytes": 6176,
+   "sha256": "369a52254642f74f6a330da8ae4f3189624a76dd7cbfdf03e4011ef1fb9209ae"
+  },
+  "crush/cm15-choose-args-zero.crush.hex": {
+   "bytes": 4187,
+   "sha256": "b295e4da543d803c7b3e4fcc55644d9203c76d7c47c53b180838057f54bfbebb"
+  },
+  "crush/cm15-choose-args-zero.mappings.json": {
+   "bytes": 3755,
+   "sha256": "c9f0184f611d668f4a8b68883b4a7d5f0783108687ff92f76a2a7d343972872f"
+  },
+  "crush/cm15-choose-args-zero.txt": {
+   "bytes": 4384,
+   "sha256": "eef1d9ab12ad8ca60a5401ebb0c5fbb131d9a358fb55d9def71ab60bcaa88536"
+  },
+  "crush/lab-after.txt": {
+   "bytes": 1189,
+   "sha256": "30c2dc9ef4f81827c171c7900dfa21c917a65c69fa9248bdea192d6d347b30b8"
+  },
+  "crush/lab-before.txt": {
+   "bytes": 1189,
+   "sha256": "30c2dc9ef4f81827c171c7900dfa21c917a65c69fa9248bdea192d6d347b30b8"
+  },
+  "incrementals.hex": {
+   "bytes": 297287,
+   "sha256": "570ac357295b59a617108f90560f75fc887b0477b45588bbfc90e029a60f1596"
+  },
+  "maps/e667.hex": {
+   "bytes": 7251,
+   "sha256": "94399b41b7ab544113430695a23ac26e37afb0a2fb1ec35f7be7e3762c2c63b5"
+  },
+  "maps/e681.hex": {
+   "bytes": 8684,
+   "sha256": "797d817821b7e66ab88616013f42b467e95e29a68b2b9395349b889de6a22306"
+  },
+  "maps/e693.hex": {
+   "bytes": 9399,
+   "sha256": "d6698fdba158bd24408ab30625db18e9e7fc80f419fc2f4642bc2cd6559538fd"
+  },
+  "maps/e698.hex": {
+   "bytes": 10117,
+   "sha256": "7ee269dc5bc6ea6ecb0c9ab2bb29b0d5347d996c5b78f15a86335b8e0513145c"
+  },
+  "maps/e709.hex": {
+   "bytes": 12154,
+   "sha256": "33dec0b80e2d6b3cfa41d34503e8e1c52b64445d995ac9fd464cf2f87d3337c5"
+  },
+  "maps/e710.hex": {
+   "bytes": 12212,
+   "sha256": "7d1519c2c17afe26c6681a1b030965c6921f6071cf2cb7d5237a955b2c3bfdb1"
+  },
+  "maps/e720.hex": {
+   "bytes": 12212,
+   "sha256": "3d53b74bfa4716dba4564098d0d3ff3663074ea2949a323525c58f0fad50ca9a"
+  },
+  "maps/e740.hex": {
+   "bytes": 12196,
+   "sha256": "b8ae170d097f9b860df240b0878e7ce5529c8a9ef4804a7f4814ee09658bfbf5"
+  },
+  "maps/e747.hex": {
+   "bytes": 12212,
+   "sha256": "21a7bab9ceb3d96aba704835c71ea145ee3eee196be21b65d9025504a4a9cc24"
+  },
+  "maps/e764.hex": {
+   "bytes": 12154,
+   "sha256": "e0df9b280564ba33fd38afccef740e694ce020d528e1d9c18796d016f6176625"
+  },
+  "maps/e773.hex": {
+   "bytes": 14554,
+   "sha256": "6b66335a512193f662e0868fd09fa26e777b44ee1a48019f330dedbdff5d5bde"
+  },
+  "maps/e782.hex": {
+   "bytes": 12154,
+   "sha256": "6f9c32f6eb8025c846ac36008ae4dadfc6baafa73d0dd54d9dce4f693e9b7900"
+  },
+  "maps/e789.hex": {
+   "bytes": 11919,
+   "sha256": "90bfa1f707da331542f380786be4fe365cfe4489321fcd77e49fc5f5a5e2f168"
+  },
+  "maps/e848.hex": {
+   "bytes": 14302,
+   "sha256": "dfc90cb7a19db69c8222594d0d8c524ad679d14c3e6d2b95147cc0172ccbc9e6"
+  },
+  "maps/e849.hex": {
+   "bytes": 13584,
+   "sha256": "ded82f6b5b03cac4bd86bbd7e8ce6efbbaf0c13b158e702841ac99b4b1dd874d"
+  },
+  "maps/e852.hex": {
+   "bytes": 15003,
+   "sha256": "34dbb92e1ea68289f0bc665414f2eb43281e06cba00a0c8cb100c1b6ef4dad88"
+  },
+  "maps/e861.hex": {
+   "bytes": 16460,
+   "sha256": "013159c0a89b02235077e5dbd3621bfb6af31afdc188855736d7bf49a5c4297d"
+  },
+  "maps/e866.hex": {
+   "bytes": 16512,
+   "sha256": "ab13d8a6fa431300f9ff35776e2fe1f17f4052e0c6f36754b525f80c39138358"
+  },
+  "maps/e872.hex": {
+   "bytes": 17474,
+   "sha256": "db6416dcc7764360bfe19a5423b58526b24eff50f08c1a46e2406bbba69df872"
+  },
+  "maps/e875.hex": {
+   "bytes": 17474,
+   "sha256": "f974bbaa5cda71fa1bd258f4221a96a2db4b434f8356cae22acdecf960b7ec96"
+  },
+  "maps/e925.hex": {
+   "bytes": 6542,
+   "sha256": "d7f5b76f818fbc74b7ef39f768fe13430957fff2f1ae7fde650da0d355b781d6"
+  },
+  "names/names-e709.json": {
+   "bytes": 448964,
+   "sha256": "e60e78bf44aa0e93d42048d443b560fdd8e5105080ecc421009c99c4da1b3d31"
+  },
+  "offline/om01-straw-list-uniform.osdmap.hex": {
+   "bytes": 10675,
+   "sha256": "73f4c7279cf29de3cb9d6e55cd25bc24f15151e1935fcd2f87f636a699858904"
+  },
+  "offline/om01-straw-list-uniform.pgs.json": {
+   "bytes": 2306,
+   "sha256": "082e8f07230757dd62e3208601135f76099a4d08c5de7b824d62ab62da4cf99c"
+  },
+  "offline/om02-argonaut-uniform-list-tree.osdmap.hex": {
+   "bytes": 10363,
+   "sha256": "8327b5a308814e7ced9d7f0dfcf9051811a0f413bdf8509b150603df0baf86a9"
+  },
+  "offline/om02-argonaut-uniform-list-tree.pgs.json": {
+   "bytes": 1256,
+   "sha256": "88d8b26c2c77a871ec3e74ffcb9d8150229488cbc5ab5d6b8ea3fdfc0f3f3881"
+  },
+  "offline/om03-straw-unequal-calc1.osdmap.hex": {
+   "bytes": 10690,
+   "sha256": "5c54fc8803f9ce8cd59431007db2fbf2be002045000882279a438a77c3e7b69f"
+  },
+  "offline/om03-straw-unequal-calc1.pgs.json": {
+   "bytes": 4378,
+   "sha256": "2b5db3a42e8b7d383cdf920e871fbaf9cf0bfc1d03c844e2ef19b27222c8e6b1"
+  },
+  "offline/om04-straw2-unequal-out-down.osdmap.hex": {
+   "bytes": 10516,
+   "sha256": "a321898f4d0a15962a499d78064225671670f93c11209c30c3dfc7f29977bffb"
+  },
+  "offline/om04-straw2-unequal-out-down.pgs.json": {
+   "bytes": 2357,
+   "sha256": "7c3ef0593e76ae93423e0ca7c4765bd34f9f3596537df59f038e2f1c27cdad96"
+  },
+  "offline/om05-classes-hdd-rule.osdmap.hex": {
+   "bytes": 14519,
+   "sha256": "bb5440dced03416ab8e4a0018e0b1f871e752c4d045705e421984866ff9e71d0"
+  },
+  "offline/om05-classes-hdd-rule.pgs.json": {
+   "bytes": 1213,
+   "sha256": "6c7332a5fb02b29b9e34caa620933591142e077a65a1731a7eb6483e19b67be8"
+  },
+  "offline/om06-choose-args-pool1.osdmap.hex": {
+   "bytes": 12505,
+   "sha256": "b57d68bd42c3bc674fd2e68c242a65c7837ca642d1387892c56e4b1b654be2f9"
+  },
+  "offline/om06-choose-args-pool1.pgs.json": {
+   "bytes": 2288,
+   "sha256": "bd3bc6e134b1b00b115954ac2abe96bab518b9304745de46ab58c36b4885ecdb"
+  },
+  "offline/om07-choose-args-compat.osdmap.hex": {
+   "bytes": 10997,
+   "sha256": "26e354f35d97bb331405847222ee004a850d23d1cf70209fa127081ab8fc5d4e"
+  },
+  "offline/om07-choose-args-compat.pgs.json": {
+   "bytes": 1853,
+   "sha256": "309753f80f59303c7005304ec0dbef4f4f17be8d47a0cd22684a1dcce2802ba0"
+  },
+  "offline/om08-choose-args-key0-not-special.osdmap.hex": {
+   "bytes": 11941,
+   "sha256": "f1cca09f28f5ab11933383f9f2a6f1c77d232aa10ca522a3d8eb631566f84e59"
+  },
+  "offline/om08-choose-args-key0-not-special.pgs.json": {
+   "bytes": 2303,
+   "sha256": "66beab2853236b5cadca83b07e36d9ac2dba03c30e02e1a33ffd396f4fcdcf59"
+  },
+  "ops.log.txt": {
+   "bytes": 15045,
+   "sha256": "f4cab0fe20b89122ca68e5f4e43c682db3acccb14f8e5168bccb0c0ef9694f23"
+  },
+  "states/s00-base-pools.json": {
+   "bytes": 11533,
+   "sha256": "02d4f737cc5f4d1b1bd8669dbb3269a2c80fdb791f4f0ce37c9ed8e9e2e22051"
+  },
+  "states/s01a-p7-created.json": {
+   "bytes": 4021,
+   "sha256": "4a3339eba364e2fb1228d793d31a7fc14be9256443bfc03bc9c3a6333da0990d"
+  },
+  "states/s01b-p7-pgp4.json": {
+   "bytes": 3393,
+   "sha256": "66f5a70fc06a92f32adb91ddaa3a44fcbcfdd133f2d27cdfa884029ec5259d96"
+  },
+  "states/s01c-np-pgp8.json": {
+   "bytes": 4278,
+   "sha256": "224f818852413d6a7db6fe4b9f59f3d153b4c7c421f63aeb2b7d0a3347fa0752"
+  },
+  "states/s02-split-e799.json": {
+   "bytes": 5639,
+   "sha256": "4623051742d3123e7c504fe0fbde520e16b2b5e5301ad077637d40bb020a4330"
+  },
+  "states/s02-split-e800.json": {
+   "bytes": 5697,
+   "sha256": "2ea1baa61fafc0ab333f0db94a07779a2092f4367335671d4cb98791d63410fc"
+  },
+  "states/s02-split-e801.json": {
+   "bytes": 5701,
+   "sha256": "d05462f09067eff702c3aac62a85c345bd1b10792d2559b841d6d85b4b59a3dd"
+  },
+  "states/s02-split-e802.json": {
+   "bytes": 5699,
+   "sha256": "05114dc4afe5bfb9d04748616bac673da9dec2ae75584014ac3051f10c13bd65"
+  },
+  "states/s02-split-e803.json": {
+   "bytes": 5701,
+   "sha256": "226b988bc56bfe7b6f370d7c70a404324d27574823b09254efeb12b7f68b7f25"
+  },
+  "states/s03a-upmap-items-one.json": {
+   "bytes": 5527,
+   "sha256": "3ee44889b3ca0e10b13618d22afdd8da20e242216994bd03835346333286b832"
+  },
+  "states/s03b-upmap-items-two.json": {
+   "bytes": 5753,
+   "sha256": "919c5ea36adc048c442776c9b9276b09889d4d3d35d3323a48d314e34dc166cf"
+  },
+  "states/s03c-upmap-items-invalid-to.json": {
+   "bytes": 5897,
+   "sha256": "1435f0806db6d74ea1b4ff184251687203fff43683b9e4b342f977d043a99f5c"
+  },
+  "states/s03d-upmap-items-invalid-from.json": {
+   "bytes": 6063,
+   "sha256": "04c84d4a28473c50aa057c0052befe1a720ea92c1fca84278622cc33df797d7e"
+  },
+  "states/s03z-upmap-items-removed.json": {
+   "bytes": 5631,
+   "sha256": "285783360b88d751dfdf5e172a3dbf4da3e950d29e8ecbeea2af3836a0961817"
+  },
+  "states/s04a-upmap-reorder.json": {
+   "bytes": 5482,
+   "sha256": "0daf638a9cf86365b7bab4aedc94453fa2f4c08bb6147fcbf3aa8635ea19dfda"
+  },
+  "states/s04b-upmap-replace.json": {
+   "bytes": 5618,
+   "sha256": "e11d0d59cf541e6b54e8161c2b15173b9e04b48b61664e3b3e4c8e7fd90f2d6d"
+  },
+  "states/s04c-upmap-member-weight0.json": {
+   "bytes": 5941,
+   "sha256": "a832d3a69edcd90050e28751dd7171dc16172d6645bc709387523a72897f4643"
+  },
+  "states/s04d-upmap-set-after-weight0.json": {
+   "bytes": 8144,
+   "sha256": "3d5566d8e1b0de1c2181311bb33a68d55eb9cd3ad082e7ec424c0e949f77e8ad"
+  },
+  "states/s04z-upmap-removed.json": {
+   "bytes": 5639,
+   "sha256": "694914cf3aa7299ce637aa0a68035eb42ae6a3eddd542cee0b1f4a8128fd0637"
+  },
+  "states/s05a-require-reef.json": {
+   "bytes": 4813,
+   "sha256": "9763a766bf846e89455b5da2b8ca56f384700930ebe10e2582098d33a3da5163"
+  },
+  "states/s05b-upmap-primary-one.json": {
+   "bytes": 5576,
+   "sha256": "875c66791186a6d2a79e83c2fad39741d04eed26411a18c77596afe9d9cc89fd"
+  },
+  "states/s05c-upmap-primary-two.json": {
+   "bytes": 5712,
+   "sha256": "f4cd03770f5b702d196fde645e2e6211010467b5b902f1638c03b0266b420316"
+  },
+  "states/s05z-upmap-primary-removed.json": {
+   "bytes": 5663,
+   "sha256": "5963697b8799f1df175037396516c0db8c6e1ed0461743f6ab5ea9409e3551f5"
+  },
+  "states/s06a-pg-temp.json": {
+   "bytes": 5487,
+   "sha256": "92e88a3d8760fe26300c95e4f95d85548f3518806b23a0ec83f6522515442d9f"
+  },
+  "states/s06b-primary-temp.json": {
+   "bytes": 5467,
+   "sha256": "4225a1f4b71883c623e4472dcdeae8f711eaaa6a60b31244daff72b37ae3e42b"
+  },
+  "states/s06c-pg-temp-and-primary-temp.json": {
+   "bytes": 5691,
+   "sha256": "48c7419e9632479da5ece025ebac22c1233dd842d198810e448c12c3f0764a20"
+  },
+  "states/s06z-temps-cleared.json": {
+   "bytes": 6319,
+   "sha256": "747bb2a8dff5ed91e4b4a111fec668233fe37d3a1f8fd703755e7a3ec005dcfa"
+  },
+  "states/s07a-primary-affinity.json": {
+   "bytes": 11076,
+   "sha256": "0f024b496bc371d01e4ac1dbe68788eebb96b66191ccffe2783bf1b41657ab00"
+  },
+  "states/s07b-primary-affinity.json": {
+   "bytes": 11088,
+   "sha256": "3059f6443afb629a28fd1960309d317088a168526150578f0a2034357db8a2a0"
+  },
+  "states/s07c-primary-affinity.json": {
+   "bytes": 11092,
+   "sha256": "fc3a813fe5173aac491b39321ad6c14fe7186b4fd3bed03872c4555c1f44305f"
+  },
+  "states/s07z-affinity-restored.json": {
+   "bytes": 11273,
+   "sha256": "0cad159c21d5e186c9b70e9e510e7ab8bf59e5531d32d1238531578e9ee4d7f0"
+  },
+  "states/s08a-reweight-0p5.json": {
+   "bytes": 10795,
+   "sha256": "61223c22436008ad9411288de4a56b847317529e0c688f724fc6daf61160e92a"
+  },
+  "states/s08b-reweight-0p1.json": {
+   "bytes": 15773,
+   "sha256": "ffe8261104d531bc8e354aa8385825a12ee003c1d7be83505438f1eadc18ef60"
+  },
+  "states/s08c-reweight-0.json": {
+   "bytes": 19595,
+   "sha256": "d2bd51224b3db5662f8c0b40d23a63cf43e119d07488b755fafb6ee60a10680a"
+  },
+  "states/s08d-reweight-restored.json": {
+   "bytes": 17912,
+   "sha256": "16129c57335d7526f5a57ce40877e5902db41ec819556f301ee120ff35cc7459"
+  },
+  "states/s08e-osd-out.json": {
+   "bytes": 10584,
+   "sha256": "f17d345367db4c8a10fb772cc2979a37609fc1eb28bcf24bfbcfe53897348677"
+  },
+  "states/s08f-osd-in.json": {
+   "bytes": 17267,
+   "sha256": "caa8390f7edba0f5e301e04c9d52d93d9722f5e737866d1de7bba6628c5714b4"
+  },
+  "states/s09a-osd-down-noup.json": {
+   "bytes": 10100,
+   "sha256": "a64f814fd6526e58b564e9e8dd48b9624ee908be1b6090ff258cfcae8c39a0c0"
+  },
+  "states/s09b-osd-up-again.json": {
+   "bytes": 11026,
+   "sha256": "0a19eadf2b70abcc8c06591e813eefe1ea95638f6cb86f7e5ec13dbe7fe32735"
+  },
+  "states/s10-legacy-pool.json": {
+   "bytes": 4597,
+   "sha256": "f8d22f2fd1ea7843a34a4ed0ab8014a84a45333f973133b32373c9b5ccc7bfde"
+  },
+  "states/s11b-pool-created.json": {
+   "bytes": 3341,
+   "sha256": "cb83348cca6938dffdd452c00473888b3dbd1b9eff0c25f23e60a429b406dc75"
+  },
+  "states/s11c-pool-created-small.json": {
+   "bytes": 7212,
+   "sha256": "b6637624a366932f12f1e5d70e98681aa484c660a51735ba502a0b5ea8c9e393"
+  },
+  "states/s11d-pool-renamed.json": {
+   "bytes": 6263,
+   "sha256": "d639aa6ca309122a968cc610c20900c77bf431e6f47c120004630852df1178df"
+  },
+  "states/s11e-pool-deleted.json": {
+   "bytes": 6128,
+   "sha256": "2898d2219e25f9f0d8b5575e3bd5fa24f5d0c459510d60b22acdf22dd197cfba"
+  },
+  "states/s12a-ec-profile.json": {
+   "bytes": 5760,
+   "sha256": "4d9dcd5ee410e31512fc6c43b45dc80831485b19bf7ad2f735eca5f8b4fafa0b"
+  },
+  "states/s12b-ec-pool.json": {
+   "bytes": 6660,
+   "sha256": "f5fe0506018363235fc09f99ee3b8540bfd2cc389856cc0afaa9561737b5ce08"
+  },
+  "states/s12c-tier-added.json": {
+   "bytes": 8247,
+   "sha256": "fcb93b96d5ecb5ea3fcec423d12e100936cb6dff473be2a98cfeb42898ccf585"
+  },
+  "states/s12d-cache-writeback.json": {
+   "bytes": 7931,
+   "sha256": "725f941e10e4f9820ad925f56ff5b351cf59f36ef6bd3f21f14d74719e7d6e19"
+  },
+  "states/s12e-tier-overlay.json": {
+   "bytes": 7641,
+   "sha256": "05c987e519ee5142d23938ded81f3a0b141efd11fdd52fcf5e54e75638f8e2c6"
+  },
+  "states/s12z-tier-removed.json": {
+   "bytes": 7723,
+   "sha256": "c9bd35057674a1388566bd8d63b33d22eb1739b8cc16981c38f7e9bc480fc982"
+  },
+  "states/s13a-weight-set-created.json": {
+   "bytes": 8353,
+   "sha256": "962f8c0380d3e4eb54622d4f644230fea69e24684fb63785546749523776e06a"
+  },
+  "states/s13b-weight-set-changed.json": {
+   "bytes": 8218,
+   "sha256": "8eaada4ca0e2a1c2dc60b5aec8eb3ff6dd6d131b7866100a9ad072b4546e3e00"
+  },
+  "states/s13c-compat-set-created.json": {
+   "bytes": 9390,
+   "sha256": "1698fc9169518cf7f846f4756abfd8ab25ca8be6b5ebc4599fc3a2e73d7704fb"
+  },
+  "states/s13z-weight-sets-removed.json": {
+   "bytes": 7995,
+   "sha256": "459771ed1612eacc279d280d0e8be64f53a586dc41ed4c5269ca9d02d5bfda27"
+  },
+  "states/s14a-crush-rule-added.json": {
+   "bytes": 4504,
+   "sha256": "fe4b9f687c5d6a5f38ce4ad9796e58973c6be8e789afdd5ae46f1dd5a7ab7f48"
+  },
+  "states/s15-merge-e807.json": {
+   "bytes": 6147,
+   "sha256": "b2a4d5af5632648af47ee4b25473159cc0e84296638c67444190314dfd4a2199"
+  },
+  "states/s15-merge-e808.json": {
+   "bytes": 6147,
+   "sha256": "3cbb8894cf7c918b5d48a8fead2343690cab4bf0aae71ed48ef10fb18310aca0"
+  },
+  "states/s15-merge-e809.json": {
+   "bytes": 6143,
+   "sha256": "7ac84d18ac5c75bfe41ce80b208197c37d90d8a549ac3952c368431657ddf53e"
+  },
+  "states/s15-merge-e810.json": {
+   "bytes": 6145,
+   "sha256": "abc679611552bb236df41883cf799db3fc938d875865fae8378a6d26d668f8b6"
+  },
+  "states/s15-merge-e811.json": {
+   "bytes": 6147,
+   "sha256": "eac9d276bbb20f84f5740b727116c3caf9290e232670d1c9c8e22e8d72d42d7b"
+  },
+  "states/s15-merge-e812.json": {
+   "bytes": 6114,
+   "sha256": "9cae1bd1c636a4257f97dec3799f39fdd3a1c4dd28724a541b3c50a9e754d5e3"
+  },
+  "states/s15-merge-e813.json": {
+   "bytes": 6112,
+   "sha256": "790315745f78dc79676aec1f36fe37925d2890ccab91102d3a2167e692fafcef"
+  },
+  "states/s15-merge-e814.json": {
+   "bytes": 6114,
+   "sha256": "847a31013224a6caa19ebaa46b8f079688fa1b9b898daf16689b330f1392f2e7"
+  },
+  "states/s15-merge-e815.json": {
+   "bytes": 6112,
+   "sha256": "c04724dca58ed43ebedbb2b8e520f930364e6c35dd375ba2962d16ee3e86d7f5"
+  },
+  "states/s15-merge-e816.json": {
+   "bytes": 6085,
+   "sha256": "0c51eeb9b68bd93c08ca5166d03923027384fdd80884703184eea5239430014a"
+  },
+  "states/s15-merge-e817.json": {
+   "bytes": 6085,
+   "sha256": "abb4440f628b571052b0f718b40e39ad8838e9b941f6263a200ab14a9e5e094b"
+  },
+  "states/s15-merge-e818.json": {
+   "bytes": 6081,
+   "sha256": "50b63cf91b10e8b471e2d78e54b4e56e84909c7df4d7bad0bf1d0f3fae151620"
+  },
+  "states/s15-merge-e819.json": {
+   "bytes": 6085,
+   "sha256": "ad8d6320ebabae2b52831aa10ebb0190897c1597e71bc813f601e556e97b4933"
+  },
+  "states/s15-merge-e844.json": {
+   "bytes": 5892,
+   "sha256": "6218ac92f9cce904498515825ad0393c7c88ff8b0a6003caf70d0069f433ebdf"
+  },
+  "states/s99-restored.json": {
+   "bytes": 7818,
+   "sha256": "c38d8f8c1ec4c6eafae5e1c0974bac101f95701a2c1d3abc87c49644afb14683"
+  }
+ },
+ "format": 1,
+ "last_epoch": 925,
+ "names": {
+  "file": "names/names-e709.json",
+  "pools": {
+   "2": {
+    "crush_rule": 1,
+    "hashpspool": true,
+    "name": "winrbd",
+    "object_hash": 2,
+    "pg_num": 32,
+    "pgp_num": 32,
+    "size": 3
+   },
+   "42": {
+    "crush_rule": 0,
+    "hashpspool": true,
+    "name": "wrtest-mb-p16",
+    "object_hash": 2,
+    "pg_num": 16,
+    "pgp_num": 16,
+    "size": 3
+   },
+   "43": {
+    "crush_rule": 0,
+    "hashpspool": true,
+    "name": "wrtest-mb-p12",
+    "object_hash": 2,
+    "pg_num": 12,
+    "pgp_num": 12,
+    "size": 2
+   },
+   "44": {
+    "crush_rule": 0,
+    "hashpspool": true,
+    "name": "wrtest-mb-p7",
+    "object_hash": 2,
+    "pg_num": 7,
+    "pgp_num": 4,
+    "size": 2
+   },
+   "45": {
+    "crush_rule": 0,
+    "hashpspool": true,
+    "name": "wrtest-mb-np",
+    "object_hash": 2,
+    "pg_num": 12,
+    "pgp_num": 8,
+    "size": 3
+   },
+   "46": {
+    "crush_rule": 0,
+    "hashpspool": false,
+    "name": "wrtest-mb-leg",
+    "object_hash": 2,
+    "pg_num": 8,
+    "pgp_num": 8,
+    "size": 2
+   },
+   "47": {
+    "crush_rule": 0,
+    "hashpspool": true,
+    "name": "wrtest-mb-s4",
+    "object_hash": 2,
+    "pg_num": 8,
+    "pgp_num": 8,
+    "size": 4
+   },
+   "48": {
+    "crush_rule": 2,
+    "hashpspool": true,
+    "name": "wrtest-mb-host",
+    "object_hash": 2,
+    "pg_num": 8,
+    "pgp_num": 8,
+    "size": 3
+   }
+  },
+  "rows": 3352
+ },
+ "names_epoch": 709,
+ "osdmaps": [
+  {
+   "crush": "cm01-host-straw-rack-list-root-uniform",
+   "name": "om01-straw-list-uniform",
+   "osdmap": "offline/om01-straw-list-uniform.osdmap.hex",
+   "patch": {},
+   "pg_num": 48,
+   "pgs": "offline/om01-straw-list-uniform.pgs.json"
+  },
+  {
+   "crush": "cm08-argonaut-uniform-list-tree",
+   "name": "om02-argonaut-uniform-list-tree",
+   "osdmap": "offline/om02-argonaut-uniform-list-tree.osdmap.hex",
+   "patch": {},
+   "pg_num": 24,
+   "pgs": "offline/om02-argonaut-uniform-list-tree.pgs.json"
+  },
+  {
+   "crush": "cm06-all-straw-unequal-calc1",
+   "name": "om03-straw-unequal-calc1",
+   "osdmap": "offline/om03-straw-unequal-calc1.osdmap.hex",
+   "patch": {},
+   "pg_num": 96,
+   "pgs": "offline/om03-straw-unequal-calc1.pgs.json"
+  },
+  {
+   "crush": "cm05-all-straw2-unequal",
+   "name": "om04-straw2-unequal-out-down",
+   "osdmap": "offline/om04-straw2-unequal-out-down.osdmap.hex",
+   "patch": {
+    "down": [
+     5
+    ],
+    "out": [
+     2,
+     3,
+     17
+    ],
+    "reweight": {
+     "11": 8192,
+     "7": 32768
+    }
+   },
+   "pg_num": 48,
+   "pgs": "offline/om04-straw2-unequal-out-down.pgs.json"
+  },
+  {
+   "crush": "cm13b-device-classes-hdd-rule0",
+   "name": "om05-classes-hdd-rule",
+   "osdmap": "offline/om05-classes-hdd-rule.osdmap.hex",
+   "patch": {},
+   "pg_num": 24,
+   "pgs": "offline/om05-classes-hdd-rule.pgs.json"
+  },
+  {
+   "crush": "cm14c-choose-args-pool1-and-compat",
+   "name": "om06-choose-args-pool1",
+   "osdmap": "offline/om06-choose-args-pool1.osdmap.hex",
+   "patch": {},
+   "pg_num": 48,
+   "pgs": "offline/om06-choose-args-pool1.pgs.json"
+  },
+  {
+   "crush": "cm15-choose-args-zero",
+   "name": "om07-choose-args-compat",
+   "osdmap": "offline/om07-choose-args-compat.osdmap.hex",
+   "patch": {},
+   "pg_num": 48,
+   "pgs": "offline/om07-choose-args-compat.pgs.json"
+  },
+  {
+   "crush": "cm14a-choose-args-key0-positional",
+   "name": "om08-choose-args-key0-not-special",
+   "osdmap": "offline/om08-choose-args-key0-not-special.osdmap.hex",
+   "patch": {},
+   "pg_num": 48,
+   "pgs": "offline/om08-choose-args-key0-not-special.pgs.json"
+  }
+ ],
+ "restore": {
+  "crush_version": 90,
+  "crush_version_before": 65,
+  "epoch_end": 925,
+  "ok": true,
+  "problems": []
+ },
+ "scrub": {
+  "crc": "recomputed (full map crc, incremental inc_crc and full_crc)",
+  "fsid": "00112233-4455-6677-8899-aabbccddeeff",
+  "osd_uuids": "16 bytes of 0xA0 + osd id"
+ },
+ "states": [
+  {
+   "description": "S11: a pool created (pg_num 16, size 3, power of two); new_pools in the incremental",
+   "epoch": 667,
+   "file": "states/s11b-pool-created.json",
+   "full_map": "maps/e667.hex",
+   "label": "s11b-pool-created",
+   "notes": ""
+  },
+  {
+   "description": "S1/S2: pg_num 7, pgp_num 7 with pgp_num_target 4 (the first epoch of the pool)",
+   "epoch": 674,
+   "file": "states/s01a-p7-created.json",
+   "full_map": null,
+   "label": "s01a-p7-created",
+   "notes": ""
+  },
+  {
+   "description": "S1: pg_num 7, pgp_num 4 (not a power of two, pgp_num below pg_num)",
+   "epoch": 681,
+   "file": "states/s01b-p7-pgp4.json",
+   "full_map": "maps/e681.hex",
+   "label": "s01b-p7-pgp4",
+   "notes": ""
+  },
+  {
+   "description": "S1: pg_num 12, pgp_num 8, size 3",
+   "epoch": 693,
+   "file": "states/s01c-np-pgp8.json",
+   "full_map": "maps/e693.hex",
+   "label": "s01c-np-pgp8",
+   "notes": ""
+  },
+  {
+   "description": "S10: a pool without the HASHPSPOOL flag (pps = ps + pool id)",
+   "epoch": 698,
+   "file": "states/s10-legacy-pool.json",
+   "full_map": "maps/e698.hex",
+   "label": "s10-legacy-pool",
+   "notes": ""
+  },
+  {
+   "description": "S14: a crush rule added through the monitor (crush field of the incremental, crush_version +1)",
+   "epoch": 704,
+   "file": "states/s14a-crush-rule-added.json",
+   "full_map": null,
+   "label": "s14a-crush-rule-added",
+   "notes": ""
+  },
+  {
+   "description": "all test pools present and every PG active, no override set by hand (the undersized pools keep monitor-made pg_temp entries): the epoch of the name oracle (names/)",
+   "epoch": 709,
+   "file": "states/s00-base-pools.json",
+   "full_map": "maps/e709.hex",
+   "label": "s00-base-pools",
+   "notes": ""
+  },
+  {
+   "description": "S3: pg_upmap_items with one pair on 43.1 (up [2, 0], 2 -> 1)",
+   "epoch": 710,
+   "file": "states/s03a-upmap-items-one.json",
+   "full_map": "maps/e710.hex",
+   "label": "s03a-upmap-items-one",
+   "notes": ""
+  },
+  {
+   "description": "S3: pg_upmap_items with two pairs on 43.2 (up [2, 0]: 2 -> 1, 0 -> 2; the second pair uses the OSD the first one freed)",
+   "epoch": 712,
+   "file": "states/s03b-upmap-items-two.json",
+   "full_map": null,
+   "label": "s03b-upmap-items-two",
+   "notes": ""
+  },
+  {
+   "description": "S3: an invalid pair, 'to' already in the up set (43.3: 2 -> 1); the monitor accepts it, the mapping must ignore it",
+   "epoch": 714,
+   "file": "states/s03c-upmap-items-invalid-to.json",
+   "full_map": null,
+   "label": "s03c-upmap-items-invalid-to",
+   "notes": ""
+  },
+  {
+   "description": "S3: an invalid pair, 'from' not in the up set (43.4 up [2, 1]: 0 -> 2)",
+   "epoch": 715,
+   "file": "states/s03d-upmap-items-invalid-from.json",
+   "full_map": null,
+   "label": "s03d-upmap-items-invalid-from",
+   "notes": "the monitor accepts the command but cleans an invalid pair in the epoch that would have carried it, so normally no epoch holds it PREDICATE-NOT-MET: the monitor did not keep the requested state in any epoch"
+  },
+  {
+   "description": "S3: the four pg_upmap_items removed again (old_pg_upmap_items)",
+   "epoch": 718,
+   "file": "states/s03z-upmap-items-removed.json",
+   "full_map": null,
+   "label": "s03z-upmap-items-removed",
+   "notes": ""
+  },
+  {
+   "description": "S4: pg_upmap on 43.5 that reorders the up set [1, 0]",
+   "epoch": 720,
+   "file": "states/s04a-upmap-reorder.json",
+   "full_map": "maps/e720.hex",
+   "label": "s04a-upmap-reorder",
+   "notes": ""
+  },
+  {
+   "description": "S4: pg_upmap on 43.6 with an OSD outside the CRUSH result [0, 2]",
+   "epoch": 722,
+   "file": "states/s04b-upmap-replace.json",
+   "full_map": null,
+   "label": "s04b-upmap-replace",
+   "notes": ""
+  },
+  {
+   "description": "S4: pg_upmap on 43.7 that holds osd.0, then osd.0 reweighted to 0 (a member with weight 0)",
+   "epoch": 725,
+   "file": "states/s04c-upmap-member-weight0.json",
+   "full_map": null,
+   "label": "s04c-upmap-member-weight0",
+   "notes": "the monitor cleans such an entry in the same or a later epoch if it considers it invalid"
+  },
+  {
+   "description": "S4: pg_upmap naming osd.0, set while osd.0 already has weight 0 (rc 0)",
+   "epoch": 732,
+   "file": "states/s04d-upmap-set-after-weight0.json",
+   "full_map": null,
+   "label": "s04d-upmap-set-after-weight0",
+   "notes": ""
+  },
+  {
+   "description": "S4: pg_upmap entries removed, weights back to 1",
+   "epoch": 737,
+   "file": "states/s04z-upmap-removed.json",
+   "full_map": null,
+   "label": "s04z-upmap-removed",
+   "notes": ""
+  },
+  {
+   "description": "S5: require_min_compat_client raised to reef (needed for pg-upmap-primary); restored in s05z",
+   "epoch": 739,
+   "file": "states/s05a-require-reef.json",
+   "full_map": null,
+   "label": "s05a-require-reef",
+   "notes": ""
+  },
+  {
+   "description": "S5: pg_upmap_primary on 45.1 (up [1, 0, 2], primary 2)",
+   "epoch": 740,
+   "file": "states/s05b-upmap-primary-one.json",
+   "full_map": "maps/e740.hex",
+   "label": "s05b-upmap-primary-one",
+   "notes": ""
+  },
+  {
+   "description": "S5: a second pg_upmap_primary on 45.2 (up [1, 0, 2], primary 0)",
+   "epoch": 742,
+   "file": "states/s05c-upmap-primary-two.json",
+   "full_map": null,
+   "label": "s05c-upmap-primary-two",
+   "notes": ""
+  },
+  {
+   "description": "S5: both entries removed and require_min_compat_client back to luminous",
+   "epoch": 746,
+   "file": "states/s05z-upmap-primary-removed.json",
+   "full_map": null,
+   "label": "s05z-upmap-primary-removed",
+   "notes": ""
+  },
+  {
+   "description": "S6: pg_temp without primary_temp on 43.9 (up [1, 0], temp [0, 1])",
+   "epoch": 747,
+   "file": "states/s06a-pg-temp.json",
+   "full_map": "maps/e747.hex",
+   "label": "s06a-pg-temp",
+   "notes": ""
+  },
+  {
+   "description": "S6: primary_temp without pg_temp on 43.a (up [2, 0], primary_temp 0)",
+   "epoch": 750,
+   "file": "states/s06b-primary-temp.json",
+   "full_map": null,
+   "label": "s06b-primary-temp",
+   "notes": ""
+  },
+  {
+   "description": "S6: both on 45.3 (up [0, 2, 1], temp [1, 0, 2], primary_temp 2)",
+   "epoch": 753,
+   "file": "states/s06c-pg-temp-and-primary-temp.json",
+   "full_map": null,
+   "label": "s06c-pg-temp-and-primary-temp",
+   "notes": ""
+  },
+  {
+   "description": "S6: pg_temp / primary_temp cleared again (an empty new_pg_temp entry and a primary_temp of -1 in the incremental)",
+   "epoch": 756,
+   "file": "states/s06z-temps-cleared.json",
+   "full_map": null,
+   "label": "s06z-temps-cleared",
+   "notes": ""
+  },
+  {
+   "description": "S7: primary affinity: osd.0 affinity 0",
+   "epoch": 760,
+   "file": "states/s07a-primary-affinity.json",
+   "full_map": null,
+   "label": "s07a-primary-affinity",
+   "notes": ""
+  },
+  {
+   "description": "S7: primary affinity: osd.0 0, osd.1 0.25",
+   "epoch": 762,
+   "file": "states/s07b-primary-affinity.json",
+   "full_map": null,
+   "label": "s07b-primary-affinity",
+   "notes": ""
+  },
+  {
+   "description": "S7: primary affinity: osd.0 0, osd.1 0.25, osd.2 0.5",
+   "epoch": 764,
+   "file": "states/s07c-primary-affinity.json",
+   "full_map": "maps/e764.hex",
+   "label": "s07c-primary-affinity",
+   "notes": ""
+  },
+  {
+   "description": "S7: affinity back to 1 on all OSDs",
+   "epoch": 768,
+   "file": "states/s07z-affinity-restored.json",
+   "full_map": null,
+   "label": "s07z-affinity-restored",
+   "notes": ""
+  },
+  {
+   "description": "S8: osd.0 reweight 0.5",
+   "epoch": 770,
+   "file": "states/s08a-reweight-0p5.json",
+   "full_map": null,
+   "label": "s08a-reweight-0p5",
+   "notes": ""
+  },
+  {
+   "description": "S8: osd.0 reweight 0.1",
+   "epoch": 773,
+   "file": "states/s08b-reweight-0p1.json",
+   "full_map": "maps/e773.hex",
+   "label": "s08b-reweight-0p1",
+   "notes": ""
+  },
+  {
+   "description": "S8: osd.0 reweight 0",
+   "epoch": 776,
+   "file": "states/s08c-reweight-0.json",
+   "full_map": null,
+   "label": "s08c-reweight-0",
+   "notes": ""
+  },
+  {
+   "description": "S8: osd.0 reweight back to 1",
+   "epoch": 779,
+   "file": "states/s08d-reweight-restored.json",
+   "full_map": null,
+   "label": "s08d-reweight-restored",
+   "notes": ""
+  },
+  {
+   "description": "S8: osd.1 marked out (weight 0, still up)",
+   "epoch": 782,
+   "file": "states/s08e-osd-out.json",
+   "full_map": "maps/e782.hex",
+   "label": "s08e-osd-out",
+   "notes": ""
+  },
+  {
+   "description": "S8: osd.1 marked in again",
+   "epoch": 785,
+   "file": "states/s08f-osd-in.json",
+   "full_map": null,
+   "label": "s08f-osd-in",
+   "notes": ""
+  },
+  {
+   "description": "S9: noup set and osd.2 marked down (still in)",
+   "epoch": 789,
+   "file": "states/s09a-osd-down-noup.json",
+   "full_map": "maps/e789.hex",
+   "label": "s09a-osd-down-noup",
+   "notes": ""
+  },
+  {
+   "description": "S9: noup cleared, osd.2 up again (new up_from)",
+   "epoch": 795,
+   "file": "states/s09b-osd-up-again.json",
+   "full_map": null,
+   "label": "s09b-osd-up-again",
+   "notes": ""
+  },
+  {
+   "description": "S2: wrtest-mb-sp pg_num 12 -> 14 (pgp_num follows), every epoch",
+   "epoch": 799,
+   "file": "states/s02-split-e799.json",
+   "full_map": null,
+   "label": "s02-split-e799",
+   "notes": ""
+  },
+  {
+   "description": "S2: wrtest-mb-sp pg_num 12 -> 14 (pgp_num follows), every epoch",
+   "epoch": 800,
+   "file": "states/s02-split-e800.json",
+   "full_map": null,
+   "label": "s02-split-e800",
+   "notes": ""
+  },
+  {
+   "description": "S2: wrtest-mb-sp pg_num 12 -> 14 (pgp_num follows), every epoch",
+   "epoch": 801,
+   "file": "states/s02-split-e801.json",
+   "full_map": null,
+   "label": "s02-split-e801",
+   "notes": ""
+  },
+  {
+   "description": "S2: wrtest-mb-sp pg_num 12 -> 14 (pgp_num follows), every epoch",
+   "epoch": 802,
+   "file": "states/s02-split-e802.json",
+   "full_map": null,
+   "label": "s02-split-e802",
+   "notes": ""
+  },
+  {
+   "description": "S2: wrtest-mb-sp pg_num 12 -> 14 (pgp_num follows), every epoch",
+   "epoch": 803,
+   "file": "states/s02-split-e803.json",
+   "full_map": null,
+   "label": "s02-split-e803",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 807,
+   "file": "states/s15-merge-e807.json",
+   "full_map": null,
+   "label": "s15-merge-e807",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 808,
+   "file": "states/s15-merge-e808.json",
+   "full_map": null,
+   "label": "s15-merge-e808",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 809,
+   "file": "states/s15-merge-e809.json",
+   "full_map": null,
+   "label": "s15-merge-e809",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 810,
+   "file": "states/s15-merge-e810.json",
+   "full_map": null,
+   "label": "s15-merge-e810",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 811,
+   "file": "states/s15-merge-e811.json",
+   "full_map": null,
+   "label": "s15-merge-e811",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 812,
+   "file": "states/s15-merge-e812.json",
+   "full_map": null,
+   "label": "s15-merge-e812",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 813,
+   "file": "states/s15-merge-e813.json",
+   "full_map": null,
+   "label": "s15-merge-e813",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 814,
+   "file": "states/s15-merge-e814.json",
+   "full_map": null,
+   "label": "s15-merge-e814",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 815,
+   "file": "states/s15-merge-e815.json",
+   "full_map": null,
+   "label": "s15-merge-e815",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 816,
+   "file": "states/s15-merge-e816.json",
+   "full_map": null,
+   "label": "s15-merge-e816",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 817,
+   "file": "states/s15-merge-e817.json",
+   "full_map": null,
+   "label": "s15-merge-e817",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 818,
+   "file": "states/s15-merge-e818.json",
+   "full_map": null,
+   "label": "s15-merge-e818",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 819,
+   "file": "states/s15-merge-e819.json",
+   "full_map": null,
+   "label": "s15-merge-e819",
+   "notes": ""
+  },
+  {
+   "description": "S15: wrtest-mb-mg pg_num 16 -> 8 (merge, pg_num_pending), every epoch",
+   "epoch": 844,
+   "file": "states/s15-merge-e844.json",
+   "full_map": null,
+   "label": "s15-merge-e844",
+   "notes": ""
+  },
+  {
+   "description": "S11: wrtest-mb-del created",
+   "epoch": 845,
+   "file": "states/s11c-pool-created-small.json",
+   "full_map": null,
+   "label": "s11c-pool-created-small",
+   "notes": ""
+  },
+  {
+   "description": "S11: the pool renamed to wrtest-mb-ren (new_pool_names)",
+   "epoch": 848,
+   "file": "states/s11d-pool-renamed.json",
+   "full_map": "maps/e848.hex",
+   "label": "s11d-pool-renamed",
+   "notes": ""
+  },
+  {
+   "description": "S11: the pool deleted (old_pools)",
+   "epoch": 849,
+   "file": "states/s11e-pool-deleted.json",
+   "full_map": "maps/e849.hex",
+   "label": "s11e-pool-deleted",
+   "notes": ""
+  },
+  {
+   "description": "S12: an erasure-code profile (k=2, m=1) in erasure_code_profiles",
+   "epoch": 850,
+   "file": "states/s12a-ec-profile.json",
+   "full_map": null,
+   "label": "s12a-ec-profile",
+   "notes": ""
+  },
+  {
+   "description": "S12: an erasure pool (type 3, size 3, indep rule created by the monitor)",
+   "epoch": 852,
+   "file": "states/s12b-ec-pool.json",
+   "full_map": "maps/e852.hex",
+   "label": "s12b-ec-pool",
+   "notes": ""
+  },
+  {
+   "description": "S12: wrtest-mb-cache added as a tier of wrtest-mb-base (tiers / tier_of)",
+   "epoch": 861,
+   "file": "states/s12c-tier-added.json",
+   "full_map": "maps/e861.hex",
+   "label": "s12c-tier-added",
+   "notes": ""
+  },
+  {
+   "description": "S12: cache_mode writeback",
+   "epoch": 865,
+   "file": "states/s12d-cache-writeback.json",
+   "full_map": null,
+   "label": "s12d-cache-writeback",
+   "notes": ""
+  },
+  {
+   "description": "S12: overlay set (read_tier / write_tier on the base pool)",
+   "epoch": 866,
+   "file": "states/s12e-tier-overlay.json",
+   "full_map": "maps/e866.hex",
+   "label": "s12e-tier-overlay",
+   "notes": ""
+  },
+  {
+   "description": "S12: overlay and tier removed",
+   "epoch": 868,
+   "file": "states/s12z-tier-removed.json",
+   "full_map": null,
+   "label": "s12z-tier-removed",
+   "notes": ""
+  },
+  {
+   "description": "S13: a positional weight set for wrtest-mb-ws (choose_args key = pool id 55), values equal to the crush weights",
+   "epoch": 872,
+   "file": "states/s13a-weight-set-created.json",
+   "full_map": "maps/e872.hex",
+   "label": "s13a-weight-set-created",
+   "notes": ""
+  },
+  {
+   "description": "S13: positional weights changed: osd.0 [0.002, 0.05], osd.1 [0.05, 0.002], osd.2 [0.02, 0.02]",
+   "epoch": 875,
+   "file": "states/s13b-weight-set-changed.json",
+   "full_map": "maps/e875.hex",
+   "label": "s13b-weight-set-changed",
+   "notes": ""
+  },
+  {
+   "description": "S13: a compat weight set (choose_args key -1; values equal to the crush weights, so no pool moves)",
+   "epoch": 877,
+   "file": "states/s13c-compat-set-created.json",
+   "full_map": null,
+   "label": "s13c-compat-set-created",
+   "notes": ""
+  },
+  {
+   "description": "S13: both removed again",
+   "epoch": 879,
+   "file": "states/s13z-weight-sets-removed.json",
+   "full_map": null,
+   "label": "s13z-weight-sets-removed",
+   "notes": ""
+  },
+  {
+   "description": "the cluster after the clean-up (only .mgr and winrbd, no overrides)",
+   "epoch": 925,
+   "file": "states/s99-restored.json",
+   "full_map": "maps/e925.hex",
+   "label": "s99-restored",
+   "notes": ""
+  }
+ ],
+ "total_bytes": 1907871
+}

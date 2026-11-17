@@ -12,7 +12,9 @@
  *      the seed-replay test passes without running anything) and is listed in harness/README.md;
  *   4. every ctest name written in backticks in the two READMEs (`util.mem`, `m2.conn.*`, ...) is a test that exists
  *      (test file harness/test/test_<module>_<what>.c is ctest <module>.<what>; CMake turns every underscore into a dot);
- *   5. every source, header, script and build file of the product starts with the MIT SPDX tag (first three lines);
+ *   5. every source, header, script and build file of the product starts with the MIT SPDX tag (first three lines),
+ *      except core/crush_ln/, the one LGPL-2.1 directory: it must hold exactly the four files the boundary allows
+ *      and every one of them must say LGPL-2.1-only (the Ceph table header through its .license sidecar);
  *   6. the CI workflow keeps its promises: warnings stay errors, the sanitizer, 32-bit, iPXE-flag, header and fuzz
  *      jobs are there, and nothing in it lets a failure pass (continue-on-error).
  *
@@ -436,15 +438,61 @@ static void spdx_one(const char *rel, const char *name, void *arg)
 static void check_spdx(void)
 {
 	static const char *const dirs[] = {
-		"core/src/auth", "core/src/client", "core/src/crypto", "core/src/denc", "core/src/mon",
-		"core/src/msgr2", "core/src/util", "core/include/winrbd", "core/tools", "harness", "harness/cmake",
+		"core/src/auth", "core/src/client", "core/src/crush", "core/src/crypto", "core/src/denc", "core/src/mon",
+		"core/src/msgr2", "core/src/osdmap", "core/src/util", "core/include/winrbd", "core/tools", "harness", "harness/cmake",
 		"harness/test", "harness/test/support", "harness/fuzz", "harness/host", "harness/host/tools",
-		"harness/tests/ci-docs-hardening", ".github/workflows",
+		"harness/tests/ci-docs-hardening", "harness/oracle", ".github/workflows",
 	};
 	size_t i;
 
 	for (i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++)
 		each_file(dirs[i], spdx_one, NULL);
+}
+
+/* The licence boundary of core/crush_ln/ (LICENSE, "The CRUSH log table exception"): nothing but these files, all LGPL. */
+static void lgpl_one(const char *rel, const char *name, void *arg)
+{
+	static const char *const allowed[] = {"crush_ln_table.h", "crush_ln_table.h.license", "crush_compat.h",
+					      "wri_crush_lntab.c", "README.md"};
+	static const char tag[] = "SPDX-License-Identifier: LGPL-2.1-only";
+	size_t n = 0, head, nl = 0, k;
+	int ok = 0, found;
+	char *s;
+
+	(void)arg;
+	for (k = 0; k < sizeof(allowed) / sizeof(allowed[0]); k++)
+		if (strcmp(name, allowed[k]) == 0)
+			ok = 1;
+	if (!ok)
+		fprintf(stderr, "%s: core/crush_ln/ may hold only the table header, its licence sidecar, crush_compat.h, "
+				"wri_crush_lntab.c and README.md\n", rel);
+	WRT_CHECK(ok);
+	if (strcmp(name, "README.md") == 0 || strcmp(name, "crush_ln_table.h") == 0)
+		return; /* the copied Ceph header is byte-identical to upstream: its tag is in the sidecar */
+	s = slurp(rel, &n);
+	WRT_CHECK(s != NULL);
+	if (s == NULL)
+		return;
+	if (has_ext(name, ".license")) {
+		found = strstr(s, tag) != NULL; /* a sidecar is two lines: look at all of it */
+	} else {
+		for (head = 0; head < n && nl < 3u; head++)
+			if (s[head] == '\n')
+				nl++;
+		s[head] = '\0'; /* only the first three lines count (head <= n, the buffer has a NUL slot) */
+		found = strstr(s, tag) != NULL;
+	}
+	if (!found)
+		fprintf(stderr, "%s has no '%s' in its first three lines\n", rel, tag);
+	WRT_CHECK(found);
+	free(s);
+}
+
+static void check_crush_ln(void)
+{
+	if (!is_dir("core/crush_ln"))
+		return; /* an installed copy without the LGPL directory: nothing to check */
+	each_file("core/crush_ln", lgpl_one, NULL);
 }
 
 /* ---- 6. the workflow ---------------------------------------------------------------------------------- */
@@ -500,6 +548,7 @@ int main(void)
 	check_fuzz();
 	check_test_names();
 	check_spdx();
+	check_crush_ln();
 	check_workflow();
 	return wrt_finish();
 }

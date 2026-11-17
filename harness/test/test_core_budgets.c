@@ -14,7 +14,13 @@
  *      if one exceeds its capacity or if the engine took more memory than it announced.
  *
  * The rings and buffers are sampled white-box (wri_client_slot_of) after every pump round. The documented budgets are in
- * core_budgets.h (shared with test_core_docs, which checks that core/README.md says the same).
+ * core_budgets.h (shared with test_core_docs, which checks that core/README.md says the same for the plain profiles; this
+ * test checks the rows of the map-enabled profiles, see check_readme_rows).
+ *
+ * The three profiles are run twice: plain, and with the OSD map module on (wr_config_enable_maps; the engine then consumes
+ * the monitor's map messages itself, nothing is delivered raw, and the map slots and the placement cache are part of the exactly
+ * sized regions). With maps on the session also runs against a clean monitor, where the epochs are adopted: epoch 42, then 43,
+ * then again after a monitor restart.
  *
  * Memory discipline, checked for every profile (design section 5.1):
  *   - the regions handed to wr_client_create are EXACTLY the announced sizes, pre-filled with a byte pattern (so the engine
@@ -32,6 +38,7 @@
 #define TICK_MS 50u
 
 #define GUARD 64u
+#define NO_PAD 0xffffffffu /* host_new: the monitor's map message carries no pad (a clean cluster) */
 
 typedef struct region {
 	uint8_t *raw, *base;
@@ -106,12 +113,31 @@ typedef struct host {
 	hconn hc[MAXH];
 	uint64_t now, rng;
 	hw w;
-	unsigned n_maps, n_fatal;
+	unsigned n_maps, n_fatal, n_map_ev, n_mapmsg_ev;
+	uint32_t last_map_epoch;
 } host;
 
 static void harness_profile(wr_config *c)
 {
 	wr_config_profile_harness(c);
+}
+
+static void ipxe_maps(wr_config *c)
+{
+	wr_config_profile_ipxe(c);
+	wr_config_enable_maps(c, WR_MAPS_IPXE);
+}
+
+static void kernel_maps(wr_config *c)
+{
+	wr_config_profile_kernel(c);
+	wr_config_enable_maps(c, WR_MAPS_KERNEL);
+}
+
+static void harness_maps(wr_config *c)
+{
+	wr_config_profile_harness(c);
+	wr_config_enable_maps(c, WR_MAPS_HARNESS);
 }
 
 static wr_status h_random(void *ctx, uint8_t *out, size_t n)
@@ -150,7 +176,9 @@ static host *host_new(const profile *pr, uint32_t pad_over_cap)
 	h->scfg.osdmap_pad = cap / 4u * 3u;
 	if (h->scfg.osdmap_pad > (4u << 20))
 		h->scfg.osdmap_pad = 4u << 20;
-	if (pad_over_cap != 0)
+	if (pad_over_cap == NO_PAD)
+		h->scfg.osdmap_pad = 0;
+	else if (pad_over_cap != 0)
 		h->scfg.osdmap_pad = cap + pad_over_cap; /* the whole front (pad plus the maps) is above the cap */
 	h->sim = sim_mon_new(&h->scfg);
 	if (h->sim == NULL)
@@ -234,6 +262,12 @@ static void host_events(host *h)
 	while (wr_client_next_event(h->c, &e)) {
 		if (e.kind == WR_EV_FATAL)
 			h->n_fatal++;
+		if (e.kind == WR_EV_MAPMSG)
+			h->n_mapmsg_ev++;
+		if (e.kind == WR_EV_MAP) {
+			h->n_map_ev++;
+			h->last_map_epoch = e.epoch;
+		}
 	}
 	for (;;) {
 		wr_mapmsg m;
@@ -397,10 +431,13 @@ static void check_profile(const profile *pr)
 	wri_layout lay;
 	wr_mem_req req;
 	wr_stats st;
+	wr_map_stats ms;
 	hw *w;
+	int maps;
 
 	/* 1. the footprint */
 	pr->fill(&cfg);
+	maps = cfg.map_slot_bytes != 0u;
 	WRT_CHECK_STATUS(WR_OK, wr_client_mem_required(&cfg, &req));
 	WRT_CHECK_STATUS(WR_OK, wri_client_layout(&cfg, &lay));
 	printf("profile %-8s footprint: arena %zu B (%.1f KiB), bulk %zu B (%.1f KiB)\n", pr->name, req.arena,
@@ -421,7 +458,10 @@ static void check_profile(const profile *pr)
 	WRT_CHECK(reach_active(h, 30000));
 	run_ms(h, 3000);
 	WRT_CHECK(wr_client_get_state(h->c) == WR_CS_ACTIVE);
-	WRT_CHECK(h->n_maps >= 2u); /* the monmap and the (large) first map message */
+	if (maps)
+		WRT_CHECK(h->n_maps == 0u && h->n_mapmsg_ev == 0u); /* the engine is the consumer: nothing is delivered raw */
+	else
+		WRT_CHECK(h->n_maps >= 2u); /* the monmap and the (large) first map message */
 	WRT_CHECK(sim_mon_push_epoch(h->sim) == WR_OK);
 	run_ms(h, 1000);
 	sim_mon_restart(h->sim);
@@ -433,7 +473,17 @@ static void check_profile(const profile *pr)
 	/* 3. the high-water marks */
 	w = &h->w;
 	wr_client_get_stats(h->c, &st);
+	wr_client_map_stats(h->c, &ms);
+	if (maps) /* the largest front the store opened, the same figure the host's peeks give without maps */
+		w->map_front = ms.msg_bytes_max > w->map_front ? ms.msg_bytes_max : w->map_front;
 	printf("  session: %u logins, %u map messages, largest front %u B\n", h->sim->n_logins, h->n_maps, w->map_front);
+	if (maps) {
+		printf("  map store: epoch %u (newest seen %u), %u full / %u incremental / %u bad, %u re-requests, slot %u of %u B (high-water %u)\n",
+		       ms.epoch, ms.newest_seen, ms.n_full, ms.n_inc, ms.n_bad, ms.n_resync, ms.slot_used, ms.slot_bytes, ms.slot_used_max);
+		WRT_CHECK(ms.slot_used_max <= ms.slot_bytes);
+		WRT_CHECK(ms.msg_bytes_max <= cfg.mon_msg_cap);
+		WRT_CHECK_U64(h->n_mapmsg_ev, 0);
+	}
 	line("connections (pool)", st.conns_hiwater, cfg.max_conns);
 	line("handshake slots (pool)", st.handshakes_hiwater, cfg.max_handshakes);
 	line("map message slots (pool)", st.mapmsg_hiwater, cfg.mapmsg_queue);
@@ -485,7 +535,16 @@ static void check_oversize(const profile *pr)
 	       pr->name, (unsigned)h->scfg.osdmap_pad, (unsigned)cfg.mon_msg_cap, h->sim->n_logins, h->n_maps,
 	       h->w.map_front);
 	WRT_CHECK(h->w.map_front <= cfg.mon_msg_cap); /* the oversized front never reached the consumer */
-	WRT_CHECK(h->n_maps >= 1u);                    /* the monmap did */
+	if (cfg.map_slot_bytes != 0u) {
+		wr_map_stats ms;
+
+		wr_client_map_stats(h->c, &ms);
+		WRT_CHECK(ms.msg_bytes_max <= cfg.mon_msg_cap && ms.epoch == 0u); /* nor the store: it never saw the map, there is none */
+		WRT_CHECK(ms.n_msg_toobig >= 1u && ms.n_msg_bad == 0u); /* and the host can tell why it has no map */
+		WRT_CHECK_U64(h->n_maps, 0);
+	} else {
+		WRT_CHECK(h->n_maps >= 1u); /* the monmap did */
+	}
 	WRT_CHECK_U64(h->n_fatal, 0);
 	WRT_CHECK_U64(st.arena_used, h->req.arena);
 	WRT_CHECK_U64(st.bulk_used, h->req.bulk);
@@ -494,12 +553,123 @@ static void check_oversize(const profile *pr)
 	host_free(h);
 }
 
+/*
+ * The map module against a clean monitor (no pad on the map message): the store adopts epoch 42, then 43 (pushed), keeps it
+ * across a monitor restart, and answers placement queries on the way, all inside the exactly sized regions.
+ */
+static void check_maps_clean(const profile *pr)
+{
+	host *h = host_new(pr, NO_PAD);
+	wr_pool_h p0 = 9, p1 = 9;
+	wr_map_stats ms;
+	wr_object_id oid;
+	wr_target t;
+	wr_stats st;
+	uint8_t nm[6] = {'r', 'b', 'd', '_', 'x', 'y'};
+
+	WRT_CHECK_STATUS(WR_OK, wr_client_pool_track(h->c, ".mgr", &p0));
+	WRT_CHECK_STATUS(WR_OK, wr_client_pool_track(h->c, "winrbd", &p1));
+	WRT_CHECK(reach_active(h, 30000));
+	run_ms(h, 3000);
+	wr_client_map_stats(h->c, &ms);
+	WRT_CHECK(ms.epoch == 42u && ms.n_full == 1u && ms.n_bad == 0u && ms.n_resync == 0u);
+	WRT_CHECK_U64(h->last_map_epoch, 42);
+	memset(&oid, 0, sizeof(oid));
+	oid.name = nm;
+	oid.name_len = sizeof(nm);
+	WRT_CHECK_STATUS(WR_OK, wr_client_map_target(h->c, p1, &oid, &t));
+	WRT_CHECK_U64(t.epoch, 42);
+	WRT_CHECK(sim_mon_push_epoch(h->sim) == WR_OK);
+	run_ms(h, 1000);
+	wr_client_map_stats(h->c, &ms);
+	WRT_CHECK(ms.epoch == 43u && ms.n_inc == 1u && ms.n_bad == 0u);
+	WRT_CHECK_U64(h->last_map_epoch, 43);
+	sim_mon_restart(h->sim);
+	WRT_CHECK(reach_active(h, 120000));
+	run_ms(h, 3000);
+	wr_client_map_stats(h->c, &ms);
+	WRT_CHECK(ms.epoch == 43u && ms.n_full == 1u && ms.n_resync == 0u && ms.n_bad == 0u); /* the map outlived the session */
+	WRT_CHECK_STATUS(WR_OK, wr_client_map_target(h->c, p1, &oid, &t));
+	WRT_CHECK_U64(t.epoch, 43);
+	wr_client_get_stats(h->c, &st);
+	printf("profile %-8s clean maps: epoch %u, slot %u of %u B (high-water %u), largest front %u B, cache %u hits / %u misses; arena %zu bulk %zu\n",
+	       pr->name, ms.epoch, ms.slot_used, ms.slot_bytes, ms.slot_used_max, ms.msg_bytes_max, ms.cache_hits, ms.cache_misses,
+	       (size_t)st.arena_used, (size_t)st.bulk_used);
+	WRT_CHECK_U64(st.arena_used, h->req.arena);
+	WRT_CHECK_U64(st.bulk_used, h->req.bulk);
+	WRT_CHECK_U64(h->n_fatal, 0);
+	WRT_CHECK(h->n_maps == 0u && h->n_mapmsg_ev == 0u);
+	WRT_CHECK(region_guards_intact(&h->arena) && region_guards_intact(&h->bulk));
+	host_free(h);
+}
+
+/* core/README.md carries a footprint row per map-enabled profile (the plain ones are checked by test_core_docs). */
+static void readme_row(const char *doc, const char *label, void (*fill)(wr_config *), size_t arena_budget, size_t bulk_budget, int product)
+{
+	wr_config cfg;
+	wr_mem_req req;
+	char want[256], key[64];
+	const char *row;
+
+	fill(&cfg);
+	WRT_CHECK_STATUS(WR_OK, wr_client_mem_required(&cfg, &req));
+	snprintf(key, sizeof(key), "| `%s` |", label);
+	row = strstr(doc, key);
+	if (product)
+		snprintf(want, sizeof(want), "| `%s` | %.0f KiB | %.0f KiB | %u KiB / %u KiB |", label, (double)req.arena / 1024.0,
+			 (double)req.bulk / 1024.0, (unsigned)(arena_budget / 1024u), (unsigned)(bulk_budget / 1024u));
+	else
+		snprintf(want, sizeof(want), "| `%s` | %.1f MiB | %.0f MiB | (sanity cap %u MiB / %u MiB) |", label,
+			 (double)req.arena / 1048576.0, (double)req.bulk / 1048576.0, (unsigned)(arena_budget / 1048576u),
+			 (unsigned)(bulk_budget / 1048576u));
+	WRT_CHECK(row != NULL);
+	if (row == NULL) {
+		fprintf(stderr, "core/README.md has no footprint row for %s; it should read: %s\n", label, want);
+		return;
+	}
+	if (strncmp(row, want, strlen(want)) != 0) {
+		const char *eol = strchr(row, '\n');
+
+		fprintf(stderr, "core/README.md footprint row of %s is stale\n  has:    %.*s\n  should: %s\n", label,
+			eol != NULL ? (int)(eol - row) : 80, row, want);
+		WRT_CHECK(0);
+	} else {
+		WRT_CHECK(1);
+	}
+}
+
+static void check_readme_rows(void)
+{
+	FILE *f = fopen(WRT_VECTOR_DIR "/../../core/README.md", "rb");
+	char *doc;
+	long n;
+
+	if (f == NULL) {
+		fprintf(stderr, "core.budgets: no source tree around the harness, README rows not checked\n");
+		return;
+	}
+	if (fseek(f, 0, SEEK_END) != 0 || (n = ftell(f)) <= 0 || fseek(f, 0, SEEK_SET) != 0)
+		abort();
+	doc = (char *)malloc((size_t)n + 1u);
+	if (doc == NULL || fread(doc, 1, (size_t)n, f) != (size_t)n)
+		abort();
+	doc[n] = '\0';
+	fclose(f);
+	readme_row(doc, "ipxe + maps", ipxe_maps, WRB_IPXE_MAPS_ARENA, WRB_IPXE_MAPS_BULK, 1);
+	readme_row(doc, "kernel + maps", kernel_maps, WRB_KERNEL_MAPS_ARENA, WRB_KERNEL_MAPS_BULK, 1);
+	readme_row(doc, "harness + maps", harness_maps, WRB_HARNESS_MAPS_ARENA, WRB_HARNESS_MAPS_BULK, 0);
+	free(doc);
+}
+
 int main(void)
 {
 	static const profile profiles[] = {
 		{"ipxe", wr_config_profile_ipxe, WRB_IPXE_ARENA, WRB_IPXE_BULK, 1},
 		{"kernel", wr_config_profile_kernel, WRB_KERNEL_ARENA, WRB_KERNEL_BULK, 1},
 		{"harness", harness_profile, WRB_HARNESS_ARENA, WRB_HARNESS_BULK, 0},
+		{"ipxe+maps", ipxe_maps, WRB_IPXE_MAPS_ARENA, WRB_IPXE_MAPS_BULK, 1},
+		{"kern+maps", kernel_maps, WRB_KERNEL_MAPS_ARENA, WRB_KERNEL_MAPS_BULK, 1},
+		{"harn+maps", harness_maps, WRB_HARNESS_MAPS_ARENA, WRB_HARNESS_MAPS_BULK, 0},
 	};
 	size_t i;
 
@@ -508,5 +678,8 @@ int main(void)
 	for (i = 0; i < sizeof(profiles) / sizeof(profiles[0]); i++)
 		if (profiles[i].budgeted)
 			check_oversize(&profiles[i]);
+	for (i = 3; i < sizeof(profiles) / sizeof(profiles[0]); i++)
+		check_maps_clean(&profiles[i]);
+	check_readme_rows();
 	return wrt_finish();
 }

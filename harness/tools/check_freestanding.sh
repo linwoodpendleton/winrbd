@@ -3,7 +3,7 @@
 #
 # Freestanding smoke test: what an iPXE or a Windows kernel build sees of the core.
 #
-# Compiles every core/src/**/*.c as ISO C99 with -ffreestanding and NO system include path (only the compiler's own
+# Compiles every core/src/**/*.c and core/crush_ln/*.c as ISO C99 with -ffreestanding and NO system include path (only the compiler's own
 # freestanding headers: <stddef.h>, <stdint.h>), then links all the objects into an executable with -nostdlib and no
 # libc, next to a stub that defines exactly the three memory functions the core is allowed to call (memcpy, memmove, memset;
 # equality is wri_ct_memeq, so no memcmp or bcmp is needed). The link fails if
@@ -95,7 +95,7 @@ flags="-std=c99 -pedantic-errors -Wall -Wextra -Werror -ffreestanding -nostdinc 
  -fno-stack-protector -fno-pie -fno-asynchronous-unwind-tables $extra"
 n=0
 objs=""
-for f in $(find "$core/src" -name '*.c' | LC_ALL=C sort); do
+for f in $(find "$core/src" "$core/crush_ln" -name '*.c' | LC_ALL=C sort); do
 	o="$tmp/o$n.o"
 	# shellcheck disable=SC2086
 	"$cc" $flags $incs -c "$f" -o "$o" || { echo "check_freestanding: $f does not compile freestanding" >&2; exit 1; }

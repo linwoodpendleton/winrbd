@@ -45,6 +45,9 @@ enable_testing()
 # ---- the core ------------------------------------------------------------------------------------
 
 file(GLOB_RECURSE WR_CORE_SOURCES CONFIGURE_DEPENDS "${WR_CORE_DIR}/src/*.c")
+# core/crush_ln/ is the one LGPL-2.1 directory of the core (the CRUSH log tables, see LICENSE): same library, same flags.
+file(GLOB WR_CORE_LGPL_SOURCES CONFIGURE_DEPENDS "${WR_CORE_DIR}/crush_ln/*.c")
+list(APPEND WR_CORE_SOURCES ${WR_CORE_LGPL_SOURCES})
 file(GLOB_RECURSE WR_CORE_PRIVATE_HEADERS CONFIGURE_DEPENDS "${WR_CORE_DIR}/src/*.h")
 file(GLOB WR_CORE_PUBLIC_HEADERS CONFIGURE_DEPENDS "${WR_CORE_DIR}/include/winrbd/*.h")
 
@@ -263,5 +266,67 @@ if(TARGET wr_linux_host)
   endforeach()
 endif()
 # ---- module winrbd-probe (end) ----------------------------------------------------------------------
+
+# ---- module oracle-cli (begin) ------------------------------------------------------------------------
+# harness/oracle/*.c: command-line tools that print what the core's OSD map decoder and placement pipeline answer, in
+# the shape of Ceph's own tools (ceph osd map, osdmaptool --test-map-pgs-dump-all, crushtool --test --show-mappings), so
+# the two can be diffed. They read core internals (wr_core_internal) and need no host or network. Part B of Phase 1,
+# docs/design/core-architecture.md 18.
+file(GLOB WR_ORACLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/oracle/*.c")
+# oracle/*_fmt.c are helpers shared by every tool (no main): linked into each tool, never a tool of their own.
+set(WR_ORACLE_SHARED ${WR_ORACLE_SOURCES})
+list(FILTER WR_ORACLE_SHARED INCLUDE REGEX "_fmt\\.c$")
+list(FILTER WR_ORACLE_SOURCES EXCLUDE REGEX "_fmt\\.c$")
+foreach(_src ${WR_ORACLE_SOURCES})
+  get_filename_component(_name "${_src}" NAME_WE)
+  add_executable(${_name} "${_src}" ${WR_ORACLE_SHARED})
+  target_include_directories(${_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/oracle")
+  target_link_libraries(${_name} PRIVATE wr_core_internal wrt_support)
+  wr_apply_test_flags(${_name})
+endforeach()
+# test_oracle_cli (ctest oracle.cli) runs the built tool on the committed vectors; oracle.selftest does the same through
+# tools/map_oracle_lab.sh --selftest (python3). Both need the tool built first.
+if(TARGET wr-maporacle)
+  if(TARGET test_oracle_cli)
+    add_dependencies(test_oracle_cli wr-maporacle)
+    set_property(TEST oracle.cli APPEND PROPERTY ENVIRONMENT "WR_MAPORACLE=$<TARGET_FILE:wr-maporacle>")
+    set_tests_properties(oracle.cli PROPERTIES TIMEOUT 600)
+  endif()
+  find_program(WR_PYTHON3_ORACLE python3)
+  if(WR_PYTHON3_ORACLE)
+    add_test(NAME oracle.selftest COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/tools/map_oracle_lab.sh" --selftest)
+    set_tests_properties(oracle.selftest PROPERTIES LABELS "oracle" TIMEOUT 900
+                         ENVIRONMENT "WR_MAPORACLE=$<TARGET_FILE:wr-maporacle>")
+  endif()
+endif()
+# ---- module oracle-cli (end) --------------------------------------------------------------------------
+
+# ---- module vectors-b (begin) -------------------------------------------------------------------------
+# The map-b public vectors (harness/vectors/public/mapb): sizes, hashes, scrub, CRCs, the chain of incrementals and every
+# name hash are verified by a python3 script (no Ceph needed), which also replays every tabulated PG, name, answer, offline map and
+# crushtool mapping through the independent python mapper (CRUSH log tables from core/crush_ln/). The content is exercised by the
+# map-vectors test.
+find_program(WR_PYTHON3 python3)
+if(WR_PYTHON3)
+  add_test(NAME vectors_mapb_check COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/capture_mapb.sh" --check)
+  set_tests_properties(vectors_mapb_check PROPERTIES LABELS "vectors;checks" TIMEOUT 300)
+  # the checker's own error paths: 16 damaged copies of the vectors, each of which --check must reject
+  add_test(NAME vectors_mapb_selftest COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/capture_mapb.sh" --selftest)
+  set_tests_properties(vectors_mapb_selftest PROPERTIES LABELS "vectors;checks" TIMEOUT 600)
+endif()
+# ---- module vectors-b (end) ---------------------------------------------------------------------------
+
+# ---- module place-live (begin) ------------------------------------------------------------------------
+# The live placement vectors (harness/vectors/public/placement): made by tools/map_placement_lab.py while the whole client followed the
+# lab cluster. place.live (test_place_live.c, created by the glob above) replays them through the core; this checks the files themselves
+# (sizes and hashes against INDEX.json, the contiguous chain, epochs.tsv, no stray file, no key-looking text) with python3 only.
+if(WR_PYTHON3)
+  add_test(NAME vectors_placement_check COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_placement.py")
+  set_tests_properties(vectors_placement_check PROPERTIES LABELS "vectors;checks" TIMEOUT 120)
+endif()
+if(TARGET test_place_live)
+  set_tests_properties(place.live PROPERTIES TIMEOUT 600)
+endif()
+# ---- module place-live (end) --------------------------------------------------------------------------
 
 message(STATUS "winrbd harness: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, core sources: ${WR_CORE_SOURCES}")

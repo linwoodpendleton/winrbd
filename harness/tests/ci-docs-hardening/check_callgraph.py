@@ -12,10 +12,20 @@
 #   * stack = the largest sum of the static frame sizes along a chain (the same blind spot: a call through a function
 #     pointer, such as a host callback or the crypto override table, ends the chain).
 #
+# A function defined in one file and only called from another appears in both .ci files, in the second without a size; the size
+# that counts is the largest one seen, whatever order the files are read in (an earlier version let the sizeless node win in
+# some orders and under-reported the worst chain by about 1.4 KiB).
+#
 # Both numbers are measured, not estimated; the limits below are ratchets set just above today's values so a change
 # that makes the worst case grow shows up in review. Lower them when the code gets shallower.
 #
-#   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 14] [--stack 2048] [--keep DIR]
+# --entry NAME[=BYTES] (repeatable) reports the depth and the static stack of one entry point and, with =BYTES, fails above
+# that budget. It exists for the chains of part B (OSD map, CRUSH, placement), whose budgets are tighter than the global one
+# and which would otherwise hide behind the single worst chain of the whole core. An entry that is not in the graph (a rename)
+# is a tool error, so a budget cannot silently stop applying.
+#
+#   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 14] [--stack 3328] [--keep DIR]
+#                                                              [--entry NAME[=BYTES]]...
 #
 # Run by the `static-limits` job of .github/workflows/harness.yml. Exit 0 = within the limits, 1 = not, 2 = tool error.
 import argparse
@@ -50,16 +60,26 @@ def compile_all(cc, outdir):
 
 
 def read_graph(outdir):
+    """Edges, frame sizes and the functions whose frame gcc cannot bound (a VLA or alloca: '(dynamic)' without ',bounded')."""
     edges = collections.defaultdict(set)
     size = {}
-    for f in glob.glob(os.path.join(outdir, "*.ci")):
+    unbounded = []
+    for f in sorted(glob.glob(os.path.join(outdir, "*.ci"))):
         text = open(f).read()
         for m in re.finditer(r'node: \{ title: "([^"]+)" label: "([^"]*)"', text):
-            s = re.search(r"(\d+) bytes", m.group(2))
-            size[m.group(1)] = int(s.group(1)) if s else 0
+            s = re.search(r"(\d+) bytes(?: \(([a-z,]+)\))?", m.group(2))
+            # Every .ci file also lists the functions it only CALLS, as a node without a size. A function that is defined in
+            # one file and called from another therefore appears several times, and the node with the size must win whatever
+            # order the files are read in (a plain assignment made the result depend on the directory order).
+            if s is None:
+                size.setdefault(m.group(1), 0)
+                continue
+            size[m.group(1)] = max(size.get(m.group(1), 0), int(s.group(1)))
+            if s.group(2) not in (None, "static", "dynamic,bounded"):
+                unbounded.append(m.group(1))
         for m in re.finditer(r'edge: \{ sourcename: "([^"]+)" targetname: "([^"]+)"', text):
             edges[m.group(1)].add(m.group(2))
-    return edges, size
+    return edges, size, unbounded
 
 
 def analyse(edges, size):
@@ -95,6 +115,23 @@ def analyse(edges, size):
     return depth, stack, None
 
 
+def stack_chain(n, stack, size, edges):
+    """The chain that gives the largest stack from n: (function, its own frame) pairs."""
+    out = [(n, size.get(n, 0))]
+    while edges.get(n):
+        n = max(sorted(edges[n]), key=lambda t: stack[t])
+        out.append((n, size.get(n, 0)))
+    return out
+
+
+def find_entry(name, depth):
+    """A public function is in the graph under its bare name, a static one as '<file>:<name>'."""
+    if name in depth:
+        return name
+    hits = sorted(k for k in depth if k.endswith(":" + name))
+    return hits[0] if len(hits) == 1 else None
+
+
 def chain(n, depth, edges):
     out = [n]
     while edges.get(n):
@@ -107,8 +144,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cc", default=os.environ.get("CC", "gcc"))
     ap.add_argument("--depth", type=int, default=14, help="largest allowed call chain, in frames")
-    ap.add_argument("--stack", type=int, default=2048, help="largest allowed static stack along a chain, in bytes")
+    ap.add_argument("--stack", type=int, default=3328, help="largest allowed static stack along a chain, in bytes")
     ap.add_argument("--keep", help="keep the object and .ci files in this directory")
+    ap.add_argument("--entry", action="append", default=[], metavar="NAME[=BYTES]",
+                    help="report one entry point; with =BYTES also fail when its static stack is above that")
     a = ap.parse_args()
 
     tmp = None
@@ -119,7 +158,7 @@ def main():
     else:
         os.makedirs(outdir, exist_ok=True)
     n = compile_all(a.cc, outdir)
-    edges, size = read_graph(outdir)
+    edges, size, unbounded = read_graph(outdir)
     if not size:
         sys.stderr.write("check_callgraph: no call graph information found (gcc 10 or newer is needed)\n")
         return 2
@@ -133,7 +172,31 @@ def main():
     names = [x.replace(REPO + os.sep, "") for x in chain(top_d, depth, edges)]
     print("  deepest chain: %d frames (limit %d): %s" % (depth[top_d], a.depth, " > ".join(names)))
     print("  largest stack: %d bytes (limit %d) from %s" % (stack[top_s], a.stack, top_s.replace(REPO + os.sep, "")))
+    short = [(f.replace(REPO + os.sep, "").split(":")[-1], sz) for f, sz in stack_chain(top_s, stack, size, edges)]
+    print("  largest stack chain: " + " > ".join("%s(%d)" % x for x in short))
     bad = 0
+    if unbounded:
+        # gcc reports "(dynamic,bounded)" for a frame whose number is an upper bound, which is what the sums use; a plain
+        # "(dynamic)" (alloca, a variable-length array) has no bound at all and the core has no business with either.
+        print("check_callgraph: frames of unbounded size (a variable-length array or alloca?): " + ", ".join(sorted(unbounded)))
+        bad = 1
+    for spec in a.entry:
+        name, _, budget = spec.partition("=")
+        node = find_entry(name, depth)
+        if node is None:
+            sys.stderr.write("check_callgraph: entry point '%s' is not in the call graph (renamed, removed, or a static name "
+                             "that exists in more than one file)\n" % name)
+            return 2
+        if budget and not budget.isdigit():
+            sys.stderr.write("check_callgraph: the budget of '%s' is not a number: '%s'\n" % (name, budget))
+            return 2
+        line = "  entry %-28s depth %2d frames, stack %4d bytes" % (name, depth[node], stack[node])
+        if budget:
+            line += " (budget %s)" % budget
+            if stack[node] > int(budget):
+                line += " ABOVE THE BUDGET"
+                bad = 1
+        print(line)
     if depth[top_d] > a.depth:
         print("check_callgraph: call depth %d is above the limit %d" % (depth[top_d], a.depth))
         bad = 1

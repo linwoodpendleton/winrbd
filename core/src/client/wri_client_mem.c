@@ -10,6 +10,10 @@
  *
  * Every allocation uses an alignment of 16 bytes or less (the host contract for the regions), so
  * the padding is the same for every legal base address and the plan is exact.
+ *
+ * The OSD map store (wri_mapstore.h) is embedded in the client struct (that is part of the first take), and when
+ * map_slot_bytes != 0 it adds its placement cache to the arena (after the cephx client's part) and two map slots to
+ * the bulk (after the monitor client's part); the sizes are planned with the same takes the store's init makes.
  */
 #include "wri_client.h"
 
@@ -41,6 +45,13 @@ static wr_status check_cfg(const wr_config *cfg)
 		return WR_E_INVAL;
 	if (cfg->mode_policy != WR_MODE_CRC_ONLY)
 		return WR_E_UNSUPPORTED; /* crc is the only connection mode implemented so far */
+	/* the map module (map_slot_bytes != 0): map_pools 1..8, a slot of at least 16 KiB, map_max_osd within the hard cap, a
+	 * non-zero CRUSH work budget; wri_mapstore_mem is the one place that knows (and refuses the rest with WR_E_INVAL) */
+	if (cfg->map_slot_bytes != 0u) {
+		size_t ma = 0, mb = 0;
+
+		return wri_mapstore_mem(cfg, &ma, &mb);
+	}
 	return WR_OK;
 }
 
@@ -109,7 +120,7 @@ wr_status wri_client_layout(const wr_config *cfg, wri_layout *lay)
 {
 	take t;
 	parts p;
-	size_t cxn = 0, monn = 0, stride;
+	size_t cxn = 0, monn = 0, stride, mapa = 0, mapb = 0;
 	wr_status st;
 
 	if (lay == NULL)
@@ -147,6 +158,17 @@ wr_status wri_client_layout(const wr_config *cfg, wri_layout *lay)
 	if (st != WR_OK)
 		return st;
 	lay->bulk = monn;
+	if (cfg->map_slot_bytes != 0u) { /* the map store: its cache (arena) and its two slots (bulk), in the order init takes them */
+		st = wri_mapstore_mem(cfg, &mapa, &mapb);
+		if (st == WR_OK && mapa != 0u)
+			st = wri_arena_plan(&lay->arena, mapa, 16u);
+		if (st == WR_OK)
+			st = wri_arena_plan(&lay->bulk, cfg->map_slot_bytes, 16u);
+		if (st == WR_OK)
+			st = wri_arena_plan(&lay->bulk, cfg->map_slot_bytes, 16u);
+		if (st != WR_OK)
+			return st;
+	}
 	return WR_OK;
 }
 
@@ -231,6 +253,10 @@ wr_status wri_client_carve(wri_arena *arena, wri_arena *bulk, const wr_config *c
 	st = wri_mon_init(&c->mon, &c->x, bulk, spec);
 	if (st != WR_OK)
 		return st;
+	st = wri_mapstore_init(&c->map, cfg, arena, bulk); /* inert (enabled = 0, nothing taken) when map_slot_bytes == 0 */
+	if (st != WR_OK)
+		return st;
+	wri_client_map_io_init(c);
 
 	c->arena_used = arena->used;
 	c->bulk_used = bulk->used;

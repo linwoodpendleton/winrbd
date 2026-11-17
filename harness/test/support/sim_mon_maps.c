@@ -8,6 +8,7 @@
 #include "sim_mon_int.h"
 
 #include "wrt.h"
+#include "wrt_mapgen.h"
 
 /* ---- vectors ------------------------------------------------------------------------------------ */
 
@@ -397,4 +398,57 @@ wr_status sim_mon_push_epoch(sim_mon *m)
 		if (m->conns[i] != NULL)
 			sim_mon_serve_osdmap(m->conns[i]);
 	return WR_OK;
+}
+
+/* ---- the lab chain of harness/vectors/osdmap as the monitor's store ----------------------------------------- */
+
+/*
+ * The default store (above) is the monclient capture: the real full map of epoch 42 and the two incrementals of epochs
+ * 42 and 43. A test that wants the monitor to walk a longer chain loads the real one instead: osdmap/full-e42.hex and the
+ * 89 stored incrementals of osdmap/incrementals.hex (the scrubbed copy of the same lab cluster, so its fsid is the scrubbed
+ * one). Declared here and by the test that calls it; sim_mon.h belongs to another module and is not touched by this one.
+ *
+ * What the store then holds (SIM_MON_MAX_EPOCHS entries at most): epoch 42 with its full map AND its incremental, epochs
+ * 43 .. last with their incrementals. The monitor serves it like any store: a start-0 subscription gets one MIXED message
+ * (the full map of the newest epoch that has one, then the incrementals after it up to osd_newest), a continuous one gets
+ * the incrementals as epochs are committed, a batch of epochs when several were committed since the last push. osd_newest
+ * becomes `newest` (42 <= newest <= last <= 89); the epochs above it are committed by sim_mon_push_epoch(). The monitor's
+ * fsid (the MOSDMap header and the MonMap blob a client learns it from) becomes the maps' own, so the client's fsid checks
+ * pass. The previous store is dropped. WR_E_INVAL for arguments out of range or vectors that cannot be read.
+ */
+wr_status sim_mon_load_osdmap_vectors(sim_mon *m, uint32_t newest, uint32_t last);
+
+wr_status sim_mon_load_osdmap_vectors(sim_mon *m, uint32_t newest, uint32_t last)
+{
+	uint8_t *full = NULL;
+	size_t nfull = 0, nl = 0, i;
+	wrt_mg_line *ls = NULL;
+	wr_status st = WR_OK;
+	uint32_t e;
+
+	if (m == NULL || newest < 42u || last < newest || last > 89u || last - 42u + 1u > SIM_MON_MAX_EPOCHS)
+		return WR_E_INVAL;
+	if (wrt_mg_load_hex_file(wrt_vec_path("osdmap/full-e42.hex"), &full, &nfull) != 0)
+		return WR_E_INVAL;
+	if (wrt_mg_load_epoch_lines(wrt_vec_path("osdmap/incrementals.hex"), &ls, &nl) != 0 || nl != 89u || nfull < 28u ||
+	    full[0] < 8u || m->monmap_len < 26u) {
+		free(full);
+		wrt_mg_free_lines(ls, nl);
+		return WR_E_INVAL;
+	}
+	for (i = 0; i < m->n_maps; i++) { /* the old store goes */
+		free(m->maps[i].full);
+		free(m->maps[i].inc);
+	}
+	m->n_maps = 0;
+	memcpy(m->fsid, full + 12, 16); /* wrapper envelope (6 bytes), client block envelope (6 bytes), then the fsid */
+	memcpy(m->monmap + 6, m->fsid, 16);
+	st = sim_mon_add_epoch(m, 42u, full, nfull, ls[41].p, ls[41].n);
+	for (e = 43u; st == WR_OK && e <= last; e++)
+		st = sim_mon_add_epoch(m, e, NULL, 0, ls[e - 1u].p, ls[e - 1u].n);
+	m->osd_newest = newest;
+	m->trim_lower = 0;
+	free(full);
+	wrt_mg_free_lines(ls, nl);
+	return st;
 }

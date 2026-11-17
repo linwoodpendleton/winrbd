@@ -6,8 +6,10 @@ lab capture set by an independent checker written from this note alone, not from
 (`harness/tools/osdmap_check.py`; vectors and provenance in `harness/vectors/osdmap/README.md`). Items still
 needing a capture are marked **[confirm on capture]**, items that could not be pinned in source are marked
 **[unverified]**, items the lab settled are marked **[confirmed: ...]**. The lab is one tentacle cluster
-(1 mon, 3 OSDs, IPv4 only, epochs 1 to 92); section 6, "Corrections after capture", lists what changed in this
-note and what the lab cannot settle.
+(1 mon, 3 OSDs, IPv4 only), captured in two rounds: epochs 1 to 92 (first round), then epochs 666 to 925 and a live
+comparison run at epochs 2150 to 2550 (second round: `harness/vectors/public/mapb/`, `harness/tools/map_oracle_lab.sh`,
+and the client of `core/` against the real monitor). Section 6, "Corrections after capture", lists what changed in this
+note in each round and what the lab cannot settle.
 
 All `path:line` references are relative to the Ceph tree root at tag v20.2.5
 (commit ed27c686770872022f4c1de04f6b0ac5d5384ded). Line numbers are from that tree only.
@@ -697,11 +699,14 @@ context (an OSD-op test, see Q7). What the lab does show: the removal of a self-
    current + 1. A start at or below the last epoch the monitor already sent on this session is
    raised to that epoch + 1 (`OSDMonitor.cc:4544-4547`), so a re-request for an epoch that was sent
    but lost on your side returns nothing new; recover from that by subscribing with start 0, which
-   is answered with a full map regardless (`OSDMonitor.cc:4867-4880`) **[confirm on capture]** (the lab shows the
+   is answered with a full map regardless (`OSDMonitor.cc:4867-4880`) **[confirmed in round 2, see below]** (round 1 showed the
 first half only: **[confirmed: osdmap_check.py, 79 MOSDMap messages]** a subscription with start 0 is answered by
 exactly one MOSDMap holding one full map of the newest epoch, and the stock client then re-subscribes with
 start = epoch + 1 and ONETIME (flag 1) and gets nothing more; re-subscribing with a low start after maps were
-already sent on the session was not exercised).
+already sent on the session was not exercised in round 1; **[confirmed in round 2: the client of `core/` tracked a pool
+after its first map was held (`harness/test/test_lab_map.c`, `WR_LAB_LATE_POOL`), asked again with start 0 on the same session, and the
+monitor answered with one full map of the epoch it had already sent (epoch 2555 both times: two full maps, one re-request, no
+incremental); both key types]**).
    Subscription mechanics in general belong to the monitor-client note.
 
 ### 3.2 Handling an MOSDMap message
@@ -1021,6 +1026,26 @@ re-checked by `harness/tools/osdmap_check.py`):
 - T10 partly: self-managed snapshots only (see 2.9); no pool-snaps pool.
 - T11 not run (no stretch pool).
 
+Round 2 (2026-11-16 and 17; `harness/vectors/public/mapb/README.md`, `harness/tools/map_oracle_lab.sh`, the client of `core/`
+against the real monitor) changed these statuses:
+
+- T3 also done from the wire: the client of `core/`, subscribed from its held epoch + 1, took 38 and 66 incrementals in two
+  runs while the cluster changed (upmap items, reweight, out and in, a pool created, split and deleted, primary affinity), 0 undecodable
+  and 0 re-requests, and its placements at its final epoch equal `osdmaptool` on the monitor's map of that epoch. The 259 stored
+  incrementals of epochs 667 to 925 add pool deletion (`old_pools`, 14 epochs), `pg_upmap_primaries` set and cleared (2 and 2), `primary_temp`
+  (5), `pg_temp` (45) and erasure-code profiles; the core applies all 259 from the full map of epoch 666 and the result equals the monitor's
+  own full map at each of the 21 epochs that have one and the `ceph osd dump` of every captured state (ctest `map.vec.full`, `map.vec.pgs`).
+  The longest `old_*` list in them has one entry.
+- T4 partly: a MOSDMap that carries incrementals now exists on the wire (above). A message that mixes kinds, and a trim lower bound above
+  the client's epoch, were not produced.
+- T6 done for every state of `harness/vectors/public/mapb` and for the live run: `pg_num` 12 and 7 (not a power of two), `pgp_num` below
+  `pg_num`, a split and a merge in progress at every epoch, upmap items (one pair, several, invalid ones), `pg_upmap`, `pg_upmap_primaries`, `pg_temp`
+  and `primary_temp`, primary affinity 0, 0.25 and 0.5, reweight and out, `noup` with an OSD down, a pool without HASHPSPOOL, an erasure pool
+  and a cache tier (both refused by the core with a status), `choose_args`: 53 states of the live run and 70 captured states, 5,104 PG rows
+  against `osdmaptool`, 6,300 names against `ceph osd map`, 0 differences.
+- T10 partly more: pool snapshots now exist in `harness/vectors/public/denc-map/pools-e202.bin` (two pool snapshots, recorded pool options,
+  application metadata, a cache tier, hit-set parameters; decoded and checked against the `ceph osd dump` pool lines).
+
 ---
 
 ## 6 Open questions
@@ -1140,7 +1165,57 @@ What the capture run changed in this note (the lab: one tentacle cluster, IPv4 o
    the re-encoded-for-fewer-features CRC case (T8). Never exercised by any lab epoch, so the corresponding steps of
    3.5 and 3.7 are checked against the note's text only: `old_pools`, OSD destroy, `new_state` mask 0, shrinking
    `max_osd`, `pg_upmap_primaries` (decode of rows 28 / 29 and 25 only with empty maps), stretch pool rows 51 / 52 with
-   data, non-power-of-two `pg_num`, `pg_num` != `pgp_num`, pools without HASHPSPOOL.
+   data, non-power-of-two `pg_num`, `pg_num` != `pgp_num`, pools without HASHPSPOOL. (Round 2, below, settled the memory
+   measurement, re-subscribing with start 0, a MOSDMap carrying incrementals, and every item of that last list except OSD
+   destroy, `new_state` mask 0, shrinking `max_osd` and the stretch pool.)
+
+### Corrections after the second capture round (2026-11-16 and 17)
+
+Evidence: the public set `harness/vectors/public/mapb/` (a base map of epoch 666, 259 incrementals to epoch 925, 21 full maps, 70 captured
+states S1 to S15, a name oracle of 3,352 `ceph osd map` answers over 8 pools, 18 offline CRUSH maps and 8 offline OSDMaps, all checked
+against `ceph-dencoder`); the live comparison `harness/tools/map_oracle_lab.sh` (53 states made on the lab with the admin CLI, every PG of every pool of every
+state against `osdmaptool`, 6,300 names against `ceph osd map`, 901 comparisons with `ceph osd dump`, a chain of 149 incrementals, 0 differences,
+the cluster restored and the restore verified); and the client of `core/` itself, which logged in to the real monitor with both key types,
+took its maps and incrementals over msgr2, and was compared with `osdmaptool` on the monitor's map of its final epoch (400 placements, 0 differences).
+
+1. **No row, version, size, order or rule of 2.1 to 2.6 and 3.3 to 3.7 had to be corrected.** The new states reach more of the note than round 1
+   did (pool deletion, upmap primaries, split and merge, legacy pools, an erasure pool, a cache tier, `choose_args`) and every one was
+   reproduced. The two things the review of the implementation found were in the code, not in the note: with a stored `primary_temp` of -1 and
+   no usable `pg_temp` the acting primary is the up primary (3.7 step 7 says so; a test model had it wrong).
+2. **Marks changed from [unverified] / [confirm on capture] / "never exercised" to confirmed:**
+   - `old_pools` (a pool deleted: 14 epochs of the 259) and the pool-name records of a rename and a create (3.5; `pool_max` never goes down, a
+     deleted id is not reused);
+   - `pg_upmap_primaries`: rows 25, 28 and 29 with data (two sets and two clears) and the swap rule of 3.7 step 3, checked against `osdmaptool` primaries;
+   - `pg_num` not a power of two (12 and 7), `pg_num` != `pgp_num` (12 with 8, 7 with 4, and every epoch of a split and of a merge with
+     `pg_num_pending`), pools without HASHPSPOOL: 2.5 flags, 3.7 `stable_mod` and `pps`;
+   - 3.1: re-subscribing with start 0 on a session that already received maps is answered with one full map of the held epoch (the mark at the end of 3.1);
+   - T4, first half: a MOSDMap that carries incrementals is what a client subscribed from its own epoch + 1 receives (38 and 66 incrementals taken
+     in two runs while the cluster changed, none undecodable, none re-requested);
+   - Q10 (memory ceiling): measured on generated clusters (`docs/design/core-architecture.md` 15.3, 18.2): a full map costs 429 to 436 bytes per OSD
+     at 2,048 to 8,192 OSDs without device classes and 478 to 485 with two, 487 to 539 at 100 OSDs; a 4 MiB message holds about 9,000 OSDs. No
+     streaming decoder is needed up to that size: the client holds the message and decodes the client block in place, skipping the OSD-only block by length.
+3. **Added facts (no earlier statement was contradicted):**
+   - the monitor accepts a `pg_upmap_items` pair whose `to` is already in the set and keeps it (3.7 step 3 skips such a pair); a pair whose `from` is not in the
+     set is accepted and removed in the epoch that would have carried it; a `pg_upmap` naming an OSD of weight 0 exists for the epoch of the reweight;
+   - `pg_temp` entries are cleared by the OSDs within a few epochs, `primary_temp` is not (it stays until removed); in `ceph osd dump -f json` the `primary_temp` table is a
+     flat list `[pgid, osd, ...]`;
+   - a `primary_temp` naming an OSD that is not in the acting set (for instance because it was marked out) crashes that OSD (v20.2.5, an assertion in the peering
+     code): the lab capture clears every temp before it marks an OSD out;
+   - the CRUSH blob inside an incremental has the two MSR tunables that the blob inside a full map of the same epoch lacks (2.1 (a) again, now with 259 more
+     incrementals): compare decoded structures, never bytes;
+   - the monitor keeps only the last 500 epochs, so history before the capture window is gone; `ceph-dencoder` of this release crashes in `dump_json`
+     for a map with a non-default primary affinity (`decode` alone, which verifies the CRC, is fine);
+   - a comparison of a client's table with `ceph osd map` at a LATER epoch than the client's shows differences that are not placement errors when the pool's `pg_num` moves in between
+     (the first live attempt compared the client's epoch 2442 with the cluster's 2447 on a pool whose autoscaler was on, and differed for that pool: the first ten differences listed were all in it).
+     Compare at the client's own epoch: `ceph osd getmap <epoch>` and `osdmaptool` on that file. Both reruns did, one with the autoscaler off and one with it on, and had 0 differences over
+     400 placements each (44 and 64 distinct PGs, epochs 2540 and 2599).
+4. **Still marked, and why round 2 could not settle them:** IPv6 sockaddr layout and a non-Linux family number (the lab is IPv4 only); the
+   `require_osd_release` floor, T2 and the older rows of 2.4.2 (the lab only runs tentacle); Q7 and 2.9 (needs an OSD-op test with a stale snap context);
+   Q9 (no sender writes a non-zero gap map); Q14 and the re-encoded-for-fewer-features CRC case of T8 (needs a client advertising a reduced mask); T4 second half (a message
+   that mixes full maps and incrementals, a trim lower bound above the client's epoch); Q8 for a multi-entry `old_*` list (the longest in any incremental has one entry; the
+   core refuses unsorted keys with `WR_E_MAP_CORRUPT`, and no incremental of the 259 + 149 + 104 applied violated that); OSD destroy and purge, `new_state` mask 0, shrinking
+   `max_osd` (the lab rules forbid removing OSDs), and a stretch pool (rows 51 and 52 are decoded from synthetic bytes only and cross-checked with `ceph-dencoder`
+   in `mapgen_dencoder_check.sh`, never with a pool the cluster made).
 
 ---
 

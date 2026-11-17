@@ -1,0 +1,13 @@
+epoch 202
+fsid 52762725-e19a-11f1-886d-525400770001
+pool 1 '.mgr' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode on last_change 15 flags hashpspool stripe_width 0 pg_num_max 32 pg_num_min 1 application mgr read_balance_score 2.99
+pool 2 'winrbd' replicated size 3 min_size 2 crush_rule 1 object_hash rjenkins pg_num 32 pgp_num 32 autoscale_mode off last_change 138 flags hashpspool,selfmanaged_snaps stripe_width 0 application rbd read_balance_score 1.13
+pool 7 'wrtest-probe' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 7 pgp_num 4 autoscale_mode off last_change 151 stripe_width 0 read_balance_score 1.71
+pool 8 'wrtest-probe2' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 14 pgp_num 14 autoscale_mode off last_change 158 lfor 0/0/156 flags hashpspool stripe_width 0 read_balance_score 1.07
+pool 9 'wrtest-denc-a' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode off last_change 197 flags hashpspool,pool_snaps max_bytes 1048576 max_objects 1000 stripe_width 0 compression_algorithm snappy compression_mode force recovery_priority 3 application rbd read_balance_score 2.99
+	snap 1 'snapa1' 2026-11-16T22:08:52.451321+0000
+	snap 2 'snapa2' 2026-11-16T22:08:53.658889+0000
+pool 10 'wrtest-denc-b' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode off last_change 195 lfor 195/195/195 flags hashpspool tiers 12 read_tier 12 write_tier 12 stripe_width 0 application rgw read_balance_score 2.99
+pool 11 'wrtest-denc-c' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode off last_change 190 flags hashpspool,selfmanaged_snaps stripe_width 0 application rbd read_balance_score 2.99
+pool 12 'wrtest-denc-d' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode off last_change 202 lfor 195/195/195 flags hashpspool,incomplete_clones tier_of 10 cache_mode writeback target_bytes 1000000 hit_set bloom{false_positive_probability: 0.05, target_size: 0, seed: 0} 120s x2 decay_rate 0 search_last_n 0 stripe_width 0 application rgw read_balance_score 2.99
+max_osd 3

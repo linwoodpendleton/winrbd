@@ -1,0 +1,13 @@
+epoch 957
+fsid 52762725-e19a-11f1-886d-525400770001
+pool 1 '.mgr' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 1 pgp_num 1 autoscale_mode on last_change 15 flags hashpspool stripe_width 0 pg_num_max 32 pg_num_min 1 application mgr read_balance_score 2.99
+pool 2 'winrbd' replicated size 3 min_size 2 crush_rule 1 object_hash rjenkins pg_num 32 pgp_num 32 autoscale_mode off last_change 138 flags hashpspool,selfmanaged_snaps stripe_width 0 application rbd read_balance_score 1.13
+pool 56 'wrtest-ec' erasure profile wrtest-ecp size 3 min_size 2 crush_rule 2 object_hash rjenkins pg_num 32 pgp_num 32 autoscale_mode on last_change 955 lfor 0/0/946 flags hashpspool stripe_width 8192
+pool 57 'wrtest-merge' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 4 pgp_num 4 autoscale_mode off last_change 950 lfor 0/950/948 flags hashpspool stripe_width 0 read_balance_score 1.50
+pool 58 'wrtest-merge2' replicated size 2 min_size 1 crush_rule 0 object_hash rjenkins pg_num 32 pgp_num 31 pg_num_target 1 pgp_num_target 1 pg_num_pending 31 autoscale_mode off last_change 957 lfor 0/957/957 flags hashpspool stripe_width 0 read_balance_score 1.59
+max_osd 3
+pool 1 pg_num_pending 1 last_force_op_resend 0 flags 1 type 1
+pool 2 pg_num_pending 32 last_force_op_resend 0 flags 8193 type 1
+pool 56 pg_num_pending 32 last_force_op_resend 0 flags 1 type 3
+pool 57 pg_num_pending 4 last_force_op_resend 0 flags 1 type 1
+pool 58 pg_num_pending 31 last_force_op_resend 0 flags 1 type 1

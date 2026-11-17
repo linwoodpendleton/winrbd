@@ -1,0 +1,203 @@
+# begin crush map
+tunable choose_local_tries 0
+tunable choose_local_fallback_tries 0
+tunable choose_total_tries 50
+tunable chooseleaf_descend_once 1
+tunable chooseleaf_vary_r 1
+tunable chooseleaf_stable 1
+tunable straw_calc_version 1
+tunable allowed_bucket_algs 54
+
+# devices
+device 0 osd.0 class ssd
+device 1 osd.1 class hdd
+device 2 osd.2 class hdd
+device 3 osd.3 class nvme
+device 4 osd.4 class ssd
+device 5 osd.5 class hdd
+device 6 osd.6 class hdd
+device 7 osd.7 class hdd
+device 8 osd.8 class ssd
+device 9 osd.9 class hdd
+device 10 osd.10 class nvme
+device 11 osd.11 class hdd
+device 12 osd.12 class ssd
+device 13 osd.13 class hdd
+device 14 osd.14 class hdd
+device 15 osd.15 class hdd
+device 16 osd.16 class ssd
+device 17 osd.17 class nvme
+device 18 osd.18 class hdd
+device 19 osd.19 class hdd
+device 20 osd.20 class ssd
+device 21 osd.21 class hdd
+device 22 osd.22 class hdd
+device 23 osd.23 class hdd
+
+# types
+type 0 osd
+type 1 host
+type 2 rack
+type 3 root
+
+# buckets
+host host0 {
+	id -1		# do not change unnecessarily
+	id -10 class ssd		# do not change unnecessarily
+	id -19 class hdd		# do not change unnecessarily
+	id -28 class nvme		# do not change unnecessarily
+	# weight 5.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.0 weight 1.00000
+	item osd.1 weight 2.00000
+	item osd.2 weight 0.50000
+	item osd.3 weight 1.50000
+}
+host host1 {
+	id -2		# do not change unnecessarily
+	id -11 class ssd		# do not change unnecessarily
+	id -20 class hdd		# do not change unnecessarily
+	id -29 class nvme		# do not change unnecessarily
+	# weight 5.25000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.4 weight 3.00000
+	item osd.5 weight 0.25000
+	item osd.6 weight 1.00000
+	item osd.7 weight 1.00000
+}
+host host2 {
+	id -3		# do not change unnecessarily
+	id -12 class ssd		# do not change unnecessarily
+	id -21 class hdd		# do not change unnecessarily
+	id -30 class nvme		# do not change unnecessarily
+	# weight 4.34999
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.8 weight 0.75000
+	item osd.9 weight 2.50000
+	item osd.10 weight 1.00000
+	item osd.11 weight 0.09999
+}
+host host3 {
+	id -4		# do not change unnecessarily
+	id -14 class ssd		# do not change unnecessarily
+	id -23 class hdd		# do not change unnecessarily
+	id -32 class nvme		# do not change unnecessarily
+	# weight 5.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.12 weight 1.00000
+	item osd.13 weight 2.00000
+	item osd.14 weight 0.50000
+	item osd.15 weight 1.50000
+}
+host host4 {
+	id -5		# do not change unnecessarily
+	id -15 class ssd		# do not change unnecessarily
+	id -24 class hdd		# do not change unnecessarily
+	id -33 class nvme		# do not change unnecessarily
+	# weight 5.25000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.16 weight 3.00000
+	item osd.17 weight 0.25000
+	item osd.18 weight 1.00000
+	item osd.19 weight 1.00000
+}
+host host5 {
+	id -6		# do not change unnecessarily
+	id -16 class ssd		# do not change unnecessarily
+	id -25 class hdd		# do not change unnecessarily
+	id -34 class nvme		# do not change unnecessarily
+	# weight 4.34999
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.20 weight 0.75000
+	item osd.21 weight 2.50000
+	item osd.22 weight 1.00000
+	item osd.23 weight 0.09999
+}
+rack rack0 {
+	id -7		# do not change unnecessarily
+	id -13 class ssd		# do not change unnecessarily
+	id -22 class hdd		# do not change unnecessarily
+	id -31 class nvme		# do not change unnecessarily
+	# weight 14.59999
+	alg straw2
+	hash 0	# rjenkins1
+	item host0 weight 5.00000
+	item host1 weight 5.25000
+	item host2 weight 4.34999
+}
+rack rack1 {
+	id -8		# do not change unnecessarily
+	id -17 class ssd		# do not change unnecessarily
+	id -26 class hdd		# do not change unnecessarily
+	id -35 class nvme		# do not change unnecessarily
+	# weight 14.59999
+	alg straw2
+	hash 0	# rjenkins1
+	item host3 weight 5.00000
+	item host4 weight 5.25000
+	item host5 weight 4.34999
+}
+root default {
+	id -9		# do not change unnecessarily
+	id -18 class ssd		# do not change unnecessarily
+	id -27 class hdd		# do not change unnecessarily
+	id -36 class nvme		# do not change unnecessarily
+	# weight 29.19998
+	alg straw2
+	hash 0	# rjenkins1
+	item rack0 weight 14.59999
+	item rack1 weight 14.59999
+}
+
+# rules
+rule r1_hdd {
+	id 0
+	type replicated
+	step take default class hdd
+	step chooseleaf firstn 0 type host
+	step emit
+}
+rule r0_all {
+	id 1
+	type replicated
+	step take default
+	step chooseleaf firstn 0 type host
+	step emit
+}
+rule r2_ssd {
+	id 2
+	type replicated
+	step take default class ssd
+	step chooseleaf firstn 0 type host
+	step emit
+}
+rule r3_nvme_flat {
+	id 3
+	type replicated
+	step take default class nvme
+	step choose firstn 0 type osd
+	step emit
+}
+rule r4_hdd_rack_indep {
+	id 4
+	type erasure
+	step take default class hdd
+	step chooseleaf indep 0 type rack
+	step emit
+}
+rule r5_ssd_two_steps {
+	id 5
+	type replicated
+	step take default class ssd
+	step choose firstn 2 type rack
+	step chooseleaf firstn 2 type host
+	step emit
+}
+
+# end crush map

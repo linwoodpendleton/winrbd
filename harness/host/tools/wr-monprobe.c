@@ -147,6 +147,10 @@ static const char *ev_name(wr_ev_kind k)
 		return "TICKETS_RENEWED";
 	case WR_EV_FATAL:
 		return "FATAL";
+	case WR_EV_MAP:
+		return "MAP";
+	case WR_EV_MAP_RESYNC:
+		return "MAP_RESYNC";
 	case WR_EV_NONE:
 	default:
 		return "NONE";

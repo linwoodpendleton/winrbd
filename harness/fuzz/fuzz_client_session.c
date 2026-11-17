@@ -10,8 +10,10 @@
  *
  *   byte 0   bit 0 key type (aes / aes256k), bits 1-2 profile (0 harness with 256 KiB messages, 1 ipxe, 2 kernel,
  *            3 harness with a 64-byte receive ring), bit 3 the host pushes bytes (rx_push) instead of using the
- *            window, bits 4-7 work budget per run (0 = default, else 64 << n)
- *   rest     operations, an opcode byte (mod 11) and one or two argument bytes:
+ *            window, bits 4-6 work budget per run (0 = default, else 64 << n), bit 7 the OSD map module is ON (half of
+ *            all inputs): the engine then decodes the monitor's maps itself (256 KiB slots, 1 MiB for the kernel profile,
+ *            which also checks the map CRC), the two lab pools are tracked, and every pump round queries it
+ *   rest     operations, an opcode byte (mod 12) and one or two argument bytes:
  *              0 run        a: advance the virtual clock by (a % 40 + 1) ticks of 50 ms, pumping at each
  *              1 flip       a, b: flip bits b in the monitor's stream at offset (a * 37) of the newest connection
  *              2 cut        the host drops the newest connection (wr_conn_closed with an errno)
@@ -28,12 +30,15 @@
  *              10 raw       a, len8, bytes: the fuzzer plays the monitor at the byte level: the next bytes the host
  *                           delivers on the newest connection are these (framing, CRCs and all unchecked), ahead of
  *                           whatever the simulated monitor still had queued
+ *              11 push      the monitor commits its next epoch (43) and serves it to the subscribers
  *
  * Properties (a violated one traps): no crash or undefined behaviour (ASan / UBSan); the pump settles (no round
  * ever repeats forever at one instant); pool accounting stays inside the configuration (connections and handshakes
  * in use never exceed their tables, one monitor session at a time plus at most the ones still closing); a
  * connection that was told to the host is either still known or was closed by the host; a FATAL event only after the
- * random source failed; with a good world at the end (no flips, no cuts, random ok) the engine reaches ACTIVE
+ * random source failed, or, with maps on, because the first map can never be used (then the state is FAILED too); with
+ * maps on no raw map message is ever delivered, WR_EV_MAP epochs never go down, the held epoch never goes down and map_info,
+ * pool_info and map_target agree with each other whatever the monitor sent; with a good world at the end (no flips, no cuts, random ok) the engine reaches ACTIVE
  * again; after destroy the arena part in use is all zero.
  *
  * Memory properties (the budget rules of docs/design/core-architecture.md section 5): both regions are filled with a
@@ -75,6 +80,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 #define BUDGET_IPXE_BULK (1024u * 1024u + 16u * 1024u)
 #define BUDGET_KERNEL_ARENA (512u * 1024u)
 #define BUDGET_KERNEL_BULK (8u * 1024u * 1024u + 32u * 1024u)
+/* with the map module on (test/core_budgets.h) */
+#define BUDGET_IPXE_MAPS_ARENA (128u * 1024u)
+#define BUDGET_IPXE_MAPS_BULK (1536u * 1024u + 64u * 1024u)
+#define BUDGET_KERNEL_MAPS_ARENA (512u * 1024u)
+#define BUDGET_KERNEL_MAPS_BULK (10u * 1024u * 1024u + 64u * 1024u)
 
 static void check(int cond)
 {
@@ -129,6 +139,9 @@ typedef struct fz {
 	uint64_t now, rng;
 	uint32_t budget;
 	int push_mode, hold_maps, rng_fail, rng_failed_ever, any_flip, any_cut, saw_fatal;
+	int maps;            /* the OSD map module is on */
+	uint32_t map_epoch;  /* newest epoch seen in a WR_EV_MAP event / held according to map_info: never goes down */
+	uint32_t ev_epoch;
 	size_t tx_limit;
 	unsigned slow_rounds;
 	uint64_t flip_at;
@@ -184,20 +197,116 @@ static void hc_end(fz *f, hconn *hc, int err)
 	hc->used = 0;
 }
 
+/* What the map module says right now, folded into the digest; the answers must agree with each other (maps on). */
+static void observe_maps(fz *f)
+{
+	wr_map_info mi;
+	wr_pool_info pi;
+	wr_map_stats ms;
+	wr_target t, t2;
+	wr_object_id oid;
+	static const uint8_t nm[6] = {'r', 'b', 'd', '_', 'd', '0'};
+	wr_status st, st2;
+
+	st = wr_client_map_info(f->c, &mi);
+	dig_u64(&f->digest, (uint64_t)(int64_t)st);
+	wr_client_map_stats(f->c, &ms);
+	dig_u64(&f->digest, ms.epoch);
+	dig_u64(&f->digest, ms.n_full);
+	dig_u64(&f->digest, ms.n_inc);
+	dig_u64(&f->digest, ms.n_bad);
+	dig_u64(&f->digest, ms.n_resync);
+	dig_u64(&f->digest, ms.slot_used);
+	dig_u64(&f->digest, ms.n_msg_toobig);
+	dig_u64(&f->digest, ms.n_msg_bad);
+	check(ms.slot_used <= ms.slot_bytes && ms.slot_used_max <= ms.slot_bytes);
+	if (st != WR_OK) {
+		check(st == WR_E_MAP_NONE && ms.epoch == 0u);
+		return;
+	}
+	check(mi.epoch == ms.epoch && mi.epoch >= f->map_epoch && mi.n_up <= mi.max_osd); /* the held epoch never goes down */
+	if (mi.max_osd <= 64u) { /* n_up is what osd_addr's up flag adds up to; an id the map does not have is WR_E_RANGE */
+		unsigned o, n = 0;
+
+		for (o = 0; o < mi.max_osd; o++) {
+			wr_addr a;
+			uint8_t up = 2;
+			wr_status sa = wr_client_osd_addr(f->c, (int32_t)o, &a, &up);
+
+			check(sa == WR_OK || (sa == WR_E_RANGE && up == 0u));
+			n += sa == WR_OK && up == 1u;
+		}
+		check(n == mi.n_up);
+		check(wr_client_osd_addr(f->c, (int32_t)mi.max_osd, &(wr_addr){0}, NULL) == WR_E_RANGE);
+	}
+	f->map_epoch = mi.epoch;
+	dig_u64(&f->digest, mi.epoch);
+	dig_u64(&f->digest, mi.flags);
+	dig_u64(&f->digest, mi.n_up);
+	dig(&f->digest, mi.fsid, sizeof(mi.fsid));
+	st = wr_client_pool_info(f->c, 1u, &pi);
+	dig_u64(&f->digest, (uint64_t)(int64_t)st);
+	if (st == WR_OK) {
+		dig_u64(&f->digest, (uint64_t)pi.id);
+		dig_u64(&f->digest, pi.pg_num);
+		dig_u64(&f->digest, (uint64_t)(int64_t)pi.status);
+	}
+	memset(&oid, 0, sizeof(oid));
+	oid.name = nm;
+	oid.name_len = sizeof(nm);
+	st = wr_client_map_target(f->c, 1u, &oid, &t);
+	dig_u64(&f->digest, (uint64_t)(int64_t)st);
+	if (st == WR_OK) {
+		check(t.epoch == mi.epoch && t.n_acting != 0 && t.acting_primary >= 0 && (uint32_t)t.acting_primary < mi.max_osd);
+		dig(&f->digest, &t.ps, sizeof(t.ps));
+		dig(&f->digest, t.acting, sizeof(t.acting));
+		dig_u64(&f->digest, (uint64_t)(int64_t)t.acting_primary);
+		dig_u64(&f->digest, t.primary_addr.port);
+		/* by PG: the same placement group (and the same answer) as by object */
+		st2 = wr_client_map_target_pg(f->c, 1u, t.pg_seed, &t2);
+		check(st2 == WR_OK && t2.pg_seed == t.pg_seed && memcmp(t2.acting, t.acting, sizeof(t.acting)) == 0);
+		/* the same query again (a cache hit now) answers the same; the primary's address is what osd_addr says; every OSD of
+		 * the acting set is one the map has */
+		st2 = wr_client_map_target(f->c, 1u, &oid, &t2);
+		check(st2 == WR_OK && memcmp(&t, &t2, sizeof(t)) == 0);
+		{
+			wr_addr pa;
+			uint8_t up = 0;
+			unsigned i;
+
+			check(wr_client_osd_addr(f->c, t.acting_primary, &pa, &up) == WR_OK);
+			check(pa.family == t.primary_addr.family && pa.port == t.primary_addr.port && pa.nonce == t.primary_addr.nonce &&
+			      memcmp(pa.ip, t.primary_addr.ip, sizeof(pa.ip)) == 0);
+			for (i = 0; i < t.n_acting; i++)
+				check(t.acting[i] < 0 || wr_client_osd_addr(f->c, t.acting[i], &pa, NULL) == WR_OK);
+		}
+	} else {
+		check(t.acting_primary == -1); /* a failed query leaves the target cleared (UNMAPPABLE keeps only its epoch and PG) */
+	}
+}
+
 static void drain_events(fz *f)
 {
 	wr_event e;
 
 	while (wr_client_next_event(f->c, &e)) {
-		check(e.kind >= WR_EV_MON_SESSION_UP && e.kind <= WR_EV_FATAL);
+		check(e.kind >= WR_EV_MON_SESSION_UP && e.kind <= WR_EV_MAP_RESYNC);
 		dig_u64(&f->digest, (uint64_t)e.kind);
 		dig_u64(&f->digest, (uint64_t)e.epoch);
 		dig_u64(&f->digest, (uint64_t)e.err.status);
+		if (e.kind == WR_EV_MAP) {
+			check(f->maps && e.epoch >= f->ev_epoch);
+			f->ev_epoch = e.epoch;
+		}
+		if (e.kind == WR_EV_MAP_RESYNC || e.kind == WR_EV_MAPMSG)
+			check(f->maps == (e.kind == WR_EV_MAP_RESYNC)); /* raw-message events only without maps, resync events only with */
 		if (e.kind == WR_EV_FATAL) {
-			check(f->rng_failed_ever); /* FATAL only follows a dead random source */
+			check(f->rng_failed_ever || f->maps); /* FATAL follows a dead random source, or (maps on) a first map that cannot be used */
 			f->saw_fatal = 1;
 		}
 	}
+	if (f->maps)
+		observe_maps(f);
 	if (f->hold_maps)
 		return;
 	for (;;) {
@@ -205,6 +314,7 @@ static void drain_events(fz *f)
 
 		if (!wr_client_mapmsg_peek(f->c, &m))
 			break;
+		check(!f->maps); /* with maps on the engine is the only consumer */
 		check(m.front != NULL && m.front_len != 0 && (m.kind == WR_MAPMSG_MONMAP || m.kind == WR_MAPMSG_OSDMAP));
 		dig_u64(&f->digest, (uint64_t)m.kind);
 		dig_u64(&f->digest, (uint64_t)m.front_len);
@@ -500,7 +610,10 @@ static void fz_setup(fz *f, uint8_t b0, uint8_t pat)
 		break;
 	}
 	f->push_mode = (b0 >> 3) & 1u;
-	f->budget = (b0 >> 4) == 0u ? 0u : (uint32_t)64u << ((b0 >> 4) & 7u);
+	f->budget = ((b0 >> 4) & 7u) == 0u ? 0u : (uint32_t)64u << ((b0 >> 4) & 7u);
+	f->maps = (b0 >> 7) & 1u;
+	if (f->maps) /* the OSD map module on top of the profile: 256 KiB slots, 1 MiB (and a CRC check) for the kernel profile */
+		wr_config_enable_maps(&f->cfg, prof == 2u ? WR_MAPS_KERNEL : WR_MAPS_IPXE);
 	f->now = 10000;
 	f->rng = 0xfeedfacecafebeefull;
 	f->tx_limit = 16;
@@ -520,8 +633,10 @@ static void fz_setup(fz *f, uint8_t b0, uint8_t pat)
 
 	check(wr_client_mem_required(&f->cfg, &req) == WR_OK);
 	f->prof = (int)prof;
-	if (prof == 1u)
+	if (prof == 1u && !f->maps)
 		check(req.arena <= BUDGET_IPXE_ARENA && req.bulk <= BUDGET_IPXE_BULK);
+	if (prof == 1u && f->maps)
+		check(req.arena <= BUDGET_IPXE_MAPS_ARENA && req.bulk <= BUDGET_IPXE_MAPS_BULK);
 	f->arena_size = req.arena;
 	f->bulk_size = req.bulk;
 	f->arena_total = req.arena + SPARE + 2u * GUARD + 64u;
@@ -538,6 +653,12 @@ static void fz_setup(fz *f, uint8_t b0, uint8_t pat)
 	check(wr_client_create(&f->cfg, &f->ops, &f->spec, (wr_mem_region){f->arena, f->arena_size + SPARE},
 			       (wr_mem_region){f->bulk, f->bulk_size + SPARE}, &f->c) == WR_OK);
 	check(f->c != NULL);
+	if (f->maps) { /* the two pools of the lab map, in the order observe_maps asks for them: .mgr is 0, winrbd is 1 */
+		wr_pool_h h0 = 9, h1 = 9;
+
+		check(wr_client_pool_track(f->c, ".mgr", &h0) == WR_OK && h0 == 0u);
+		check(wr_client_pool_track(f->c, "winrbd", &h1) == WR_OK && h1 == 1u);
+	}
 }
 
 /* Every byte of raw[0 .. base) and of [base + used, raw + total) still holds the fill pattern. */
@@ -563,8 +684,11 @@ static void fz_end(fz *f)
 	wr_client_get_stats(f->c, &st);
 	/* the footprint is fixed at create: what the engine took is exactly what it announced, so it is within the budget */
 	check(st.arena_used == f->arena_size && st.bulk_used == f->bulk_size);
-	if (f->prof == 2) {
+	if (f->prof == 2 && !f->maps) {
 		check(st.arena_used <= BUDGET_KERNEL_ARENA && st.bulk_used <= BUDGET_KERNEL_BULK);
+	}
+	if (f->prof == 2 && f->maps) {
+		check(st.arena_used <= BUDGET_KERNEL_MAPS_ARENA && st.bulk_used <= BUDGET_KERNEL_MAPS_BULK);
 	}
 	check(st.conns_hiwater <= f->cfg.max_conns && st.handshakes_hiwater <= f->cfg.max_handshakes);
 	check(st.mapmsg_hiwater <= f->cfg.mapmsg_queue);
@@ -594,7 +718,7 @@ static uint64_t run_script(const uint8_t *data, size_t size, uint8_t pat)
 	fz_setup(f, data[0], pat);
 	tick(f, 4);
 	while (pos < size && ops++ < MAX_OPS) {
-		uint8_t op = data[pos++] % 11u, a = pos < size ? data[pos] : 0, b = pos + 1u < size ? data[pos + 1u] : 0;
+		uint8_t op = data[pos++] % 12u, a = pos < size ? data[pos] : 0, b = pos + 1u < size ? data[pos + 1u] : 0;
 		hconn *hc;
 
 		switch (op) {
@@ -675,6 +799,9 @@ static uint64_t run_script(const uint8_t *data, size_t size, uint8_t pat)
 			pos += n;
 			break;
 		}
+		case 11:
+			(void)sim_mon_push_epoch(f->sim);
+			break;
 		default:
 			pos += pos < size;
 			f->tx_limit = (size_t)(a % 64u) + 1u;

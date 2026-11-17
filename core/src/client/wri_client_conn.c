@@ -195,6 +195,10 @@ static wr_status link_send(void *ctx, uint16_t slot, const wri_m2_msg_out *m)
 
 static void link_event(void *ctx, wr_ev_kind kind, uint32_t epoch, const wr_errinfo *err)
 {
+	/* With maps on the store polls the monitor's slots itself: a raw-message event would send the host to a peek that
+	 * returns nothing (architecture 15.6). */
+	if (kind == WR_EV_MAPMSG && ((const wr_client *)ctx)->map.enabled)
+		return;
 	wri_client_push_event((wr_client *)ctx, kind, epoch, err);
 }
 

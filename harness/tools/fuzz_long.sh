@@ -11,6 +11,8 @@
 #   -j JOBS      targets running at the same time (default 4; use at most the number of idle cores)
 #   -o WORKDIR   where the build, the corpora, the logs and the crash files go (default build/fuzz-long)
 #   -t LIST      only these targets, e.g. "fuzz_m2_rx fuzz_cx_reply" (default: every harness/fuzz/fuzz_*.c)
+#   -p PRESET    a named group instead of -t: "partb" = the five targets of Phase 1 part B (OSD map, CRUSH, placement):
+#                fuzz_crush_dec fuzz_crush_map fuzz_osdmap_full fuzz_osdmap_inc fuzz_mapstore
 #   -m           afterwards minimise each corpus against the committed seeds and print the new inputs worth committing
 #                (copy them into harness/fuzz/seeds/<target>/ by hand after reading them: they are fuzzer output)
 #
@@ -24,16 +26,28 @@ jobs=4
 work=build/fuzz-long
 only=""
 merge=0
-while getopts "s:j:o:t:m" o; do
+chosen=0
+partb="fuzz_crush_dec fuzz_crush_map fuzz_osdmap_full fuzz_osdmap_inc fuzz_mapstore"
+while getopts "s:j:o:t:p:m" o; do
 	case $o in
 	s) secs=$OPTARG ;;
 	j) jobs=$OPTARG ;;
 	o) work=$OPTARG ;;
-	t) only=$OPTARG ;;
+	t) only=$OPTARG; chosen=$((chosen + 1)) ;;
+	p) chosen=$((chosen + 1)); case $OPTARG in
+	   partb) only=$partb ;;
+	   *) echo "fuzz_long: unknown preset '$OPTARG' (partb)" >&2; exit 2 ;;
+	   esac ;;
 	m) merge=1 ;;
-	*) echo "usage: fuzz_long.sh [-s SECONDS] [-j JOBS] [-o WORKDIR] [-t TARGETS] [-m]" >&2; exit 2 ;;
+	*) echo "usage: fuzz_long.sh [-s SECONDS] [-j JOBS] [-o WORKDIR] [-t TARGETS | -p PRESET] [-m]" >&2; exit 2 ;;
 	esac
 done
+
+# -t and -p both choose the target list: giving both is a mistake, not "the last one wins"
+if [ "$chosen" -gt 1 ]; then
+	echo "fuzz_long: use either -t or -p, not both" >&2
+	exit 2
+fi
 
 here=$(cd "$(dirname "$0")/.." && pwd) # harness/
 mkdir -p "$work"
@@ -42,13 +56,31 @@ work=$(cd "$work" && pwd)
 command -v clang >/dev/null 2>&1 || { echo "fuzz_long: clang is needed (libFuzzer)" >&2; exit 2; }
 CC=clang cmake -S "$here" -B "$work/build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_C_FLAGS="-fsanitize=fuzzer-no-link -fno-omit-frame-pointer" -DWR_FUZZ=ON \
-	-DWR_SANITIZE=address,undefined -DWR_WITH_OPENSSL=OFF -DWR_BUILD_HOST=OFF > "$work/configure.log" 2>&1
-cmake --build "$work/build" > "$work/build.log" 2>&1
+	-DWR_SANITIZE=address,undefined -DWR_WITH_OPENSSL=OFF -DWR_BUILD_HOST=OFF > "$work/configure.log" 2>&1 ||
+	{ echo "fuzz_long: cmake failed, see $work/configure.log" >&2; exit 2; }
+cmake --build "$work/build" > "$work/build.log" 2>&1 || { echo "fuzz_long: the build failed, see $work/build.log" >&2; exit 2; }
 
 if [ -z "$only" ]; then
 	only=$(cd "$work/build" && ls fuzz_* 2>/dev/null | grep -v '\.' | tr '\n' ' ')
 fi
+if [ -z "$only" ]; then
+	echo "fuzz_long: no fuzz target was built (see $work/configure.log and $work/build.log)" >&2
+	exit 2
+fi
 mkdir -p "$work/artifacts" "$work/log"
+
+# A named target that was not built is an error (a typo or a renamed file must not shrink the run unnoticed), and a target
+# without committed seeds would start from nothing, which the core.docs test forbids for the repository anyway.
+for t in $only; do
+	case $t in # a target is a file name in the build directory, nothing else
+	*/* | .*) echo "fuzz_long: bad target name '$t'" >&2; exit 2 ;;
+	esac
+	if [ ! -x "$work/build/$t" ]; then
+		echo "fuzz_long: no such target '$t' (built: $(cd "$work/build" && ls fuzz_* 2>/dev/null | grep -v '\.' | tr '\n' ' '))" >&2
+		exit 2
+	fi
+	[ -d "$here/fuzz/seeds/$t" ] || echo "fuzz_long: warning: $t has no committed seeds" >&2
+done
 
 run_one() {
 	t=$1

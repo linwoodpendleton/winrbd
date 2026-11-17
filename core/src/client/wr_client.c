@@ -12,7 +12,8 @@
  *      connection cannot starve the others;
  *   3. housekeeping: connect backstop, handshake slots, connections that ended unseen;
  *   4. the monitor client (hunting, subscriptions, keepalive, renewal, map slots);
- *   5. fatal check, state, first-failure bookkeeping; return the earliest deadline.
+ *   5. the OSD map store, when maps are on (consumes the monitor's map messages, one epoch per run);
+ *   6. fatal check, state, first-failure bookkeeping; return the earliest deadline.
  * The host then drains actions and moves bytes.
  */
 #include "wri_client.h"
@@ -187,13 +188,27 @@ void wri_client_push_event(wr_client *c, wr_ev_kind kind, uint32_t epoch, const 
 		if (err != NULL)
 			note_failure(c, err);
 	}
-	if (c->ev_len == WRI_EVENT_RING) { /* full: drop the oldest informational event, never a fatal one */
-		for (i = 0; i < c->ev_len; i++)
-			if (c->ev[(c->ev_head + i) % WRI_EVENT_RING].kind != WR_EV_FATAL)
+	if (kind == WR_EV_MAP) { /* coalescible: a pending one carries the newest epoch, nothing is queued twice */
+		for (i = 0; i < c->ev_len; i++) {
+			wr_event *p = &c->ev[(c->ev_head + i) % WRI_EVENT_RING];
+
+			if (p->kind == WR_EV_MAP) {
+				if (epoch > p->epoch)
+					p->epoch = epoch;
+				return;
+			}
+		}
+	}
+	if (c->ev_len == WRI_EVENT_RING) { /* full: drop the oldest informational event, never a fatal or a map one */
+		for (i = 0; i < c->ev_len; i++) {
+			wr_ev_kind k = c->ev[(c->ev_head + i) % WRI_EVENT_RING].kind;
+
+			if (k != WR_EV_FATAL && k != WR_EV_MAP)
 				break;
+		}
 		c->ev_dropped++;
-		if (i == c->ev_len) { /* only fatal events queued (cannot happen: one per engine) */
-			if (kind != WR_EV_FATAL)
+		if (i == c->ev_len) { /* only protected events queued (cannot happen: one of each per engine) */
+			if (kind != WR_EV_FATAL && kind != WR_EV_MAP)
 				return; /* the new informational event is the one that is lost */
 			i = 0;
 		}
@@ -246,6 +261,9 @@ static uint64_t earliest_deadline(const wr_client *c)
 	t = wri_cx_next_renew_ms(&c->cx); /* only a future time: one already due is the monitor client's to act on */
 	if (t != WR_DEADLINE_NONE && t > now && t < d)
 		d = t;
+	t = wri_client_map_deadline(c); /* a rate-limited full-map request */
+	if (t < d)
+		d = t;
 	return d;
 }
 
@@ -270,6 +288,8 @@ wr_run_result wr_client_run(wr_client *c, const wr_clock *now, uint32_t work_bud
 	wri_client_conn_housekeeping(c);
 	if (c->state != WR_CS_FAILED)
 		wri_mon_step(&c->x, &c->mon, &c->cx, &c->link);
+	if (c->state != WR_CS_FAILED)
+		r.more_work |= (uint32_t)wri_client_map_step(c, budget);
 	sync_mon_err(c);
 	check_fatal(c);
 	wri_client_conn_housekeeping(c);
@@ -281,19 +301,21 @@ wr_run_result wr_client_run(wr_client *c, const wr_clock *now, uint32_t work_bud
 
 /* ---- map messages --------------------------------------------------------------------------------------------- */
 
+/* With maps on the engine's own store is the one consumer of the monitor's slots: raw delivery is off (nothing to peek,
+ * and a release must not free the message the store is reading). */
 int wr_client_mapmsg_peek(wr_client *c, wr_mapmsg *out)
 {
 	if (out == NULL)
 		return 0;
 	WR_MEMSET(out, 0, sizeof(*out));
-	if (!engine_ok(c))
+	if (!engine_ok(c) || c->map.enabled)
 		return 0;
 	return wri_mon_mapmsg_peek(&c->mon, out);
 }
 
 void wr_client_mapmsg_release(wr_client *c)
 {
-	if (engine_ok(c))
+	if (engine_ok(c) && !c->map.enabled)
 		wri_mon_mapmsg_release(&c->mon);
 }
 

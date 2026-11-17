@@ -70,6 +70,14 @@ int memcmp(const void *, const void *, size_t);
 #ifndef WR_FILE_LICENCE_MIT
 #define WR_FILE_LICENCE_MIT
 #endif
+/*
+ * The same for the files of core/crush_ln/ (LGPL-2.1-only, see LICENSE). The iPXE glue defines
+ * it as "FILE_LICENCE ( GPL2_OR_LATER );": iPXE has no LGPL tag, and section 3 of the LGPL-2.1
+ * lets those files be used under the GPL.
+ */
+#ifndef WR_FILE_LICENCE_LGPL21
+#define WR_FILE_LICENCE_LGPL21
+#endif
 
 /* Compile-time log ceiling: messages above this level compile to nothing (1 = errors only). */
 #ifndef WR_LOG_MAX_LEVEL

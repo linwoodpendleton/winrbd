@@ -74,16 +74,17 @@ WNBD:
 10. Unit tests and fuzzing of every decoder (frames, OSDMap, CRUSH, replies). Memory-bounded mode: fixed budgets and no unbounded allocation, because iPXE has a 4 MiB heap and Windows needs preallocated pools.
 11. Optional stage: secure mode (AES-GCM) in addition to crc mode.
 
-**Status.** The wire and authentication half is done and hardened; the map, placement and I/O half has not started. The details, with the evidence, are in [`core/README.md`](../core/README.md) and [`harness/README.md`](../harness/README.md).
+**Status.** The wire and authentication half is done and hardened, and so is the map and placement half (milestones 4 and 5); the object I/O half (milestones 6 to 9) has not started. The details, with the evidence, are in [`core/README.md`](../core/README.md) and [`harness/README.md`](../harness/README.md).
 
 | # | Milestone | State |
 |---|---|---|
 | 1 | Shim interface and Linux implementation | done: the core takes memory and time as data and calls the host only for `random` and `log`; the Linux host is in `harness/host/` |
 | 2 | msgr2 to a mon | done: banner, hello, frames, CRC-32C, crc mode, revision 1; checked against the public captures and the lab cluster |
 | 3 | cephx, tickets, renewal | done: both key types (`aes`, `aes256k`), mon and OSD tickets, the authorizer, renewal inside a session |
-| 4 | OSDMap | partly: the mon session subscribes and delivers `MMonMap` and `MOSDMap` as raw, size-checked bytes; no map decoding yet |
-| 5 to 9 | CRUSH, OSD sessions, RBD open, image I/O, krbd comparison | not started |
-| 10 | Unit tests, fuzzing, bounded memory | done for every module that exists: unit tests, replay of the public captures, libFuzzer targets for the msgr2 frame decoder, the cephx reply decoders, the mon message decoders and the whole engine (every committed seed is replayed by ctest), exact memory budgets per profile; the decoders of milestones 4 to 9 have to join them when they land |
+| 4 | OSDMap | done, behind `wr_config_enable_maps()`: the engine decodes the monitor's `MOSDMap` messages itself into a compact map of the tracked pools, follows the cluster by incrementals, re-fetches a full map after a gap or a bad map, and keeps the held map while the monitor session is down; without the call the raw `MMonMap` / `MOSDMap` bytes are delivered as before. Checked against the lab cluster's own maps, incrementals and `ceph osd dump`, and live: the client logs in to the real monitor with both key types and takes its maps |
+| 5 | CRUSH, object to PG to OSD | done, same switch: replicated pools, `firstn` rules over straw2, straw, list and uniform buckets, `choose_args`, upmap, upmap primaries, `pg_temp`, `primary_temp`, primary affinity, reweight, out, split and merge in progress, pools with and without HASHPSPOOL. Compared with Ceph's own tools on the lab (`ceph osd map`, `osdmaptool`, `crushtool`): 132,358 comparisons (53 saved cluster states, 82 `crushtool` runs), 0 differences. Tree buckets, `indep` and MSR rules, erasure-coded pools, cache tiers and stretch pools are refused with a per-pool status |
+| 6 to 9 | OSD sessions, RBD open, image I/O, krbd comparison | not started |
+| 10 | Unit tests, fuzzing, bounded memory | done for every module that exists: unit tests, replay of the public captures, the committed lab vectors, libFuzzer targets for the msgr2 frame decoder, the cephx reply decoders, the mon message decoders, the CRUSH decoder and rule interpreter, the full-map and incremental decoders, the map store and the whole engine (every committed seed is replayed by ctest; the part B targets ran 16 minutes each with ASan and UBSan, 18.6 million executions, no crash), exact memory budgets per profile with and without maps, a call-depth and stack check on every chain; the decoders of milestones 6 to 9 have to join them when they land |
 | 11 | secure mode | not started |
 
 **Deliverables.** `core/`, `harness/`, test scripts that build a test image on the test cluster and run the comparison.
@@ -93,7 +94,7 @@ WNBD:
 **Open questions / risks.**
 - exclusive-lock: may a non-librbd writer ignore it when object-map, fast-diff and journaling are off, or must we take the lock (cls_lock plus watch / notify handling)? Read-only use does not need to resolve this; read-write does. Writers must carry the image's snap context or snapshot copy-on-write breaks.
 - Watch / notify on the header (resize, snapshot events): skip for v1 by declaring the image immutable in size while attached?
-- Memory budget for OSDMap + CRUSH on large clusters (matters most for iPXE).
+- Memory budget for OSDMap + CRUSH on large clusters (matters most for iPXE): budgeted and measured on generated clusters for the map half (a compact map of 50 to 80 bytes per OSD, the raw monitor message 0.43 to 0.49 KiB per OSD; the iPXE profile takes clusters up to 2,048 OSDs, the kernel profile 8,192, the harness 32,768, and a bigger iPXE cluster needs a bigger `mon_msg_cap`); the figures on iPXE itself are a Phase 2 measurement.
 - Erasure-coded data pools and cloned images: out of v1.
 
 ### Phase 2: iPXE `rbd://` SAN driver
@@ -268,16 +269,17 @@ WNBD:
 10. 对每个解码器(帧、OSDMap、CRUSH、应答)做单元测试和模糊测试。内存受限模式:固定预算、不无限分配,因为 iPXE 只有 4 MiB 堆,Windows 则需要预分配的内存池。
 11. 可选阶段:在 crc 模式之外加入 secure 模式(AES-GCM)。
 
-**当前状态。** 线路与认证这一半已完成并加固;map、定位与 I/O 这一半尚未开始。细节与证据见 [`core/README.md`](../core/README.md) 和 [`harness/README.md`](../harness/README.md)。
+**当前状态。** 线路与认证这一半已完成并加固;map 与定位这一半(里程碑 4、5)同样已完成并加固;对象读写这一半(里程碑 6 至 9)尚未开始。细节与证据见 [`core/README.md`](../core/README.md) 和 [`harness/README.md`](../harness/README.md)。
 
 | # | 里程碑 | 状态 |
 |---|---|---|
 | 1 | 适配层接口与 Linux 实现 | 完成:核心以数据形式接收内存与时间,只回调宿主的 `random` 和 `log`;Linux 宿主在 `harness/host/` |
 | 2 | 经 msgr2 连接 mon | 完成:banner、hello、帧、CRC-32C,crc 模式,revision 1;已与公开抓包和实验集群核对 |
 | 3 | cephx、ticket、续期 | 完成:两种密钥(`aes`、`aes256k`)、mon 与 OSD 的 ticket、authorizer、会话内续期 |
-| 4 | OSDMap | 部分:mon 会话订阅并把 `MMonMap`、`MOSDMap` 以原始字节(已检查大小)交出;尚不解码 map |
-| 5 至 9 | CRUSH、OSD 会话、RBD 打开、镜像读写、与 krbd 比对 | 未开始 |
-| 10 | 单元测试、模糊测试、内存受限 | 已有的每个模块均完成:单元测试、公开抓包回放、针对 msgr2 帧解码器、cephx 应答解码器、mon 消息解码器和整个引擎的 libFuzzer 目标(每个提交的种子都由 ctest 回放)、每个配置档的精确内存预算;里程碑 4 至 9 的解码器落地时必须补上 |
+| 4 | OSDMap | 已完成,需调用 `wr_config_enable_maps()`:引擎自己把 mon 发来的 `MOSDMap` 解码成只含所跟踪存储池的紧凑 map,按增量跟随集群,缺口或坏图后重取完整 map,mon 会话中断时继续使用已持有的 map;不调用该函数时仍按原样交出原始 `MMonMap` / `MOSDMap` 字节。已用实验集群自己的 map、增量和 `ceph osd dump` 核对,并做了实机验证:客户端用两种密钥类型登录真实 mon 并接收 map |
+| 5 | CRUSH、对象到 PG 到 OSD | 已完成,同一开关:副本池、基于 straw2 / straw / list / uniform 桶的 `firstn` 规则、`choose_args`、upmap、upmap primary、`pg_temp`、`primary_temp`、主 OSD 亲和度、reweight、out、拆分与合并进行中、带与不带 HASHPSPOOL 的池。在实验集群上与 Ceph 自己的工具(`ceph osd map`、`osdmaptool`、`crushtool`)比对:共 132,358 次比较(53 个保存的集群状态、82 次 `crushtool` 运行),0 处差异。tree 桶、`indep` 与 MSR 规则、纠删码池、缓存层、stretch 池会以每个池的状态码明确拒绝 |
+| 6 至 9 | OSD 会话、RBD 打开、镜像读写、与 krbd 比对 | 未开始 |
+| 10 | 单元测试、模糊测试、内存受限 | 已有的每个模块均完成:单元测试、公开抓包回放、已提交的实验集群向量、针对 msgr2 帧解码器、cephx 应答解码器、mon 消息解码器、CRUSH 解码器与规则解释器、完整 map 与增量解码器、map 存储和整个引擎的 libFuzzer 目标(每个提交的种子都由 ctest 回放;第二部分的目标各用 ASan + UBSan 跑了 16 分钟,共 1860 万次执行,无崩溃)、开启 map 与否的每个配置档的精确内存预算、对每条调用链的深度与栈检查;里程碑 6 至 9 的解码器落地时必须补上 |
 | 11 | secure 模式 | 未开始 |
 
 **交付物。** `core/`、`harness/`,以及在测试集群上建测试镜像并跑比对的测试脚本。
@@ -287,7 +289,7 @@ WNBD:
 **未决问题 / 风险。**
 - exclusive-lock:在 object-map、fast-diff、journaling 都关闭时,非 librbd 的写入方能否无视它?还是必须取锁(cls_lock 加 watch / notify 处理)?只读使用不需要解决这个问题,读写需要。写入必须携带镜像的 snap context,否则快照的写时复制会被破坏。
 - 头部对象上的 watch / notify(调整大小、快照事件):v1 是否通过"挂载期间镜像大小视为不变"来跳过?
-- 大集群上 OSDMap + CRUSH 的内存预算(对 iPXE 影响最大)。
+- 大集群上 OSDMap + CRUSH 的内存预算(对 iPXE 影响最大):map 这一半已按生成的集群做了预算与实测(紧凑 map 每个 OSD 50 至 80 字节,mon 的原始消息每个 OSD 0.43 至 0.49 KiB;iPXE 档支持至 2,048 个 OSD,内核档 8,192,测试台 32,768,更大的 iPXE 集群需要更大的 `mon_msg_cap`);iPXE 上的实际数字留到 Phase 2 测量。
 - 纠删码数据池和克隆镜像:不在 v1 范围内。
 
 ### Phase 2:iPXE `rbd://` SAN 驱动

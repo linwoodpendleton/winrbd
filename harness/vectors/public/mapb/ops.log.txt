@@ -1,0 +1,215 @@
+rc=0 ceph config set mon mon_allow_pool_delete true
+rc=0 ceph osd pool create wrtest-mb-p16 16 16 replicated   => pool 'wrtest-mb-p16' created
+rc=0 ceph osd pool set wrtest-mb-p16 pg_autoscale_mode off   => set pool 42 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-p16 size 3   => set pool 42 size to 3
+== state s11b-pool-created -> epoch 667
+rc=0 ceph osd pool create wrtest-mb-p12 12 12 replicated   => pool 'wrtest-mb-p12' created
+rc=0 ceph osd pool set wrtest-mb-p12 pg_autoscale_mode off   => set pool 43 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-p12 size 2   => set pool 43 size to 2
+rc=0 ceph osd pool create wrtest-mb-p7 7 4 replicated   => pool 'wrtest-mb-p7' created
+rc=0 ceph osd pool set wrtest-mb-p7 pg_autoscale_mode off   => set pool 44 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-p7 size 2   => set pool 44 size to 2
+== state s01a-p7-created -> epoch 674
+== state s01b-p7-pgp4 -> epoch 681
+rc=0 ceph osd pool create wrtest-mb-np 12 8 replicated   => pool 'wrtest-mb-np' created
+rc=0 ceph osd pool set wrtest-mb-np pg_autoscale_mode off   => set pool 45 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-np size 3   => set pool 45 size to 3
+== state s01c-np-pgp8 -> epoch 693
+rc=0 ceph osd pool create wrtest-mb-leg 8 8 replicated   => pool 'wrtest-mb-leg' created
+rc=0 ceph osd pool set wrtest-mb-leg pg_autoscale_mode off   => set pool 46 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-leg size 2   => set pool 46 size to 2
+rc=0 ceph osd pool set wrtest-mb-leg hashpspool false --yes-i-really-mean-it   => set pool 46 hashpspool to false
+== state s10-legacy-pool -> epoch 698
+rc=0 ceph osd pool create wrtest-mb-s4 8 8 replicated   => pool 'wrtest-mb-s4' created
+rc=0 ceph osd pool set wrtest-mb-s4 pg_autoscale_mode off   => set pool 47 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-s4 size 4   => set pool 47 size to 4
+rc=0 ceph osd crush rule create-replicated wrtest-mb-host default host
+== state s14a-crush-rule-added -> epoch 704
+rc=0 ceph osd pool create wrtest-mb-host 8 8 replicated   => pool 'wrtest-mb-host' created
+rc=0 ceph osd pool set wrtest-mb-host pg_autoscale_mode off   => set pool 48 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-host crush_rule wrtest-mb-host   => set pool 48 crush_rule to wrtest-mb-host
+rc=0 ceph osd pool set wrtest-mb-host size 3   => set pool 48 size to 3
+== state s00-base-pools -> epoch 709
+rc=0 ceph osd pg-upmap-items 43.1 2 1   => set 43.1 pg_upmap_items mapping to [2->1]
+== state s03a-upmap-items-one -> epoch 710
+rc=0 ceph osd pg-upmap-items 43.2 2 1 0 2   => set 43.2 pg_upmap_items mapping to [2->1,0->2]
+== state s03b-upmap-items-two -> epoch 712
+rc=0 ceph osd pg-upmap-items 43.3 2 1   => set 43.3 pg_upmap_items mapping to [2->1]
+== state s03c-upmap-items-invalid-to -> epoch 714
+rc=0 ceph osd pg-upmap-items 43.4 0 2   => set 43.4 pg_upmap_items mapping to [0->2]
+!! state s03d-upmap-items-invalid-from: predicate never true in epochs 716..715; recording the current epoch 715
+== state s03d-upmap-items-invalid-from -> epoch 715
+rc=0 ceph osd rm-pg-upmap-items 43.1   => clear 43.1 pg_upmap_items mapping
+rc=0 ceph osd rm-pg-upmap-items 43.2   => clear 43.2 pg_upmap_items mapping
+rc=0 ceph osd rm-pg-upmap-items 43.3   => clear 43.3 pg_upmap_items mapping
+rc=0 ceph osd rm-pg-upmap-items 43.4   => clear 43.4 pg_upmap_items mapping
+== state s03z-upmap-items-removed -> epoch 718
+rc=0 ceph osd pg-upmap 43.5 0 1   => set 43.5 pg_upmap mapping to [0,1]
+== state s04a-upmap-reorder -> epoch 720
+rc=0 ceph osd pg-upmap 43.6 1 0   => set 43.6 pg_upmap mapping to [1,0]
+== state s04b-upmap-replace -> epoch 722
+rc=0 ceph osd pg-upmap 43.7 2 0   => set 43.7 pg_upmap mapping to [2,0]
+rc=0 ceph osd reweight 0 0   => reweighted osd.0 to 0 (0)
+== state s04c-upmap-member-weight0 -> epoch 725
+rc=0 ceph osd reweight 0 1   => reweighted osd.0 to 1 (10000)
+rc=0 ceph osd reweight 0 0   => reweighted osd.0 to 0 (0)
+rc=0 ceph osd pg-upmap 43.8 0 2   => set 43.8 pg_upmap mapping to [0,2]
+== state s04d-upmap-set-after-weight0 -> epoch 732
+rc=0 ceph osd reweight 0 1   => reweighted osd.0 to 1 (10000)
+rc=0 ceph osd rm-pg-upmap 43.5   => clear 43.5 pg_upmap mapping
+rc=0 ceph osd rm-pg-upmap 43.6   => clear 43.6 pg_upmap mapping
+rc=0 ceph osd rm-pg-upmap 43.7   => clear 43.7 pg_upmap mapping
+rc=0 ceph osd rm-pg-upmap 43.8   => clear 43.8 pg_upmap mapping
+== state s04z-upmap-removed -> epoch 737
+rc=0 ceph osd set-require-min-compat-client reef   => set require_min_compat_client to reef
+== state s05a-require-reef -> epoch 739
+rc=0 ceph osd pg-upmap-primary 45.1 2   => change primary for pg 45.1 to osd.2
+== state s05b-upmap-primary-one -> epoch 740
+rc=0 ceph osd pg-upmap-primary 45.2 0   => change primary for pg 45.2 to osd.0
+== state s05c-upmap-primary-two -> epoch 742
+rc=0 ceph osd rm-pg-upmap-primary 45.1   => clear 45.1 pg_upmap_primary mapping
+rc=0 ceph osd rm-pg-upmap-primary 45.2   => clear 45.2 pg_upmap_primary mapping
+rc=0 ceph osd set-require-min-compat-client luminous   => set require_min_compat_client to luminous
+== state s05z-upmap-primary-removed -> epoch 746
+rc=0 ceph osd pg-temp 43.9 0 1   => set 43.9 pg_temp mapping to [0,1]
+== state s06a-pg-temp -> epoch 747
+rc=0 ceph osd primary-temp 43.a 0   => set 43.a primary_temp mapping to 0
+== state s06b-primary-temp -> epoch 750
+rc=0 ceph osd primary-temp 45.3 2   => set 45.3 primary_temp mapping to 2
+rc=0 ceph osd pg-temp 45.3 1 0 2   => set 45.3 pg_temp mapping to [1,0,2]
+== state s06c-pg-temp-and-primary-temp -> epoch 753
+rc=0 ceph osd rm-primary-temp 43.a   => set 43.a primary_temp mapping to -1
+rc=0 ceph osd rm-primary-temp 45.3   => set 45.3 primary_temp mapping to -1
+rc=0 ceph osd pg-temp 43.9   => done cleaning up pg_temp of 43.9
+rc=0 ceph osd pg-temp 45.3   => done cleaning up pg_temp of 45.3
+== state s06z-temps-cleared -> epoch 756
+rc=0 ceph osd primary-affinity osd.0 0   => set osd.0 primary-affinity to 0 (802)
+== state s07a-primary-affinity -> epoch 760
+rc=0 ceph osd primary-affinity osd.1 0.25   => set osd.1 primary-affinity to 0.25 (8163842)
+== state s07b-primary-affinity -> epoch 762
+rc=0 ceph osd primary-affinity osd.2 0.5   => set osd.2 primary-affinity to 0.5 (8327682)
+== state s07c-primary-affinity -> epoch 764
+rc=0 ceph osd primary-affinity osd.0 1   => set osd.0 primary-affinity to 1 (8655362)
+rc=0 ceph osd primary-affinity osd.1 1   => set osd.1 primary-affinity to 1 (8655362)
+rc=0 ceph osd primary-affinity osd.2 1   => set osd.2 primary-affinity to 1 (8655362)
+== state s07z-affinity-restored -> epoch 768
+rc=0 ceph osd reweight 0 0.5   => reweighted osd.0 to 0.5 (8000)
+== state s08a-reweight-0p5 -> epoch 770
+rc=0 ceph osd reweight 0 0.1   => reweighted osd.0 to 0.1 (1999)
+== state s08b-reweight-0p1 -> epoch 773
+rc=0 ceph osd reweight 0 0   => reweighted osd.0 to 0 (0)
+== state s08c-reweight-0 -> epoch 776
+rc=0 ceph osd reweight 0 1   => reweighted osd.0 to 1 (10000)
+== state s08d-reweight-restored -> epoch 779
+rc=0 ceph osd out 1   => marked out osd.1.
+== state s08e-osd-out -> epoch 782
+rc=0 ceph osd in 1   => marked in osd.1.
+== state s08f-osd-in -> epoch 785
+rc=0 ceph osd set noup   => noup is set
+rc=0 ceph osd down 2   => marked down osd.2.
+== state s09a-osd-down-noup -> epoch 789
+rc=0 ceph osd unset noup   => noup is unset
+== state s09b-osd-up-again -> epoch 795
+rc=0 ceph osd pool create wrtest-mb-sp 12 12 replicated   => pool 'wrtest-mb-sp' created
+rc=0 ceph osd pool set wrtest-mb-sp pg_autoscale_mode off   => set pool 49 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-sp size 2   => set pool 49 size to 2
+rc=0 ceph osd pool set wrtest-mb-sp pg_num 14   => set pool 49 pg_num to 14
+rc=0 ceph osd pool create wrtest-mb-mg 16 16 replicated   => pool 'wrtest-mb-mg' created
+rc=0 ceph osd pool set wrtest-mb-mg pg_autoscale_mode off   => set pool 50 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-mg size 2   => set pool 50 size to 2
+rc=0 ceph osd pool set wrtest-mb-mg pg_num 8   => set pool 50 pg_num to 8
+rc=0 ceph osd pool create wrtest-mb-del 4 4 replicated   => pool 'wrtest-mb-del' created
+rc=0 ceph osd pool set wrtest-mb-del pg_autoscale_mode off   => set pool 51 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-del size 2   => set pool 51 size to 2
+== state s11c-pool-created-small -> epoch 845
+rc=0 ceph osd pool rename wrtest-mb-del wrtest-mb-ren   => pool 'wrtest-mb-del' renamed to 'wrtest-mb-ren'
+== state s11d-pool-renamed -> epoch 848
+rc=0 ceph osd pool delete wrtest-mb-ren wrtest-mb-ren --yes-i-really-really-mean-it   => pool 'wrtest-mb-ren' removed
+== state s11e-pool-deleted -> epoch 849
+rc=0 ceph osd erasure-code-profile set wrtest-mb-ec21 k=2 m=1 crush-failure-domain=osd
+== state s12a-ec-profile -> epoch 850
+rc=0 ceph osd pool create wrtest-mb-ec 4 4 erasure wrtest-mb-ec21   => pool 'wrtest-mb-ec' created
+rc=0 ceph osd pool set wrtest-mb-ec pg_autoscale_mode off   => set pool 52 pg_autoscale_mode to off
+== state s12b-ec-pool -> epoch 852
+rc=0 ceph osd pool create wrtest-mb-base 4 4 replicated   => pool 'wrtest-mb-base' created
+rc=0 ceph osd pool set wrtest-mb-base pg_autoscale_mode off   => set pool 53 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-base size 2   => set pool 53 size to 2
+rc=0 ceph osd pool create wrtest-mb-cache 4 4 replicated   => pool 'wrtest-mb-cache' created
+rc=0 ceph osd pool set wrtest-mb-cache pg_autoscale_mode off   => set pool 54 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-cache size 2   => set pool 54 size to 2
+rc=0 ceph osd tier add wrtest-mb-base wrtest-mb-cache   => pool 'wrtest-mb-cache' is now (or already was) a tier of 'wrtest-mb-base'
+== state s12c-tier-added -> epoch 861
+rc=0 ceph osd pool set wrtest-mb-cache hit_set_type bloom   => set pool 54 hit_set_type to bloom
+rc=0 ceph osd pool set wrtest-mb-cache hit_set_count 1   => set pool 54 hit_set_count to 1
+rc=0 ceph osd pool set wrtest-mb-cache hit_set_period 3600   => set pool 54 hit_set_period to 3600
+rc=0 ceph osd tier cache-mode wrtest-mb-cache writeback --yes-i-really-mean-it   => set cache-mode for pool 'wrtest-mb-cache' to writeback
+== state s12d-cache-writeback -> epoch 865
+rc=0 ceph osd tier set-overlay wrtest-mb-base wrtest-mb-cache   => overlay for 'wrtest-mb-base' is now (or already was) 'wrtest-mb-cache'
+== state s12e-tier-overlay -> epoch 866
+rc=0 ceph osd tier remove-overlay wrtest-mb-base   => there is now (or already was) no overlay for 'wrtest-mb-base'
+rc=0 ceph osd tier remove wrtest-mb-base wrtest-mb-cache   => pool 'wrtest-mb-cache' is now (or already was) not a tier of 'wrtest-mb-base'
+== state s12z-tier-removed -> epoch 868
+rc=0 ceph osd pool create wrtest-mb-ws 16 16 replicated   => pool 'wrtest-mb-ws' created
+rc=0 ceph osd pool set wrtest-mb-ws pg_autoscale_mode off   => set pool 55 pg_autoscale_mode to off
+rc=0 ceph osd pool set wrtest-mb-ws size 2   => set pool 55 size to 2
+rc=0 ceph osd crush weight-set create wrtest-mb-ws positional
+== state s13a-weight-set-created -> epoch 872
+rc=0 ceph osd crush weight-set reweight wrtest-mb-ws osd.0 0.002 0.05
+rc=0 ceph osd crush weight-set reweight wrtest-mb-ws osd.1 0.05 0.002
+rc=0 ceph osd crush weight-set reweight wrtest-mb-ws osd.2 0.02 0.02
+== state s13b-weight-set-changed -> epoch 875
+rc=0 ceph osd crush weight-set create-compat
+== state s13c-compat-set-created -> epoch 877
+rc=0 ceph osd crush weight-set rm-compat
+rc=0 ceph osd crush weight-set rm wrtest-mb-ws
+== state s13z-weight-sets-removed -> epoch 879
+rc=0 ceph osd pg-temp 48.0   => done cleaning up pg_temp of 48.0
+rc=0 ceph osd pg-temp 48.1   => done cleaning up pg_temp of 48.1
+rc=0 ceph osd pg-temp 48.2   => done cleaning up pg_temp of 48.2
+rc=0 ceph osd pg-temp 48.3   => done cleaning up pg_temp of 48.3
+rc=0 ceph osd pg-temp 48.4   => done cleaning up pg_temp of 48.4
+rc=0 ceph osd pg-temp 48.5   => done cleaning up pg_temp of 48.5
+rc=0 ceph osd pg-temp 48.6   => done cleaning up pg_temp of 48.6
+rc=0 ceph osd pg-temp 48.7   => done cleaning up pg_temp of 48.7
+rc=0 ceph osd unset noup   => noup is unset
+rc=0 ceph osd reweight 0 1   => reweighted osd.0 to 1 (10000)
+rc=0 ceph osd primary-affinity osd.0 1   => set osd.0 primary-affinity to 1 (8655362)
+rc=0 ceph osd in 0   => osd.0 is already in.
+rc=0 ceph osd reweight 1 1   => reweighted osd.1 to 1 (10000)
+rc=0 ceph osd primary-affinity osd.1 1   => set osd.1 primary-affinity to 1 (8655362)
+rc=0 ceph osd in 1   => osd.1 is already in.
+rc=0 ceph osd reweight 2 1   => reweighted osd.2 to 1 (10000)
+rc=0 ceph osd primary-affinity osd.2 1   => set osd.2 primary-affinity to 1 (8655362)
+rc=0 ceph osd in 2   => osd.2 is already in.
+rc=0 ceph osd crush weight-set rm wrtest-mb-p16
+rc=0 ceph osd crush weight-set rm wrtest-mb-p12
+rc=0 ceph osd crush weight-set rm wrtest-mb-p7
+rc=0 ceph osd crush weight-set rm wrtest-mb-np
+rc=0 ceph osd crush weight-set rm wrtest-mb-leg
+rc=0 ceph osd crush weight-set rm wrtest-mb-s4
+rc=0 ceph osd crush weight-set rm wrtest-mb-host
+rc=0 ceph osd crush weight-set rm wrtest-mb-sp
+rc=0 ceph osd crush weight-set rm wrtest-mb-mg
+rc=0 ceph osd crush weight-set rm wrtest-mb-ec
+rc=0 ceph osd crush weight-set rm wrtest-mb-base
+rc=0 ceph osd crush weight-set rm wrtest-mb-cache
+rc=0 ceph osd crush weight-set rm wrtest-mb-ws
+rc=0 ceph osd crush weight-set rm-compat
+rc=0 ceph config set mon mon_allow_pool_delete true
+rc=0 ceph osd pool delete wrtest-mb-p16 wrtest-mb-p16 --yes-i-really-really-mean-it   => pool 'wrtest-mb-p16' removed
+rc=0 ceph osd pool delete wrtest-mb-p12 wrtest-mb-p12 --yes-i-really-really-mean-it   => pool 'wrtest-mb-p12' removed
+rc=0 ceph osd pool delete wrtest-mb-p7 wrtest-mb-p7 --yes-i-really-really-mean-it   => pool 'wrtest-mb-p7' removed
+rc=0 ceph osd pool delete wrtest-mb-np wrtest-mb-np --yes-i-really-really-mean-it   => pool 'wrtest-mb-np' removed
+rc=0 ceph osd pool delete wrtest-mb-leg wrtest-mb-leg --yes-i-really-really-mean-it   => pool 'wrtest-mb-leg' removed
+rc=0 ceph osd pool delete wrtest-mb-s4 wrtest-mb-s4 --yes-i-really-really-mean-it   => pool 'wrtest-mb-s4' removed
+rc=0 ceph osd pool delete wrtest-mb-host wrtest-mb-host --yes-i-really-really-mean-it   => pool 'wrtest-mb-host' removed
+rc=0 ceph osd pool delete wrtest-mb-sp wrtest-mb-sp --yes-i-really-really-mean-it   => pool 'wrtest-mb-sp' removed
+rc=0 ceph osd pool delete wrtest-mb-mg wrtest-mb-mg --yes-i-really-really-mean-it   => pool 'wrtest-mb-mg' removed
+rc=0 ceph osd pool delete wrtest-mb-ec wrtest-mb-ec --yes-i-really-really-mean-it   => pool 'wrtest-mb-ec' removed
+rc=0 ceph osd pool delete wrtest-mb-base wrtest-mb-base --yes-i-really-really-mean-it   => pool 'wrtest-mb-base' removed
+rc=0 ceph osd pool delete wrtest-mb-cache wrtest-mb-cache --yes-i-really-really-mean-it   => pool 'wrtest-mb-cache' removed
+rc=0 ceph osd pool delete wrtest-mb-ws wrtest-mb-ws --yes-i-really-really-mean-it   => pool 'wrtest-mb-ws' removed
+rc=0 ceph osd crush rule rm wrtest-mb-host
+rc=0 ceph osd erasure-code-profile rm wrtest-mb-ec21
+rc=0 ceph config rm mon mon_allow_pool_delete
+== state s99-restored -> epoch 925

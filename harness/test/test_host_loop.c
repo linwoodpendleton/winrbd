@@ -1029,6 +1029,10 @@ static void test_io_errors(void)
 	WRT_CHECK_U64(hk.recv_eagain, 0);
 	WRT_CHECK_U64(hk.send_eintr, 0);
 	WRT_CHECK_U64(hk.recv_eintr, 0);
+	/* the last injected failure may have been the final send of the loop above: wait for a send that is cut short */
+	t = now_ms();
+	while (now_ms() - t < 3000 && hk.n_short == 0)
+		(void)steps_for(50);
 	WRT_CHECK(hk.n_short > 0);
 	hk.send_max = 0;
 	(void)steps_for(300);

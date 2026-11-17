@@ -1,0 +1,253 @@
+# begin crush map
+tunable choose_local_tries 0
+tunable choose_local_fallback_tries 0
+tunable choose_total_tries 50
+tunable chooseleaf_descend_once 1
+tunable chooseleaf_vary_r 1
+tunable chooseleaf_stable 1
+tunable straw_calc_version 1
+tunable allowed_bucket_algs 54
+
+# devices
+device 0 osd.0
+device 1 osd.1
+device 2 osd.2
+device 3 osd.3
+device 4 osd.4
+device 5 osd.5
+device 6 osd.6
+device 7 osd.7
+device 8 osd.8
+device 9 osd.9
+device 10 osd.10
+device 11 osd.11
+device 12 osd.12
+device 13 osd.13
+device 14 osd.14
+device 15 osd.15
+device 16 osd.16
+device 17 osd.17
+device 18 osd.18
+device 19 osd.19
+device 20 osd.20
+device 21 osd.21
+device 22 osd.22
+device 23 osd.23
+
+# types
+type 0 osd
+type 1 host
+type 2 rack
+type 3 root
+
+# buckets
+host host0 {
+	id -1		# do not change unnecessarily
+	# weight 4.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.0 weight 1.00000
+	item osd.1 weight 1.00000
+	item osd.2 weight 1.00000
+	item osd.3 weight 1.00000
+}
+host host1 {
+	id -2		# do not change unnecessarily
+	# weight 4.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.4 weight 1.00000
+	item osd.5 weight 1.00000
+	item osd.6 weight 1.00000
+	item osd.7 weight 1.00000
+}
+host host2 {
+	id -3		# do not change unnecessarily
+	# weight 4.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.8 weight 1.00000
+	item osd.9 weight 1.00000
+	item osd.10 weight 1.00000
+	item osd.11 weight 1.00000
+}
+host host3 {
+	id -4		# do not change unnecessarily
+	# weight 4.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.12 weight 1.00000
+	item osd.13 weight 1.00000
+	item osd.14 weight 1.00000
+	item osd.15 weight 1.00000
+}
+host host4 {
+	id -5		# do not change unnecessarily
+	# weight 4.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.16 weight 1.00000
+	item osd.17 weight 1.00000
+	item osd.18 weight 1.00000
+	item osd.19 weight 1.00000
+}
+host host5 {
+	id -6		# do not change unnecessarily
+	# weight 4.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item osd.20 weight 1.00000
+	item osd.21 weight 1.00000
+	item osd.22 weight 1.00000
+	item osd.23 weight 1.00000
+}
+rack rack0 {
+	id -7		# do not change unnecessarily
+	# weight 12.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item host0 weight 4.00000
+	item host1 weight 4.00000
+	item host2 weight 4.00000
+}
+rack rack1 {
+	id -8		# do not change unnecessarily
+	# weight 12.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item host3 weight 4.00000
+	item host4 weight 4.00000
+	item host5 weight 4.00000
+}
+root root {
+	id -9		# do not change unnecessarily
+	# weight 24.00000
+	alg straw2
+	hash 0	# rjenkins1
+	item rack0 weight 12.00000
+	item rack1 weight 12.00000
+}
+
+# rules
+rule r0_host {
+	id 0
+	type replicated
+	step take root
+	step chooseleaf firstn 0 type host
+	step emit
+}
+rule r1_rack {
+	id 1
+	type replicated
+	step take root
+	step chooseleaf firstn 0 type rack
+	step emit
+}
+rule r2_flat {
+	id 2
+	type replicated
+	step take root
+	step choose firstn 0 type osd
+	step emit
+}
+rule r3_two_steps {
+	id 3
+	type replicated
+	step take root
+	step choose firstn 2 type rack
+	step chooseleaf firstn 2 type host
+	step emit
+}
+rule r4_indep_host {
+	id 4
+	type erasure
+	step set_chooseleaf_tries 5
+	step set_choose_tries 100
+	step take root
+	step chooseleaf indep 0 type host
+	step emit
+}
+rule r5_indep_flat {
+	id 5
+	type erasure
+	step take root
+	step choose indep 0 type osd
+	step emit
+}
+rule r6_take_rack {
+	id 6
+	type replicated
+	step take rack0
+	step chooseleaf firstn 0 type host
+	step emit
+}
+rule r7_two_emits {
+	id 7
+	type replicated
+	step take rack0
+	step chooseleaf firstn 1 type host
+	step emit
+	step take rack1
+	step chooseleaf firstn 2 type host
+	step emit
+}
+
+# choose_args
+choose_args 18446744073709551615 {
+  {
+    bucket_id -1
+    weight_set [
+      [ 0.50000 0.00000 0.25000 1.50000 ]
+    ]
+  }
+  {
+    bucket_id -2
+    weight_set [
+      [ 2.00000 0.00000 1.50000 1.00000 ]
+    ]
+  }
+  {
+    bucket_id -3
+    weight_set [
+      [ 0.25000 0.00000 1.00000 0.50000 ]
+    ]
+  }
+  {
+    bucket_id -4
+    weight_set [
+      [ 1.50000 0.00000 0.50000 2.00000 ]
+    ]
+  }
+  {
+    bucket_id -5
+    weight_set [
+      [ 1.00000 0.00000 2.00000 0.25000 ]
+    ]
+  }
+  {
+    bucket_id -6
+    weight_set [
+      [ 0.50000 0.00000 0.25000 1.50000 ]
+    ]
+  }
+  {
+    bucket_id -7
+    weight_set [
+      [ 8.00000 0.00000 6.00000 ]
+    ]
+  }
+  {
+    bucket_id -8
+    weight_set [
+      [ 1.00000 0.00000 4.00000 ]
+    ]
+  }
+  {
+    bucket_id -9
+    weight_set [
+      [ 18.00000 0.00000 ]
+    ]
+  }
+}
+
+# end crush map

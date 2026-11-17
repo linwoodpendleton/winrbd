@@ -121,6 +121,20 @@ gt/ gt2/ gt3/ gt4/ gt5/out/   ground truth (see 5)
 baseline/        osdmap.bin + osd-dump.txt after the run; revert-proof.txt
 scripts/         capture and ground-truth scripts (MIT)
 pcap-check.txt   output of scripts/pcap_loss_check.py
+denc-map/        pools-e202.bin: `ceph osd getmap 202` taken after creating throw-away pools (names `wrtest-denc-*`, since deleted)
+                 that make the optional parts of pg_pool_t non-empty: two pool snapshots, recorded pool options, application
+                 metadata, a cache tier and hit_set parameters; pools-e202.txt: the matching `ceph osd dump` pool lines
+                 (ground truth). Used by harness/test/test_denc_map.c. Same lab, same fsid, only 10.77.0.10 addresses, no keys.
+                 pools-e957.bin: `ceph osd getmap` at epoch 957 taken while throw-away pools (`wrtest-ec`, `wrtest-merge`,
+                 `wrtest-merge2`, since deleted) existed: an erasure coded pool, a pool whose pg_num merge had finished, and a pool
+                 in the middle of a merge (pg_num 32, pgp_num 31, pg_num_pending 31); pools-e957.txt: the matching
+                 `ceph osd dump 957` pool lines plus the JSON fields (pg_num_pending, flags, type) the text line leaves out.
+                 Used by harness/test/test_osdmap_pool.c. Same lab, same fsid, no keys.
+crushleg/        five offline CRUSH maps made with `crushtool -c` and 10,368 `crushtool --test --show-mappings` results over them (about
+                 0.2 MB; `gen_crushleg.py` regenerates all of it in the cluster's tool image, no cluster state is read or changed): flat
+                 list, uniform, straw and straw2 buckets of 1 to 300 items under legacy (local retries 2, fallback 5) and jewel
+                 tunables with devices out, and a mixed hierarchy (straw2 root, list racks, uniform hosts) under three tunable
+                 profiles. Used by harness/test/test_crush_legacy.c. Same format as mapb/crush/*.mappings.json; no keys, no addresses.
 ```
 Size: about 23 MB on disk (pcaps 15.0 MB, ground truth 6.7 MB).
 
@@ -173,3 +187,44 @@ The `rbd bench` shape check and the minimum number of CALL ops are not skipped: 
 `scripts/pubdriver.sh setup|sessions|renew|teardown` (inside the lab VM, passwordless sudo, `ROOT` = work directory holding `keys/ceph.client.<id>.keyring`), `scripts/gtpub.sh` and `scripts/gtpub_inner.sh` for `gt/`,
 `scripts/pcap_loss_check.py --allow-identical-retx pcap/*.pcap` for the capture check. `ONLY="<session> ..." scripts/pubdriver.sh sessions` re-runs single sessions.
 All scripts are our own code (MIT); they contain no Ceph code or data.
+
+## 10 map-b vectors (`mapb/`)
+
+Placement states that the first set lacks (non power-of-two `pg_num`, split and merge, upmap, upmap primary, `pg_temp` / `primary_temp`, primary affinity,
+reweight / out, `noup` + down, a legacy pool, pool create / rename / delete, an erasure pool and a cache tier, `choose_args`, all five bucket algorithms, legacy tunables,
+device classes), about 1.9 MB in 170 files. Index, formats and what each state is: [`mapb/README.md`](mapb/README.md) and `mapb/INDEX.json` (size and SHA-256 of every file).
+
+| Item | Value |
+|---|---|
+| Ceph release | v20.2.5 "Tentacle", pinned commit `ed27c686770872022f4c1de04f6b0ac5d5384ded`; the CLI tools (`osdmaptool`, `crushtool`, `ceph-dencoder`) from the cluster's own image |
+| Cluster | the same private lab as section 1 (one VM, 1 mon, 3 OSDs, pools `.mgr` and `winrbd`) |
+| Capture window | 2026-11-16 (UTC); OSDMap epochs 666 (base) to 925 (restored) |
+| What was made on the cluster | pools `wrtest-mb-*` only (sizes 2 to 4, `pg_num` 4 to 16, a pool without HASHPSPOOL, an erasure pool with its profile and rule, a cache tier pair, a pool with a positional weight set), one extra crush rule, one erasure profile; upmaps, upmap primaries, temps, primary affinity, reweights, one OSD out and in, `noup` with one OSD down, `require_min_compat_client` reef and back, `mon_allow_pool_delete` |
+| Restore | everything removed again; the check is in `mapb/INDEX.json` (`restore`: pools, OSD rows, flags, overrides, `require_min_compat_client`, `mon_allow_pool_delete`; the lab's decompiled CRUSH map is identical before and after, `mapb/crush/lab-before.txt` / `lab-after.txt`); pool `winrbd`, the OSDs, the monitor and every key were not touched |
+| Names | 3,352 `ceph osd map -f json` answers (8 pools: `winrbd`, `pg_num` 16, 12, 7 with `pgp_num` 4, 12 with `pgp_num` 8, a legacy pool, a size-4 pool, a one-host-rule pool), all at epoch 709; object and namespace bytes as hex |
+| Offline | 18 CRUSH maps (`crushtool --build` and `crushtool -c`, 6,240 `crushtool --test --show-mappings` results) and 8 OSDMaps (`osdmaptool --createsimple` + `--import-crush`) |
+| Scrub | fsid and the three OSD uuids replaced (same placeholders as `harness/vectors/osdmap/README.md`), every CRC recomputed, Ceph's own decoder run on every map and incremental; no key material of any kind |
+| Incident | during the first full run an OSD of the lab crashed (a `primary_temp` set by the capture named an OSD that was then marked out: assert in `PeeringState::init_hb_stamps`, Ceph 20.2.5) and could not restart until its stale PG copies of the deleted test pools were removed with `ceph-objectstore-tool`; the OSD is up again, all pools are clean, the capture now clears every temp first. |
+
+Regenerate with `scripts/capture_mapb.sh capture | export | offline | build`; check with `scripts/capture_mapb.sh --check` (python3 only, a few seconds). Besides sizes, hashes, the scrub, CRCs, the chain of incrementals and every
+name hash, the check replays the independent python mapper over the vectors by default (the CRUSH log tables are read from `core/crush_ln/`; `MAPB_DEEP=0` turns this off): 2,071 tabulated PG results, the 3,352 name rows
+(up / acting against the `osdmaptool` table of their epoch), 58 targeted monitor answers, 360 offline PGs and 3,600 `crushtool` mappings agree, 0 differ. The check is also a ctest (`vectors_mapb_check`); `capture_mapb.sh --selftest` (ctest `vectors_mapb_selftest`) damages copies of the vectors in 16 ways (a stray file, a symbolic link, a damaged byte in a map or incremental, a wrong name row, answer, PG row, CRUSH mapping or offline PG row, the real fsid without dashes, a private path, a foreign address, a key) and requires the check to fail on each.
+It was independently re-verified against Ceph's own tools in the lab (all 130 `crushtool --test` runs, the 8 offline and 21 full-map `osdmaptool` tables, every name row, `ceph-dencoder` on every map, incremental and CRUSH map).
+
+## 11 Live placement vectors (`placement/`)
+
+The proof that the core's map store and placement follow a real cluster: the whole client (`harness/src/winrbd-mapwatch`) ran against the lab monitor while the cluster was changed
+under it (test pools on four CRUSH shapes, `pg_upmap`, `pg_upmap_items`, `pg_upmap_primary`, `pg_temp`, `primary_temp`, primary affinity, reweight, an OSD out and in, size and `pg_num`
+changes, a pool deleted, a missed incremental, a killed connection), and every answer was compared with Ceph's own (`ceph osd map` for 2,000 names per pool at every state, `osdmaptool`
+over the monitor's own map of every epoch the client adopted). The maps and incrementals are exactly the bytes the monitor sent to the client, so the chain replays offline (ctest `place.live`).
+About 0.7 MB in 40 files. Index, formats, method and the restore check: [`placement/README.md`](placement/README.md), `placement/INDEX.json` (size and SHA-256 of every file), `placement/RESULT.json` (the counts).
+
+| Item | Value |
+|---|---|
+| Ceph release | v20.2.5 "Tentacle", pinned commit `ed27c686770872022f4c1de04f6b0ac5d5384ded` |
+| Cluster | the same private lab as section 1 (one VM, 1 mon, 3 OSDs, pool `winrbd`) |
+| What was made on the cluster | pools `wrtest-pl-a` to `wrtest-pl-d` and two CRUSH rules `wrtest-pl-hdd`, `wrtest-pl-host` (all deleted again); upmaps, upmap primaries, temps, affinity and reweights for a few seconds each; one OSD out and in; `require_min_compat_client` reef and back; `mon_allow_pool_delete` (set to delete the pools, put back) |
+| Restore | the snapshot taken first (pools, OSD rows, flags, override tables, rules, tree, options) equals the state after the run: `restore_problems` is empty in `placement/RESULT.json`; pool `winrbd`, the OSDs, the monitor and every key were not touched |
+| Scrub | none needed: the maps are as the monitor sent them (the lab fsid and `10.77.0.x` addresses are public); no key, ticket or keyring is part of the set |
+| Check | `python3 -I harness/vectors/public/scripts/check_placement.py` (ctest `vectors_placement_check`): hashes, the contiguous chain, `epochs.tsv`, no stray file, no key-looking text |
+| Regenerate | `harness/tools/map_placement_lab.py run` then `export` on the lab VM (see `placement/README.md`); all scripts are our own code (MIT) |
