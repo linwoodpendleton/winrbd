@@ -1,0 +1,208 @@
+{
+ "images": [
+  {
+   "id": "1ab9896cc0e2f",
+   "image": "wrtest-osdc-pat12",
+   "name": "pat12",
+   "order": 12,
+   "prefix": "rbd_data.1ab9896cc0e2f",
+   "segments": [
+    [
+     0,
+     4096,
+     7,
+     3
+    ],
+    [
+     6000,
+     5000,
+     13,
+     5
+    ],
+    [
+     20480,
+     8192,
+     11,
+     7
+    ],
+    [
+     61440,
+     1000,
+     3,
+     1
+    ]
+   ],
+   "size": 65536
+  },
+  {
+   "id": "1ab9a5e652d32",
+   "image": "wrtest-osdc-pat14",
+   "name": "pat14",
+   "order": 14,
+   "prefix": "rbd_data.1ab9a5e652d32",
+   "segments": [
+    [
+     0,
+     16384,
+     7,
+     3
+    ],
+    [
+     20000,
+     30000,
+     13,
+     5
+    ],
+    [
+     200000,
+     4000,
+     5,
+     2
+    ]
+   ],
+   "size": 262144
+  },
+  {
+   "id": "1ab9c674b9108",
+   "image": "wrtest-osdc-pat16",
+   "name": "pat16",
+   "order": 16,
+   "prefix": "rbd_data.1ab9c674b9108",
+   "segments": [
+    [
+     100,
+     70000,
+     7,
+     3
+    ],
+    [
+     300000,
+     65536,
+     11,
+     7
+    ],
+    [
+     1040000,
+     8000,
+     3,
+     9
+    ]
+   ],
+   "size": 1048576
+  }
+ ],
+ "objects": [
+  {
+   "file": "objects/pat12/0000000000000000.bin",
+   "image": "pat12",
+   "objno": 0,
+   "sha256": "0d356260eaf09e3b3dc81a65b2ad2399aa7c4921c0274bd2cbb54c2a21c46e3b",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat12/0000000000000001.bin",
+   "image": "pat12",
+   "objno": 1,
+   "sha256": "eeed70736b50916854bdfc36de133fcc85eff786e258bfa031ad772e38328c71",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat12/0000000000000002.bin",
+   "image": "pat12",
+   "objno": 2,
+   "sha256": "ceeb1a0b03578923aa54135b57a54c7fa6fd28ae25cf6430cc2ea1795362edc7",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat12/0000000000000005.bin",
+   "image": "pat12",
+   "objno": 5,
+   "sha256": "70b904c4f58a40d5360b3f77ad766c23e2cd7e33534723402c4855d4e0884e0b",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat12/0000000000000006.bin",
+   "image": "pat12",
+   "objno": 6,
+   "sha256": "9a6ed38c852d2be5bab32a845ca59bfc6bc0e76b6cbc364a740f45f48f31dbc3",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat12/000000000000000f.bin",
+   "image": "pat12",
+   "objno": 15,
+   "sha256": "bc931a68359c94c7993be6a0970b71a9dd3535a9c849c0b7cf99d9098c8708ce",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat14/0000000000000000.bin",
+   "image": "pat14",
+   "objno": 0,
+   "sha256": "90b834666bd99804aad5f0d312a8862f91872e635fd6063d42fe787c4e1d84ee",
+   "size": 16384
+  },
+  {
+   "file": "objects/pat14/0000000000000001.bin",
+   "image": "pat14",
+   "objno": 1,
+   "sha256": "6e93bb1adeb7adbf6481c6809ee9b1d3a351faca135f6b7e7ec00c5b99ab4467",
+   "size": 16384
+  },
+  {
+   "file": "objects/pat14/0000000000000002.bin",
+   "image": "pat14",
+   "objno": 2,
+   "sha256": "27e0e912a9e645bb06e5e3e32e171b50723b50f95feff2102677e64ad2bb8c3d",
+   "size": 16384
+  },
+  {
+   "file": "objects/pat14/0000000000000003.bin",
+   "image": "pat14",
+   "objno": 3,
+   "sha256": "3fb207e24ee344c11b288f7b742bff63d60764cd7a1bd4a111259f7113e643ab",
+   "size": 4096
+  },
+  {
+   "file": "objects/pat14/000000000000000c.bin",
+   "image": "pat14",
+   "objno": 12,
+   "sha256": "752fdfd30f046750e15164dd1763af1a5124b91a95e29cd296cf275db408aa01",
+   "size": 8192
+  },
+  {
+   "file": "objects/pat16/0000000000000000.bin",
+   "image": "pat16",
+   "objno": 0,
+   "sha256": "c61da007f88625e59a7dbe7700d2ca26a0e71fee832eda0b351d82a0742f3a0a",
+   "size": 65536
+  },
+  {
+   "file": "objects/pat16/0000000000000001.bin",
+   "image": "pat16",
+   "objno": 1,
+   "sha256": "a2d97dbf1c699a44be992fac3391d738275c526c4c6cbdecbfb5818b4eedf3f0",
+   "size": 8192
+  },
+  {
+   "file": "objects/pat16/0000000000000004.bin",
+   "image": "pat16",
+   "objno": 4,
+   "sha256": "84cf2a75b445cda14e03cf1d66de7bd4b97d00e0d2347f9f7d3d0b4bc4c1ce73",
+   "size": 65536
+  },
+  {
+   "file": "objects/pat16/0000000000000005.bin",
+   "image": "pat16",
+   "objno": 5,
+   "sha256": "c87d8b537b875e3ab90197bcde2f5882b206e95b019a03cbbb7f760da2bdc7e6",
+   "size": 40960
+  },
+  {
+   "file": "objects/pat16/000000000000000f.bin",
+   "image": "pat16",
+   "objno": 15,
+   "sha256": "ea47cf87bf4e072a03d4c14d574117fa3f66985dbff524436040bbbd8d3450fd",
+   "size": 65536
+  }
+ ]
+}

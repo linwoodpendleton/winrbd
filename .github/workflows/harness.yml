@@ -10,9 +10,12 @@
 #   object-gates     the no-libc / no-globals / sources-in-sync checks on OPTIMISED builds (Release and MinSizeRel, gcc and
 #                    clang): the test jobs build Debug, where a compiler never turns a loop into a library call
 #   static-limits    call depth and worst-case stack of the core, measured from gcc's call graph (no recursion); the chains of
-#                    part B (map decode, incremental apply, placement) also have a budget of their own
+#                    part B (map decode, incremental apply, placement) and of part C (the OSD step, the image step, the request
+#                    encode, the reply decode, and the reply path through the msgr2 upper-layer table) also have a budget of
+#                    their own
 #   fuzz-smoke       clang + libFuzzer, 30 s per target, seeded from harness/fuzz/seeds (the checkout is not modified); a
-#                    target that was not built, or has no committed seeds, fails the job (the five targets of part B are named)
+#                    target that was not built, or has no committed seeds, fails the job (the five targets of part B and the
+#                    seven of part C are named)
 #
 # Warnings are errors everywhere (WR_WERROR is ON by default and is never turned off here).
 name: harness
@@ -178,14 +181,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc python3
 
-      # No recursion, at most 14 frames deep, at most 3,328 bytes of stack along any chain (measured with gcc 13: 13 frames
-      # and 3,064 bytes, the largest chain being the incremental apply of the map store, which decodes the full map embedded
-      # in an incremental and audits its rules). The per-entry budgets are ratchets about 8 % above the measured stack of
-      # each part B entry point (placement 1,528, store step 2,792, full-map decode 1,720, incremental apply 2,488, CRUSH
-      # decode 568, rule interpreter 696 bytes); an entry that is renamed away is an error, not a pass. An earlier version of
-      # the check read the sizes in directory order and let a node without a size (a function a file only calls) overwrite
-      # the size of its definition, which reported 1,632 bytes for the same chain; the check now keeps the largest size.
-      # Calls through function pointers (the store's I/O hooks, 16 bytes at most) end a chain in this measurement.
+      # No recursion, at most 14 frames deep, at most 3,328 bytes of stack along any chain (measured with gcc 13: 14 frames
+      # and 3,064 bytes; the deepest chain is the failure of an image that cancels its operations down to the session reset,
+      # the largest stack is the incremental apply of the map store, which decodes the full map embedded in an incremental
+      # and audits its rules). The per-entry budgets are ratchets about 8 % above the measured stack of each entry point
+      # (part B: placement 1,528, store step 2,792, full-map decode 1,720, incremental apply 2,488, CRUSH decode 568, rule
+      # interpreter 696 bytes; part C: OSD step 912, image step 1,080, the engine's OSD stage 944, the request encode 152,
+      # the reply decode 264 bytes); an entry that is renamed away is an error, not a pass. An earlier version of the check
+      # read the sizes in directory order and let a node without a size (a function a file only calls) overwrite the size of
+      # its definition, which reported 1,632 bytes for the same chain; the check now keeps the largest size.
+      # Calls through function pointers (the store's I/O hooks, 16 bytes at most) end a chain in this measurement; the one
+      # that matters for part C, the msgr2 connection handing a complete message to the upper layer's table, is added by the
+      # next step.
       - name: Measure
         run: >
           python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 3328
@@ -195,6 +202,28 @@ jobs:
           --entry wri_osdmap_apply_inc=2752
           --entry wri_crush_decode=640
           --entry wri_crush_do_rule=768
+          --entry wri_osdc_step=992
+          --entry wri_client_osd_begin=1024
+          --entry wri_rbd_step=1168
+          --entry wri_mosdop_encode=168
+          --entry wri_mosdopreply_decode=288
+
+      # The reply path of part C. A complete OSD message reaches the session through the upper-layer table of the msgr2
+      # connection (`c->up->message(...)`), a call gcc's graph cannot see, so the chain would end at the connection and the
+      # decoder's stack would never be added to the frames that are live when it runs. `--link` adds that edge (for the OSD
+      # session and the monitor client alike) and the budgets below are measured through it, from the connection's frame
+      # parser down: the OSD session's message handler 1,128 bytes (the largest branch is the answer to a backoff, its
+      # encoder included; the plain reply decode is 264), and the parser frame above both handlers (192 bytes of its own: 1,320
+      # through the OSD session, 1,792 through the monitor client, whose message path decodes a map). `--entry=NAME` is the same option as
+      # `--entry NAME` (argparse), spelt so that the part B test map.hardening, which reads the `--entry NAME` tokens of the
+      # step above, does not take file-qualified names for a plain function name.
+      - name: Measure the reply path through the msgr2 table
+        run: >
+          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 3328
+          --link wri_m2c_ready_frame=core/src/osd/wri_osd_sess_up.c:up_message
+          --link wri_m2c_ready_frame=core/src/mon/wri_mon.c:up_message
+          --entry=core/src/osd/wri_osd_sess_up.c:up_message=1224
+          --entry=wri_m2c_ready_frame=1936
 
   fuzz-smoke:
     name: fuzz smoke (clang, 30 s per target)
@@ -230,6 +259,16 @@ jobs:
         run: |
           set -eu
           for t in fuzz_crush_dec fuzz_crush_map fuzz_osdmap_full fuzz_osdmap_inc fuzz_mapstore; do
+            [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
+            [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
+          done
+
+      # The same for the seven part C targets (OSD messages, RBD class calls and open, OSD sessions, the request engine, the whole
+      # client with an image on it).
+      - name: The part C targets exist and have seeds
+        run: |
+          set -eu
+          for t in fuzz_osd_reply fuzz_osd_backoff fuzz_rbd_cls fuzz_osd_sess fuzz_osd_req fuzz_rbd_open fuzz_client_osd; do
             [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
             [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
           done

@@ -1,0 +1,185 @@
+{
+ "about": "OSD and RBD captures of the stock client library in crc mode (module vectors-c)",
+ "ceph_release": "20.2.5",
+ "data_pool": "wrtest-osdc-data",
+ "files": {
+  "images.json": {
+   "bytes": 11439,
+   "sha256": "27683b8870721f0ac19b696ba5d7b5aee6cbe6e5caa9fc11f77a3188fff37d6f"
+  },
+  "objects.json": {
+   "bytes": 4162,
+   "sha256": "04ebad6c60b821ba59910b5e98d0e909d59cdaba9a57f89b38acbc065bb2876d"
+  },
+  "objects/pat12/0000000000000000.bin": {
+   "bytes": 4096,
+   "sha256": "0d356260eaf09e3b3dc81a65b2ad2399aa7c4921c0274bd2cbb54c2a21c46e3b"
+  },
+  "objects/pat12/0000000000000001.bin": {
+   "bytes": 4096,
+   "sha256": "eeed70736b50916854bdfc36de133fcc85eff786e258bfa031ad772e38328c71"
+  },
+  "objects/pat12/0000000000000002.bin": {
+   "bytes": 4096,
+   "sha256": "ceeb1a0b03578923aa54135b57a54c7fa6fd28ae25cf6430cc2ea1795362edc7"
+  },
+  "objects/pat12/0000000000000005.bin": {
+   "bytes": 4096,
+   "sha256": "70b904c4f58a40d5360b3f77ad766c23e2cd7e33534723402c4855d4e0884e0b"
+  },
+  "objects/pat12/0000000000000006.bin": {
+   "bytes": 4096,
+   "sha256": "9a6ed38c852d2be5bab32a845ca59bfc6bc0e76b6cbc364a740f45f48f31dbc3"
+  },
+  "objects/pat12/000000000000000f.bin": {
+   "bytes": 4096,
+   "sha256": "bc931a68359c94c7993be6a0970b71a9dd3535a9c849c0b7cf99d9098c8708ce"
+  },
+  "objects/pat14/0000000000000000.bin": {
+   "bytes": 16384,
+   "sha256": "90b834666bd99804aad5f0d312a8862f91872e635fd6063d42fe787c4e1d84ee"
+  },
+  "objects/pat14/0000000000000001.bin": {
+   "bytes": 16384,
+   "sha256": "6e93bb1adeb7adbf6481c6809ee9b1d3a351faca135f6b7e7ec00c5b99ab4467"
+  },
+  "objects/pat14/0000000000000002.bin": {
+   "bytes": 16384,
+   "sha256": "27e0e912a9e645bb06e5e3e32e171b50723b50f95feff2102677e64ad2bb8c3d"
+  },
+  "objects/pat14/0000000000000003.bin": {
+   "bytes": 4096,
+   "sha256": "3fb207e24ee344c11b288f7b742bff63d60764cd7a1bd4a111259f7113e643ab"
+  },
+  "objects/pat14/000000000000000c.bin": {
+   "bytes": 8192,
+   "sha256": "752fdfd30f046750e15164dd1763af1a5124b91a95e29cd296cf275db408aa01"
+  },
+  "objects/pat16/0000000000000000.bin": {
+   "bytes": 65536,
+   "sha256": "c61da007f88625e59a7dbe7700d2ca26a0e71fee832eda0b351d82a0742f3a0a"
+  },
+  "objects/pat16/0000000000000001.bin": {
+   "bytes": 8192,
+   "sha256": "a2d97dbf1c699a44be992fac3391d738275c526c4c6cbdecbfb5818b4eedf3f0"
+  },
+  "objects/pat16/0000000000000004.bin": {
+   "bytes": 65536,
+   "sha256": "84cf2a75b445cda14e03cf1d66de7bd4b97d00e0d2347f9f7d3d0b4bc4c1ce73"
+  },
+  "objects/pat16/0000000000000005.bin": {
+   "bytes": 40960,
+   "sha256": "c87d8b537b875e3ab90197bcde2f5882b206e95b019a03cbbb7f760da2bdc7e6"
+  },
+  "objects/pat16/000000000000000f.bin": {
+   "bytes": 65536,
+   "sha256": "ea47cf87bf4e072a03d4c14d574117fa3f66985dbff524436040bbbd8d3450fd"
+  },
+  "revert-proof.txt": {
+   "bytes": 1593,
+   "sha256": "d7230e1ef85a75a3dffcf120da5e44b5ae475f748020d80a6d0eac47edb23747"
+  },
+  "sessions/backoff-out.json": {
+   "bytes": 326987,
+   "sha256": "c8aa0f71a290d0d4aa7819a70858105e88ae97d073911dac232231a5357ec154"
+  },
+  "sessions/backoff-restart.json": {
+   "bytes": 466035,
+   "sha256": "9a4b38857e60f891926322eb01dfc3ca49eb8447882e4d8e6dd53a691fd61a8b"
+  },
+  "sessions/hdr-missing.json": {
+   "bytes": 10964,
+   "sha256": "00bd07d9957a234a5643dacc327e56c9625d4ae83b89440184788a309c56a6b3"
+  },
+  "sessions/hdr-wrtest-osdc-clone.json": {
+   "bytes": 22778,
+   "sha256": "008d10675f248db16b640a00f6862577fdc10c75e77cabaf0efaa02c03285a6e"
+  },
+  "sessions/hdr-wrtest-osdc-dp.json": {
+   "bytes": 22593,
+   "sha256": "0768b2a408e1e2da5f0c6aad0243557ae2d592b137f5761aff03685b33a95b37"
+  },
+  "sessions/hdr-wrtest-osdc-f01.json": {
+   "bytes": 22653,
+   "sha256": "734c43beeb5b8e4419ec85309ee69cc855fdbbdad3742531453cf4df282b47fe"
+  },
+  "sessions/hdr-wrtest-osdc-f05.json": {
+   "bytes": 22594,
+   "sha256": "7aa0b234e81af148787bad024ed96ed0a362bc270a17843cd354e3871cbb2d01"
+  },
+  "sessions/hdr-wrtest-osdc-f21.json": {
+   "bytes": 22597,
+   "sha256": "0bcf5bfc0c759d3bfa8d1b2d73a81bcbe91fb77fb58fbd75fdf2f594cb6bf273"
+  },
+  "sessions/hdr-wrtest-osdc-f3d.json": {
+   "bytes": 22622,
+   "sha256": "05e05cec2bdb0809838e68b2d6373b59efc6cde3d25f3558f46cd05fe1c2ade3"
+  },
+  "sessions/hdr-wrtest-osdc-f45.json": {
+   "bytes": 22593,
+   "sha256": "0ec3835b7bc7084db4971fa07ac59d6a098dae0afe527871caa69002bc5f3213"
+  },
+  "sessions/hdr-wrtest-osdc-lock.json": {
+   "bytes": 22946,
+   "sha256": "d79cf65c8c1db5c60724c42cc351c2c435c5e6ca1ab67d9fe736d31262de8ba2"
+  },
+  "sessions/hdr-wrtest-osdc-snap.json": {
+   "bytes": 22731,
+   "sha256": "8a37c8565e22963e49894274662e8bb82769e3e13d3df56cb65c82a71b22dc04"
+  },
+  "sessions/hdr-wrtest-osdc-str.json": {
+   "bytes": 25853,
+   "sha256": "7f0d4551bad6f123b9e1bfa3cca44b491628a33d05bca1cec5d166f28c8847ef"
+  },
+  "sessions/io-plain.json": {
+   "bytes": 289431,
+   "sha256": "4357470ae4b53267ed5d8f0c3bbdcc2a0510971531afce9c2113d11ff758b089"
+  },
+  "sessions/io-snap.json": {
+   "bytes": 99798,
+   "sha256": "1cdb1168b3c3485efdf93d6c3566acfab5b0f1b96262c4eedbc69e31fde7151e"
+  },
+  "sessions/objects-pat12.json": {
+   "bytes": 71975,
+   "sha256": "9c100803ea07ff4c37c7637d18b562e5d231869c13ab35fc81befdd657a534d6"
+  },
+  "sessions/objects-pat14.json": {
+   "bytes": 142503,
+   "sha256": "c0ff7d2e51548ad16c21aba7aa7ef229131da558dc04fe33204354bb22409fec"
+  },
+  "sessions/objects-pat16.json": {
+   "bytes": 36286,
+   "sha256": "33727458180295de05f182e4f2b6a49e318120b2507585d75c59347616a8c7b7"
+  }
+ },
+ "pool": "winrbd",
+ "sessions": [
+  "hdr-wrtest-osdc-f01",
+  "hdr-wrtest-osdc-f05",
+  "hdr-wrtest-osdc-f21",
+  "hdr-wrtest-osdc-f3d",
+  "hdr-wrtest-osdc-f45",
+  "hdr-wrtest-osdc-dp",
+  "hdr-wrtest-osdc-clone",
+  "hdr-wrtest-osdc-str",
+  "hdr-wrtest-osdc-snap",
+  "hdr-wrtest-osdc-lock",
+  "hdr-missing",
+  "io-plain",
+  "io-snap",
+  "objects-pat12",
+  "objects-pat14",
+  "objects-pat16",
+  "backoff-restart",
+  "backoff-out"
+ ],
+ "user": {
+  "caps": "mon 'profile rbd', osd 'profile rbd pool=winrbd, profile rbd pool=wrtest-osdc-data'",
+  "created": "2026-11-17T17:12:53Z",
+  "deleted": true,
+  "entity": "client.vec-osdc",
+  "key_published": false,
+  "verified_gone": "ceph auth get client.vec-osdc fails (ENOENT) and the entity is not in the auth list, checked 2026-11-17T17:17:06Z"
+ },
+ "version": 1
+}

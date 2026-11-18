@@ -203,6 +203,9 @@ static void wrl_act_connect(wrl_loop *l, const wr_action *a, uint64_t now_ms)
 		return;
 	}
 	(void)setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, (socklen_t)sizeof(one)); /* small frames: best effort */
+#ifdef SO_NOSIGPIPE /* the BSDs and macOS have no MSG_NOSIGNAL: the socket itself must not raise SIGPIPE (the header promises it never happens) */
+	(void)setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &one, (socklen_t)sizeof(one));
+#endif
 	c->fd = fd;
 	c->id = a->conn;
 	c->deadline_ms = now_ms + tmo < now_ms ? UINT64_MAX : now_ms + tmo;

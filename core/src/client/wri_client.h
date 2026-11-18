@@ -15,7 +15,10 @@
  * Source layout: wr_client.c (public lifecycle, run, events, state), wri_client_conn.c (connection
  * table, the host-facing wr_conn_* calls, derived actions, the monitor link hooks),
  * wri_client_mem.c (configuration check, memory layout, create-time carving), wri_client_map.c (the map store's
- * stage of a run and its io adapter over the monitor client), wr_map.c (the public map API, wr_map.h).
+ * stage of a run and its io adapter over the monitor client), wr_map.c (the public map API, wr_map.h); with the OSD
+ * client on (wr_config.osd_sessions != 0) also wri_client_osd.c (memory, create, the stage of a run, stats),
+ * wri_client_osd_conn.c (the OSD link: connections with role OSD), wr_image.c (the public image API, wr_image.h) and
+ * core/src/rbd/wri_rbd_step.c (the image layer's pass), see wri_client_osd.h.
  *
  * Memory rule: every allocation of the engine uses an alignment of at most 16 bytes, so the arena
  * bytes a create consumes do not depend on how the host's (16-byte aligned) base is aligned beyond
@@ -66,6 +69,10 @@ typedef struct wri_cslot {
 	uint64_t connect_deadline_ms; /* engine backstop for a host that never reports the connect; NONE if unset */
 } wri_cslot;
 
+struct wri_osdc;
+struct wri_rbd;
+struct wri_cosd;
+
 struct wr_client {
 	uint32_t magic;
 	wri_ctx x;
@@ -80,6 +87,13 @@ struct wr_client {
 	wri_mon_link link;     /* hooks the monitor client uses to drive connections */
 	wri_mapstore map;      /* the OSD map store (enabled only when cfg.map_slot_bytes != 0, inert otherwise) */
 	wri_map_io map_io;     /* what the store sees of the monitor client and the event ring */
+
+	/* The OSD client and the image layer (wri_client_osd.h): all three NULL while osd_sessions == 0, then the engine is what it was
+	 * apart from these pointers. osd and rbd point into the aux block `og` (which also holds the per-connection auth contexts and the
+	 * image handles); the three are set by wri_client_osd_init and never change. */
+	struct wri_osdc *osd;
+	struct wri_rbd *rbd;
+	struct wri_cosd *og;
 
 	wri_cslot *slot;       /* x.cfg.max_conns entries */
 	uint32_t n_slot;
@@ -114,6 +128,9 @@ typedef struct wri_layout {
 	size_t bulk;               /* bytes create takes from the bulk region */
 } wri_layout;
 
+/* Cap of segments 1..3 of a connection for this configuration (the largest op payload of the OSD client has to fit it). */
+uint32_t wri_client_seg_cap(const wr_config *cfg);
+
 /* Validate cfg (abi, size, ranges) and compute the layout. WR_E_ABI / WR_E_INVAL / WR_E_OVERFLOW. */
 WR_MUST_CHECK wr_status wri_client_layout(const wr_config *cfg, wri_layout *lay);
 
@@ -132,6 +149,17 @@ wri_cslot *wri_client_slot_of(wr_client *c, wr_conn_id id);
 
 /* Fill c->link with the monitor link hooks (open / close / send / event / keepalive / acks). */
 void wri_client_link_init(wr_client *c);
+
+/*
+ * Open a connection with the given role (WRI_ENTITY_MON: the cephx client's embedded handshake, WRI_ENTITY_OSD: the slot's own cephx handshake
+ * context, wri_client_osd.h) in a free slot and handshake slot: the engine side of both links. WR_E_BUSY when no slot is free, a handshake slot
+ * is not free or the engine has failed; WR_E_INVAL for a role the engine has no auth context for (OSD without the OSD client).
+ */
+WR_MUST_CHECK wr_status wri_client_conn_open(wr_client *c, uint8_t role, const wri_eaddr *addr, const wri_m2_upper *up, void *up_ctx,
+					     uint16_t *slot_out);
+/* The close and send hooks of both links (their signatures are the same in wri_mon_link and wri_osd_link). */
+void wri_client_link_close(void *ctx, uint16_t slot, wr_status why);
+wr_status wri_client_link_send(void *ctx, uint16_t slot, const wri_m2_msg_out *m);
 
 /*
  * Housekeeping after the connections ran: hand back handshake slots whose connection let go of its

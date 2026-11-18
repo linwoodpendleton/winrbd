@@ -9,14 +9,17 @@
  *   - CONNECT: the connection waits for TCP and the host was not told yet;
  *   - CLOSE:   the connection ended (failed or asked to close) after the host was told to connect;
  *   - TX_READY: the transmit queue went from idle to busy.
- * Each is emitted once; a slot whose connection ended before the host ever saw a CONNECT is freed
- * silently (there is no socket to close, so the host owes no wr_conn_closed).
+ * Each is emitted once; a slot whose connection ended before the host saw a CONNECT is freed silently.
+ *
+ * A slot is opened with a role: MON authenticates with the cephx client's embedded handshake, OSD with a context of its own per slot.
  *
  * Handshake slots. A connection borrows one of max_handshakes transcript pairs at open; the msgr2
  * connection sets its `pa` pointer to NULL once the transcript is wiped (signature verified, or any
  * failure), and the engine then returns the slot (housekeeping runs after every call that can do it).
  */
 #include "wri_client.h"
+
+#include "wri_client_osd.h"
 
 WR_FILE_LICENCE_MIT
 
@@ -86,6 +89,8 @@ static void slot_release(wr_client *c, wri_cslot *s)
 		s->conn.pa = NULL;
 	}
 	pa_reclaim(c, s);
+	if (c->og != NULL) /* the slot's cephx handshake context (challenges, nonce, the view of the session key): never outlives the connection */
+		wri_cx_hs_wipe(&c->og->hs[s - c->slot]);
 	s->flags = 0;
 	s->in_use = 0;
 	s->connect_deadline_ms = WR_DEADLINE_NONE;
@@ -125,44 +130,46 @@ static uint32_t free_pa(const wr_client *c)
 	return WRI_NIL;
 }
 
-/* Start a monitor connection in slot s (index i) with handshake slot pa. */
-static void slot_open(wr_client *c, wri_cslot *s, uint32_t i, uint32_t pa, const wri_eaddr *addr)
+/* Open a connection with `role` in a free slot and handshake slot (the monitor link and the OSD link both come here). */
+wr_status wri_client_conn_open(wr_client *c, uint8_t role, const wri_eaddr *addr, const wri_m2_upper *up, void *up_ctx, uint16_t *slot_out)
 {
+	const wri_auth_ops *auth = wri_cx_ops();
+	void *auth_ctx = &c->cx;
+	wri_cslot *s;
+	uint32_t i = 0, pa, n;
 	wr_addr dial;
 	wr_conn_id id;
 
+	if (!engine_ok(c) || addr == NULL || up == NULL || slot_out == NULL || (role != WRI_ENTITY_MON && role != WRI_ENTITY_OSD))
+		return WR_E_INVAL;
+	if (role == WRI_ENTITY_OSD && c->og == NULL)
+		return WR_E_INVAL; /* no OSD client, no handshake contexts */
+	if (c->state == WR_CS_FAILED)
+		return WR_E_BUSY; /* the engine is dead: the callers wait */
+	s = free_slot(c, &i);
+	pa = free_pa(c);
+	if (s == NULL || pa == WRI_NIL)
+		return WR_E_BUSY; /* no free connection or handshake slot (an old one is still closing): retry later */
+	if (role == WRI_ENTITY_OSD) {
+		if (wri_cx_hs_init(&c->og->hs[i], &c->cx) != WR_OK)
+			return WR_E_INVAL;
+		auth = wri_cx_hs_ops();
+		auth_ctx = &c->og->hs[i];
+	}
+	c->pa_used[pa] = 1;
+	c->pa_in_use++;
+	if (c->pa_in_use > c->stats.handshakes_hiwater)
+		c->stats.handshakes_hiwater = c->pa_in_use;
 	wri_eaddr_to_wr(&dial, addr);
 	s->conn.gen = (uint16_t)(s->conn.gen + 1u);
 	s->conn.pa_slot = pa;
 	c->global_seq++;
 	id = ((wr_conn_id)s->conn.gen << 16) | (wr_conn_id)(i + 1u);
-	wri_m2_conn_open(&s->conn, id, WRI_ENTITY_MON, addr, &dial, wri_cx_ops(), &c->cx, wri_mon_upper(), &c->mon, &c->pa[pa],
-			 c->my_nonce, c->global_seq);
+	wri_m2_conn_open(&s->conn, id, role, addr, &dial, auth, auth_ctx, up, up_ctx, &c->pa[pa], c->my_nonce, c->global_seq);
 	s->flags = (uint8_t)WRI_CF_WANT_CONNECT;
 	s->in_use = 1;
 	s->connect_deadline_ms = WR_DEADLINE_NONE;
 	pa_reclaim(c, s); /* a refused open() already let go of the transcript */
-}
-
-static wr_status link_open(void *ctx, const wri_eaddr *addr, uint16_t *slot_out)
-{
-	wr_client *c = (wr_client *)ctx;
-	wri_cslot *s;
-	uint32_t i = 0, pa, n;
-
-	if (!engine_ok(c) || addr == NULL || slot_out == NULL)
-		return WR_E_INVAL;
-	if (c->state == WR_CS_FAILED)
-		return WR_E_BUSY; /* the engine is dead: the monitor client just waits */
-	s = free_slot(c, &i);
-	pa = free_pa(c);
-	if (s == NULL || pa == WRI_NIL)
-		return WR_E_BUSY; /* no free connection or handshake slot (an old one is still closing): retry later */
-	c->pa_used[pa] = 1;
-	c->pa_in_use++;
-	if (c->pa_in_use > c->stats.handshakes_hiwater)
-		c->stats.handshakes_hiwater = c->pa_in_use;
-	slot_open(c, s, i, pa, addr);
 	n = conns_in_use(c);
 	if (n > c->stats.conns_hiwater)
 		c->stats.conns_hiwater = n;
@@ -170,7 +177,12 @@ static wr_status link_open(void *ctx, const wri_eaddr *addr, uint16_t *slot_out)
 	return WR_OK;
 }
 
-static void link_close(void *ctx, uint16_t slot, wr_status why)
+static wr_status link_open(void *ctx, const wri_eaddr *addr, uint16_t *slot_out)
+{
+	return wri_client_conn_open((wr_client *)ctx, WRI_ENTITY_MON, addr, wri_mon_upper(), &((wr_client *)ctx)->mon, slot_out);
+}
+
+void wri_client_link_close(void *ctx, uint16_t slot, wr_status why)
 {
 	wr_client *c = (wr_client *)ctx;
 	wri_cslot *s;
@@ -184,7 +196,7 @@ static void link_close(void *ctx, uint16_t slot, wr_status why)
 	pa_reclaim(c, s);
 }
 
-static wr_status link_send(void *ctx, uint16_t slot, const wri_m2_msg_out *m)
+wr_status wri_client_link_send(void *ctx, uint16_t slot, const wri_m2_msg_out *m)
 {
 	wr_client *c = (wr_client *)ctx;
 
@@ -195,8 +207,7 @@ static wr_status link_send(void *ctx, uint16_t slot, const wri_m2_msg_out *m)
 
 static void link_event(void *ctx, wr_ev_kind kind, uint32_t epoch, const wr_errinfo *err)
 {
-	/* With maps on the store polls the monitor's slots itself: a raw-message event would send the host to a peek that
-	 * returns nothing (architecture 15.6). */
+	/* with maps on the store polls the monitor's slots itself: a raw-message event would send the host to an empty peek (architecture 15.6) */
 	if (kind == WR_EV_MAPMSG && ((const wr_client *)ctx)->map.enabled)
 		return;
 	wri_client_push_event((wr_client *)ctx, kind, epoch, err);
@@ -225,8 +236,8 @@ void wri_client_link_init(wr_client *c)
 	WR_MEMSET(&c->link, 0, sizeof(c->link));
 	c->link.ctx = c;
 	c->link.open = link_open;
-	c->link.close = link_close;
-	c->link.send = link_send;
+	c->link.close = wri_client_link_close;
+	c->link.send = wri_client_link_send;
 	c->link.event = link_event;
 	c->link.keepalive = link_keepalive;
 	c->link.keepalive_acks = link_acks;
@@ -353,7 +364,7 @@ static int slot_action(wr_client *c, wri_cslot *s, wr_action *out)
 		out->kind = WR_ACT_CONNECT;
 		out->conn = s->conn.id;
 		out->addr = s->conn.dial;
-		out->timeout_ms = c->x.cfg.connect_timeout_ms;
+		out->timeout_ms = s->conn.role == WRI_ENTITY_OSD ? c->x.cfg.osd_connect_timeout_ms : c->x.cfg.connect_timeout_ms; /* a dead OSD must not hold a handshake slot as long as a monitor may */
 		s->connect_deadline_ms = WR_DEADLINE_NONE;
 		if (out->timeout_ms != 0u)
 			s->connect_deadline_ms = wri_mon_add_ms(c->x.now.mono_ms, (uint64_t)out->timeout_ms + WRI_CLIENT_CONNECT_GRACE_MS);

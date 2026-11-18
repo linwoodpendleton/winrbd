@@ -4,7 +4,7 @@
 #
 #   cmake -S harness -B build && cmake --build build && ctest --test-dir build
 #
-# in both compilers and in both Debug and Release. Warnings are errors (WR_WERROR is ON by default and is never turned
+# in both compilers and in Debug, Release and MinSizeRel. Warnings are errors (WR_WERROR is ON by default and is never turned
 # off here). The tests that need the lab Ceph cluster (label "lab", test_lab_mon) are excluded and would skip anyway
 # (they need WR_LAB_* variables, which CI does not have); nothing in this job reaches a network or a secret.
 #
@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         cc: [gcc, clang]
-        build_type: [Debug, Release]
+        build_type: [Debug, Release, MinSizeRel]
     steps:
       - uses: actions/checkout@v4
 

@@ -1,0 +1,424 @@
+{
+ "about": "get_id and the header read of an image that does not exist: -ENOENT for the whole message",
+ "commands": [
+  "osdc_probe vec-osdc <keyring> winrbd hdr-missing x"
+ ],
+ "end": "2026-11-17T17:14:21Z",
+ "exchanges": [
+  {
+   "conn": 3,
+   "label": "get_id-missing",
+   "n": 1,
+   "probe": {
+    "calls": [
+     {
+      "cls": "rbd",
+      "inp": "",
+      "method": "get_id",
+      "out": "",
+      "rval": 0
+     }
+    ],
+    "kind": "calls",
+    "label": "get_id-missing",
+    "rc": -2
+   },
+   "reply": {
+    "compat_version": 2,
+    "data": {
+     "hex": "",
+     "length": 0,
+     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "front_hex": "170000007262645f69642e7772746573742d6f7364632d6e6f6e6501020000000000000017000000ffffffff1400400800000000feffffff000000000000000000000000040f00000100000001140000000003060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "header2_hex": "010000000000000001000000000000002b007f00080000000000000001000000000000000302000000",
+    "priority": 127,
+    "segment_lengths": [
+     41,
+     167,
+     0,
+     0
+    ],
+    "seq": 1,
+    "summary": {
+     "do_redirect": 0,
+     "epoch": 3844,
+     "flags": 138412052,
+     "oid": "rbd_id.wrtest-osdc-none",
+     "ops": [
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      }
+     ],
+     "pool": 2,
+     "replay_version": [
+      0,
+      0
+     ],
+     "result": -2,
+     "retry_attempt": 0,
+     "rvals": [
+      0
+     ],
+     "seed": 23,
+     "user_version": 0
+    },
+    "tid": 1,
+    "type": 43,
+    "version": 8
+   },
+   "request": {
+    "compat_version": 3,
+    "data": {
+     "hex": "7262646765745f6964",
+     "length": 9,
+     "sha256": "a26aa75f55689901c0e67be0fcd7b3f243037e9fbbbb1e175baf071aac607c5b"
+    },
+    "front_hex": "01011200000001020000000000000017000000ffffffffffb74cc29b040f0000140040080202150000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101010000000000000000000000000000000006031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff170000007262645f69642e7772746573742d6f7364632d6e6f6e6501000114000000000306000000000000000000000000000000000000000000000000000009000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+    "header2_hex": "010000000000000001000000000000002a003f00090000000000000000000000000000000303000000",
+    "priority": 63,
+    "segment_lengths": [
+     41,
+     239,
+     0,
+     9
+    ],
+    "seq": 1,
+    "summary": {
+     "client_inc": 0,
+     "epoch": 3844,
+     "features": "0x3f07fffffffdffff",
+     "flags": 138412052,
+     "hash": 2613202103,
+     "mtime": [
+      0,
+      0
+     ],
+     "nspace": "",
+     "oid": "rbd_id.wrtest-osdc-none",
+     "oloc_key": "",
+     "ops": [
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 0,
+       "method_len": 6,
+       "name": "CALL",
+       "payload_len": 9
+      }
+     ],
+     "pool": 2,
+     "reqid": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "retry_attempt": 0,
+     "seed": 23,
+     "snap_seq": "0x0",
+     "snapid": "0xfffffffffffffffe",
+     "snaps": [],
+     "trunc": []
+    },
+    "tid": 1,
+    "type": 42,
+    "version": 9
+   },
+   "t_ms": 5.1
+  },
+  {
+   "conn": 3,
+   "label": "header8-missing",
+   "n": 2,
+   "probe": {
+    "calls": [
+     {
+      "cls": "rbd",
+      "inp": "feffffffffffffff",
+      "method": "get_size",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "",
+      "method": "get_object_prefix",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "feffffffffffffff01",
+      "method": "get_features",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "feffffffffffffff",
+      "method": "get_flags",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "",
+      "method": "get_snapcontext",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "",
+      "method": "get_data_pool",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "",
+      "method": "parent_get",
+      "out": "",
+      "rval": 0
+     },
+     {
+      "cls": "rbd",
+      "inp": "feffffffffffffff",
+      "method": "parent_overlap_get",
+      "out": "",
+      "rval": 0
+     }
+    ],
+    "kind": "calls",
+    "label": "header8-missing",
+    "rc": -2
+   },
+   "reply": {
+    "compat_version": 2,
+    "data": {
+     "hex": "",
+     "length": 0,
+     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "front_hex": "170000007262645f6865616465722e30313233343536373839616201020000000000000015000000ffffffff1400400800000000feffffff000000000000000000000000040f00000800000001140000000003080008000000000000000000000000000000000000000000000000000000000114000000000311000000000000000000000000000000000000000000000000000000000000011400000000030c0009000000000000000000000000000000000000000000000000000000000114000000000309000800000000000000000000000000000000000000000000000000000000011400000000030f000000000000000000000000000000000000000000000000000000000000011400000000030d000000000000000000000000000000000000000000000000000000000000011400000000030a0000000000000000000000000000000000000000000000000000000000000114000000000312000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "header2_hex": "020000000000000002000000000000002b007f00080000000000000002000000000000000302000000",
+    "priority": 127,
+    "segment_lengths": [
+     41,
+     461,
+     0,
+     0
+    ],
+    "seq": 2,
+    "summary": {
+     "do_redirect": 0,
+     "epoch": 3844,
+     "flags": 138412052,
+     "oid": "rbd_header.0123456789ab",
+     "ops": [
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      },
+      {
+       "code": 5121,
+       "name": "CALL",
+       "out_len": 0
+      }
+     ],
+     "pool": 2,
+     "replay_version": [
+      0,
+      0
+     ],
+     "result": -2,
+     "retry_attempt": 0,
+     "rvals": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "seed": 21,
+     "user_version": 0
+    },
+    "tid": 2,
+    "type": 43,
+    "version": 8
+   },
+   "request": {
+    "compat_version": 3,
+    "data": {
+     "hex": "7262646765745f73697a65feffffffffffffff7262646765745f6f626a6563745f7072656669787262646765745f6665617475726573feffffffffffffff017262646765745f666c616773feffffffffffffff7262646765745f736e6170636f6e746578747262646765745f646174615f706f6f6c726264706172656e745f676574726264706172656e745f6f7665726c61705f676574feffffffffffffff",
+     "length": 159,
+     "sha256": "127c07c33bc2f33f26720460824ce1b8ddf974e03f87ee424a4164a2a23893df"
+    },
+    "front_hex": "01011200000001020000000000000015000000ffffffffffb5a5620b040f0000140040080202150000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101010000000000000000000000000000000006031c0000000200000000000000ffffffff0000000000000000ffffffffffffffff170000007262645f6865616465722e303132333435363738396162080001140000000003080008000000000000000000000000000000000000000000000000130000000114000000000311000000000000000000000000000000000000000000000000000014000000011400000000030c0009000000000000000000000000000000000000000000000000180000000114000000000309000800000000000000000000000000000000000000000000000014000000011400000000030f000000000000000000000000000000000000000000000000000012000000011400000000030d000000000000000000000000000000000000000000000000000010000000011400000000030a00000000000000000000000000000000000000000000000000000d000000011400000000031200080000000000000000000000000000000000000000000000001d000000feffffffffffffff00000000000000000000000000000000fffffdffffff073f",
+    "header2_hex": "020000000000000002000000000000002a003f00090000000000000001000000000000000303000000",
+    "priority": 63,
+    "segment_lengths": [
+     41,
+     505,
+     0,
+     159
+    ],
+    "seq": 2,
+    "summary": {
+     "client_inc": 0,
+     "epoch": 3844,
+     "features": "0x3f07fffffffdffff",
+     "flags": 138412052,
+     "hash": 191014325,
+     "mtime": [
+      0,
+      0
+     ],
+     "nspace": "",
+     "oid": "rbd_header.0123456789ab",
+     "oloc_key": "",
+     "ops": [
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 8,
+       "method_len": 8,
+       "name": "CALL",
+       "payload_len": 19
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 0,
+       "method_len": 17,
+       "name": "CALL",
+       "payload_len": 20
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 9,
+       "method_len": 12,
+       "name": "CALL",
+       "payload_len": 24
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 8,
+       "method_len": 9,
+       "name": "CALL",
+       "payload_len": 20
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 0,
+       "method_len": 15,
+       "name": "CALL",
+       "payload_len": 18
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 0,
+       "method_len": 13,
+       "name": "CALL",
+       "payload_len": 16
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 0,
+       "method_len": 10,
+       "name": "CALL",
+       "payload_len": 13
+      },
+      {
+       "class_len": 3,
+       "code": 5121,
+       "flags": 0,
+       "indata_len": 8,
+       "method_len": 18,
+       "name": "CALL",
+       "payload_len": 29
+      }
+     ],
+     "pool": 2,
+     "reqid": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "retry_attempt": 0,
+     "seed": 21,
+     "snap_seq": "0x0",
+     "snapid": "0xfffffffffffffffe",
+     "snaps": [],
+     "trunc": []
+    },
+    "tid": 2,
+    "type": 42,
+    "version": 9
+   },
+   "t_ms": 6.0
+  }
+ ],
+ "mode": "crc",
+ "osdmap_epoch": [
+  3843,
+  3845
+ ],
+ "other_messages": 1,
+ "pcap_bytes": 78226,
+ "pcap_sha256": "8612a51ff97493938f23d69a5d0b3e40735913657032fe4c74329f8ba852deb8",
+ "session": "hdr-missing",
+ "start": "2026-11-17T17:14:15Z",
+ "tcpdump_dropped": 0
+}

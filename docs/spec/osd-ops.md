@@ -463,7 +463,7 @@ Header version 8, compat 2. Body (`MOSDOpReply.h:194-225` encode, `:233-258` dec
 |---|---|---|---|
 | 1 | 4 + n | `string oid` | echo of the object name |
 | 2 | 17 | `pg_t pgid` | the PG that handled it (the plain 17-byte form, not `spg_t`) |
-| 3 | 8 | `i64 flags` | **64 bits** in the reply (`MOSDOpReply.h:41`); the request flags with ACK / ONNVRAM / ONDISK recomputed: a reply that executed has ACK and ONDISK set (`PrimaryLogPG.cc:9220`, `:4366`, `:4387`) **[confirmed for 1,819 successful replies and 54 replies of ops that failed while executing]**. **Corrected after capture:** a reply produced before execution (60 captured: 58 whole-message `-ENOENT`, 2 `-EPERM`) carries the request flags unchanged, so it has ONDISK but **no ACK** |
+| 3 | 8 | `i64 flags` | **64 bits** in the reply (`MOSDOpReply.h:41`); the request flags with ACK / ONNVRAM / ONDISK recomputed: a reply that executed has ACK and ONDISK set (`PrimaryLogPG.cc:9220`, `:4366`, `:4387`) **[confirmed for 1,819 successful replies and 54 replies of ops that failed while executing]**. **Corrected after capture:** a reply produced before execution (60 captured: 58 whole-message `-ENOENT`, 2 `-EPERM`) carries the request flags unchanged, so it has ONDISK but **no ACK**. **Corrected again after the captures of the object client** (`harness/vectors/public/osdc/README.md`): the answer to a resent write that the OSD recognises as a duplicate may also come back with ONDISK and no ACK (flags `0x0840002c`, 11 of the 19 resent writes of the two backoff sessions), so no client logic may depend on ACK; the decoders ignore the flag |
 | 4 | 4 | `i32 result` | overall result, negative errno on failure, 0 or a small positive number on success |
 | 5 | 12 | `eversion_t bad_replay_version` | legacy field; ignore. **Captured:** it is not zero; it holds (`user_version`, epoch of `replay_version`) in 1,896 of 1,933 replies |
 | 6 | 4 | `u32 osdmap_epoch` | the OSD's map epoch when it replied |
@@ -488,7 +488,7 @@ How to read the result codes (`PrimaryLogPG.cc:9183-9223`, `:4287-4307`, `:8205-
   absent. The ops after the failing one were not executed.
 - `result` zero or above: every op succeeded (or was FAILOK). A read-only message can return a positive result when a
   `CALL` method returned one.
-- A reply that executed always has ACK and ONDISK; only one reply per attempt is ever sent for the flags the client uses, so
+- A reply that executed has ONDISK and, usually, ACK (not for the answer to a resent duplicate write, see the `flags` row); only one reply per attempt is ever sent for the flags the client uses, so
   there is no separate "ack" and "commit" phase to wait for (`Objecter.cc:3792-3793`). **[confirmed: exactly one reply per
   request in all 1,933 exchanges]** **Corrected after capture:** not every reply has ACK, see the `flags` row above.
 - Error replies produced before execution (`reply_op_error`, `OSD.cc:1630-1649`) carry the request's ACK / ONDISK bits and
@@ -939,7 +939,7 @@ What the capture changed in this note (each item is also corrected in place abov
 1. 2.1: the reply's `data_off` is 0 in every reply, including reads at a non-zero offset; the source reading said it carries
    the offset of the first read op.
 2. 2.9 / 2.7: not every reply has ACK. A reply produced before execution (whole-message `-ENOENT`, `-EPERM`) echoes the request
-   flags and has no ACK; only replies of executed requests have ACK | ONDISK.
+   flags and has no ACK; only replies of executed requests have ACK | ONDISK, except the answer to a resent duplicate write, which may have ONDISK alone (see 2.9).
 3. 2.4: "librbd adds no extra flags" holds for data reads and writes only. The `rbd` command adds FULL_TRY to metadata calls
    and `rbd rm` deletes, and `rados rm` adds FULL_FORCE to its DELETE.
 4. 2.5: librbd sends SETALLOCHINT with the FAILOK per-op flag (0x2), and the FADVISE "sequential" hint (0x8) on WRITE and

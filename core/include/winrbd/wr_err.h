@@ -14,7 +14,8 @@
  *    140 .. 159   pools (lookup, unsupported configurations)
  *    160 .. 179   CRUSH (decoding, rules, mapping)
  *    180 .. 199   object placement
- *    200 .. 239   reserved: osd client, rbd (later milestones)
+ *    200 .. 219   OSD client (sessions, operations)
+ *    220 .. 239   RBD image (open, I/O)
  *
  * Adding a code = appending one line to the right block of WR_STATUS_LIST. The text is
  * English, static, and never formatted: hosts that want another language key off the code.
@@ -105,7 +106,32 @@
 	X(WR_E_CRUSH_LOOP, 163, "CRUSH hierarchy too deep or cyclic")                             \
 	X(WR_E_CRUSH_WORK, 164, "CRUSH evaluation exceeded its work budget")                      \
 	/* placement */                                                                           \
-	X(WR_E_PLACE_UNMAPPABLE, 180, "no usable OSD currently serves this placement group")
+	X(WR_E_PLACE_UNMAPPABLE, 180, "no usable OSD currently serves this placement group")                \
+	/* OSD client (docs/design/core-architecture.md part C) */                                \
+	X(WR_E_OSD_PROTO, 200, "malformed or unexpected OSD message")                             \
+	X(WR_E_OSD_VERSION, 201, "OSD message version or connection features not supported")       \
+	X(WR_E_OSD_REDIRECT, 202, "OSD redirected the operation (cache tier or redirect pool), not supported") \
+	X(WR_E_OSD_PERM, 203, "OSD refused the operation: the cephx user lacks the capability (EPERM)") \
+	X(WR_E_OSD_IO, 204, "OSD reported an I/O error (EIO)")                                    \
+	X(WR_E_OSD_NOSPC, 205, "pool or cluster is full or over quota (ENOSPC, EDQUOT)")          \
+	X(WR_E_OSD_BLOCKLISTED, 206, "this client is blocklisted by the cluster (EBLOCKLISTED)")  \
+	X(WR_E_OSD_NOENT, 207, "object, class or method not found (ENOENT, EOPNOTSUPP)")          \
+	X(WR_E_OSD_ERRNO, 208, "OSD returned an error (the errno is in peer_result)")             \
+	X(WR_E_OSD_MAP_STALE, 209, "OSD map too old or unusable for too long to place operations") \
+	/* RBD image */                                                                           \
+	X(WR_E_RBD_NOT_FOUND, 220, "image not found (no id object; a format 1 image is not supported)") \
+	X(WR_E_RBD_BAD_ID, 221, "image id or name is empty, not alphanumeric or too long")        \
+	X(WR_E_RBD_FEATURES, 222, "image uses features this client does not support (mask in a0)") \
+	X(WR_E_RBD_STRIPING, 223, "image uses non-default striping, not supported")                \
+	X(WR_E_RBD_PARENT, 224, "image is a clone (has a parent), not supported")                 \
+	X(WR_E_RBD_DATA_POOL, 225, "data pool missing, unknown by name or not a replicated pool") \
+	X(WR_E_RBD_SNAPC, 226, "invalid snapshot context, or more snapshots than this profile holds") \
+	X(WR_E_RBD_FLAGS, 227, "image flags are set, a writer refuses such an image")             \
+	X(WR_E_RBD_LOCKED, 228, "image is locked by another client")                              \
+	X(WR_E_RBD_PROTO, 229, "an RBD reply does not decode")                                    \
+	X(WR_E_RBD_ORDER, 230, "image object size out of range")                                  \
+	X(WR_E_RBD_READONLY, 231, "image was opened read-only")                                   \
+	X(WR_E_RBD_CLOSED, 232, "image is closed or failed")
 
 enum {
 #define WR_X_ENUM(name, code, text) name = -(code),

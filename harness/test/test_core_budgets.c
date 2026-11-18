@@ -17,7 +17,9 @@
  * core_budgets.h (shared with test_core_docs, which checks that core/README.md says the same for the plain profiles; this
  * test checks the rows of the map-enabled profiles, see check_readme_rows).
  *
- * The three profiles are run twice: plain, and with the OSD map module on (wr_config_enable_maps; the engine then consumes
+ * The three profiles are run three times: plain, with the OSD map module on, and with the OSD client and the image layer on top of it
+ * (wr_config_enable_osd: the arena grows by the connections, the operation table, the sessions and the image tables, the bulk by the zombie
+ * area; the engine without images does the same session as before, the OSD stage of every run finds nothing to do). The map run: (wr_config_enable_maps; the engine then consumes
  * the monitor's map messages itself, nothing is delivered raw, and the map slots and the placement cache are part of the exactly
  * sized regions). With maps on the session also runs against a clean monitor, where the epochs are adopted: epoch 42, then 43,
  * then again after a monitor restart.
@@ -138,6 +140,24 @@ static void harness_maps(wr_config *c)
 {
 	wr_config_profile_harness(c);
 	wr_config_enable_maps(c, WR_MAPS_HARNESS);
+}
+
+static void ipxe_osd(wr_config *c)
+{
+	ipxe_maps(c);
+	wr_config_enable_osd(c, WR_MAPS_IPXE);
+}
+
+static void kernel_osd(wr_config *c)
+{
+	kernel_maps(c);
+	wr_config_enable_osd(c, WR_MAPS_KERNEL);
+}
+
+static void harness_osd(wr_config *c)
+{
+	harness_maps(c);
+	wr_config_enable_osd(c, WR_MAPS_HARNESS);
 }
 
 static wr_status h_random(void *ctx, uint8_t *out, size_t n)
@@ -658,6 +678,9 @@ static void check_readme_rows(void)
 	readme_row(doc, "ipxe + maps", ipxe_maps, WRB_IPXE_MAPS_ARENA, WRB_IPXE_MAPS_BULK, 1);
 	readme_row(doc, "kernel + maps", kernel_maps, WRB_KERNEL_MAPS_ARENA, WRB_KERNEL_MAPS_BULK, 1);
 	readme_row(doc, "harness + maps", harness_maps, WRB_HARNESS_MAPS_ARENA, WRB_HARNESS_MAPS_BULK, 0);
+	readme_row(doc, "ipxe + maps + osd", ipxe_osd, WRB_IPXE_OSD_ARENA, WRB_IPXE_OSD_BULK, 1);
+	readme_row(doc, "kernel + maps + osd", kernel_osd, WRB_KERNEL_OSD_ARENA, WRB_KERNEL_OSD_BULK, 1);
+	readme_row(doc, "harness + maps + osd", harness_osd, WRB_HARNESS_OSD_ARENA, WRB_HARNESS_OSD_BULK, 0);
 	free(doc);
 }
 
@@ -670,6 +693,9 @@ int main(void)
 		{"ipxe+maps", ipxe_maps, WRB_IPXE_MAPS_ARENA, WRB_IPXE_MAPS_BULK, 1},
 		{"kern+maps", kernel_maps, WRB_KERNEL_MAPS_ARENA, WRB_KERNEL_MAPS_BULK, 1},
 		{"harn+maps", harness_maps, WRB_HARNESS_MAPS_ARENA, WRB_HARNESS_MAPS_BULK, 0},
+		{"ipxe+osd", ipxe_osd, WRB_IPXE_OSD_ARENA, WRB_IPXE_OSD_BULK, 1},
+		{"kern+osd", kernel_osd, WRB_KERNEL_OSD_ARENA, WRB_KERNEL_OSD_BULK, 1},
+		{"harn+osd", harness_osd, WRB_HARNESS_OSD_ARENA, WRB_HARNESS_OSD_BULK, 0},
 	};
 	size_t i;
 

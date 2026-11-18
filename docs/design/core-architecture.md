@@ -2,7 +2,7 @@
 
 <!-- SPDX-License-Identifier: MIT -->
 
-Status: **part A, Phase 1 milestones 1 to 3, plus delivery of the monitor's map messages as raw bytes (sections 1 to 14); part B, milestones 4 and 5 (OSD map, CRUSH, object placement) and the decoder half of milestone 10, in sections 15 to 19.** Part A is implemented (the waves of section 9). Part B is implemented too (the seven waves of section 17), reviewed module by module and hardened as a whole: its measured results (fuzzing, the comparison with Ceph's own tools on the lab, footprint, call depth and stack) are in section 18.6. Everything here is our own design, written from `docs/spec/`; Ceph, iPXE, WNBD and Linux kernel code is not copied (see [CONTRIBUTING.md](../../CONTRIBUTING.md), rule 1). Spec notes are cited as `msgr2.md 2.3`, `cephx.md 3.2`, and so on.
+Status: **part A, Phase 1 milestones 1 to 3, plus delivery of the monitor's map messages as raw bytes (sections 1 to 14); part B, milestones 4 and 5 (OSD map, CRUSH, object placement) and the decoder half of milestone 10, in sections 15 to 19; part C, milestones 6 to 8 (OSD sessions, RBD open, image I/O) and the decoders' share of milestone 10, in sections 20 to 31.** Part A is implemented (the waves of section 9). Part B is implemented too (the seven waves of section 17), reviewed module by module and hardened as a whole: its measured results (fuzzing, the comparison with Ceph's own tools on the lab, footprint, call depth and stack) are in section 18.6. Part C is implemented too (the seven waves of section 29.2; section 29.1 is the skeleton they started from), reviewed module by module and hardened as a whole: its measured results (the test suite, footprint, call depth and stack, fuzzing, the fault run and the live matrix against the lab cluster, and what became of every open item) are in section 31.3. Everything here is our own design, written from `docs/spec/`; Ceph, iPXE, WNBD and Linux kernel code is not copied (see [CONTRIBUTING.md](../../CONTRIBUTING.md), rule 1). Spec notes are cited as `msgr2.md 2.3`, `cephx.md 3.2`, and so on.
 
 Scope of this run (ROADMAP Phase 1):
 
@@ -13,9 +13,10 @@ Scope of this run (ROADMAP Phase 1):
 | 3. cephx, tickets for mon and OSD services, renewal | yes (both key types, mon handshake, OSD authorizer, in-session renewal) |
 | 4. OSDMap | part A: receiving `MMonMap` and `MOSDMap` from the monitor, raw. Part B: decoding, incrementals, re-fetch (sections 15 and 17) |
 | 5. CRUSH, object to PG to OSD | part B (sections 16 and 17) |
-| 6 to 11 (OSD sessions, RBD, krbd compare, secure mode; milestone 10 for the part B decoders is in section 18) | later; section 10 records the hooks that keep them cheap |
+| 6 to 8 (OSD sessions, RBD open, image I/O) | part C, sections 20 to 31 (implemented; section 10 is the earlier sketch they refine) |
+| 9, 11 (krbd compare, secure mode) | later (part D); the hooks are in 30.6 and section 10 |
 
-Contents: 1 decisions at a glance, 2 language and portability rules, 3 hosting model (the pump), 4 shim and crypto, 5 memory model, 6 source layout, 7 module interfaces, 8 state machines, 9 implementation waves, 10 later milestones, 11 error model and logging, 12 build, tests, fuzzing, 13 where the alternatives disagreed, 14 risks and open questions. Part B: 15 OSD map (decoding, memory, following epochs, API), 16 CRUSH and placement, 17 implementation plan, 18 verification, 19 risks and open questions.
+Contents: 1 decisions at a glance, 2 language and portability rules, 3 hosting model (the pump), 4 shim and crypto, 5 memory model, 6 source layout, 7 module interfaces, 8 state machines, 9 implementation waves, 10 later milestones, 11 error model and logging, 12 build, tests, fuzzing, 13 where the alternatives disagreed, 14 risks and open questions. Part B: 15 OSD map (decoding, memory, following epochs, API), 16 CRUSH and placement, 17 implementation plan, 18 verification, 19 risks and open questions. Part C: 20 decisions at a glance, 21 OSD sessions, 22 MOSDOp encoding subset and reply decoding, 23 the request engine, 24 RBD open and the image model, 25 image I/O, 26 memory per profile, 27 public API, events and engine integration, 28 hosting many sockets, 29 implementation plan (skeleton, waves, modules), 30 verification, 31 risks and open questions.
 
 ---
 
@@ -564,7 +565,7 @@ Common rules (docs/design/core-architecture.md sections 2, 6, 9): SPDX MIT + WR_
 
 ## 10. Later milestones: what is decided now so they stay cheap
 
-These are not built in this run; they are recorded because they shape the headers that are.
+These are not built in this run; they are recorded because they shape the headers that are. **Part C (sections 20 to 31) refines the object client and image sketches below** (the op slot states, the resend rules, the image API: `wr_image.h` of section 27 supersedes the `wr_image_open` / `wr_io_req` sketch of this section); the secure-mode and crash-dump paragraphs stand.
 
 **Object client (milestone 6).** One op slot pool (`max_ops`), each slot with an explicit state: `WAIT_MAP`, `WAIT_AUTH`, `HOMELESS`, `QUEUED`, `SENT`, `DONE`. Ops are encoded **at send time** from the slot (so a resend after a map change re-encodes with the new epoch and target at no extra memory) and sent in ascending tid order. Resend rules per `osd-ops.md 3.4, 3.5`: connection reset keeps the tid and bumps the attempt; a map change that moves the primary or the PG, or a skipped epoch, resends; `-EAGAIN` and redirects take a new tid; MOSDBackoff blocks and unblocks per PG range in a small bounded table. OSD sessions use the same connection table (`max_conns`), an `OSD` role and the same `wri_auth_ops` with the OSD ticket. Reserve a few op slots for control-plane ops (image open) so data ops cannot starve them. **No cancel of an in-flight write** (3.3 item 7): a write lives until a reply arrives, later ops on the same object are fenced behind it, and `IMAGE_FAILED` is the only other exit; reads may be abandoned.
 
@@ -1414,3 +1415,742 @@ Open questions for the maintainers (defaults stand unless answered):
 - **Q9.** CRC verification on by default everywhere (cost on iPXE), or as designed?
 - **Q10.** Build the prefix-capture escape hatch (R-B1) in Phase 1, or leave it to the first customer with a cluster above 2,000 OSDs?
 - **Q11.** How long the object client may run on a map known to be stale (R-B5).
+
+---
+
+# Part C: OSD sessions, RBD image, block I/O (Phase 1, milestones 6 to 8; the decoders' share of milestone 10)
+
+Parts A and B built the cluster session: msgr2 + cephx to a monitor, the OSD map, placement. Part C is the object half: the client that talks to the OSDs (milestone 6), opens an RBD format 2 image (milestone 7) and does block I/O on it (milestone 8). It is designed in sections 20 to 31; the skeleton of section 29.1 is in the tree and the waves of section 29.2 implement it. The conventions of parts A and B are unchanged: C99, no allocation, no writable globals, no recursion, `wri_` prefixes, unique C basenames, files under about 500 lines, `-Werror` clean on gcc and clang and under ASan and UBSan, every decoder bounds-checked against untrusted input, every count and length compared with a budget before use, sans-IO, completions pulled. Spec notes are cited as `osd-ops.md 2.3` and `rbd-format2.md 3.3` (`docs/spec/osd-ops.md`, `docs/spec/rbd-format2.md`). Everything is our own code written from those notes.
+
+| Milestone | Part C |
+|---|---|
+| 6. OSD sessions and object read / write with tid tracking, resend on map change or connection reset | sections 21 to 23 |
+| 7. RBD format 2 open: name to id, size / order / prefix / features / snapshot context, clear refusals | section 24 |
+| 8. Image-level read / write, sparse semantics, flush and ordering, many requests in flight, timeouts, cancellation | section 25 |
+| 10 (the decoders of 6 to 8): unit tests, simulators, fuzzing, bounded memory | sections 26, 29, 30 |
+| 9 (byte comparison with krbd), 11 (secure mode) | part D; the hooks are named in 30.6 and 22.1 |
+
+---
+
+## 20. Decisions at a glance
+
+| # | Topic | Decision |
+|---|---|---|
+| C1 | Layering | Four layers, each testable with a stub of its neighbours: **osd-msg** (pure codecs) < **osd-sess** (connections to OSDs) < **osd-req** (object operations: targets, tids, resend) < **rbd** (open, image I/O). The engine owns the cluster session; an image is a layer on top that survives a monitor hunt and can be reopened (part A, 13). |
+| C2 | Connections | OSD sessions are ordinary slots of the engine's connection table, role OSD, the same msgr2 connection machine, the same cephx machine behind `wri_auth_ops`. A session table of `osd_sessions` entries remembers which slot belongs to which OSD. No new transport code. |
+| C3 | Pool of sessions | Bounded: at most `osd_sessions` OSD connections (6 iPXE, 16 kernel, 48 harness). A session for a new OSD takes a free slot or evicts the least recently used idle one; if every session has operations in flight the new operation waits. A failed OSD costs one connect per cool-down, not one per run. |
+| C4 | Authentication | One cephx handshake per handshake slot at the same time: module **cx-hs** moves the per-handshake state out of the single `wri_cx_client`. Until it lands, `max_handshakes = 1` serialises handshakes (correct, slower). A session opens only while a valid OSD ticket is held. |
+| C5 | Messages | MOSDOp **v9** (v8 when the OSD lacks SERVER_SQUID; v1 to v7 never), MOSDOpReply **v8**, MOSDBackoff v1. MOSDMap pushed by an OSD (type 41) is **discarded**: the monitor subscription is the one source of maps. Priority 63, flags as osd-ops.md 2.4. |
+| C6 | Operations used | `READ` (not SPARSE_READ), `WRITE` (not WRITEFULL), `ZERO`, `TRUNCATE`, `DELETE` and `CALL` (class `rbd`, class `lock`). `STAT`, `SPARSE_READ`, `WRITEFULL`, `CREATE`, `SETALLOCHINT`, `GETXATTR` and the omap reads are encoded and decoded by the codec module for tests and later phases but never chosen by the request layers. |
+| C7 | Zero copy | The data segment of a write is the caller's buffer (referenced, not copied); the data segment of a read reply lands in the caller's buffer through the msgr2 sink. Header calls use small image-owned buffers. The only copies of payload are the zombie copies of section 25.5. |
+| C8 | Request engine | A table of `max_ops` operation slots, each one MOSDOp against one object, encoded afresh at every transmission, sent in ascending tid order per session. A tid carries its slot (`tid = counter << 16 | slot`): a reply finds its operation without a search. Completions are pulled, internally as well. |
+| C9 | Resend | Connection loss and timeout: same tid, `retry_attempt + 1`. Map change: retarget every operation, resend those whose primary or PG changed, whose pool was force-resent, or after a skipped epoch. `-EAGAIN` and redirect: new tid (a redirect is refused). MOSDBackoff: held per session, released by UNBLOCK. Operations unanswered for `op_timeout_ms` (doubling per attempt up to x8) reset their session. |
+| C10 | Writes are never abandoned | A write that was sent lives until the cluster answers it. An overlapping later request **waits** for it (the image-level fence, 25.4), so a resent write can never overtake a later one: this settles osd-ops.md question 6.5 without relying on the OSD's duplicate detection. A cancelled write continues from a zombie copy. |
+| C11 | Image profile | Format 2, default striping, no parent: the reader profile **R1** (bits 0 to 8) and the writer profile **P1** (`layering`, `deep-flatten`, `data-pool`) of rbd-format2.md 4.2. exclusive-lock, object-map, fast-diff, journaling, operations, migrating, non-primary, dirty-cache: refused for writing. Clones, fancy striping, snapshot open: refused or out of scope (24.3). |
+| C12 | Data pool | The header gives only the pool **id**; the map module tracks pools by **name**. The host names the data pool in the open parameters and the open checks that its id matches (24.2). Resolving an id to a name is a map-module change, left for later (Q14). |
+| C13 | Image I/O | `wr_io_req` is embedded in the host's structure (no allocation on submit), cut lazily into object operations as the op table has room (a 1 GiB request needs no 1 GiB of bookkeeping), at most `max_reqs` in flight. READ, WRITE, FLUSH, DISCARD, WRITE_ZEROES. |
+| C14 | Ordering | A request that overlaps an earlier in-flight request waits unless both are reads; FLUSH completes when every earlier write completed. A completed write is durable (the OSD answers after every replica committed it): there is no flush operation at the OSD. |
+| C15 | Timeouts, cancel | `wr_io_req.timeout_ms` per request; `wr_image_cancel` finishes a request at once when its buffer is free of the transport and otherwise resets the session that references it and finishes it afterwards. Reads are dropped; sent writes become zombies. |
+| C16 | Staleness | A writer re-reads the header every `hdr_refresh_ms` and before the first write after an idle period; no watch / notify in this phase. Writes may carry ORDERSNAP (config switch, default off until confirmed on the lab) so a stale context is caught as `-EOLDSNAPC`. |
+| C17 | Map failure | An operation that waits for the map (no map, pool missing, no primary, paused) longer than `map_stale_ms` without the map advancing fails with `WR_E_OSD_MAP_STALE` (decides R-B5 / Q11: 30 s). A sent write is never failed by this rule. |
+| C18 | Memory | All of it in the two regions, sized by new `wr_config` fields taken from the reserved words (`wr_config_enable_osd`). iPXE: about 254 KiB of arena (6 % of the 4 MiB heap) and 2.5 MiB of bulk (`umalloc`); kernel 1.4 MiB non-paged arena; the payload buffers are the host's. Section 26. |
+| C19 | Errors | Status codes 200 to 209 (OSD client) and 220 to 232 (RBD), errno of the OSD mapped to a status in one table (22.5), the raw errno in `peer_result`, the refused feature bits in `a0`. Section 25.7. |
+| C20 | Public API | `wr_image.h`: open, info, state, error, submit, cancel, close, `wr_client_next_done`, stats; events `WR_EV_IMAGE`, `WR_EV_IO_STALL`, `WR_EV_IO_RESUME`. Nothing blocks, nothing calls the host. Section 27. |
+
+Rejected alternatives, once, so they are not rediscovered: (a) **a second transport for OSDs** (one thread or socket pair per OSD): the pump already multiplexes connection ids; (b) **an unbounded session map keyed by OSD id** (an array of `max_osd` entries, 32,768 at the harness size): a bounded pool with LRU needs a few hundred bytes and the cluster's PG count, not its OSD count, decides how many sessions are hot; (c) **cancel by completion only** (the caller waits for every write): a storport abort and an iPXE command timeout must give the buffer back in bounded time; (d) **trust the OSD's duplicate detection to make resends safe**: it needs the same global id across re-authentication, which a monitor hunt can lose (osd-ops.md 6.5); the fence of C10 needs nothing from the OSD; (e) **follow OSD-pushed maps**: a second source of maps next to the store's, with its own gap rules, for no gain while the monitor subscription is continuous (C5); (f) **SPARSE_READ as the default read**: its reply carries an extent map before the data, so the data cannot land in the caller's buffer without a bounce copy; plain READ returns holes as zeros from the OSD at the price of some wire bytes for sparse objects; (g) **an op table of variable-size slots**: one slot of eight operations (552 bytes) wastes little at the table sizes of section 26 and removes a second allocator.
+
+---
+
+## 21. OSD sessions
+
+### 21.1 A session is a connection slot with a name
+
+The engine's connection table (part A 7.9) holds every connection: the monitor's and the OSDs'. What changes is who opens them and who receives from them:
+
+- `wri_client_conn_open_osd()` (module client-glue-osd) opens a slot with role `WRI_ENTITY_OSD`, the target address built from the map's address (`wri_eaddr_from_wr(addr, type 2)`: marker 1, nonce from the map, byte-exact as the server compares it, msgr2.md 3.6), the OSD upper-layer table `wri_osd_sess_upper()` and the session struct as its context. Everything else of the handshake is part A's machine: banner, HELLO (the peer must say OSD, `WR_E_M2_HELLO` otherwise), AUTH_REQUEST with the authorizer, the challenge round trip, AUTH_SIGNATURE, CLIENT_IDENT, SERVER_IDENT. The CLIENT_IDENT gid of an OSD connection is the monitor-assigned global id (`wri_auth_ops.ident_gid`, already implemented).
+- A **session** (`wri_osd_sess`, 160 bytes) is `{osd id, address, connection slot, state, in-flight count, LRU stamp, front buffer, backoff table}`. It does not own the connection: it only remembers the slot and is told through the upper-layer table when the connection reaches READY or is lost. The table is `wri_osd_sess_tab`; its function table to the engine is `wri_osd_link` (open, close, send, tx_idle, features, have_ticket, handshake_free), the same device as `wri_mon_link`, so the session layer is tested with a scripted link, with real connections over `sim_osd`, or inside the whole engine.
+- The action the host sees for such a connection is the ordinary `WR_ACT_CONNECT` with `timeout_ms = osd_connect_timeout_ms` (2 to 3 s: a dead OSD must not hold a handshake slot for the monitor's 5 s).
+
+### 21.2 Authentication: one handshake per slot
+
+`wri_cx_client` (part A 7.7) keeps one handshake state: `begin()` supersedes an unfinished handshake and a late `more()` or `done()` of the superseded connection fails or, for two OSD handshakes, can complete against the other one's nonce (never a weaker authentication, only spurious failures). Several OSD sessions that open together, and a monitor renewal in the middle, would hit exactly that. Two rules, in order of arrival:
+
+1. **cx-hs (wave 1)** splits the machine: the principal key, tickets and global id stay in `wri_cx_client`, the per-handshake fields (state, target type, challenges, authorizer nonce, ticket generation, session key view, errinfo) move into a `wri_cx_hs` that lives in the handshake slot (`wri_m2_preauth` pool entry) of the connection; the `a` argument of `wri_auth_ops` is that `wri_cx_hs`. The monitor path keeps working unchanged (`wri_cx_ops()` with a `wri_cx_client *` uses an embedded slot-0 handshake), so part A's tests do not move.
+2. **Gate**: until cx-hs lands, and whenever `max_handshakes` is reached, `wri_osd_link.handshake_free` is 0 and `wri_osd_sess_acquire` answers `WR_E_BUSY`: the operation waits in WAIT_SESS and the next run tries again. The pool of handshake slots (`max_handshakes`: 2 iPXE, 4 kernel, 8 harness) is therefore the only throttle on parallel authentications, whichever way the machine is built.
+
+An OSD session opens only while `have_ticket()` says the cephx client holds an unexpired OSD ticket (`wri_cx_have(OSD)`); the monitor client's renewal (`renew_at`, part A 8.2) keeps it fresh. A rejected authorizer (`WR_E_AUTH_*`, AUTH_BAD_METHOD -13: a key without OSD caps) fails that session with the status in its errinfo and puts the OSD into cool-down; the operations waiting for it stay in WAIT_SESS and the image layer sees `WR_EV_IO_STALL` with the cause. A key whose OSD caps are empty is refused at authentication, not per operation (osd-ops.md 2.11): the symptom is a stall with `WR_E_AUTH_DENIED`, not an error per request.
+
+### 21.3 Acquire, evict, cool down
+
+`wri_osd_sess_acquire(osd, addr)` is called by the request layer for every operation that needs a session:
+
+1. A session for `osd` exists, OPENING or READY, at the same address: return it. At another address (the OSD moved, the map says so): close it, then continue as for a new one.
+2. A free slot, or a COOLDOWN slot of the same OSD whose time has passed, or a COOLDOWN slot of another OSD **whose time has passed** (then it is only memory): take it. A slot that is still cooling down is never taken for another OSD: it is the table's only record that the OSD just failed, and taking it lets the next operation for that OSD dial it again at once, evict a working session to do so, and repeat that without time passing (fuzz_client_osd found this with two sessions, three OSDs and one OSD refusing connections; the first version of this rule took the slot).
+3. Else the READY session with no operation in flight and the oldest `last_used_ms`: close it (`why = WR_OK`) and take its slot once the engine freed the connection (the next run).
+4. Else `WR_E_BUSY`: every session has operations in flight, is still opening, or is cooling down. The operation waits; it is retried at every step, so it gets the first slot that frees (a cool-down ends within `WRI_OSD_COOLDOWN_MAX_MS`, 10 s, and the engine's deadline includes it).
+
+A lost connection leaves its slot in COOLDOWN for `osd_connect_timeout_ms << fail_streak` (capped at 10 s; the streak resets when a session to that OSD reaches READY and survives one reply): without it a dead OSD would be reconnected on every run. `osd_idle_ms` (0 = never) closes a READY session that has had nothing in flight for that long, which frees the connection and its TCP state on the cluster side; with 0, LRU eviction alone frees sessions when their slot is needed. Sizing: a read of an image spread over the cluster touches the primaries of the PGs of its objects, so the number of hot sessions is bounded by min(OSDs, PGs of the working set); with fewer sessions than hot OSDs the pool thrashes (each eviction costs a TCP connect, a banner, a HELLO and an authorizer round trip, about 5 round trips). The profile numbers (6 / 16 / 48) are first estimates for the lab and typical small clusters; the live tool counts evictions (`wr_osd_stats.n_session_resets` and the session stats) and R-C4 says what to do when they are high.
+
+### 21.4 What arrives on an OSD connection
+
+The upper-layer table (`plan`, `message`, `ready`, `closed`) routes by message type, with the zero-copy contract of part A 3.3 item 6:
+
+| Type | `plan` | `message` |
+|---|---|---|
+| 43 MOSDOpReply | front -> the session's front buffer (`osd_front_cap`; a longer front is a protocol error: `WR_E_OSD_PROTO`, the session closes); middle must be empty; data -> the sink the request layer names for `hdr.tid` (`wri_osd_sess_up.sink`), or discard | decode the front (`wri_mosdopreply_decode`), check that the data segment length equals the sum of the echoed `payload_len` values and that `num_ops` is the number sent, then `up->reply(tid, rep, stored)`; any mismatch is `up->bad_reply` and the session closes itself |
+| 61 MOSDBackoff | front -> the front buffer; no data | BLOCK: store the entry, send ACK_BLOCK at once with the BLOCK's epoch; UNBLOCK: remove the entry by id and tell the request layer which PG to resend (`up->unblock`); ACK_BLOCK from the OSD is ignored |
+| 41 MOSDMap | discard, count (`n_osdmap_discarded`) | none |
+| anything else | discard, count | none |
+
+The sink for a reply is chosen when its header arrives, before its bytes, so it can only be a function of the tid: the request layer returns the destination of the operation in state SENT on that session and nothing for any other tid. A stale reply (an earlier attempt whose `retry_attempt` no longer matches) therefore lands its data in the same destination as the live one and is dropped when its front is read; the destination holds unspecified bytes until the live reply overwrites them, which the zero-copy contract already says. A reply for a tid that finished meanwhile finds no operation and is discarded without a store. The session records `rx_tid` while a reply is being received: the request layer's cancel of that operation must reset the session first (25.5). Per-frame limits are the connection's (`seg_cap_max`); `op_bytes_max` is checked against it when the configuration is validated.
+
+### 21.5 The backoff table
+
+MOSDBackoff (osd-ops.md 2.10, 3.7) is mandatory to handle: the OSD sends it to every client that advertises RADOS_BACKOFF, which the recommended feature mask does. Each session keeps `backoff_slots` entries of `{id, pg, begin, end}` where `begin` and `end` are hobject positions reduced to what ordering needs (hash, name up to 96 bytes, snapshot, max flag). A request is held when its position lies in an entry of its PG (`wri_mbackoff_covers`, the ordering of osd-ops.md 2.10: max flag, pool, **bit-reversed** hash, namespace, effective key, name, snapshot). A BLOCK whose strings do not fit (a name above 96 bytes, a key or a namespace) or that finds the table full is stored as **coarse**: it holds every request of its PG, which only over-holds (safe: its UNBLOCK removes it by id; counted in `n_backoff_overflow`). A table full of coarse entries still acknowledges, because the OSD stops sending only after the ACK. When the connection is lost the whole table is dropped with it (osd-ops.md 3.7 item 4): the resend after reconnect carries no backoff. The request layer asks `wri_osd_sess_blocked()` before every send; `up->unblock` makes it resend the unblocked PG's operations, **including ones already sent**, because the OSD may have dropped them while the backoff was in force.
+
+### 21.6 Features and versions at READY
+
+When a connection reaches READY the session reads its negotiated feature word (`wri_m2_conn.features`, the server's supported bits ANDed with ours) and checks the bits the messages need (osd-ops.md 4.4): OBJECTLOCATOR (8), PGID64 (9), NEW_OSDOP_ENCODING (56), NEW_OSDOPREPLY_ENCODING (58), RESEND_ON_SPLIT with the incarnation marker (21 and 57), and for MOSDOp v9 SERVER_SQUID (49 and 57). Without SERVER_SQUID but with the rest the session sends **v8** (the same body minus the 7-byte otel field: a pure encoder switch, `wri_mosdop_hdr.version`); without any of the others it closes with `WR_E_OSD_VERSION` and the missing bits in `a0`, so a Reef-or-older cluster gives a clear message instead of garbage. The pinned release is v20.2.5 (v9); the v8 path is tested against the simulator only (R-C6). The feature word goes into every request (`features`, osd-ops.md 2.3 field 18), unchanged.
+
+
+---
+
+## 22. MOSDOp encoding subset, reply decoding
+
+All of this is module **osd-msg** (`wri_osd_msg.h`): pure functions over cursors, no state. The 38-byte operation record, the field order of MOSDOp v9 and MOSDOpReply v8 and the numbers are in `osd-ops.md 2`; what follows is what the client chooses.
+
+### 22.1 Versions
+
+MOSDOp is encoded as v9 (header `version 9`, `compat_version 3`) or v8 (`wri_mosdop_hdr.version`), chosen per session from the connection features (21.6); the segment layout is front = body, middle empty, data = concatenated operation inputs, and the msgr2 header's `flags`, `seq`, `ack_seq` are the connection's (`wri_m2_conn_send_message`; priority `WRI_MSG_PRIO_CLIENT` 63, `tid` = the operation's tid). MOSDOpReply is decoded only as v8 with `compat <= 8`; other versions are `WR_E_OSD_VERSION`, which the OSD sends only to a client without NEW_OSDOPREPLY_ENCODING or PGID64, i.e. one the session already refused at READY.
+
+### 22.2 Operations
+
+| Operation | Chosen by the request layers? | Input (data segment) | Output | Notes |
+|---|---|---|---|---|
+| `READ` 0x1201 | **yes**: image reads | none | the bytes | `length` is always explicit (0 would mean "whole object"); a missing object fails the whole message with `-ENOENT` (read-only message), a short object returns fewer bytes, holes read as zeros (osd-ops.md 2.7) |
+| `WRITE` 0x2201 | **yes**: image writes | the data | none | creates the object; `extent.length` equals the input length; no separate create step. Whole-object writes use WRITE too: the replaced bytes are equal and no librbd state depends on WRITEFULL |
+| `ZERO` 0x2204, `TRUNCATE` 0x2203, `DELETE` 0x2205 | **yes**: discard and write-zeroes (25.6) | none | none | ZERO that reaches the object end comes back as TRUNCATE in the echoed record: the client never requires the echoed code to equal the sent one; DELETE of a missing object is `-ENOENT` (success for the image layer) |
+| `CALL` 0x1401 | **yes**: every header read (class `rbd`: `get_id`, `get_size`, `get_object_prefix`, `get_features`, `get_flags`, `get_snapcontext`, `get_data_pool`, `parent_get`, `parent_overlap_get`, `get_stripe_unit_count`, `op_features_get`; class `lock`: `get_info`, and `lock` / `unlock` encoders as hooks) | class, method, argument, back to back | the method's output | up to eight CALLs in one message, one object, in order; a class or method the OSD does not know fails the whole message with `-EOPNOTSUPP` before anything runs; a key without class-read for `rbd` gets `-EPERM` for the whole message (osd-ops.md 2.11) |
+| `SPARSE_READ` 0x1205 | no (C6 f) | none | extent map, then data | decoder with full validation (ascending, disjoint, inside the request, lengths add up) exists for tests and a later bounce mode |
+| `STAT` 0x1202, `WRITEFULL` 0x2202, `CREATE` 0x220D, `SETALLOCHINT` 0x2223, `GETXATTR` 0x1301, `OMAPGETVALS` 0x1212, `OMAPGETVALSBYKEYS` 0x1214 | no | as the note | as the note | encoded and decoded (the first two outputs), constants defined; the image layers never choose them. SETALLOCHINT is only a hint and creates an empty object on its own (osd-ops.md 2.7): skipping it costs nothing in correctness |
+| `CMPEXT`, `WRITESAME`, `ASSERT_VER`, watch / notify codes | no | | | refused by the encoder (`WR_E_UNSUPPORTED`): the object client has no lingering operations in this phase |
+
+### 22.3 What goes into a request
+
+`wri_mosdop_hdr` plus `wri_osd_opd[]` give the body of osd-ops.md 2.3 field by field: `pgid` = (pool, `pg_seed` after `stable_mod`, shard -1) and `hash` = the full 32-bit placement hash, both straight from the `wr_target` of the placement module (`ps`, `pg_seed`); `osdmap_epoch` = `wr_target.epoch`, the epoch the target was computed in, never a guess (an OSD with an older map parks the request, one with a newer map may drop it); `flags` = `WRI_OSDF_BASE_READ` (0x08400014) or `WRI_OSDF_BASE_WRITE` (0x08400024) from the operation's kind, plus FULL_TRY on writes when `WR_OSDF_FULL_TRY` is on and ORDERSNAP when `WR_OSDF_ORDERSNAP` is on, plus RETRY (the encoder adds it exactly when `retry_attempt != 0`); `reqid` = (name 0, tid 0, inc 0) and `client_inc` = 0 (the OSD builds the request id from the connection's `client.<global id>` and the header tid and asserts that the two incs are equal, so they are written equal, always); both trace blocks zero; `mtime` = the wall clock in seconds and nanoseconds for a write when the host has one (`wr_clock.wall_ms != 0`), else 0 (osd-ops.md Q4, R-C3: the lab decides whether 0 is acceptable; the architecture already carries the wall clock); `oloc` = (pool, key empty, namespace empty, hash -1) and `oid`; `snapid` = NOSNAP always (head only); the snapshot context = the image's current one for writes (`seq`, descending ids), seq 0 and no ids for reads; `retry_attempt`; `features` = the connection word. The encoder refuses what the OSD would answer EINVAL or ENAMETOOLONG for, or assert on: empty name, a name above 2048 bytes, a namespace above 256, a message that may write with `snapid != NOSNAP`, an invalid snapshot context, a CALL whose lengths exceed its input, an operation count outside 1 to 8.
+
+Sizes: the front of a one-operation read of an RBD data object is about 260 bytes (fixed part 106 + locator 34 + name 4 + about 50 + count 2 + record 38 + snap fields 24 + features), a write adds 8 bytes per snapshot of the context; `wri_mosdop_front_max()` gives the bound the request layer sizes its encode scratch with (`osd_front_cap`, 2 to 8 KiB, which holds 256 snapshots).
+
+### 22.4 Data segments
+
+The data segment of a message is the sum of the operations' `in_len` bytes in operation order and is **not built by the encoder**: the owner of the request provides it, laid out as it wants, and the encoder only writes each operation's `in_len` (and the CALL name lengths). For a write the segment is the caller's buffer, for a header read the image's `ctl_in` (the calls laid out back to back by the `wri_rbd_put_*` encoders). The connection references it, not copies it (`wri_m2_msg_out.data`), so it must stay valid until the host consumed the bytes: for the lifetime of the operation, or for the zombie copy of a cancelled write (25.5). The reply's data segment is cut by the echoed `payload_len` values: for a READ it is the bytes; for a header read it is the concatenated outputs in the image's `ctl_out`, and the image layer walks it with the per-operation `out_len`.
+
+### 22.5 Reply decoding and errors
+
+`wri_mosdopreply_decode` reads oid, `pg_t`, the 64-bit flags, `result`, the epoch, `num_ops` (at most 8, else `WR_E_OSD_PROTO`), the echoed records (code, `payload_len`), `retry_attempt`, the `rval` array, versions, `user_version`, `do_redirect`, and ignores the trailing trace block. The request layer then, in this order (osd-ops.md 3.3): drops the reply if `retry_attempt >= 0` and differs from the operation's latest attempt; fails the operation with `WR_E_OSD_REDIRECT` if `do_redirect`; resubmits it under a new tid if `result == -EAGAIN`; otherwise completes it.
+
+Mapping of the Linux errno of `result` (and of each `rval` for header reads) to a status, one function (`wri_osd_errno_status`), the raw value kept in `errinfo.peer_result`:
+
+| errno | status | meaning for the layers above |
+|---|---|---|
+| 0 and positive | `WR_OK` | success (a CALL may return a positive number) |
+| -2 ENOENT, -95 EOPNOTSUPP | `WR_E_OSD_NOENT` | image layer: success with zeros for a data READ, DELETE, ZERO, TRUNCATE (no parent, 25.3); for a header read: image or object not found; class or method unknown |
+| -1 EPERM | `WR_E_OSD_PERM` | the cephx user lacks the capability (class-read for `rbd` is needed even by read-only calls) |
+| -5 EIO | `WR_E_OSD_IO` | unreadable object; also what the client itself returns for a pool carrying the EIO flag (SUPPORTSPOOLEIO is set on every request, so the OSD stays silent and the client must answer, osd-ops.md 2.4) |
+| -28 ENOSPC, -122 EDQUOT | `WR_E_OSD_NOSPC` | the pool is full or over quota; with FULL_TRY the OSD answers instead of dropping |
+| -108 EBLOCKLISTED | `WR_E_OSD_BLOCKLISTED` | permanent: the image fails (24.4) |
+| -85 EOLDSNAPC | handled by the image layer | stale snapshot context: refresh the header and resend (only with ORDERSNAP on) |
+| -11 EAGAIN | never reaches a caller | new tid, resubmit |
+| anything else negative | `WR_E_OSD_ERRNO` | with the number in `peer_result` (EINVAL, EFBIG, ENAMETOOLONG, EMSGSIZE, EEXIST ...) |
+
+### 22.6 Other outputs
+
+`STAT` (16 bytes) and `SPARSE_READ` (22.2) have decoders; the cls outputs are the business of module rbd-cls (24). All of them are bounds-checked, capped and fuzzed (30.3): the reply decoder, the backoff decoder and the sparse decoder are the new network-facing parsers of part C.
+
+---
+
+## 23. The request engine
+
+Module **osd-req** (`wri_osd_req.h`). It turns "do these operations on that object" into messages to the right OSD and brings the answer back, through every change of map and connection. It is the Objecter's job (osd-ops.md 3) designed independently: states and tables of its own, written from the notes.
+
+### 23.1 The table and the tids
+
+`max_ops` slots of `wri_osd_op` (552 bytes: object name up to 96 bytes, up to 8 operation records, data and output pointers, placement of the last transmission, deadlines, result), a free list, and the submission list in ascending tid order. `max_ops - ctl_ops` slots serve data operations; `ctl_ops` are reserved for control operations (image open and header refresh) so a full queue of reads cannot starve an open. A slot is filled by its owner, submitted (`wri_osdc_submit` checks the shape: operation count, name, the sum of the `in_len` equals `data_len`, a read-kind message holds no write operation), and released by the owner after it pulled it from the done ring.
+
+A tid is `counter << 16 | slot`: the counter starts at 1 per client lifetime and only grows, so tids are unique and increasing as osd-ops.md 2.12 wants, and a reply finds its operation by `tid & 0xffff` plus a check that the slot still holds that tid. `max_ops` is therefore at most 65,535. The tid is kept across every resend and replaced only after an EAGAIN reply (23.6).
+
+### 23.2 States
+
+```
+FREE -> NEW -> { WAIT_MAP | HOMELESS | PAUSED | WAIT_SESS | QUEUED } -> SENT -> DONE -> FREE
+```
+
+| State | Means | Leaves when |
+|---|---|---|
+| NEW | submitted, not targeted | the next step |
+| WAIT_MAP | no map yet, or the pool is not (yet) in it | a map with the pool (`wr_client_map_target` stops answering `WR_E_MAP_NONE` / `WR_E_POOL_NOT_FOUND`) |
+| HOMELESS | no usable OSD serves the PG (`WR_E_PLACE_UNMAPPABLE`) or the OSD has no address | a newer map |
+| PAUSED | the map carries PAUSERD (a read) or PAUSEWR (a write) and `WR_OSDF_HONOR_PAUSE` is on | the flag clears |
+| WAIT_SESS | the target OSD has no READY session | `up->ready`, or a slot, a ticket, a handshake slot, the end of a cool-down |
+| QUEUED | ready to send: the transmit queue was full, or a backoff holds it | room, UNBLOCK |
+| SENT | on the wire; a reply is awaited until `deadline_ms` | a reply, a timeout, a session loss, a map change that moves it |
+| DONE | status, result and outputs final | the owner pulls and releases it |
+
+### 23.3 Targeting
+
+Each pass over an operation in NEW, WAIT_MAP, HOMELESS, PAUSED, WAIT_SESS or QUEUED asks the map through `wri_osd_map_ops` (the queries of `wr_map.h`, implemented by the glue over the held map, scripted in tests): `pool_info` (the pool's status and flags), then `target(pool, oid)`:
+
+| Answer | Result |
+|---|---|
+| `WR_E_MAP_NONE`, or `WR_E_POOL_NOT_FOUND` in the first `map_stale_ms` | WAIT_MAP |
+| `WR_E_POOL_NOT_FOUND` after a map at least as new as the operation's submission epoch | DONE with `WR_E_POOL_NOT_FOUND` (the pool was deleted) |
+| a non-OK pool status (`WR_E_POOL_UNSUPPORTED`, `WR_E_CRUSH_NO_RULE`, ...) | DONE with that status |
+| pool flag `WR_POOL_F_EIO` | DONE with `WR_E_OSD_IO` (the OSD will not answer: SUPPORTSPOOLEIO) |
+| `WR_E_PLACE_UNMAPPABLE`, or `primary_addr.family == 0` | HOMELESS |
+| map flag PAUSERD / PAUSEWR (HONOR_PAUSE), or pool full without FULL_TRY | PAUSED |
+| a target | remember `(epoch, pg_seed, hash, primary)`; WAIT_SESS or QUEUED |
+
+The full-pool policy: writes carry FULL_TRY, so a full pool or quota answers ENOSPC / EDQUOT per write (an I/O error the guest sees at once) instead of holding I/O for ever; the client does not hold writes on the map's FULL flags unless `WR_OSDF_FULL_TRY` is off.
+
+### 23.4 A new map
+
+The engine's step notices that the held epoch changed (the store raised `WR_EV_MAP`; the poll model needs no extra call). For every operation not DONE it recomputes the target and compares it with the one of its last transmission. It is resent (to the same or another OSD) when:
+
+- the primary changed (including "no primary" turning into one), or the address of the primary changed;
+- the PG seed changed (a split or a merge changed `pg_num`: osd-ops.md 3.4 item 2);
+- the pool's `last_force_op_resend` is above the epoch of the operation's last transmission;
+- one or more epochs were skipped (the epoch advanced by more than one between two passes: a full map replaced the held one): all operations are resent, as the reference does.
+
+It is **not** resent when only a replica changed. A resent operation keeps its tid and `retry_attempt` grows by one. If the primary moved, the old session loses one in-flight operation; it is not reset. Sessions whose OSD is now down in the map or whose address changed are closed by the next `acquire`. Operations are resent in ascending tid order. The pool-snapshot-prune the reference applies to in-flight snapshot contexts is not needed: contexts are encoded at send time from the image's current one (25.3).
+
+### 23.5 Sending
+
+Operations in WAIT_SESS and QUEUED are visited in ascending tid order, which is also send order per session. For each: `wri_osd_sess_acquire` (or the existing session), then the backoff check (`wri_osd_sess_blocked`), then encode into the engine's scratch (`osd_front_cap` bytes: the encode is followed at once by the copy into the connection's encode buffer) and `wri_osd_sess_send`. `WR_E_BUSY` from the connection (its transmit queue holds at most 8 iovecs, 2 or 3 messages) leaves the operation QUEUED and stops the pass for that session, so a later operation never overtakes an earlier one on the same connection; the retry comes when the host consumed transmit bytes (the connection's deadline becomes 0, part A) or after 10 ms. A pass encodes at most `budget` messages, so a run with a thousand queued operations stays bounded; `inflight_bytes_max` bounds the payload on the wire and `wri_osdc_submit` answers `WR_E_BUSY` above it. `mtime`, the epoch, the snapshot context and the retry attempt are filled at this moment, which is why a resend after any change needs no stored copy.
+
+### 23.6 Replies
+
+`up->reply(s, tid, rep, stored)`: find the operation (`tid & 0xffff`, tid equal, state SENT, session equal; anything else is a stray and is dropped), then the three checks of 22.5. Completion records `result`, each operation's `rval` and `out_len` into the slot's records, `user_version`, `out_stored`, and the status; the slot moves to DONE and into the done ring. A result below zero is a failure of the whole message: its operations' outputs are not used. The one exception is the header read, where a negative `rval` of one operation says which of them failed (22.5).
+
+**EAGAIN.** The OSD answers before execution, so nothing happened: the operation takes a **new tid** (flag `WRI_OPF_NEWTID`), the retry attempt is kept (so the next message already has RETRY and `retry_attempt >= 1`), and it is targeted again from scratch. **Redirect.** `do_redirect` means a cache tier or a redirect pool, which the placement module refuses per pool; seeing one anyway fails the operation with `WR_E_OSD_REDIRECT` rather than following it.
+
+### 23.7 Writes are never abandoned, and why a resend cannot corrupt
+
+A write that has been sent may have been applied: after a lost connection the client does not know. Two properties make resending it safe, independently:
+
+1. **The OSD's duplicate detection.** The request id is `(client.<global id>, inc 0, tid)` and the PG log answers a repeated one with the stored result instead of applying it twice (osd-ops.md 3.6). It needs the global id to survive: the cephx client reclaims its global id when the monitor session is re-established, and a failed reclaim gives a new one, in which case the old tids are no longer recognised.
+2. **The fence of the image layer (C10, 25.4).** No request that overlaps an unanswered write is sent until that write is answered. So a write that is resent without duplicate detection (a new global id, a restarted OSD whose log lost it) re-applies bytes **no later write has replaced**: the later overlapping write does not exist on the wire yet. This is what the simulator's `no_dedup` fault proves (30.2).
+
+Because of (2), question 6.5 of osd-ops.md (resend across re-authentication) is answered: resend, always, and let the fence keep the order. What the fence cannot repair is a client that dies and restarts with unanswered writes (the new client has no fence for them): the same hazard every initiator has, and the reason the Phase 4 handoff protocol (iPXE to Windows) has to quiesce before the driver takes over.
+
+### 23.8 Timeouts, session reset, stall
+
+An operation's `deadline_ms` is its last transmission time plus `op_timeout_ms << min(retry_attempt, 3)` (5, 10, 20, 40 s on iPXE). The OSD never answers a misdirected, stale-epoch or backed-off request (osd-ops.md 3.5), and the reference only pings; this client has to act: when an operation expires its **session is reset** (connection closed, backoffs dropped, all its in-flight operations resent over a new connection, `retry_attempt + 1`), `WR_EV_IO_STALL` is raised once (`err` = `WR_E_TIMEOUT`, `a0` = OSD id), and `WR_EV_IO_RESUME` when the next reply arrives. A reset of every session of the cluster is the worst case a dead network can cause and costs one reconnect per OSD per cool-down. If the map has not advanced during `map_stale_ms` while operations wait for it (no map, pool missing, no primary, paused), they fail with `WR_E_OSD_MAP_STALE` (never a sent write): the guest gets an error instead of a hang, and the number is the one place where the decision "how long may the client run on a map it knows is stale" (R-B5, Q11) is written down: 30 s. The image layer adds per-request timeouts on top (25.5).
+
+### 23.9 Cancel and zombies
+
+`wri_osdc_cancel` is the one function through which an owner takes its buffers back. A READ is dropped (completed with `WR_E_CANCELLED`) unless its reply is being received into the buffer (`session.rx_tid`), in which case the session is reset first and `WR_E_BUSY` returned. A write that was never sent is dropped. A write that **was** sent is copied into the zombie area (`zombie_bytes` of the bulk region, first fit), the slot becomes a ZOMBIE with the copy as its data and keeps being resent until answered, then is freed without telling anybody; `WR_E_BUSY` if the copy does not fit or a transmit queue still references the owner's buffer (`tx_idle`): the session is reset first, which drops the queue, and the cancel finishes by itself afterwards. The rule for the owner is one sentence: **the buffer is yours again when the completion has been pulled.** Section 25.5 adds the image-level behaviour.
+
+
+---
+
+## 24. RBD format 2: open and the image model
+
+Module **rbd-cls** (the class-call codecs and the refusal rules, `wri_rbd_cls.h`) and module **rbd-open** (the state machine, `wri_rbd_open.h`), over the object engine. Spec: `rbd-format2.md`, cited by section.
+
+### 24.1 Object model
+
+One image is these objects (rbd-format2.md 2.1): `rbd_id.<name>` (the id), `rbd_header.<id>` (all metadata, read through class calls), and the data objects `<prefix>.<16 lower-case hex digits of the object number>` in the **data pool**, where `<prefix>` is the stored `object_prefix` used verbatim (`rbd_data.<id>`, or `rbd_data.<metadata pool id>.<id>` with a data pool), the whole name at most 95 bytes. The metadata objects are in the image's pool, the default namespace; the data objects are in the data pool when the data-pool feature is set (the pool id is in the header; C12), else in the image's pool. An image id is non-empty and alphanumeric, up to 63 bytes here (librbd generates 12 to 14 but nothing on the server limits it, and the names built from it must stay under 95); an image name at most 88 bytes. Format 1 (`<name>.rbd`) is refused (`WR_E_RBD_NOT_FOUND`, with a message that says "or format 1"). The default namespace is the only one: the namespace would be part of every placement hash.
+
+### 24.2 The open sequence
+
+`wr_image_open` copies the strings into a free image slot, tracks the pool(s) by name (`wr_client_pool_track`), and returns; the state machine of `wri_rbd_open_step` does the rest, one control operation in flight per image, each from the control reserve:
+
+| Step | What | Done when |
+|---|---|---|
+| POOLS | wait for the map and for `wr_client_pool_info` of the image pool (and the data pool) to be `WR_OK`. A pool tracked after the first map reads as not found until the full map the engine then asks for arrives (R-B9): the image waits for a full map adopted after the track call (`wr_map_stats.n_full` advanced), then a pool that is still absent is `WR_E_POOL_NOT_FOUND` at once, not at the open timeout. A pool with a non-OK status fails the open with that status; a writer refuses a pool with POOL_SNAPS (pool-snapshot mode would replace the writer's snapshot context, osd-ops.md 3.9: `WR_E_POOL_UNSUPPORTED`) | both pools usable |
+| GET_ID | skipped when the host gave the id. One message on `rbd_id.<name>`: `CALL rbd get_id`. `-ENOENT` is `WR_E_RBD_NOT_FOUND`; the id is validated (`WR_E_RBD_BAD_ID`) | id known |
+| HEADER | one message on `rbd_header.<id>` with eight calls in this order: `get_size(HEAD)`, `get_object_prefix`, `get_features(HEAD, read_only = !want_write)`, `get_flags(HEAD)`, `get_snapcontext`, `get_data_pool`, `parent_get`, `parent_overlap_get(HEAD)`. They are all read-only methods that cannot fail legitimately on an existing object (`get_data_pool` returns -1, the parent calls return their defaults), so the whole message is judged as one (rbd-format2.md 3.2; the six-call variant the note confirms, plus the two always-safe calls the note lists as "always" in request 2, in one round trip). A missing header is `-ENOENT` for the whole message: `WR_E_RBD_NOT_FOUND` | the outputs decode and add up |
+| EXTRA | only when a feature bit asks for it: `get_stripe_unit_count` when STRIPINGV2 (0x2) is set (it answers `-ENOEXEC` otherwise, so it cannot be speculative), `op_features_get` when OPERATIONS (0x100) is set | decoded |
+| JUDGE | `wri_rbd_check_profile` (24.3), then the data pool: with DATA_POOL set the host's `data_pool` name must have been given and the id of the tracked pool must equal the header's `data_pool_id` (`WR_E_RBD_DATA_POOL` otherwise, with both ids in `a0` and `a1` so the operator can find the right name); the pool is checked like the image pool | OPEN |
+| OPEN | the snapshot context is adopted (a writer needs at most `max_snaps` snapshots: more is `WR_E_RBD_SNAPC`), the refresh timer starts, `WR_EV_IMAGE` is raised | |
+
+The open is 2 round trips on a warm session (3 with a striped or operations image) plus the session set-up to the first OSD (TCP connect, banner, HELLO, the authorizer and its challenge: about 5 round trips). `open_timeout_ms` bounds all of it (`WR_E_TIMEOUT` with the step in `errinfo.what`). Control reads carry no snapshot context and no FULL_TRY except where the ops are writes (none are).
+
+### 24.3 What is accepted: the decisions
+
+Reader profile **R1** and writer profile **P1** of rbd-format2.md 4.2, as the table the refusal function implements, in the order of rbd-format2.md 3.3 (the first failing rule wins; every refusal carries the stable id of 4.6 as a status and the numbers in the errinfo):
+
+| Feature / property | Reader (R1) | Writer (P1) | Why |
+|---|---|---|---|
+| layering `0x1`, parent (clone) | bit accepted; **a parent is refused** (`WR_E_RBD_PARENT`) | same | a missing object in a clone may mean "read the parent": copy-on-read, copy-up and overlap logic are not in this phase. Detected by `parent_get` + `parent_overlap_get`, not by a feature bit: a clone made by `rbd clone` has features 0x1 and op_features 0 (rbd-format2.md 3.3 rule 6) |
+| striping `0x2` | accepted only in the default layout form (`stripe_count == 1`, `stripe_unit == object size`); else `WR_E_RBD_STRIPING` | same | the splitter is default-striping only; the general formula (rbd-format2.md 2.10) is for a later phase and `wri_rbd_geom` takes the geometry as a struct so it can grow |
+| exclusive-lock `0x4` | accepted, ignored (L0: a reader never needs the lock) | **refused** (`WR_E_RBD_FEATURES`, mask in `a0`) | a writer on such an image without the lock protocol would interleave with librbd and krbd writers; policy L2 (a foreign-tag lock) is encoded in rbd-cls and not wired: it needs the lab confirmation the note asks for and has the request-storm side effect of rbd-format2.md 3.9 (Q13). The practical answer for a boot image is `rbd feature disable <image> fast-diff object-map exclusive-lock` or `rbd create --image-shared` (feature word `0x21`) |
+| object-map `0x8`, fast-diff `0x10` | accepted, ignored (a read-only librbd does not load the head object map either) | **refused** | a writer that does not maintain the map leaves it stale |
+| deep-flatten `0x20` | accepted | accepted | affects only flatten |
+| journaling `0x40` | accepted (a crash-consistent older state; [unverified] against the journal replay code) | **refused** | writes would bypass the journal |
+| data-pool `0x80` | accepted; the data pool must be named by the host (C12) and be a usable replicated pool | same | only changes the pool of the data objects |
+| operations `0x100` | accepted; `op_features_get` is read, clone-child (0x2) is refused as a parent | **refused** | op features are not understood by a writer |
+| migrating `0x200`, non-primary `0x400`, dirty-cache `0x800`, any bit above | **refused** | **refused** | a live migration target, a mirror secondary and an image with writes only in a client cache are not safe to read or write |
+| `flags` (object-map / fast-diff invalid) | ignored | any flag set refuses (`WR_E_RBD_FLAGS`) | properly disabled object-map clears them |
+| order | 12 to 25 (`WR_E_RBD_ORDER`) | same | what librbd creates |
+| encryption | **not detectable** (rbd-format2.md 4.1): the host exposes the raw bytes | same | an encrypted image reads as noise to the guest; the layer that opens the encryption format is the client's and is not part of this phase |
+| snapshots | the image may have snapshots; the writer sends the snapshot context | same | writers must preserve snapshots |
+| opening a snapshot (read-only view of `snap_id`) | **out of scope**: `wr_image_params.snap_id` must be `WR_SNAP_HEAD` (`WR_E_UNSUPPORTED`) | | needs `snapshot_get` / name resolution and a per-snapshot size and flags; the request encoder already carries `snapid`, so it is a later, additive step |
+| namespaces, format 1 | refused / not found | | see 24.1 |
+
+Accepted bits: reader `0x1ff`, writer `0xa1`; everything else is `WR_E_RBD_FEATURES` with the offending bits in `errinfo.a0`. The decision is a pure function (`wri_rbd_check_profile`) with a table test of every bit in both profiles.
+
+### 24.4 The image after the open; refresh; failure
+
+The image holds `{id, prefix, order, size, features, flags, data pool id, snapshot context (<= max_snaps ids), refresh times}` and nothing else of the header. A **writer** keeps its snapshot context fresh without a watch (rbd-format2.md 3.8): every `hdr_refresh_ms` (30 s iPXE and kernel, 10 s harness) the image submits the header read again (the same eight calls with `read_only = false`) and adopts the result atomically when it arrives: size (a change raises `WR_EV_IMAGE`; the new size bounds later requests), snapshot context (validated, at most `max_snaps`), features and parent (re-judged: a feature enabled behind our back, a parent, a flag fail the image), and writes are **admitted only while the last refresh is younger than `hdr_refresh_ms`**, so the first write after an idle period waits one round trip for a fresh context. With `WR_OSDF_ORDERSNAP` on, every write also carries ORDERSNAP and an `-EOLDSNAPC` answer triggers an immediate refresh and a resend of that write under a new tid; whether the OSD does this reliably for self-managed snapshots is checked on the lab before the default changes (R-C8). Neither mechanism closes the exposure window entirely: a snapshot taken by another tool between two refreshes is not in the context of a write that raced it, and that write does not make the clone (rbd-format2.md 3.8 says as much); `hdr_refresh_ms` is the knob and the Phase 4 handoff procedure should quiesce snapshot operations. A reader refreshes nothing.
+
+An image becomes FAILED, completes every request with the status and raises `WR_EV_IMAGE`, on: `WR_E_OSD_BLOCKLISTED` from any operation (the client's address is on the cluster's blocklist: permanent), the pool leaving the map, a refresh that finds the image no longer acceptable, and the open's own refusals. A FAILED image is closed by the host (`wr_image_close`) and may be opened again. A transport trouble (a dead OSD, a stalled map) does not fail an image: the object engine retries and reports `WR_EV_IO_STALL`.
+
+### 24.5 Writer policy
+
+Policy **L1** is the only one wired: P1 images only (no exclusive-lock bit), no advisory marker (it is informative only and nobody enforces it). Concurrent mapping of the same image by two writers is an operator error the cluster does not prevent (rbd-format2.md 2.7: the data path never checks the lock). The encoders for `lock lock` / `unlock` / `get_info` exist and are tested against the committed vectors and the simulator, so L2 is wiring and a lab capture away, not new codecs.
+
+---
+
+## 25. Image I/O
+
+Modules **rbd-geom** (pure geometry), **rbd-io** (the machinery), over the object engine and the open state of 24.
+
+### 25.1 Requests
+
+A request is a `wr_io_req` embedded by the host in its own per-I/O structure (an iPXE command, a storport SRB extension): the core keeps a table of `max_reqs` entries of 80 bytes with `{request pointer, image, generation, state, kind, byte range, cursor, operations and bytes in flight, first status, deadline}` and writes only `(slot, generation)` into the structure's `priv` words, so submission allocates nothing and a stale pointer is detected. The completion queue is a ring of slot indices; `wr_client_next_done` pops it. A request is `WAIT` (accepted, held by the fence or the refresh gate), `RUN` (admitted, being cut), `FINISH` (answered, queued for the host) or `ZOMBIE` (25.5).
+
+### 25.2 Cutting
+
+A request is never expanded: it keeps a cursor, and each pass of `wri_rbd_io_cut` takes the next piece of the byte range, `wri_rbd_geom_extent` (object number, offset in the object, run length, at most to the object's end and at most `op_bytes_max`), and submits one object operation for it while the op table has a free data slot and `inflight_bytes_max` allows. A 1 GiB read therefore needs one table entry, and the table's capacity, not the request's size, bounds the memory. Requests in RUN are visited in submission order with a few operations per visit, so a huge request does not starve a small one admitted after it. Object names are built at submit (`rbd_data.<id>.<16 hex>`, at most 95 bytes). An operation's owner tag is `(image, request slot, generation)`; a result for a request that no longer exists (cancelled) finds its generation changed and is ignored.
+
+### 25.3 Reads and writes
+
+**Read.** One `READ(offset in object, length)` per extent, the reply's data segment landing in the host's buffer at the extent's position, so cutting never copies. Results (osd-ops.md 2.7, rbd-format2.md 3.5): success with the full length, nothing to do; success with fewer bytes (the object is shorter than the extent, or empty at that offset), the rest of that extent is **zero-filled** by a memset in the host's buffer; `-ENOENT` (the object does not exist; the OSD answers a read-only message on a missing object as a whole), the extent is zero-filled and counts as success (there is no parent: 24.3); any other error fails the request with its status, outstanding extents finish and are ignored, the buffer holds unspecified bytes (zero-copy contract, part A 3.3 item 6: the host must not expose a failed read). A read that completes successfully has every byte written: either by a reply or by the zero-fill.
+
+**Write.** One `WRITE(offset in object, length)` per extent with the buffer slice as its data segment and the image's **current snapshot context** read at each transmission (23.5). A write to an absent object creates it. Zero-length requests complete at once. A write on a read-only image is `WR_E_RBD_READONLY` at submit. Range: `offset + length` must lie inside the image size (`WR_E_RANGE`); a block device rejects what is out of range before it gets here, and a request crossing the end is an error here, not a clip.
+
+### 25.4 Ordering: the fence, flush, durability
+
+Four rules, all decided at the image layer, none needing the OSD to cooperate:
+
+1. **Fence.** A request is admitted (`WAIT` -> `RUN`) only when no earlier request in the table that overlaps its byte range conflicts with it: two reads never conflict; every other pair does. Earlier means a smaller `seq` of the image; zombies keep their entry (range, seq) until resolved. The result is that overlapping requests are executed in submission order, and **no request ever overlaps an unanswered write** (C10): a resend cannot overtake a later write (23.7). The table is small (`max_reqs`), the test is a linear scan.
+2. **Flush.** `WR_IO_FLUSH` is admitted at once and completes when every write with a smaller `seq` has completed (zombies excluded: the host already knows they failed). It does not hold later requests back (it is a barrier on completion, not on submission) and sends nothing.
+3. **Durability.** A write that completed was answered by the OSD **after** every replica of the PG committed it (ONDISK, osd-ops.md 2.4; there is one reply, no separate ack phase), so completion is durability; FUA and the OSD-side flush have nothing to do.
+4. **Order of completion** is not order of submission; non-overlapping requests may complete in any order, as for any block device.
+
+Writes are also gated by the header refresh (24.4).
+
+### 25.5 Timeouts, cancel, zombies, close
+
+`wr_io_req.timeout_ms` is a deadline from submit (0 = none). When it passes, the core cancels the request itself and completes it with `WR_E_TIMEOUT`; the host's own timeout or abort calls `wr_image_cancel`. Both are the same function, with the rules of 23.9:
+
+- **Not yet sent operations** are dropped; nothing of them reached the cluster.
+- **A read** is dropped (its in-flight operations are cancelled; a reply that lands later finds no operation and is discarded without a store), unless a reply is landing in its buffer at this moment, in which case the session is reset first.
+- **A write whose operations were sent** keeps them alive as zombies with a **copy of their data** (the zombie area, `zombie_bytes`; the copy is made at the moment of the cancel, when the host's buffer is still valid); the request completes with `WR_E_CANCELLED` (or `WR_E_TIMEOUT`) at once and its table entry becomes a ZOMBIE that still occupies its range in the fence, so a retry of the same range by the host (the iPXE command timeout and a retry, a storport abort and a re-issue) waits until the old write is answered or the client is gone: abandoning a write never lets it be overtaken. A zombie that cannot be answered (a dead OSD for ever) holds its table entry and its copy, and every request overlapping its range waits; the host recovers by closing the image with `WR_CLOSE_ABANDON` or destroying the client, and the fence is gone with it (the cost is the unknown outcome of the abandoned writes, the usual price of an aborted write).
+- **`WR_E_BUSY` from cancel** means the buffer is still referenced by a transmit queue or being received into; the session has been reset and the request finishes by itself within one run of the connection closing, then through `wr_client_next_done`. The host keeps the buffer until the completion is pulled. Hosts that cannot wait (a storport abort must return) complete their own request towards the OS first and keep the buffer pinned until the core is done, which the Windows host needs anyway for WSK sends (part A 3.5).
+
+**Close.** `WR_CLOSE_DRAIN` waits for the writes in flight to complete (reads are dropped), then frees the image slot and raises `WR_EV_IMAGE`; `WR_CLOSE_ABANDON` cancels everything as above and frees the slot at once, the zombie writes continuing until answered. `wr_client_destroy` drops all of it.
+
+### 25.6 Discard and write-zeroes
+
+`WR_IO_DISCARD` is best effort and the only promise is that the range reads back as zeros afterwards: per object extent a whole object is `DELETE`, an extent that reaches the object's end is `TRUNCATE(offset)`, anything else `ZERO(offset, length)` (rbd-format2.md 3.7); `-ENOENT` is success (no parent); every one carries the snapshot context (a DELETE with live snapshots leaves a whiteout only if the context says so). No granularity shrinking (librbd's `rbd_skip_partial_discard` is a performance policy). `WR_IO_WRITE_ZEROES` is `ZERO` per extent always (the object stays), so it never removes objects. A host that does not want discard simply does not offer it (a hint is always correct to ignore, Phase 3 milestone 5 decides).
+
+### 25.7 Statuses of a request
+
+| What happened | Status of the request |
+|---|---|
+| everything answered | `WR_OK` |
+| submit-time checks | `WR_E_INVAL`, `WR_E_STATE` / `WR_E_RBD_CLOSED`, `WR_E_RBD_READONLY`, `WR_E_TOOBIG`, `WR_E_RANGE`, `WR_E_BUSY` (returned, not completed) |
+| an OSD error | `WR_E_OSD_PERM`, `WR_E_OSD_IO`, `WR_E_OSD_NOSPC`, `WR_E_OSD_ERRNO` ... (22.5), the first one of the request; `errinfo` of the image holds the errno |
+| the map cannot place it | `WR_E_OSD_MAP_STALE`, `WR_E_POOL_NOT_FOUND`, a pool status |
+| blocklisted | `WR_E_OSD_BLOCKLISTED` and the image FAILED |
+| `timeout_ms` | `WR_E_TIMEOUT` |
+| `wr_image_cancel`, close | `WR_E_CANCELLED` |
+| image failed or closing | the failing status, or `WR_E_RBD_CLOSED` |
+
+
+---
+
+## 26. Memory
+
+### 26.1 What part C adds, and where
+
+Everything is carved at create time from the two regions (part A 5): no allocation afterwards. The pieces, with the `wr_config` field that sizes each (new fields come out of `wr_config.reserved`, which keeps its size, 164 bytes; `wr_config_enable_osd` fills them and is opt-in like `wr_config_enable_maps`, which it needs):
+
+| Piece | Region | Size | Field |
+|---|---|---|---|
+| connections for OSD sessions | arena | `osd_sessions` x (ring + control + encode buffers + slot 912 bytes) | `osd_sessions`, `max_conns` = `osd_sessions + 2` |
+| handshake slots | arena | `max_handshakes` x 2 x `preauth_cap` | `max_handshakes` |
+| operation table | arena | `max_ops` x 552 + a 4-byte done-ring entry each | `max_ops`, `ctl_ops` |
+| sessions | arena | `osd_sessions` x (160 + `osd_front_cap` + `backoff_slots` x 248) | `osd_front_cap`, `backoff_slots` |
+| encode scratch | arena | `osd_front_cap` | |
+| images | arena | `max_images` x (456 + 8 x `max_snaps` + 512 + `img_ctl_bytes`) | `max_images`, `max_snaps`, `img_ctl_bytes` |
+| request table | arena | `max_reqs` x (80 + 4) | `max_reqs` |
+| zombie area | bulk | `zombie_bytes` | |
+| payload buffers | **the host's** | never the core's | `op_bytes_max`, `inflight_bytes_max` bound what is on the wire |
+
+### 26.2 The numbers (first estimates: `wr_config_enable_osd`, measured by `client.osd_mem` when the glue lands)
+
+| Piece | ipxe | kernel | harness |
+|---|---|---|---|
+| `osd_sessions` / `max_conns` / `max_handshakes` | 6 / 8 / 2 | 16 / 18 / 4 | 48 / 50 / 8 |
+| extra connections and handshake slots over part B | 99.6 KiB | 553.0 KiB | 5,054.4 KiB |
+| `max_ops` / `ctl_ops`: op table | 16 / 2: 8.6 KiB | 256 / 4: 138.0 KiB | 1024 / 8: 552.0 KiB |
+| sessions (front buffer, 8 / 32 / 128 backoff entries) | 24.6 KiB | 190.5 KiB | 1,879.5 KiB |
+| `max_images` / `max_snaps` / `img_ctl_bytes`: images | 1 / 16 / 4 KiB: 5.1 KiB | 4 / 64 / 8 KiB: 37.8 KiB | 8 / 256 / 16 KiB: 151.6 KiB |
+| `max_reqs`: request table | 8: 0.7 KiB | 128: 10.5 KiB | 512: 42.0 KiB |
+| scratch, done ring, structures | 2.6 KiB | 5.5 KiB | 12.5 KiB |
+| **arena with maps and the OSD client** (part B: 112.8 / 501.7 / 3,065.9 KiB) | **253.9 KiB** (259,968 bytes) | **1,437.0 KiB** (1,471,400) | **10,758 KiB** (11,016,040) |
+| **bulk** (part B: 1,542 / 10,246 / 40,968 KiB) plus `zombie_bytes` | **2,566 KiB** (+ 1 MiB) | **18,438 KiB** (+ 8 MiB) | **57,352 KiB** (+ 16 MiB) |
+| `op_bytes_max` / `inflight_bytes_max` | 1 MiB / 4 MiB | 4 MiB / 32 MiB | 4 MiB / 64 MiB |
+| `osd_front_cap` | 2 KiB | 4 KiB | 8 KiB |
+| timers: `op_timeout_ms`, `osd_connect_timeout_ms` | 5 s, 2 s | 10 s, 3 s | 10 s, 3 s |
+
+(The first rows are arithmetic on the real structure sizes of the skeleton; `core.budgets` and a new `client.osd_mem` print the real byte counts once the glue lands and assert `wr_client_mem_required` equals what create takes, as part A does. The budgets of `harness/test/core_budgets.h` move to 256 KiB / 2.5 MiB + 64 KiB (ipxe), 1.5 MiB / 18 MiB + 64 KiB (kernel), 12 MiB / 64 MiB (harness) with the OSD client on; the OSD-off rows do not change, and the README footprint table gets the new rows.)
+
+### 26.3 iPXE, the binding profile
+
+The 4 MiB heap holds the arena only (the bulk is `umalloc()`, `AllocatePages` on EFI): **254 KiB, 6 % of the heap**, against 113 KiB of part B. The increase is dominated by the connections (six more, 21 KiB each, plus a second handshake slot): the buffers a connection carries are uniform in part A (`rx_buf_bytes`, `ctl_buf_bytes`, `tx_buf_bytes`), while an OSD session needs a fraction of them (no tickets in AUTH_DONE, a 2 KiB reply front); **role-specific buffer sizes** would take the arena to about 150 KiB and are the first optimisation if the heap measurement of Phase 2 (R1) asks for it (R-C4). The request side is small by construction: 16 operation slots serve 14 data operations of at most 1 MiB, 4 MiB on the wire at most, 8 image requests; the SAN layer issues one command at a time and may issue many in a row (ROADMAP Phase 2), which `max_reqs` and the lazy cutting absorb. The payload is the SAN layer's buffer both ways: reads land in it through the sink (iPXE copies from its iobufs into the window, no extra heap), writes are referenced from it into the TCP queue (`xfer_window` partial acceptance is the connection's normal case). The zombie area (1 MiB, `umalloc`) is the one place payload is copied, and only for a write the SAN layer gave up on.
+
+### 26.4 Kernel and harness
+
+The kernel profile is **1.4 MiB of non-paged arena** and 18 MiB of bulk (10 MiB of maps and monitor messages, 8 MiB of zombie area, which a driver that always completes aborts after the core's cancel may cut to 2 MiB); everything is allocated once at adapter start (part A 3.5). Windows sizes the queue depth by `max_reqs` (128) and `max_ops` (256). The harness profile is deliberately generous: its connection buffers (64 KiB receive and encode per connection, 50 connections) are 5 MiB of the 11 MiB arena and are the first thing a tuning pass shrinks.
+
+---
+
+## 27. Public API, events, engine integration
+
+`wr_image.h` is the whole surface (the sketch of section 10 is superseded by it). One table, then the integration:
+
+| Call | Meaning |
+|---|---|
+| `wr_image_open(c, &params, &img)` | returns at once, image OPENING; pool names are tracked by this call; `want_write` picks the profile (24.3) |
+| `wr_image_get_state`, `wr_image_get_info`, `wr_image_error` | state (`OPENING`, `OPEN`, `FAILED`, `CLOSING`), the open image's facts (size, features, object size, pools, id, prefix, snapshot count), the first failure with its errinfo |
+| `wr_image_slot`, `wr_client_image_at` | the slot number `WR_EV_IMAGE` carries, and back |
+| `wr_image_submit(img, &req)` | queue a READ / WRITE / FLUSH / DISCARD / WRITE_ZEROES; never blocks; `WR_E_BUSY` when `max_reqs` are in flight |
+| `wr_client_next_done(c)` | the next finished request (any image), `NULL` if none; its buffer is the host's again |
+| `wr_image_cancel(img, &req)` | 25.5: finish now (`WR_OK`) or reset and finish by itself (`WR_E_BUSY`) |
+| `wr_image_close(img, flags)` | `WR_CLOSE_DRAIN` / `WR_CLOSE_ABANDON` |
+| `wr_client_osd_stats` | operations and requests in flight and high-water, sessions, resends, resets, backoffs, discarded MOSDMaps, zombie use |
+| events | `WR_EV_IMAGE` (`epoch` = slot: opened, failed, closed, resized), `WR_EV_IO_STALL` / `WR_EV_IO_RESUME` (informational; `err` says why, `a0` the OSD) |
+
+**Integration (module client-glue-osd).** `wr_client` gets two pointers, `wri_osdc *osd` and `wri_rbd *rbd`, NULL while `osd_sessions == 0` (the engine is then byte for byte what it was, apart from the two pointers); `wri_client_mem.c` adds the OSD layer's sizes to the one plan-and-take walk (`wri_client_osd_mem` / `wri_client_osd_init`); `wri_client_conn.c` learns to open a slot with role OSD (`slot_open` takes the role, the upper table and the auth context) and to use `osd_connect_timeout_ms` for those actions; the connection's `closed` callback needs nothing new (the session's upper table handles it). `wr_client_run` (part A 8.4) gets two stages after the map store step: **OSD** (`wri_osdc_step`: retarget on a new epoch, sessions, sends, timeouts) and **image** (`wri_rbd_step`: open and refresh machines, collect finished operations, cut and admit requests, request timeouts, completions); both report `more_work` and their deadlines join the earliest-deadline computation. The ordering inside one run is what makes a completion available at once: connection steps parse replies (the session's upper table writes results into the op table), the OSD stage resolves them, the image stage collects them into request completions, and the host pulls `wr_client_next_done` right after `wr_client_run`. The map ops the engine hands to the OSD layer are three-line adapters over `wr_client_map_target`, `wr_client_pool_info`, the held epoch and flags; the image layer's `track` is `wr_client_pool_track`.
+
+**Time between runs.** The engine knows the time of its last `wr_client_run` and no other; `wr_image_open` and `wr_image_submit` are host calls that can come long after it (the host sleeps in its poll until the next deadline). Taken at face value a request with `timeout_ms = 5000` submitted 20 s after the last run would be expired by the very next run, before it was ever sent. The glue therefore marks every open and every request with a timeout when it is accepted (`wr_image.fresh`, `wri_rbd_rqpriv.fresh`), and `wr_client_run` moves their deadlines by the time the clock advanced since the run before (`wri_client_osd_rebase`, first thing in the run): the timeout counts from the first run that can act on the request, which is the earliest moment it can be honoured. An engine that never ran has a clock of 0, so the opens made before its first run are the same case. A host clock that steps back is held at the last value (delta 0).
+
+**Image events and the ring.** The event ring has eight entries. When it is full, the oldest informational event goes first (`WR_EV_TICKETS_RENEWED`, session events, stalls); `WR_EV_FATAL`, `WR_EV_MAP` and `WR_EV_IMAGE` are kept, an image event is dropped (the oldest first) only when nothing else is left, so a burst of image events (every image fails in one run when the engine ends) cannot push a `WR_EV_IMAGE` out for an informational one. A host that waits for an image state reads `wr_image_get_state`, which never loses a change.
+
+The status of an operation in flight is never lost on destroy: `wr_client_destroy` wipes and drops everything, completions that were not pulled are gone, zombies are gone. The host closes images first when it cares (`WR_CLOSE_DRAIN`).
+
+---
+
+## 28. Hosting: many sockets in the sans-IO model
+
+The pump of part A already multiplexes connection ids; what part C changes for a host is quantity and four rules.
+
+1. **Many connections.** Up to `max_conns` sockets at once (8 iPXE, 18 kernel, 50 harness). `wrl_loop` holds 64. Each OSD connection arrives as an ordinary `WR_ACT_CONNECT` with its own `timeout_ms` (`osd_connect_timeout_ms`), is closed with `WR_ACT_CLOSE` (session eviction, reset, idle) and reported with `wr_conn_closed`; a slot reused after a close carries a new generation, so a stale id from a racing host call is ignored (part A 3.2). Nothing else of the surface changes.
+2. **Call `wr_client_run` after every submit, cancel, open and close.** They do no I/O and cannot wake the host; the next run reports `more_work`, and the run encodes and queues the messages. A host that only wakes on socket events and timers would otherwise wait for the next timer. After the run it pulls `wr_client_next_done` (and events) before sleeping again.
+3. **Receive straight into the buffer.** `wr_conn_rx_window` on an OSD connection returns, while a read reply's data segment is arriving, a window into the **caller's request buffer**: a host that reads with `recv` into it copies nothing (Linux, WSK receive into the locked buffer); a push-style host copies once (iPXE `wr_conn_rx_push`). The buffer must therefore be addressable by the thread that moves bytes (non-pageable on Windows). A host that reports bytes with `wr_conn_rx_commit` after the run that handed out the window is fine; one that keeps a window across a `wr_client_run` is not (part A 3.3 item 3).
+4. **Transmit references the caller's buffer.** `wr_conn_tx_peek` returns iovecs that point into a write's buffer; the bytes stay referenced until `wr_conn_tx_consume` covers them or the connection closes. A host that sends asynchronously (WSK) consumes **after the send completes**; at `wr_conn_closed` it must have completed or cancelled its sends, because the core may return the buffer to the owner as soon as it reported the close (25.5).
+
+Per host (the claims about Windows and iPXE internals are checked in Phases 2 to 4, as before): **iPXE** runs one `struct process` step: it calls `wr_client_run`, drains actions, services every live connection, pulls completions and completes the SAN command that owned each (the one-command-at-a-time layer submits and the process completes), and arms the retry timer from `next_deadline_ms`. **Windows** keeps the single worker thread that owns the client: `HwStartIo` fills a preallocated record and queues it; the worker submits, runs, issues WSK sends and receives on preallocated IRPs, pulls completions and calls `StorPortNotification`; a storport abort becomes a queued `cancel` (and the SRB completes towards Windows at once if the worker says `WR_OK`), a bus reset `wr_image_close(ABANDON)` and a reopen. **Linux** is `wrl_loop` unchanged apart from the tests of module host-osd-loop: sockets, `poll`, the action timeouts.
+
+
+---
+
+## 29. Part C implementation plan
+
+### 29.1 The skeleton that is in the tree
+
+Written first, so the modules below can be implemented in parallel against frozen interfaces. It builds with gcc and clang, plain and with `-DWR_SANITIZE=address,undefined`, and the existing ctest tests pass unchanged (plus `osd.skel`).
+
+```
+core/include/winrbd/
+  wr_image.h              NEW   public image API of section 27 (included by winrbd.h)
+  wr_err.h                +codes 200 to 209 (OSD client), 220 to 232 (RBD); wr_client.h +WR_EV_IMAGE, WR_EV_IO_STALL, WR_EV_IO_RESUME
+  wr_config.h             +OSD fields taken from the reserved words (size unchanged, 164 bytes), WR_OSDF_*, wr_config_enable_osd()
+core/src/osd/
+  wri_osd_msg.h           MOSDOp, MOSDOpReply, MOSDBackoff, op outputs, constants         (declarations)         module osd-msg
+  wri_osd_sess.h          sessions, link, upper-layer interface, backoff entries          (declarations + structs) module osd-sess
+  wri_osd_req.h           op slot, the engine, states, map ops                            (declarations + structs) module osd-req
+core/src/rbd/
+  wri_rbd_cls.h           class-call encoders, decoders, the refusal rules                (declarations)         module rbd-cls
+  wri_rbd.h               image, request table entry, the layer                           (structs)              modules rbd-open, rbd-io
+  wri_rbd_open.h          open, refresh, close                                            (declarations)         module rbd-open
+  wri_rbd_io.h            geometry, request machinery                                     (declarations)         modules rbd-geom, rbd-io
+core/src/client/
+  wr_image.c              the public API: stubs (WR_E_UNSUPPORTED after the argument checks)  module client-glue-osd replaces it
+  wri_client_osd.h        the glue interface (memory, conn open, run stage, stats)        (declarations)         module client-glue-osd
+  wr_config.c             wr_config_enable_osd() (real)
+core/sources.txt          regenerated
+harness/test/support/sim_osd.h   the fake OSD: frozen interface, fault hooks, shared object store, RBD image fixtures
+harness/test/support/sim_osd.c   stub (cannot create): module sim-osd replaces it
+harness/test/test_osd_skel.c     the skeleton's own checks (ctest osd.skel): codes, constants, layouts, enable_osd, stubs
+harness/test/test_core_docs.c    now also checks the SPDX tags of core/src/osd and core/src/rbd
+```
+
+Functions that are only declared have no definition yet: a module owner writes the file named in the plan. Headers are owned by the module that implements them and are **frozen** for the others: an owner may add to a header but may not change a signature or a layout another module uses without the integrator (the op slot, the session struct, the request table entry and `wr_io_req` above all). `harness/CMakeLists.txt` needs no edit except for module vectors-c.
+
+### 29.2 Waves
+
+Seven waves, 14 modules. Modules of one wave touch disjoint files and can be implemented in parallel; a wave depends only on earlier waves. The critical path is `osd-msg -> osd-sess -> osd-req -> rbd-io -> client-glue-osd -> live-rbd-tool -> osdc-hardening`.
+
+```
+wave 1   osd-msg   rbd-cls   rbd-geom   cx-hs   sim-osd
+wave 2   osd-sess   vectors-c
+wave 3   osd-req
+wave 4   rbd-open   rbd-io
+wave 5   client-glue-osd
+wave 6   host-osd-loop   live-rbd-tool
+wave 7   osdc-hardening
+```
+
+Rules as in part A section 9 and part B 17.2: a module owns exactly the files it lists; SPDX MIT plus `WR_FILE_LICENCE_MIT` per core file; unique C basenames; files at most about 500 lines (split with a suffix or by concern); no libc, no globals, no recursion; every wire length capped; own code from the notes, never copied (Ceph, iPXE, WNBD, kernel); `-Werror` clean with gcc and clang and under the sanitizers; test naming `test_<module>_<what>.c` gives ctest `<module>.<what>` and label `<module>` (`test_osd_msg_enc.c` is `osd.msg.enc`); `core/sources.txt` regenerated by the integrator after each wave; a skip is `exit 77` with a reason; "lab" means the VM `winrbd-ceph1` with the rules of the task header (images and pools named `wrtest-*`, every changed state restored). The simulator, not the lab, is where every fault is provoked; the lab is where the answers are checked.
+
+**osd-msg** (wave 1). Depends: none. Files: `core/src/osd/wri_osd_msg.c`, `wri_osd_rep.c`, `wri_osd_bo.c`, `wri_osd_msg.h`, `harness/test/test_osd_msg_enc.c`, `test_osd_msg_rep.c`, `test_osd_msg_bo.c`, `harness/fuzz/fuzz_osd_reply.c`, `fuzz_osd_backoff.c`, seeds. Task: everything declared in `wri_osd_msg.h` (section 22): `wri_mosdop_encode` (v9 and v8, the refusals of 22.3, RETRY derived from `retry_attempt`, reqid.inc = client_inc = 0, otel field only in v9), `wri_osd_op_put`, `wri_mosdop_front_max`, `wri_snapc_valid`, `wri_osd_errno_status` (the table of 22.5), `wri_mosdopreply_decode` (v8 only, compat <= 8, `n_ops` <= 8, the oid length checked, out_total), `wri_osd_sparse_decode`, `wri_osd_stat_decode`, `wri_mbackoff_decode` / `_encode_ack`, `wri_hobj_cmp` (bit-reversed hash order), `wri_hobj_of_request`, `wri_mbackoff_covers`. Tests: every vector of `harness/vectors/osdop/` (requests re-encoded byte for byte from their `summary` fields, replies decoded against theirs), the 217-byte example of osd-ops.md 5.1, v8 equals v9 minus the 7 otel bytes, every refusal, the errno table, truncation at every offset of every reply and backoff, sparse-read table (one extent, several, a hole, overlap, outside the range, lengths that do not add up), hobject ordering checked against an independent bitwise implementation on random pairs, `begin == end` and half-open range edges. Fuzz: arbitrary bytes into the reply, sparse, stat and backoff decoders with every (version, compat) pair; encode(decode(x)) of a backoff.
+
+**rbd-cls** (wave 1). Depends: none. Files: `core/src/rbd/wri_rbd_cls.c`, `wri_rbd_cls_dec.c`, `wri_rbd_policy.c`, `wri_rbd_cls.h`, `harness/test/test_rbd_cls_enc.c`, `test_rbd_cls_dec.c`, `test_rbd_policy.c`, `harness/fuzz/fuzz_rbd_cls.c`, seeds. Task: the encoders, decoders and `wri_rbd_check_profile` / `wri_rbd_features_ok` of `wri_rbd_cls.h` (section 24): inputs and outputs exactly as rbd-format2.md 2.3, 2.5, 2.7 (`get_features` with the optional read_only byte, `get_size` order first, `get_snapcontext` validated and capped by `cap`, `parent_get` v1 struct skipped by length, `lock get_info` entries skipped by their struct length), ids and prefixes validated, and the refusal rules in the order of rbd-format2.md 3.3 with the stable statuses and `a0` masks of 24.3. Tests: `harness/vectors/rbd/rbd-class-calls.json`, `header-omap.json`, `osd-messages.json` and osdop vectors 09, 10 (the encoders reproduce the input bytes of every captured call, the decoders read every captured output), a table test of all 12 feature bits x reader / writer x parent / striping / flags / order, truncation at every offset, snapshot contexts (descending, equal, zero followed by another, more than cap). Fuzz: every decoder on arbitrary bytes.
+
+**rbd-geom** (wave 1). Depends: none. Files: `core/src/rbd/wri_rbd_geom.c`, `harness/test/test_rbd_geom.c`. Task: the pure functions of the geometry section of `wri_rbd_io.h` (section 25.2, 25.6): `wri_rbd_geom_init` (order 12..25), `_objects`, `_extent` (default striping; run bounded by the object end and `max_run`), the three name builders (hex digits, 95-byte limit), `wri_rbd_overlap` (overflow safe), `wri_rbd_discard_op`, `wri_rbd_op_status` (the ENOENT rule per operation code). Tests: the worked examples of rbd-format2.md 2.10 and 2.1.1, a per-byte reference model (`objno = off / object_size`) against the extent iterator for random ranges at every order, object counts, names of object 0, 255, 2^63 and 2^64 - 1, overlap properties, the discard table, the status table.
+
+**cx-hs** (wave 1). Depends: none. Files: `core/src/auth/wri_cx_client.c`, `wri_cx.h`, `wri_cx_hs.c`, `harness/test/test_auth_hs.c`. Task: section 21.2: move the per-handshake state into `wri_cx_hs` (carved per handshake slot by `wri_cx_hs_mem`), keep `wri_cx_ops()` with a `wri_cx_client *` working unchanged (an embedded handshake), add `wri_cx_hs_ops()` whose `a` is a `wri_cx_hs *` bound to a client; the ticket store, global id, renewal and the "failed monitor done forgets every ticket" rule stay shared; a handshake that fails never disturbs another; the session key view lives in the handshake. Tests: all of part A's cephx and monitor tests pass without edits; new: two OSD handshakes and a monitor renewal interleaved byte by byte against servers built from `wri_cx_seal` / `wri_cx_open` (and `sim_mon` for the tickets) all finish with their own session keys, a failing one leaves the others alone, a ticket swapped between begin and done fails only that handshake, wipe leaves zeros.
+
+**sim-osd** (wave 1). Depends: none (sim_m2, sim_mon exist). Files: `harness/test/support/sim_osd.c`, `sim_osd_ops.c`, `sim_osd_cls.c`, `sim_osd_store.c`, `sim_osd_auth.c`, `sim_osd_int.h`, `sim_osd.h` (owner; may add), `harness/test/test_sim_osd.c`, `test_sim_osd_ops.c`, `test_sim_osd_cls.c`. Task: everything declared in `sim_osd.h` (see its header comment), written from osd-ops.md and rbd-format2.md from the server's side with its own small MOSDOp decoder and reply encoder (no code shared with osd-msg), the cephx authorizer verification and challenge round trip for the OSD service against the tickets of a `sim_mon`, the object store with sparse objects, clones and whiteouts for self-managed snapshots, the `rbd` and `lock` class methods over `sim_rbd_image_create` fixtures (every refusal of the open can be provoked: features, striping, parent, data pool, flags, snapshots, a lock), the dedup log, all the fault hooks, MOSDBackoff and MOSDMap pushes. Remove the stub assertions of `osd.skel`. Tests: driven by hand with frames built from a test-local MOSDOp encoder written from the note: every operation's semantics (the ENOENT, short, hole, ZERO-to-TRUNCATE, DELETE-with-whiteout and write-output-discard rules of osd-ops.md 2.7), the class methods against `harness/vectors/rbd`, authorizer accept / refuse / challenge, dedup and `no_dedup`, every fault hook, seq enforcement, a 4 MiB write and a 4 MiB read.
+
+**osd-sess** (wave 2). Depends: osd-msg, sim-osd (cx-hs soft). Files: `core/src/osd/wri_osd_sess.c`, `wri_osd_sess_up.c`, `wri_osd_sess_bo.c`, `wri_osd_sess.h`, `harness/test/test_osd_sess_pool.c`, `test_osd_sess_conn.c`, `test_osd_sess_rx.c`, `test_osd_sess_bo.c`, `harness/fuzz/fuzz_osd_sess.c`, seeds. Task: section 21: the session table with acquire / LRU eviction / cool-down / idle close / address change, the `wri_m2_upper` table (`plan` routing front, middle and the reply's data sink by type and tid with the front cap and the empty-middle rule, `message` decoding and the data-length check, `ready` with the feature check of 21.6, `closed`), `rx_tid`, reset, `tx_idle`, the backoff table with coarse entries and ACK_BLOCK sending, counters. Tests: with a scripted link (pool behaviour, the busy cases, cool-down growth and reset, the handshake gate, a missing ticket), with real `wri_m2_conn` machines and the real cephx machine over `sim_osd` and `sim_mon` through an in-test byte pump (READY, v9 / v8 / refused feature sets, authorizer challenge, a refused ticket), reply routing byte at a time and split anywhere, stale tids, MOSDMap and unknown types discarded, a front above the cap, a data length that does not add up closes the session, backoff BLOCK / UNBLOCK / overflow / coarse / cleared on loss, and the number of connections never above `osd_sessions`. Fuzz: hostile frames fed to a READY session.
+
+**vectors-c** (wave 2). Depends: osd-msg, rbd-cls. Files: `harness/vectors/public/osdc/` (frames, reply fronts, header reads, data objects, a README, the public MANIFEST entry), `harness/vectors/public/scripts/capture_osdc.sh`, `check_osdc.py` (an independent decoder written from the notes), `harness/test/test_osd_vec_replay.c`, `test_rbd_vec_replay.c`, the `module vectors-c` block of `harness/CMakeLists.txt`. Task: the lab captures of the task header: a dedicated throwaway cephx user (created, used, deleted; its key may then be published like the part A vectors; never `winrbd`, `winrbd-aes` or `admin`), `wrtest-*` images of order 12 to 16 with the feature words the refusal table needs (0x1, 0x21, 0x3d, a data pool, a clone, a striped one, one with snapshots, one with a foreign lock), driven by python3-rados / `rbd` / `rados` in crc mode with `tcpdump` per session: the open's eight-call header read for each image (OSD request and reply frames), a read and a write of each kind (READ, WRITE, ZERO, TRUNCATE, DELETE, a missing object, a short object), a write with a snapshot context on an image with snapshots, a PG backoff (BLOCK, ACK_BLOCK, UNBLOCK) provoked by restarting an OSD under I/O and by `ceph osd out` (restored after), and the data objects of patterned images exported with `rados get`. Everything small, scrubbed, listed in the MANIFEST, checked by `check_osdc.py` and replayed through the real decoders. Tests: `osd.vec_replay`, `rbd.vec_replay`, `vectors_osdc_check`.
+
+**osd-req** (wave 3). Depends: osd-msg, osd-sess, sim-osd. Files: `core/src/osd/wri_osd_req.c`, `wri_osd_req_tgt.c`, `wri_osd_req_send.c`, `wri_osd_req_zomb.c`, `wri_osd_req.h`, `harness/test/test_osd_req_basic.c`, `test_osd_req_resend.c`, `test_osd_req_backoff.c`, `test_osd_req_time.c`, `test_osd_req_cancel.c`, `test_osd_req_budget.c`, `harness/fuzz/fuzz_osd_req.c`, seeds. Task: section 23: the table, tids (`counter << 16 | slot`), the states, targeting over `wri_osd_map_ops`, the map-change rules of 23.4, sending in tid order with the BUSY handling, replies (stale attempts, EAGAIN with a new tid, redirect refused, result and rval, data-length checks), timeouts with doubling, session reset, stall and resume events, the map-stale rule, pause and full policy, cancel and zombies (the first-fit area, the reset-first cases), control reserve, `inflight_bytes_max`. Tests (scripted map ops + real sessions over `sim_osd`): submit to completion for each operation kind; connection cut after the OSD applied a write (answer lost) with and without `no_dedup`, same tid and `retry_attempt` + 1 checked on the wire; every row of the map-change table (primary moved, replica moved, split, `last_force_op_resend`, skipped epoch, OSD down, no primary, pool deleted); EAGAIN (new tid, RETRY set); redirect; BLOCK / UNBLOCK including resend of sent operations; a silent OSD (timeout x1, x2, x4, x8, reset, resend); cancel of every state (read mid-reply resets the session, sent write becomes a zombie and is answered, a zombie that does not fit); budgets at their edges with tiny tables; no operation ever sent out of tid order per session. Fuzz: a script of submits, map changes, cancels, clock steps and hostile replies; properties: no leaked slot, tids strictly increasing, never more than the budget, a completed operation completes once.
+
+**rbd-open** (wave 4). Depends: osd-req, rbd-cls, rbd-geom, sim-osd. Files: `core/src/rbd/wri_rbd_open.c`, `wri_rbd_open_dec.c`, `wri_rbd_open.h`, `harness/test/test_rbd_open_ok.c`, `test_rbd_open_refuse.c`, `test_rbd_open_refresh.c`, `test_rbd_open_err.c`, `harness/fuzz/fuzz_rbd_open.c`, seeds. Task: sections 24.2 to 24.5: pools and the full-map rule, GET_ID, the eight-call header message with the owner buffers, EXTRA, JUDGE (profile, data pool by name and id), OPEN, the refresh of a writer and its adoption rules, ORDERSNAP / EOLDSNAPC refresh trigger, failure rules (blocklist, pool gone, features changed), close (`DRAIN`, `ABANDON`), events through `wri_rbd.event`, `wri_rbd_open_decode_header`. Tests (real op engine + `sim_osd` fixtures): open by name and by id for plain, striped-default, data-pool (right name, wrong name, no name), deep-flatten, snapshotted images, reader and writer; **every refusal of 24.3** with its status and `a0`; missing image, missing header, a key without class-read, a blocklisted answer, an open that outlives the map (pool tracked after the first map, pool that does not exist: fails at the full map, not at the timeout), `open_timeout_ms`; refresh adopting a new snapshot context, a resize, a feature enabled behind our back (FAILED), writes held while stale; a header read with every truncation of its outputs. Fuzz: hostile reply data for the header read.
+
+**rbd-io** (wave 4). Depends: osd-req, rbd-geom, sim-osd. Files: `core/src/rbd/wri_rbd.c` (`wri_rbd_mem`, `wri_rbd_init`), `wri_rbd_io.c`, `wri_rbd_io_split.c`, `wri_rbd_io_fence.c`, `wri_rbd_io_cancel.c`, `wri_rbd.h` (owner; may add), `harness/test/test_rbd_io_basic.c`, `test_rbd_io_fence.c`, `test_rbd_io_cancel.c`, `test_rbd_io_model.c`, `test_rbd_io_budget.c`. Task: section 25: the request table and the embedded `wr_io_req` priv, `wri_rbd_submit` and its submit-time checks, the cutting loop (cursor, `op_bytes_max`, windows, fairness), read results (zero-fill of short and missing), writes with the image's snapshot context, the fence and the flush barrier, DISCARD / WRITE_ZEROES, completion ring, timeouts, cancel (the three cases of 25.5, WR_E_BUSY completion by itself), zombies and their fence entries, `wri_rbd_io_fail_image`, owner tags with generations. The tests build an OPEN image directly from a `sim_rbd_image_cfg` (no dependency on rbd-open). Tests: every request kind at every alignment (inside an object, across 2 and 3 objects, whole objects, the last byte of the image, zero length), holes and missing objects read as zeros, **a model test**: tens of thousands of random reads, writes, discards, write-zeroes and flushes (unaligned, cross-object, with random completion delays and cluster faults) compared byte for byte with a flat byte-array model and with `sim_store`; fence (overlapping write then read, write then write, read then read free, a zombie holding its range), flush ordering, cancel of reads and writes at every state, a timeout cancelling and a retry waiting behind the zombie, tiny budgets (one op slot, one request) completing a 64 MiB request, `max_reqs` BUSY. 
+
+**client-glue-osd** (wave 5). Depends: osd-req, rbd-open, rbd-io, cx-hs, osd-sess. Files: `core/src/client/wr_image.c`, `wri_client_osd.c`, `wri_client_osd_conn.c`, `wri_rbd_step.c`, `wri_client.h`, `wri_client_conn.c`, `wri_client_mem.c`, `wr_client.c`, `wri_client_osd.h`, `core/README.md` (status, footprint rows), `harness/test/core_budgets.h`, `test_core_budgets.c`, `test_client_mem.c` (new rows only), `harness/test/test_client_osd_open.c`, `test_client_osd_api.c`, `test_client_osd_mem.c`, `test_client_osd_events.c`, `harness/fuzz/fuzz_client_osd.c`, seeds. Task: section 27: the engine integration, the memory plan and create (exact `wr_client_mem_required`), the config validation of `wr_config.h` for an enabled OSD client, the run stages, `wri_client_conn_open_osd` with the role, the per-slot auth context (cx-hs) and the OSD connect timeout, the map adapters, events and stats, the public API over the layer (argument validation of every call as documented), `wri_rbd_step`, the footprint rows and budgets of 26.2. Tests: the whole engine against `sim_mon` + N `sim_osd` through an in-test pump: open an image, write and read patterns, flush, discard, close; two images; a monitor restart and an OSD restart under I/O; destroy mid-I/O; `client.osd_mem` exactness for the three profiles and random configurations; argument validation of every public call; events (`WR_EV_IMAGE`, stall, resume); the key canary (no secret in any log record or in the arena after destroy) extended to the OSD paths. Fuzz: the whole engine with a fuzzer-played OSD after a real handshake prefix, two pre-fills, observable behaviour identical.
+
+**host-osd-loop** (wave 6). Depends: client-glue-osd. Files: `harness/host/wrl_loop.c` (only if the tests need a change), `harness/test/test_host_loop_osd.c`. Task: the Linux pump with many connections: the tests of section 28 over real sockets: a pthread TCP server per `sim_osd` and one for `sim_mon` (the technique of `test_host_loop`), an image opened and written / read / flushed through `wrl_loop`, per-action connect timeouts honoured (an unreachable OSD does not delay the others), a server that closes mid-reply, a one-byte-at-a-time server, 50 sockets at once, no descriptor left open after destroy. Tests: `host.loop_osd`.
+
+**live-rbd-tool** (wave 6). Depends: client-glue-osd. Files: `harness/host/tools/wr-rbd.c`, `harness/lab/live-rbd.sh`, `harness/lab/rbd-prepare.sh`, `harness/test/test_lab_rbd.c`. Task: `wr-rbd --mon ip:port --user NAME --keyring FILE --pool P --image I [--id ID] [--data-pool D] [--rw] <command>`: `info`, `read OFF LEN [FILE]`, `write OFF LEN --pattern P | --file FILE`, `fill`, `verify` (pattern readback), `discard`, `compare FILE` (byte compare of the image with a file), `bench`, `random N SEED` (a random I/O run with an internal model, unaligned and cross-object, reporting the first difference); prints events and `wr_osd_stats`, never key material. `rbd-prepare.sh` creates `wrtest-*` images (features per case), writes reference content with the stock `rbd` / `rados` tools (the oracle), and cleans up; `live-rbd.sh` runs the matrix of 30.4 for both key types. `test_lab_rbd.c` (label `lab`) runs it in the VM and skips without `WR_LAB_*`. Tests: the `random` command against the simulator in ctest (`host.tool_rbd`), the lab runs by hand.
+
+**osdc-hardening** (wave 7). Depends: everything. Files: `core/README.md`, `harness/README.md`, `.github/workflows/harness.yml`, `harness/tools/fuzz_long.sh`, `harness/tools/osd_fault_lab.sh`, `harness/tests/ci-docs-hardening/check_callgraph.py` (entry budgets), `harness/test/test_osd_hardening.c`, `core/sources.txt`, `docs/design/core-architecture.md` (a section 31.3 "what the finished code measured", like 18.6), `docs/ROADMAP.md` (status table). Task: close milestones 6 to 8 and the decoder half of 10: the compile matrix and the gates (no libc, no globals, freestanding, `-m32`, iPXE flags) on the new files, the call-graph entry budgets for the OSD step, the image step, the request encode and the reply decode, the fuzz targets in CI and `fuzz_long.sh -p partc`, long fuzz runs of all part C targets (duration of 12.3), the footprint rows, the fault lab script (kill and restart an OSD under I/O, mark an OSD out and in, `pg-upmap` a PG to force a map change; everything restored, HEALTH back to the baseline), `osd.hardening`, and the open items of 31. Tests: `osd.hardening` (the targets exist and have seeds, CI names them, the budgets are wired), the full ctest in all four flavours.
+
+---
+
+## 30. Part C verification
+
+### 30.1 Layers
+
+1. **Unit tests per module** (section 29): every codec at every truncation point, every refusal, every budget at its edge, hostile counts.
+2. **Simulators** (`sim_osd` with `sim_mon`, written from the notes and sharing no code with the client modules, R9): every state machine is tested against a server that can misbehave on command; the faults of 30.2 are provoked there, never on the lab.
+3. **Vector tests** (vectors-c): the committed Phase 0 vectors (`harness/vectors/osdop`, `harness/vectors/rbd`) from wave 1 on, the new lab captures from wave 2 on, through the real decoders.
+4. **Model tests** (rbd-io): random I/O against a flat byte-array model and `sim_store`, byte for byte.
+5. **Fuzzing**: `osd_reply`, `osd_backoff`, `rbd_cls`, `osd_sess`, `osd_req`, `rbd_open`, `client_osd` (the existing layout, seeds replayed by ctest, libFuzzer with ASan and UBSan for real runs). Properties as in 18.1: no crash, no write outside the sinks (guard bands), nothing outside the arena, success means the structural checks passed, the same input with differently pre-filled regions behaves identically.
+6. **Live lab** (30.4), the oracle: the stock `rbd`, `rados` and later krbd.
+
+### 30.2 Fault matrix (simulator)
+
+| Fault | Where provoked | What must hold |
+|---|---|---|
+| connection cut after the OSD applied a write, answer lost | `drop_replies`, `cut_after_ops` | resent with the same tid and `retry_attempt + 1`; applied once with dedup; with `no_dedup` the bytes after the run equal the model (the fence) |
+| OSD restarts under I/O | `sim_osd_restart` | all in-flight resent after reconnect, no completion twice, no loss |
+| silent OSD (misdirected, stale epoch, full pool without FULL_TRY) | `silent`, `min_epoch`, `pool_full_drop` | timeout x1 to x8, session reset, `WR_EV_IO_STALL`, resend; a FULL_TRY write gets ENOSPC |
+| map change moves a PG's primary, splits a pool, deletes a pool | scripted `wri_osd_map_ops` | the rows of 23.4 |
+| EAGAIN, redirect, forced errno per op code | `eagain_ops`, `redirect`, `force_errno*` | 23.6, 22.5 |
+| MOSDBackoff BLOCK / UNBLOCK, coarse, table full | `sim_osd_send_backoff` | held, acked, released, resent including sent operations |
+| MOSDMap pushed by an OSD | `sim_osd_send_map_push` | discarded, counted, nothing else changes |
+| replies held, reversed, with a bad data length | `hold_replies`, `reverse_release`, `bad_reply_len` | matched by tid, stale ones dropped, a bad length closes the session |
+| slow reader, one-byte chunks, partial transmit | `sim_m2` hooks | correct, no busy loop |
+| cancel at every request state; timeout then retry of the same range | rbd-io tests | 25.5: a retry waits behind the zombie, the final bytes equal the model |
+| budgets of one: one op slot, one request, one session, one backoff entry | tiny configs | progress, `WR_E_BUSY`, no deadlock |
+| cephx: OSD ticket missing, expired, refused | `sim_mon` / `sim_osd` | WAIT_SESS, `WR_EV_IO_STALL` with the auth status, recovery after renewal |
+
+### 30.3 Mechanical gates
+
+`core_no_libc`, `core_freestanding*`, `core_no_globals`, `wr_header_check`, `wr_core_m32`, `wr_core_ipxe_flags` cover the new files with no edit; `core.docs` enforces the 500-line limit and the SPDX tags of `core/src/osd` and `core/src/rbd`; the call-graph check gets entry budgets for the OSD step (`wri_osdc_step`), the image step (`wri_rbd_step`), the reply path (`up->message` -> `wri_mosdopreply_decode`) and the request encode, with the frames of 1 KiB rule: the transient `wri_mosdop_hdr` (about 100 bytes) and `wri_mosdopreply` (about 200 bytes) are on the stack, the op table is not.
+
+### 30.4 Live lab (the oracle), by script
+
+Prepared by `rbd-prepare.sh` with the stock tools, driven by `wr-rbd` (the first run of milestone 8, so the matrix is the exit criterion of milestone 8 short of krbd): both key types; images of the P1 profile (`0x1`, `0x21`) and the refusals (default `0x3d` as writer, a clone, a striped image, a data-pool image); reads of images written by `rbd` / `rados` compared with the stock tools' export; writes read back by the stock tools; random unaligned and cross-object I/O (the `random` command) with a model, also with overlapping requests in flight (`--overlap`: they must run in submission order, C14) and on an image that is not a whole number of objects (the last partial object, the last byte, the first byte past the end refused); the tool itself checks that a flush never completes before an earlier write and that no request comes back twice; a run with an OSD killed and restarted mid-run and one with an OSD marked out and in (map change, resend), HEALTH restored; a snapshot taken between two refreshes (the exposure window of 24.4, measured); `mtime` 0 against the real wall clock (Q4, R-C3); ORDERSNAP and EOLDSNAPC (R-C8); a write by a user without class-read (the stall of 21.2). Public vectors from these runs go through the throwaway-user rule of vectors-c.
+
+### 30.5 Exit criteria of part C
+
+Milestones 6 to 8 are done when: the whole ctest is green in all four flavours; the fault matrix passes; the model test passes at the agreed length; the fuzz targets ran the agreed duration without a finding; `wr-rbd random` and `compare` against the lab show zero differences with and without a killed OSD; the footprint rows are measured and inside the budgets of 26.2. Milestone 9 (krbd) is the same compare with `rbd map` as the second reader. Status: the criteria of milestones 6 to 8 are met as measured in 31.3 (the four flavours green, the fault matrix on the simulator, the fuzz runs, the lab fault run with zero differences, the footprint rows), except that the model test and the fuzz targets ran for the durations the hardening wave could give them (16 minutes per target; the maintainers' longer schedule of Phase 1 is unchanged).
+
+### 30.6 Hooks for parts D and later
+
+Milestone 9: `wr-rbd compare` and `random` write patterned content that `rbd map` + `cmp` read back and the reverse (a lab script, `harness/lab/krbd-check.sh` exists for part A's checks); the client has no knowledge of krbd. Milestone 11 (secure mode): a second codec behind the seam (part A D8); the data of a write is then encrypted per frame, so the zero-copy transmit of 22.4 gets a bounce buffer per connection (the caller's buffer must not be modified) and the zombie rule is unchanged. Phase 3 and 4: `wr_image_cancel` and `WR_CLOSE_ABANDON` are the storport abort and reset paths; the exclusive-lock policy L2 and the watch are the two things a writer on a default-feature image needs; the handoff (iPXE to Windows) needs a quiesce step because the fence dies with the client (23.7).
+
+---
+
+## 31. Part C risks and open questions
+
+### 31.1 Risks
+
+| # | Risk or question | Plan |
+|---|---|---|
+| R-C1 | **The OSD address bytes.** The compact map keeps family, IP, port and nonce of an OSD, not the raw `entity_addr_t` bytes; the connection rebuilds the canonical marker-1 encoding (`wri_eaddr_from_wr`) and the server compares `target_addr` byte for byte (msgr2.md 3.6). A non-canonical encoding in a real map would make every OSD connection fail with `WR_E_M2_ADDR` or be refused. | `sim_osd.check_target` and the lab runs check it; the fallback is to keep the raw address bytes in the map slot (35 to 47 bytes per OSD, about 1 KiB per 25 OSDs more than 78 bytes of part B's budget) with a map-module change. Decided by wave 2 (osd-sess against the lab). |
+| R-C2 | **Zero copy lands data before it is verified**, and a stale reply lands data in the destination of a live operation (21.4). | Documented contract (part A R3) and the sink rule: only the operation in SENT on that session gets a sink; the host never exposes a failed read; a completed read has every byte written by a verified reply or the zero-fill. |
+| R-C3 | **`mtime` 0** from a host without a wall clock (osd-ops.md Q4). | Both target hosts have a wall clock and the pump carries it (`wr_clock.wall_ms`); the lab run checks that 0 is also accepted; the fallback of a host without one is to send 0 and document what the objects' mtime shows. |
+| R-C4 | **Session thrash and heap** on iPXE: more hot OSDs than sessions, or the 254 KiB arena too big. | `wr_osd_stats` counts resets and evictions; measure in Phase 2 with R1; role-specific connection buffers (26.3) take the arena to about 150 KiB; `osd_sessions` 8 costs 21 KiB more. |
+| R-C5 | **cx-hs slips**: handshakes stay serialised (`max_handshakes = 1`), so a dead OSD's connect (2 s) delays the others and the monitor. | Correct but slower: the throttle is the same gate; a shorter `osd_connect_timeout_ms` is the stopgap. |
+| R-C6 | **MOSDOp v8** (Reef) is never exercised against a real cluster; the lab is v20.2.5. | Encoder and simulator tests only; named in the README conformance table. |
+| R-C7 | **A pushed MOSDMap is ignored.** An OSD that is ahead of the monitor subscription silently drops our requests until the client's map catches up. | The subscription is continuous and the map store applies epochs as they come; the stall costs at most one `op_timeout_ms`; if the lab shows it, pushed maps become a hint that shortens the wait (`want newest`), not a second source. |
+| R-C8 | **Snapshot context staleness** and ORDERSNAP (24.4): the exposure window of a polling writer; whether `-EOLDSNAPC` is reliable for self-managed snapshots was not captured. | `hdr_refresh_ms`, the write gate, and the lab measurement of 30.4; ORDERSNAP stays off until the lab confirms it; Phase 4 quiesces snapshots. |
+| R-C9 | **A zombie that never resolves** holds its table entry, its copy and every request overlapping its range. | By design (a write is never abandoned, C10); `WR_CLOSE_ABANDON` or destroying the client ends it; `wr_osd_stats.zombie_bytes_*` makes it visible; a host policy (reset the client after N seconds of zombie stall) is Phase 3's. |
+| R-C10 | **The fence serialises overlapping I/O**, which a host might rely on being parallel (two overlapping writes in flight to the same sectors have no defined order at a block device, so none should). | Documented in 25.4; the fence is a linear scan over `max_reqs` entries; reads never conflict with reads. |
+| R-C11 | **The simulators share their author's misunderstandings** (part A R9). | Written from the notes, never from the client code; cross-checked with the Phase 0 vectors, the new lab captures and the lab runs. |
+| R-C12 | **Image id above 63 bytes, object names above 95** are refused; real ids are 12 to 14. | `WR_E_RBD_BAD_ID`; the note's limits. |
+
+### 31.2 Open questions for the maintainers (defaults stand unless answered)
+
+Status after the hardening wave: every item of 31.1 and 31.2 is resolved or re-filed in 31.3; no maintainer answer was received, so every default below stands and is what the code does.
+
+- **Q12.** Ratify plain `READ` and `WRITE` for v1 (no SPARSE_READ, no WRITEFULL, no SETALLOCHINT), C6 and 22.2.
+- **Q13.** Writers on images with the exclusive-lock bit: refuse (the default, 24.3) or implement policy L2 (a foreign-tag lock) after a lab capture; the cost of L2 is librbd peers' request storm (rbd-format2.md 3.9).
+- **Q14.** The data pool is named by the host (C12) until the map module can track a pool by id; or change the map module now (a decoder pass that matches ids as well as names).
+- **Q15.** `osd_sessions` of 6 on iPXE, 16 on the kernel, 48 on the harness, and role-specific connection buffers (R-C4).
+- **Q16.** `op_timeout_ms` 5 s on iPXE (the SAN command timeout is 15 s) with doubling to x8, and ORDERSNAP off by default.
+- **Q17.** Fail waiting operations with `WR_E_OSD_MAP_STALE` after 30 s (C17): yes for boot disks, but a data disk of a long outage may prefer to wait; `map_stale_ms = 0` is "never".
+- **Q18.** Snapshot open (a read-only view of a snapshot id) in Phase 1 or later (24.3: later).
+- **Q19.** `hdr_refresh_ms` default (30 s iPXE and kernel): shorter shrinks the snapshot exposure window and costs one header read per interval.
+- **Q20.** Accept discard and write-zeroes in Phase 1 (they are in the API and the plan) or leave them for Phase 3 milestone 5.
+
+### 31.3 What the finished code measured, and what became of the open items (osdc-hardening, 2026-11-18)
+
+Everything below was run on the lab VM (Ubuntu 24.04, gcc 13.3 and clang 18, 8 cores shared with other work) from one source tree: this module changed nothing under `core/` (no gate, budget or test needed it), and the reviews of the 13 modules had already landed their fixes, each with a test that fails without it.
+
+**Test suite.** **168 ctest tests** (the 167 of the finished modules plus `osd.hardening`), 3 of which (`lab.mon`, `lab.map`, `lab.rbd`) skip without a cluster; with the sanitizers 166, because `core_no_libc` and `core_no_globals` look at object code and are registered only in the plain builds. All pass with gcc 13.3 and clang 18, Debug and Release, each plain and under ASan + UBSan (all eight builds: gcc Release with the sanitizers is not one of the four CI flavours; it did not build until the review of this module, see the open items), `-Werror` with the long warning list everywhere; `core.docs`, `core.budgets`, `client.osd.mem` and `osd.hardening` included. The -O3 Release build of gcc found one `-Wformat-truncation` in the new test file (fixed; the same lesson as part B: -O0 does not see it). The ctest run takes 2 to 5 minutes per build on the shared VM (the vector tests are the longest group).
+
+**Footprint.** `core.budgets` and `client.osd.mem` (the plan is exact: the engine takes exactly what `wr_client_mem_required` announced, at every base alignment, for the three profiles and for random configurations; guard bands and the zero-after-destroy check hold) measured, with maps and the OSD client on:
+
+| Profile | arena | bulk (plus the zombie area, which is part of it) | budget (arena / bulk) | the OSD client alone (arena / bulk) |
+|---|---|---|---|---|
+| ipxe | 261,952 bytes (255.8 KiB) | 2,627,584 (2,566 KiB, of which 1 MiB zombie area) | 256 KiB / 2,624 KiB | 146,384 / 1 MiB |
+| kernel | 1,481,072 (1,446.4 KiB) | 18,880,512 (18,438 KiB, of which 8 MiB) | 1,536 KiB / 18,496 KiB | 967,328 / 8 MiB |
+| harness | 11,049,200 (10,790 KiB, 10.5 MiB) | 58,728,448 (57,352 KiB, 56 MiB) | sanity cap 12 MiB / 64 MiB | 7,909,712 / 16 MiB |
+
+The estimates of 26.2 (253.9 / 1,437.0 / 10,758 KiB of arena) were 2, 9 and 32 KiB low (the glue's own structures); every row is inside its budget. The iPXE arena is 6.25 % of the 4 MiB heap and only 192 bytes below its 256 KiB budget: a field added to the iPXE profile's connection or session structures needs the budget raised in the same change (`core_budgets.h`, the README table, and `core.docs` fail otherwise). The OSD-off rows did not change.
+
+**Call graph** (gcc 13 -O2, `check_callgraph.py`): no recursion, no frame of unbounded size; the deepest chain is **14 frames**, which is the limit of the job (13 before part C): `wr_client_run` > `wri_rbd_step` > `wri_rbd_open_step` > `submit_failed` > `wri_rbd_img_fail` > `wri_rbd_io_fail_image` > `wri_rio_cancel_rq` > `cancel_ops` > `wri_osdc_cancel` > `wri_osd_sess_reset` > `wri_os_end` > `settle` > `wri_os_bo_clear` > `memset`; a frame added to it trips the check, which is the point of a ratchet. The largest stack is still the map store's incremental apply, **3,064 bytes** of 3,328. Part C chains and their budgets (measured / budget): OSD step 912 / 992, the engine's OSD stage 944 / 1,024, image step 1,080 / 1,168, MOSDOp encode 152 / 168 (the engine's `encode_send` around it adds 272), reply decode 264 / 288. The reply path was invisible to the first measurement: a complete message reaches the session through the msgr2 connection's table (`c->up->message`), a call through a function pointer, so the chain stopped at the connection. `check_callgraph.py --link CALLER=CALLEE` adds that edge (for the OSD session and the monitor client), `--chains` prints each entry's worst chain, and the workflow measures the handler at **1,128 / 1,224** bytes (its worst branch is the acknowledgement of a backoff, 640 bytes of encoder frame) and the connection's parser frame above the handlers at 1,792 / 1,936 (the monitor path, which decodes a map; the OSD path is 1,320). No part C function reaches the 1 KiB frame rule (the largest are the encode staging, 272 bytes, and the backoff acknowledgement, 640).
+
+**Mechanical gates.** `core_no_libc`, `core_no_globals`, `core_freestanding`, `core_freestanding_os`, `core_freestanding_m32` pass on Release and MinSizeRel with gcc and clang; the 32-bit objects (`wr_core_m32`, gcc and clang) and the iPXE-flag objects (`wr_core_ipxe_flags`) pass `check_no_libc.sh` (429 and 427 undefined symbols, all in the allowed list) and `check_no_globals.sh`; `wr_header_check` passes with both compilers; `core/tools/gen_sources.sh --check` says the list is in sync. No gate needed a change for the new files.
+
+**Fuzzing** (milestone 10 for the part C decoders). `fuzz_long.sh -p partc -s 960 -j 4 -m`: libFuzzer on clang, ASan and UBSan, the core instrumented for coverage, 16 minutes per target, four targets side by side.
+
+| Target | Executions | Edges / features at the end | Committed seeds / coverage-adding inputs found | Result |
+|---|---|---|---|---|
+| `fuzz_osd_reply` | 173,948,748 | 136 / 226 | 74 / 27 | no crash |
+| `fuzz_osd_backoff` | 78,964,794 | 172 / 366 | 26 / 34 | no crash |
+| `fuzz_rbd_cls` | 127,470,672 | 429 / 705 | 128 / 137 | no crash |
+| `fuzz_osd_sess` | 6,069,937 | 687 / 4,370 | 46 / 936 | no crash |
+| `fuzz_osd_req` | 1,562,655 | 1,312 / 8,908 | 62 / 1,270 | a defect of the target's final check (below), none in the engine |
+| `fuzz_rbd_open` | 2,095,281 | 893 / 5,805 | 216 / 826 | no crash |
+| `fuzz_client_osd` | 7,005 | 4,429 / 15,842 | 193 / 392 | no crash |
+
+390.1 million executions, 16 minutes (961 s) per target, no timeout, no out-of-memory, no sanitizer report. The first run of `fuzz_osd_req` trapped after 264 executions in `quiesce`, the step that lifts every fault and answers everything before the target checks that the table is empty and the free list whole (the "after every fault is lifted" property of 30.1). It was the target's property, not an engine fault: the scripted map of the target can go **back** (a map operation lowers the epoch; the real map store never does), and `quiesce` raised the epoch to `max(epoch, 100) + 10` = 110 while an operation for a pool the scripted map never has had been submitted at epoch 119. With `map_stale_ms` 0 (Q17: "never") such an operation waits for a map **newer than the one it was submitted at**, and that never came. The target now raises the epoch above every epoch an operation saw (`sub_epoch`, `sent_epoch`); the 554-byte input is committed as the regression seed `regress_map_epoch_goes_back.bin`, replays clean in all flavours, and the corrected target then ran the 1.56 M executions of the table. The engine's behaviour (an operation that waits for a pool waits as long as `map_stale_ms` says) was not changed and does not need to be. The coverage-adding inputs of the runs (3,622 inputs, under 1.5 MB together with the seeds they were merged with, minimised against the committed seeds) are **not committed**: they are fuzzer output that the owners of each target read first, as part B's were; the corpora of this run are listed as an open item.
+
+**Fault run** (`harness/tools/osd_fault_lab.sh`, the lab Ceph v20.2.5, three OSDs, pool of size 3 and min_size 2, both cephx key types). Eight runs, 96,000 random operations, 23 fault cycles, 43 checks, 0 failures and **0 differing bytes** (against the tool's model and against the stock `rbd export`); the cluster was restored and compared with its state at the start after every run and at the end. What the runs did, per scenario:
+
+| Fault under I/O | Key | Cycles | Operations done / resent | Session resets | Maps followed (pushed ones discarded) | `IO_STALL` raised |
+|---|---|---|---|---|---|---|
+| `osd.1` stopped 12 s | aes256k | 3 | 15,072 / 4 | 1 | 14 (13) | 0 |
+| `osd.0` out 14 s, then in | aes256k | 3 | 15,074 / 6 | 0 | 25 (24) | 0 |
+| every primary moved by `pg-upmap`, then moved back | aes256k | 3 | 15,085 / 3 | 0 | 155 (86) | 0 |
+| out/in, a stop and the upmap overlapping | aes256k | 3 | 15,139 / 4 | 2 | 29 (22) | 0 |
+| `osd.2` killed with SIGKILL | legacy aes | 3 | 15,103 / 1 | 1 | 10 (11) | 1 |
+| `osd.1` out 14 s, then in | legacy aes | 3 | 15,208 / 2 | 0 | 25 (24) | 0 |
+| every primary moved by `pg-upmap`, then moved back | legacy aes | 3 | 15,234 / 1 | 0 | 151 (85) | 0 |
+| out/in, a kill and the upmap overlapping | legacy aes | 2 | 15,232 / 14 | 2 | 129 (21) | 2 |
+
+The resends are few because only the requests in flight at the instant of a map change or a cut connection are resent (at most 9 to 12 of them): 35 resends and 6 session resets over the eight runs, 538 maps followed, 286 maps pushed by OSDs and discarded (design C5). The `IO_STALL` events (3, each with its `IO_RESUME`) all happened while an OSD was down (the SIGKILL run and its overlapping run); the 286 pushed maps and the 155 and 151 epochs of the upmap runs never stalled the client. The first full run of the script (one fault cycle, 2,500 operations) was cut short and replaced: a fast run ended before its fault did, which proves nothing about the recovery, so the script now repeats the fault while the run lasts and fails a run that ended first (`--cycles`, `--ops`).
+
+**Live matrix** (`harness/lab/live-rbd.sh`, the other half of the lab comparison; its fault sections are the same three faults on the same cluster). `live-rbd.sh --skip-faults --quick --ctest`, both key types, on images made with the stock tools: **222 checks passed, 0 failed**: the oracle (the stock export of every prepared image equals its reference file), the refusals (the writer profile opens; default features as a writer, a clone, a striped image and a data-pool image without the pool named are refused with their stable statuses; a reader opens the default-feature image), reads against the stock export at ragged offsets across objects and over holes, writes (fill, write, write-file, discard, zeroes) read back by the stock tools, random unaligned cross-object I/O against the model (also with overlapping requests in flight, and on an image of 10,000,001 bytes with 16 KiB objects: the last partial object, the last byte, the first byte past the end refused), the users with other capabilities, and the ctest `lab.rbd`. The snapshot and mtime sections (R-C8, R-C3) ran separately: 18 checks passed. The cluster was at its baseline after both runs and every `wrtest-lrt-*` image, pool and user was removed.
+
+**Open items of 31.1 and 31.2.**
+
+| # | Resolution |
+|---|---|
+| R-C1 | **Resolved.** The canonical address bytes the connection rebuilds from the compact map are accepted by the real OSDs of the lab (both key types, every live run); no raw-address fallback and no map-module change were needed. |
+| R-C2 | **Resolved.** The sink rule is enforced and fuzzed (`fuzz_osd_req`: a sink is only handed out for an operation that is SENT on that session, with the operation's own buffer and capacity, never for a zombie; the review of osd-req found and fixed the one way an operation could complete while a stale connection still pointed into its buffers, with a test that fails without the fix). A completed read has every byte written by a verified reply or the zero fill: the live reads equal `rbd export`. |
+| R-C3 | **Resolved.** A write with `mtime` 0 is accepted by the real OSD (the object's mtime is stored as 0; captured by vectors-c and checked live by `live-rbd.sh`, section mtime). The host without a wall clock sends 0. |
+| R-C4 | **Open, moved to Phase 2 (R1).** Measured: the iPXE arena is 255.8 KiB (6.25 % of the heap) with six sessions; the session counters (`wr_osd_stats`) showed 0 to 2 session resets per 12,000-operation run and 3 sessions open at most (three OSDs, so no eviction was possible; the thrash itself is a Phase 2 measurement). Role-specific connection buffers (about 150 KiB) are not built; they are the first optimisation if the heap measurement in Phase 2 asks for it. |
+| R-C5 | **Resolved by cx-hs.** One cephx handshake context per slot; the OSD profiles run 2, 4 and 8 handshakes at once (ipxe, kernel, harness), so a dead OSD's connect no longer stalls the others or the monitor. |
+| R-C6 | **Open, unchanged.** MOSDOp v8 (Reef) is encoded and decoded in simulation only; the lab is v20.2.5 and speaks v9. Needs a Reef cluster; filed for the compatibility pass before Phase 2 ships (Phase 5 hardening). |
+| R-C7 | **Not observed; closed.** Over the eight fault runs 286 MOSDMap messages pushed by OSDs were discarded (design C5) while 538 maps came through the monitor subscription; `WR_EV_IO_STALL` was raised 3 times and each time an OSD was down (the SIGKILL run and its overlapping run); with no OSD down (out/in, and the upmap runs with 155 and 151 epochs) there was no stall at all, so a pushed map ahead of the subscription never cost a timeout. The pushed-map hint is not built; `wr_osd_stats.n_osdmap_discarded` stays as the counter that would show it. |
+| R-C8 | **Resolved by measurement** (`live-rbd.sh`, section snapshot, key aes256k): a snapshot taken between two header refreshes of a writer is overwritten by the writes that still carry the old context until the next refresh: with `hdr_refresh_ms` 4,000, 5 of 20 writes (everything in the first 1.5 s after the snapshot) leaked into the snapshot and the first preserved write came 1.85 s after it; with 1,000, 1 of 20 (the first one, 0.37 s); with 0 (never refresh) all 20. So the exposure is real and bounded by the refresh interval plus one round trip, as 24.4 says. `-EOLDSNAPC` with ORDERSNAP on is reliable for the case the lab measured: another client writes an object with the new snapshot context, then the stale writer's write to the same object is answered `-EOLDSNAPC`, the client refreshes the header and resends (`ops_failed` + 1, `ops_done` + 2), and the snapshot keeps the old bytes; with ORDERSNAP off the same sequence also leaves the snapshot intact (the other client's write already made the clone), so the flag only matters for the first write after a snapshot when no other writer stamped the object: **not measured, open** (ORDERSNAP stays off by default; Phase 4 quiesces snapshots). |
+| R-C9 | **Accepted by design, visible.** A zombie that never resolves holds its entry and its range; `zombie_bytes_max` is in the stats line of every run (zero, or a few hundred KiB, in the fault runs); the host policy that resets the client after N seconds of zombie stall belongs to Phase 3. |
+| R-C10 | **Accepted, tested.** The fence serialises overlapping requests in submission order; `rbd.io.fence` and the `--overlap` random runs (live and simulated) check it, and the tool counts a flush that completes before an earlier write as a contract violation (`barrier_violations`, zero in every run). |
+| R-C11 | **Mitigated, evidence.** The simulators were written from the notes; the differential runs of the sim-osd review (about 20,000 random steps through librados and through the simulator, diffed) found six divergences from the real OSD, all fixed in the simulator; the live matrix then ran against the real cluster without a divergence. |
+| R-C12 | **Resolved.** An image id above 63 bytes, an object name above 95 and an image name of 88 bytes are refused with `WR_E_RBD_BAD_ID` / the open's own status; covered by `rbd.cls.dec`, `rbd.geom` and `fuzz_rbd_cls`. |
+| Q12 | **Default stands, implemented:** plain `READ` and `WRITE` (no SPARSE_READ, WRITEFULL or SETALLOCHINT in the request layers); the live reads and writes compare equal. |
+| Q13 | **Default stands, implemented:** a writer on an image with exclusive-lock (or object-map, fast-diff, journaling) is refused with `WR_E_RBD_FEATURES` and the refused bits in `a0`; a reader opens such an image (live: default features 0x3d). Policy L2 stays in Phase 4. |
+| Q14 | **Default stands, implemented:** the host names the data pool in the open parameters and the open checks its id; the live matrix opens a data-pool image. The map module still tracks pools by name. |
+| Q15 | **Default stands, implemented:** `osd_sessions` 6 / 16 / 48 in the profiles; role-specific buffers are R-C4. |
+| Q16 | **Default stands, implemented:** `op_timeout_ms` 5 s (ipxe) and 10 s (kernel, harness), doubling to x8; ORDERSNAP is off by default and `-EOLDSNAPC` is handled when it is on (the rbd-io review added the handling: refresh the header and resend). |
+| Q17 | **Default stands, implemented:** `map_stale_ms` 30 s fails a waiting operation with `WR_E_OSD_MAP_STALE`, 0 means never; a sent write is never failed by it. |
+| Q18 | **Default stands:** snapshot open (a read-only view of a snapshot id) is not in Phase 1; filed for later. |
+| Q19 | **Default stands, implemented:** `hdr_refresh_ms` 30 s (ipxe, kernel) and 10 s (harness). |
+| Q20 | **Resolved: accepted in Phase 1.** DISCARD and WRITE_ZEROES are in the API and tested against the model (`rbd.io.*`, `client.osd.*`) and live (`fill`, `discard`, `zeroes` sections of the matrix equal the stock export). |
+
+**Changes outside the module's own files.** None to `core/`, to the public headers or to the part B tests, and none to `harness/CMakeLists.txt` (the new test is picked up by its glob); the review of this module added one three-line ceiling to `harness/cmake/WrWarnings.cmake` for instrumented gcc builds (open issue 7). One to another module's file: `harness/fuzz/fuzz_osd_req.c` (the eleven lines of `quiesce` described under Fuzzing) and one new seed beside it (`regress_map_epoch_goes_back.bin`, the crash input); without them the smoke job of the workflow and `fuzz_long.sh -p partc` would fail within seconds on a defect of the target, so the change was made instead of only reported, and it can be taken out again without touching anything else. `check_callgraph.py` got `--link` and `--chains` (new options; the existing arguments behave as before), the workflow got the part C budgets and the part C smoke check, `fuzz_long.sh` got the `partc` preset.
+
+**Open issues found while hardening** (none blocks the milestones; each is filed for its owner or a later phase):
+1. **The call depth is at its limit.** 14 frames on the failure path of an image (`wr_client_run` to `memset`, 3,064 bytes at worst on the heaviest chain, which is a different one), against a limit of 14: the next frame on that chain fails `static-limits`. Shorten the chain (the cancel-down-to-reset path) or raise the limit with a reason; owners: rbd-io, osd-req.
+2. **The iPXE arena has 192 bytes of headroom** (261,952 of 262,144) and the kernel profile 89 KiB of arena and 58 KiB of bulk (the iPXE bulk 58 KiB): any new field on the connection or session structures breaks `core.budgets`, by design; owner of the next change pays with the budget.
+3. **`fuzz_osd_req.c` fix and regression seed** are in the tree (above); the coverage-adding corpora of all seven targets (3,622 inputs) await review and commit; owners: each target's module.
+4. **Spec note osd-ops.md 2.9** says an executed reply always has the ACK flag; the captured answers to resent writes often carry ONDISK without ACK (flags 0x0840002c, 11 of 19 resent writes in the captures). The decoders ignore the flag, so no code is affected; the note needs the correction (owner: docs/spec).
+5. **`wr_image_get_info`** reports `n_snaps` and `snap_seq` as 0 for a read-only image with more snapshots than `max_snaps` (client-glue-osd, info only); a stale `wr_image *` aliases the new image when its slot is reused (documented: the pointer is stable only until the image is closed).
+6. **`ops_failed` counts ENOENT.** The object layer counts an operation that ended in an error, including the ENOENT of a read of an absent object, which the image layer completes as zeros: on an empty image the counter is in the hundreds (374 to 926 per 12,000-operation run of the fault lab) without anything failing. Rename or split the counter (osd-req); the statistics line of `wr-rbd` shows it as `ops_failed`.
+7. **gcc Release with the sanitizers** failed `-Werror=frame-larger-than=1024` in `core/src/mon/wri_monmap.c` (a part A file: 1,568 bytes of frame with the instrumentation, `wri_monmap.c:169`), which is not one of the four CI flavours. Fixed in `harness/cmake/WrWarnings.cmake` (an instrumented gcc build keeps a ceiling of 4,096 bytes; the 1 KiB rule stays on the plain builds and in the call-graph check); the build and its 166 tests pass.
+8. **`wrl_loop.c`** (the Linux host) relies on `MSG_NOSIGNAL`, which is 0 on macOS and the BSDs: a send on a reset socket could raise SIGPIPE there; irrelevant on Linux, to fix when a macOS host is built.
+9. **R-C4 and R-C6** stay open (role-specific connection buffers; MOSDOp v8 against a Reef cluster), see the table above.
+10. **A leftover process in the lab VM**: a `test_rbd_io_model` started by an earlier module from a build directory that no longer exists was still running at 100 % of a core, 11 hours old, when this module started (it is not part of this module's runs and was left alone); it should be killed by whoever owns it.
+
+### 31.4 The final hardening pass of part C (2026-11-18, second run)
+
+A second, independent pass over the finished part C, from a clean copy of the tree on the lab VM (Ubuntu 24.04, gcc 13.3, clang 18, at most 6 of the 8 shared cores). It re-ran everything 31.3 reports and added checks that pass did not make; it found one defect in the core (below), which a fuzz run of the previous pass had missed by chance: it took 2,220 executions of `fuzz_client_osd` to find it, the previous run did 7,005 without.
+
+**The defect: a failed OSD's cool-down slot was handed to the next OSD that asked** (`core/src/osd/wri_osd_sess.c`, `find_cooldown`; severity medium: a liveness fault in exactly the situation the engine is for, an OSD that is down). Design 21.3 said a COOLDOWN slot of another OSD "is only memory: take it". But the slot is the only place the table remembers that the OSD failed. With fewer sessions than OSDs in use (two sessions and three OSDs in the fuzz input, one OSD refusing connections and another silent so that its session stays busy), the one free-able slot changed hands at every pass: an operation for the live OSD took the dead OSD's cool-down slot and forgot the failure; the operation for the dead OSD then found no memory, dialled it at once (`acquire` for an OSD with no slot evicts the least recently used idle session), the connection was refused, the slot went back to COOLDOWN, the live OSD took it again, and so on. No time had to pass for any of it: the host loop (`wr_client_run`, the actions, the bytes) never settled (`cw_settle` hit its 20,000-round limit, which `fuzz_client_osd` checks), the engine dialled the dead OSD once per pass (a connect storm against a host that answers every attempt with a refusal) and the live OSD never got a request through. A cluster with more OSDs than `osd_sessions` (6 on iPXE) and one OSD process down, in the 20 to 30 seconds before the monitor marks it down, is enough. The fault run of 31.3 could not see it: three OSDs, six to 48 sessions. **Fix:** a cool-down slot is taken for another OSD only when its time has passed (`find_cooldown` now checks `cooldown_until_ms <= now`); until then the slot stays, the failed OSD gets `WR_E_BUSY` from `acquire` (one dial per cool-down: 2, 4, 8, then 10 s) and an operation for another OSD takes a free slot, an expired cool-down slot, or evicts an idle READY session; with none of those it waits (`WR_E_BUSY`; the engine's deadline already includes the end of the nearest cool-down, so it wakes in time). Cost: while one OSD cools down (at most 10 s per failure) one session slot is not available to the others; the live OSDs share the rest. If as many OSDs as there are sessions fail at the same time (a rack), every slot is cooling down or redialled by the operation of its own dead OSD, and the operations for live OSDs wait until the map drops the dead ones (typically 20 to 30 s), where before the fix they would have taken the slots and the dead OSDs would have been redialled at every pass; a small failure table kept apart from the slots would remove that wait (the slots would then be only memory again, as 21.3 first said) and is filed as an open item, not built. No structure changed (the budgets did not move: 261,952 bytes of iPXE arena as before). Design 21.3 items 2 and 4 are rewritten. **Tests, each of which fails without the fix** (checked by putting the old condition back): `osd.sess.pool` `test_cooldown_slot_taken` (rewritten: it asserted the old behaviour; now an unexpired cool-down is never taken, nothing is dialled or evicted inside it and the failure record survives 100 attempts, an expired one is taken first, an idle session is evicted before an unexpired cool-down is touched), `osd.req.resend` `test_dead_osd_fewer_sessions` (the engine on real sessions: three OSDs, two sessions, one refusing connections, one read for each: the two live OSDs are served at once, the dead one is dialled once per cool-down over 30 s, a stall is raised once, the read completes after the OSD is back), and the regression seed `harness/fuzz/seeds/fuzz_client_osd/regress_cooldown_slot_taken.bin` (the fuzzer's input minimised from 84 to 18 bytes with `-minimize_crash=1`; replayed by `fuzzseed.fuzz_client_osd` in every flavour).
+
+**What was run.**
+
+| Check | Result |
+|---|---|
+| Clean-copy build | On the tree as it was received (before this pass changed anything), from a fresh copy: gcc 13.3 and clang 18, each in Debug, Release and MinSizeRel plain, and in Debug and Release with ASan and UBSan, ten builds, `-Werror` with the long warning list: 171 tests plain, of which 168 run anywhere (the three lab tests skip without a cluster), 169 under the sanitizers, 166 run anywhere (the two object-code gates are not registered there); all pass. On the final tree, from a second fresh copy: the literal command of the contributor guide (`cmake -S harness -B build && cmake --build build && ctest --test-dir build`, default compiler, no build type), gcc Debug and clang Debug plain: 171 of 171 pass (the literal run first failed two documentation checks that the text of this pass had tripped, `core.docs` on a backticked `core.yml` that reads as a test name and `osd.hardening` on a private address in a document; both were fixed and rerun). **The rest of the final-tree matrix (Release, MinSizeRel and the sanitizer builds of both compilers) did not finish: the lab VM disappeared from its host while it ran** (its qemu process and port forward were gone; the host is shared and was not changed, so the VM was not restarted). What changed since the complete matrix is the two-line condition in `wri_osd_sess.c`, a three-line guard in `wri_client_osd.c`, two test files, one 18-byte seed, the workflows and documents; the next run of the matrix on the final tree is open item 1 below |
+| Mac run of the final tree | clang on x86_64 macOS, Debug, `-Werror` with the long warning list (the lab VM was gone by then): 155 of the 158 tests it can run pass, among them every `osd.*`, `rbd.*`, `client.osd.*` and `sim.*` test, `core.docs`, `core.budgets`, the vector checks and the seed replays of every fuzz target, the new regression seed included. Not counted: the four tests of the Linux host (sockets), the two hardening tests that read gcc's call graph, the two freestanding gates (they skip themselves on this platform) and three tests that are not built there (`m2.ctl.replay`, `m2.replay`, `replay.public`) |
+| Freestanding gates | `core_no_libc`, `core_no_globals`, `core_freestanding`, `core_freestanding_os`, `core_freestanding_m32` pass in Debug, Release and MinSizeRel with both compilers; the 32-bit and iPXE-flag objects pass the same two gates; `wr_header_check` passes |
+| 32-bit run | The whole suite built for i386 (`-m32`) with clang and ASan + UBSan and run natively on the VM: 163 of the 168 tests that can run pass, among them every `osd.*`, `rbd.*`, `client.osd.*`, `sim.*`, the replays of the public and lab vectors and the seed replays of all 24 fuzz targets. The five that fail are tests that assume a 64-bit host, none is a core defect: `core.budgets` and `core.docs` (the byte counts are the 64-bit ones), `osd.skel` (two `sizeof % 8` assertions: `wri_osd_opd` is 36 bytes with 4-byte alignment of `uint64_t`), `place.cache` (the test expects the wrapped product `0xffffff68` where `wri_pgcache_bytes(0xffffffff)` correctly refuses with 0), `host.loop.osd` (its simulated OSD asks for 8 MiB for each of 50 sockets: out of memory in a 32-bit address space under ASan). With gcc the same build stops at `test_osdmap_core.c` (`(size_t)1 << 33` is a shift count error for a 32-bit `size_t`). Not changed: no CI job builds the tests for 32 bits (only the core objects, which pass) |
+| Static analysis | clang static analyzer (`clang --analyze`, default checkers and the array-bound, cast-size, cstring and taint alpha checkers) over every file of `core/src/osd`, `core/src/rbd`, `core/src/client` and `wri_cx_hs.c`: 0 findings. `gcc -fanalyzer -O1` over the same files: one finding, `carve_glue` could dereference NULL if it were called with no arena (it is not; a guard returning `WR_E_INVAL` was added). cppcheck (warning, portability, performance, inconclusive): 4 reports, all the same false positive (`WR_MEMCPY(&pv, ...)` read as an uninitialised `pv` because the macro is not expanded), none real |
+| Copying | The four-line window comparison of parts A and B repeated for every file of the tree that is new or changed since part B (132 files: the core, the tests, the simulators, the fuzz targets, the tools): lines normalised, trivial lines dropped (braces, `break`, lines under 14 characters), every window of four consecutive remaining lines compared with every `.c`, `.cc`, `.h` and `.py` file of the Ceph v20.2.5 tree (5,524 files), of iPXE (2,129) and of WNBD (57). 43,738 windows, 11 hits, all of them blocks of four standard-header `#include` lines at the top of two fuzz targets. Nothing else. The Linux kernel's libceph and rbd sources are not in the tree and were not compared; the files were written from `docs/spec/` and the reviews of each module read the Ceph source only for the questions the notes left open |
+| Licence and hygiene | Every new or changed file starts with `SPDX-License-Identifier: MIT` (checked by script on the 132 files); nothing was added to `core/crush_ln/`; no tool, vendor or company name outside upstream projects, no internal address or user name (the only dotted addresses in the documents are the lab defaults 10.77.0.x and the documentation range 192.0.2.x; the part A parser test uses a private 10.0.0.x address as pure test data); the two key strings in tests (`test_host_sys.c`, `check_osdc.py`) were compared with the lab keyrings and are made-up values |
+| Fuzzing, first run (final tree before the fix) | 11 minutes (661 s) per target, four side by side, clang, libFuzzer, ASan and UBSan, the core instrumented, seeds from the committed vectors: `fuzz_osd_reply` 119.7 M executions, `fuzz_osd_backoff` 44.4 M, `fuzz_rbd_cls` 61.3 M, `fuzz_osd_sess` 4.63 M, `fuzz_osd_req` 1.01 M, `fuzz_rbd_open` 1.45 M, no crash, no timeout, no sanitizer report; `fuzz_client_osd` stopped after 2,220 executions on the defect above |
+| Fuzzing, second run (with the fix) | 11 minutes per target for `fuzz_osd_sess` (3.92 M), `fuzz_osd_req` (1.03 M), `fuzz_rbd_open` (1.46 M) and `fuzz_client_osd` (4,764 executions in 11 minutes, then 17,066 more in 15 minutes with four workers of libFuzzer's fork mode, 7 executions a second in all because the engine plays every input twice), no crash, no timeout, no out-of-memory, no sanitizer report. The coverage-adding inputs of both runs (about 3,000 per run, minimised against the committed seeds) are not committed: they stay fuzzer output, as in 31.3 |
+
+**Limits and exhaustion, per profile** (`wr_config_enable_osd`; every row is exercised by a test that fills the resource and checks the status, and the engine plan is exact: `client.osd.mem`).
+
+| Resource | ipxe | kernel | harness | When it is full |
+|---|---|---|---|---|
+| OSD sessions (`osd_sessions`) | 6 | 16 | 48 | an operation for another OSD evicts the least recently used idle session; none idle or opening or cooling down: the operation waits (`WR_E_BUSY` inside the engine, retried at every step) |
+| operation slots (`max_ops`, of which `ctl_ops` for the image open and refresh) | 16 (2) | 256 (4) | 1,024 (8) | the image layer stops cutting and resumes when a slot frees; data operations never touch the control reserve |
+| image requests (`max_reqs`) | 8 | 128 | 512 | `wr_image_submit` returns `WR_E_BUSY` and the request stays the host's (a zombie fence entry counts against it) |
+| images (`max_images`) | 1 | 4 | 8 | `wr_image_open` returns `WR_E_BUSY` |
+| bytes on the wire (`inflight_bytes_max`) / one operation (`op_bytes_max`) | 4 MiB / 1 MiB | 32 MiB / 4 MiB | 64 MiB / 4 MiB | an operation is clamped to fit, the next waits for completions (`WR_E_BUSY`); an operation above `inflight_bytes_max` alone could never be admitted: `WR_E_TOOBIG` |
+| one `READ` / `WRITE` request | 1 GiB (`WRI_RBD_IO_MAX`) | the same | the same | longer: `WR_E_TOOBIG`; past the end of the image: `WR_E_RANGE`; the request is cut lazily, so its size costs no memory |
+| zombie area (`zombie_bytes`, bulk) | 1 MiB | 8 MiB | 16 MiB | cancel of a sent write whose copy does not fit: `WR_E_BUSY`, nothing changed, the request goes on and is cancelled by itself as soon as there is room |
+| request front (`osd_front_cap`) | 2 KiB | 4 KiB | 8 KiB | a longer reply front is a protocol error of that connection (`WR_E_OSD_PROTO`, the session resets) |
+| backoff entries per session (`backoff_slots`) | 8 | 32 | 128 | a BLOCK that does not fit is held coarsely and counted (`n_backoff_overflow`) |
+| snapshots of the write context (`max_snaps`) | 16 | 64 | 256 | an image with more is refused to open as a writer (`WR_E_RBD_SNAPC`), a reader opens it |
+| memory, with maps and the OSD client (`core.budgets`, `client.osd.mem`) | arena 261,952 B, bulk 2,627,584 B (of which 1 MiB zombie area) | 1,481,072 B, 18,880,512 B (8 MiB) | 11,049,200 B, 58,728,448 B (16 MiB) | the exact numbers are announced by `wr_client_mem_required` and consumed to the byte by create; a region one byte too small is `WR_E_BUDGET` and the host's memory is left as it was. The iPXE arena is 6.25 % of the 4 MiB heap and has 192 bytes of room under its 256 KiB budget |
+
+**Call graph, recorded again** (gcc 13 -O2, `check_callgraph.py`, the CI job `static-limits`): no recursion; the deepest chain is 14 frames (the limit of the job) and the largest stack 3,064 bytes (the incremental apply of the map store; limit 3,328). Part C chains, measured / budget: OSD step 912 / 992, the engine's OSD stage 944 / 1,024, image step 1,080 / 1,168, MOSDOp encode 152 / 168, reply decode 264 / 288, the OSD session's message handler through the msgr2 table 1,128 / 1,224, the connection's frame parser above it 1,792 / 1,936. The fix changed no frame.
+
+**Housekeeping.** The `test_rbd_io_model` that 31.3 item 10 found running for 11 hours (by then 15 hours, 100 % of a core, from a deleted build directory of an earlier module, stopped in the timeout loop of that module's then-current `wri_rbd_io_timeouts`) and a busy `until grep -q "" /dev/null` shell loop of another task (27 hours) were killed at the start of this pass; the current `rbd.io.model` finishes in seconds in every flavour. Open issue 4 of 31.3 is closed: `docs/spec/osd-ops.md` 2.9 (the `flags` row and the bullet on ACK) and the list of corrections now say that an executed reply carries ONDISK and, usually, ACK, and that the answer to a resent duplicate write may carry ONDISK alone (flags `0x0840002c`, 11 of the 19 captured resent writes).
+
+**Open items after this pass** (those of 31.3 that are not named here stand as they were).
+1. **Run the complete matrix on the final tree** (gcc and clang, Debug, Release, MinSizeRel, and Debug and Release with the sanitizers) as soon as the lab VM is back, and give `fuzz_client_osd` a longer run with several workers (it does 7 executions a second): the pass ended with the VM gone, so only three plain builds of the final tree and the Mac run were complete.
+2. **A failure table apart from the session slots** (the wait of a mass failure, above), if the iPXE measurement of Phase 2 shows sessions cooling down in numbers.
+3. **The coverage-adding corpora** of the runs (3,622 inputs of the first, about 3,000 of each later one) are not committed; the owners of each target read them first.
+4. **The tests assume a 64-bit host in five places** (and one 32-bit shift error under gcc, `test_osdmap_core.c`); no CI job runs the suite for 32 bits, only the core objects are built that way. Worth fixing when the iPXE host is built, so that the part C tests can run on i386 in CI.
+5. **No property of the fuzz targets bounds the number of dials without time passing** except the settle limit of `fuzz_client_osd`; the session and engine targets have no host model of a refused connection. A model of a refusing OSD in `fuzz_osd_req` would find this class of fault in seconds instead of minutes.

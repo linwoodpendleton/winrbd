@@ -439,7 +439,7 @@ static void check_spdx(void)
 {
 	static const char *const dirs[] = {
 		"core/src/auth", "core/src/client", "core/src/crush", "core/src/crypto", "core/src/denc", "core/src/mon",
-		"core/src/msgr2", "core/src/osdmap", "core/src/util", "core/include/winrbd", "core/tools", "harness", "harness/cmake",
+		"core/src/msgr2", "core/src/osd", "core/src/osdmap", "core/src/rbd", "core/src/util", "core/include/winrbd", "core/tools", "harness", "harness/cmake",
 		"harness/test", "harness/test/support", "harness/fuzz", "harness/host", "harness/host/tools",
 		"harness/tests/ci-docs-hardening", "harness/oracle", ".github/workflows",
 	};

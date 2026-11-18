@@ -6,7 +6,10 @@
  * architecture document (section 5.2). The real byte counts are printed so the profile numbers in
  * core/src/client/wr_config.c can be tuned from them. The same for the three profiles with the OSD map module on
  * (wr_config_enable_maps: two map slots in the bulk, the placement cache in the arena), for random map budgets (slot sizes
- * that are not a multiple of 16, no cache) and for regions one byte too small.
+ * that are not a multiple of 16, no cache) and for regions one byte too small. And with the OSD client and the image layer on
+ * top of the maps (wr_config_enable_osd, module client-glue-osd): the footprint rows inside the raised budgets, the plan exact at
+ * every base alignment, the bulk growing by exactly the zombie area. (The OSD client's own configuration checks and random plans are
+ * test_client_osd_mem.c.)
  */
 #include "wrt.h"
 
@@ -197,6 +200,40 @@ static void test_profiles_maps(void)
 	}
 }
 
+/* The three profiles with the OSD client on: inside the budgets of core_budgets.h, exact at every base alignment, the bulk grows by the zombie area
+ * and nothing else, the arena by more than the sessions' connection buffers (a connection of the profile costs what it did). */
+static void test_profiles_osd(void)
+{
+	static const struct {
+		const char *name;
+		void (*profile)(wr_config *);
+		wr_map_profile mp;
+		size_t arena_budget, bulk_budget;
+	} rows[] = {
+		{"ipxe+maps+osd", wr_config_profile_ipxe, WR_MAPS_IPXE, WRB_IPXE_OSD_ARENA, WRB_IPXE_OSD_BULK},
+		{"kernel+maps+osd", wr_config_profile_kernel, WR_MAPS_KERNEL, WRB_KERNEL_OSD_ARENA, WRB_KERNEL_OSD_BULK},
+		{"harness+maps+osd", wr_config_profile_harness, WR_MAPS_HARNESS, WRB_HARNESS_OSD_ARENA, WRB_HARNESS_OSD_BULK},
+	};
+	size_t i, off;
+
+	for (i = 0; i < sizeof(rows) / sizeof(rows[0]); i++) {
+		wr_config maps, cfg;
+		wr_mem_req a, b;
+
+		rows[i].profile(&maps);
+		wr_config_enable_maps(&maps, rows[i].mp);
+		cfg = maps;
+		wr_config_enable_osd(&cfg, rows[i].mp);
+		WRT_CHECK_STATUS(WR_OK, wr_client_mem_required(&maps, &a));
+		WRT_CHECK_STATUS(WR_OK, wr_client_mem_required(&cfg, &b));
+		profile_numbers(rows[i].name, &cfg, rows[i].arena_budget, rows[i].bulk_budget);
+		WRT_CHECK_U64(b.bulk, a.bulk + cfg.zombie_bytes);
+		WRT_CHECK(b.arena > a.arena);
+		for (off = 0; off < 64u; off += i == 2u ? 48u : 16u)
+			check_exact(&cfg, off, rows[i].name);
+	}
+}
+
 /* Random legal configurations: the plan stays exact. */
 static void test_random_configs(void)
 {
@@ -354,6 +391,7 @@ int main(void)
 
 	test_profiles();
 	test_profiles_maps();
+	test_profiles_osd();
 	test_random_configs();
 	wr_config_profile_ipxe(&cfg);
 	test_budget(&cfg, "ipxe");
@@ -364,6 +402,12 @@ int main(void)
 	wr_config_profile_ipxe(&cfg);
 	wr_config_enable_maps(&cfg, WR_MAPS_IPXE);
 	test_budget(&cfg, "ipxe+maps");
+	wr_config_enable_osd(&cfg, WR_MAPS_IPXE);
+	test_budget(&cfg, "ipxe+maps+osd"); /* the OSD client's blocks of both regions, one byte short */
+	wr_config_profile_kernel(&cfg);
+	wr_config_enable_maps(&cfg, WR_MAPS_KERNEL);
+	wr_config_enable_osd(&cfg, WR_MAPS_KERNEL);
+	test_budget(&cfg, "kernel+maps+osd");
 	test_refusals_leave_memory_alone();
 	test_required_args();
 	return wrt_finish();

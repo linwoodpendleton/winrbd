@@ -14,9 +14,14 @@
  * The OSD map store (wri_mapstore.h) is embedded in the client struct (that is part of the first take), and when
  * map_slot_bytes != 0 it adds its placement cache to the arena (after the cephx client's part) and two map slots to
  * the bulk (after the monitor client's part); the sizes are planned with the same takes the store's init makes.
+ *
+ * With the OSD client on (osd_sessions != 0, which needs the map module) wri_client_osd_mem / wri_client_osd_init (wri_client_osd.c) add one more
+ * block to each region, after the map store's: the glue state, the per-connection cephx contexts, the image handles, the object engine with its
+ * sessions and the image layer in the arena, and the zombie area in the bulk. That module validates the OSD fields of the configuration.
  */
 #include "wri_client.h"
 
+#include "wri_client_osd.h"
 #include "wri_misc.h"
 
 WR_FILE_LICENCE_MIT
@@ -49,8 +54,15 @@ static wr_status check_cfg(const wr_config *cfg)
 	 * non-zero CRUSH work budget; wri_mapstore_mem is the one place that knows (and refuses the rest with WR_E_INVAL) */
 	if (cfg->map_slot_bytes != 0u) {
 		size_t ma = 0, mb = 0;
+		wr_status st = wri_mapstore_mem(cfg, &ma, &mb);
 
-		return wri_mapstore_mem(cfg, &ma, &mb);
+		if (st != WR_OK)
+			return st;
+	}
+	if (cfg->osd_sessions != 0u) { /* the OSD client and the image layer: needs the map module, checks its own fields and the connection budget */
+		size_t oa = 0, ob = 0;
+
+		return wri_client_osd_mem(cfg, &oa, &ob);
 	}
 	return WR_OK;
 }
@@ -65,6 +77,11 @@ static uint32_t seg_cap_for(const wr_config *cfg)
 	if (cap < cfg->ctl_buf_bytes)
 		cap = cfg->ctl_buf_bytes;
 	return (uint32_t)cap;
+}
+
+uint32_t wri_client_seg_cap(const wr_config *cfg)
+{
+	return seg_cap_for(cfg);
 }
 
 /* ---- the allocation walk ------------------------------------------------------------------------ */
@@ -120,7 +137,7 @@ wr_status wri_client_layout(const wr_config *cfg, wri_layout *lay)
 {
 	take t;
 	parts p;
-	size_t cxn = 0, monn = 0, stride, mapa = 0, mapb = 0;
+	size_t cxn = 0, monn = 0, stride, mapa = 0, mapb = 0, osda = 0, osdb = 0;
 	wr_status st;
 
 	if (lay == NULL)
@@ -166,6 +183,15 @@ wr_status wri_client_layout(const wr_config *cfg, wri_layout *lay)
 			st = wri_arena_plan(&lay->bulk, cfg->map_slot_bytes, 16u);
 		if (st == WR_OK)
 			st = wri_arena_plan(&lay->bulk, cfg->map_slot_bytes, 16u);
+		if (st != WR_OK)
+			return st;
+	}
+	if (cfg->osd_sessions != 0u) { /* the OSD client: one block of each region, after the map store's, in the order wri_client_osd_init takes them */
+		st = wri_client_osd_mem(cfg, &osda, &osdb);
+		if (st == WR_OK)
+			st = wri_arena_plan(&lay->arena, osda, 16u);
+		if (st == WR_OK && osdb != 0u)
+			st = wri_arena_plan(&lay->bulk, osdb, 16u);
 		if (st != WR_OK)
 			return st;
 	}
@@ -257,6 +283,9 @@ wr_status wri_client_carve(wri_arena *arena, wri_arena *bulk, const wr_config *c
 	if (st != WR_OK)
 		return st;
 	wri_client_map_io_init(c);
+	st = wri_client_osd_init(c, arena, bulk); /* nothing taken, three NULL pointers, when osd_sessions == 0 */
+	if (st != WR_OK)
+		return st;
 
 	c->arena_used = arena->used;
 	c->bulk_used = bulk->used;

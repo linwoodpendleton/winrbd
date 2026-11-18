@@ -1,0 +1,32 @@
+# revert proof of capture_osdc.sh, 2026-11-17T17:17:07Z
+# the facts of the lab before the run and after the clean-up (osd tree, pools, upmap lines, flags, health checks, images, objects, auth entities,
+# every explicitly set configuration option, the backoff and pool-delete settings), then the lines that differ
+--- before:
+osd tree:
+[('osd.0', 'up', 1), ('osd.1', 'up', 1), ('osd.2', 'up', 1)]
+pools:
+[('.mgr', 1, 2), ('winrbd', 32, 3)]
+upmap lines: 0
+osd flags: flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+health checks: 5, sha256 b4ecd94b9c55848f; mutes: 4, sha256 c019866f63a0d228
+rbd images: 2
+rados objects: 13, sha256 b99533b9850a8271
+auth entities: 14, sha256 6706453a0fbe695f
+config options set: 12, sha256 68cc12aee013f8d7
+backoff and pool-delete settings: osd_backoff_on_peering=false osd_backoff_on_degraded=false mon_allow_pool_delete=false
+--- after:
+osd tree:
+[('osd.0', 'up', 1), ('osd.1', 'up', 1), ('osd.2', 'up', 1)]
+pools:
+[('.mgr', 1, 2), ('winrbd', 32, 3)]
+upmap lines: 0
+osd flags: flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+health checks: 5, sha256 b4ecd94b9c55848f; mutes: 4, sha256 c019866f63a0d228
+rbd images: 2
+rados objects: 13, sha256 b99533b9850a8271
+auth entities: 14, sha256 6706453a0fbe695f
+config options set: 12, sha256 68cc12aee013f8d7
+backoff and pool-delete settings: osd_backoff_on_peering=false osd_backoff_on_degraded=false mon_allow_pool_delete=false
+--- diff:
+(none)
+--- throwaway user: ceph auth get client.vec-osdc fails (ENOENT) and the entity is not in the auth list, checked 2026-11-17T17:17:06Z

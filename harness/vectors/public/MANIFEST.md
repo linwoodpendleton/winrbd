@@ -130,6 +130,11 @@ denc-map/        pools-e202.bin: `ceph osd getmap 202` taken after creating thro
                  in the middle of a merge (pg_num 32, pgp_num 31, pg_num_pending 31); pools-e957.txt: the matching
                  `ceph osd dump 957` pool lines plus the JSON fields (pg_num_pending, flags, type) the text line leaves out.
                  Used by harness/test/test_osdmap_pool.c. Same lab, same fsid, no keys.
+osdc/            OSD and RBD captures of the stock client (module vectors-c, section 12): header reads of ten images, object operations,
+                 snapshot-context writes, PG backoffs, patterned data objects; see osdc/README.md
+imgio/           the core's OWN image I/O against a real OSD (module vectors-d, section 13): three scripted sessions of wr-rbd (a writer on an
+                 empty image of 4 KiB objects, a writer on an image with two snapshots, a reader on a default-feature image) with the requests
+                 the core sent, the real OSD's replies and the stock `rbd export` of each image before and after; see imgio/README.md
 crushleg/        five offline CRUSH maps made with `crushtool -c` and 10,368 `crushtool --test --show-mappings` results over them (about
                  0.2 MB; `gen_crushleg.py` regenerates all of it in the cluster's tool image, no cluster state is read or changed): flat
                  list, uniform, straw and straw2 buckets of 1 to 300 items under legacy (local retries 2, fallback 5) and jewel
@@ -228,3 +233,46 @@ About 0.7 MB in 40 files. Index, formats, method and the restore check: [`placem
 | Scrub | none needed: the maps are as the monitor sent them (the lab fsid and `10.77.0.x` addresses are public); no key, ticket or keyring is part of the set |
 | Check | `python3 -I harness/vectors/public/scripts/check_placement.py` (ctest `vectors_placement_check`): hashes, the contiguous chain, `epochs.tsv`, no stray file, no key-looking text |
 | Regenerate | `harness/tools/map_placement_lab.py run` then `export` on the lab VM (see `placement/README.md`); all scripts are our own code (MIT) |
+
+## 12 OSD and RBD captures (`osdc/`)
+
+What the stock client library and a v20.2.5 OSD put on the wire for the object client of `core/`: the eight-call header read of ten RBD images (the feature words 0x1, 0x3, 0x5, 0x21, 0x3d, 0x45, 0x81, a clone,
+a striped image, one with snapshots, one with a foreign lock; objects of 4 KiB to 64 KiB), the object operations of the data path (READ of a missing, a short and a whole object, WRITE, SPARSE_READ with holes, STAT, ZERO, TRUNCATE,
+DELETE, a write with a snapshot context and the reads of its snapshots), MOSDBackoff BLOCK / ACK_BLOCK / UNBLOCK (a whole PG and one object, the last PG of a pool ending at the maximum position) provoked by restarting an
+OSD under load and by `ceph osd out` / `in`, and the data objects of three patterned images exported with `rados get`. Only the OSD message bodies are published, as hex with their decoded summaries, plus what the stock
+tools reported (`rbd info`, snapshot and lock lists) and what the client library returned at capture time; the pcaps are not. About 2.0 MB in 37 files. Index, formats, what the set shows and how it is checked:
+[`osdc/README.md`](osdc/README.md), `osdc/INDEX.json` (size and SHA-256 of every file).
+
+| Item | Value |
+|---|---|
+| Ceph release | v20.2.5 "Tentacle", pinned commit `ed27c686770872022f4c1de04f6b0ac5d5384ded`; the client is librados of the same release (the stock CLI for `rados get`, a small program over its public API for the compound reads) |
+| Cluster | the same private lab as section 1 (one VM, 1 mon, 3 OSDs, pool `winrbd`, size 3, 32 PGs) |
+| Client | a throw-away cephx user `client.vec-osdc` (`mon 'profile rbd'`, `osd 'profile rbd pool=winrbd, profile rbd pool=wrtest-osdc-data'`), crc mode only, in its own network namespace; created and deleted by the script (`ceph auth get` fails afterwards, `osdc/INDEX.json` `user`); **its key is not published** (the crc-mode bodies never needed it) and the script scans the tree for it |
+| Capture window | 2026-11-17, 17:12Z to 17:17Z; OSDMap epochs 3838 to 3865 (the epoch changes with the images and snapshots made, the restarts and the `osd out`; other users of the lab add a few) |
+| What was made on the cluster | images `wrtest-osdc-*` (order 12 to 16, with snapshots, a clone, a foreign lock, a data pool image), the pool `wrtest-osdc-data` and raw objects `wrtest-osdc-loop.*`: all removed again |
+| Settings changed for a few minutes | `osd_backoff_on_peering` and `osd_backoff_on_degraded` (true, for the two backoff sessions: the OSDs only back off a PG that is peering or an object that is degraded when told to), `mon_allow_pool_delete` (to delete the pool); each put back to what it was before (an option that was set is set again) |
+| Restore | `osdc/revert-proof.txt`: the state taken before and after (osd tree, pools, upmap lines, flags, health checks, images, objects, users, every set configuration option, the three settings above) is identical; all OSDs up and in, HEALTH as before, one OSD restart and one `osd out` / `in` in between |
+| Scrub | none needed: crc-mode OSD messages carry no secret; the lab client address inside a lock record is `10.77.0.x` (lab) and the cluster's own addresses are public; scanned for key-, ticket- and password-looking text and for any other address (0 hits) |
+| Check | `python3 -I harness/vectors/public/scripts/check_osdc.py check` (ctest `vectors_osdc_check`; `selftest` = `vectors_osdc_selftest`, 23 damaged copies); the C replays are ctest `osd.vec.replay` and `rbd.vec.replay`, the damage sweep over the same bytes `osd.vec.sweep`, the backoff captures through the session table `osd.vec.backoff` |
+| Regenerate | `scripts/capture_osdc.sh run` inside the lab VM (see `osdc/README.md` 5); all scripts are our own code (MIT) |
+
+## 13 The core's own image I/O (`imgio/`)
+
+What the winrbd core itself sent to a real v20.2.5 OSD when it did block I/O (the open as the core does it, then one `READ` / `WRITE` /
+`ZERO` / `TRUNCATE` / `DELETE` per object), the OSD's replies, and the content of each image as the stock `rbd export` reported it before and after:
+three scripted `wr-rbd` sessions (a writer on an empty image of 4 KiB objects with a size that is not a whole number of objects; a writer on an
+image of 64 KiB objects that already has two snapshots, so every mutation carries the snapshot context; a reader on a default-feature image
+written by the stock tool). Only the OSD message bodies are published, as hex with their decoded summaries, plus the exports and what the
+stock tools reported (`rbd info`, the snapshot list); the pcaps are not. 0.9 MB in 8 files. Index, formats, what the set shows and how it is
+checked: [`imgio/README.md`](imgio/README.md), `imgio/INDEX.json` (size and SHA-256 of every file).
+
+| Item | Value |
+|---|---|
+| Ceph release | v20.2.5 "Tentacle", the same private lab as section 1 (one VM, 1 mon, 3 OSDs, pool `winrbd`, size 3, 32 PGs) |
+| Client | the winrbd core through `wr-rbd` (`harness/host/tools/wr-rbd.c`, `shell` mode, `--depth 1`, crc mode only, default key type) as a throw-away cephx user `client.vec-imgio` (`mon 'profile rbd'`, `osd 'profile rbd pool=winrbd'`), in its own network namespace under `tcpdump`; created and deleted by the script (`ceph auth get` fails afterwards, `imgio/INDEX.json` `user`); **its key is not published** (the crc-mode bodies never needed it) and the script scans the tree for it |
+| Capture window | 2026-11-18, 11:47Z to 11:49Z; OSD map epochs 6648, 6650 and 6653 (stable inside each session: the script refuses a session during which the epoch changes) |
+| What was made on the cluster | images `wrtest-imgio-w4k`, `-snap64k`, `-rd64k` (order 12 and 16, two snapshots on one): all removed again |
+| Restore | `imgio/revert-proof.txt`: the state taken before and after (osd tree, pools, upmap lines, flags, health checks, images, objects, users, every set configuration option) is identical; no OSD was touched |
+| Scrub | none needed: crc-mode OSD messages carry no secret; scanned for key-, ticket- and password-looking text, for any directory of the lab and for any address outside `10.77.0.x` / `192.0.2.x` (0 hits) |
+| Check | `python3 -I harness/vectors/public/scripts/check_imgio.py check` (ctest `vectors_imgio_check`; `selftest` = `vectors_imgio_selftest`, 12 damaged copies); the C replay is ctest `imgio.replay`: the core's requests re-encoded byte for byte, the same scripts through the whole engine against the simulated OSDs compared with the real OSD request by request and answer by answer, the content against the export |
+| Regenerate | `scripts/capture_imgio.sh run` inside the lab VM (see `imgio/README.md` 5); all scripts are our own code (MIT) |

@@ -1,0 +1,30 @@
+# revert proof of capture_imgio.sh, 2026-11-18T11:48:54Z
+# the facts of the lab before the run and after the clean-up (osd tree, pools, upmap lines, flags, health checks, images, objects, auth entities,
+# every explicitly set configuration option), then the lines that differ
+--- before:
+osd tree:
+[('osd.0', 'up', 1), ('osd.1', 'up', 1), ('osd.2', 'up', 1)]
+pools:
+[('.mgr', 1, 2), ('winrbd', 32, 3)]
+upmap lines: 0
+osd flags: flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+health checks: 6, sha256 639d0674ac412437; mutes: 4, sha256 c019866f63a0d228
+rbd images: 2
+rados objects: 13, sha256 b99533b9850a8271
+auth entities: 14, sha256 6706453a0fbe695f
+config options set: 12, sha256 07d3e26b7a157d66
+--- after:
+osd tree:
+[('osd.0', 'up', 1), ('osd.1', 'up', 1), ('osd.2', 'up', 1)]
+pools:
+[('.mgr', 1, 2), ('winrbd', 32, 3)]
+upmap lines: 0
+osd flags: flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+health checks: 6, sha256 639d0674ac412437; mutes: 4, sha256 c019866f63a0d228
+rbd images: 2
+rados objects: 13, sha256 b99533b9850a8271
+auth entities: 14, sha256 6706453a0fbe695f
+config options set: 12, sha256 07d3e26b7a157d66
+--- diff:
+(none)
+--- throwaway user: ceph auth get client.vec-imgio fails (ENOENT) and the entity is not in the auth list, checked 2026-11-18T11:48:54Z

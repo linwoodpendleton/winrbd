@@ -19,13 +19,20 @@
 # Both numbers are measured, not estimated; the limits below are ratchets set just above today's values so a change
 # that makes the worst case grow shows up in review. Lower them when the code gets shallower.
 #
+# --link CALLER=CALLEE (repeatable) adds the edge of a call through a function pointer that gcc cannot see (the msgr2 connection
+# delivering a message to the upper layer's table, for one). Without it such a call ends the chain and the numbers under-report
+# what the callee costs on top of the stack that is already live when it runs; the part C reply path (the OSD session's message
+# handler and the decoder under it) is measured this way, from the engine's run down through the receive parser. Both names are
+# resolved like an entry name; either one missing from the graph is a tool error. The links are part of the global depth and stack
+# measurement too, so a hidden chain cannot slip past the limits just because it goes through a table.
+#
 # --entry NAME[=BYTES] (repeatable) reports the depth and the static stack of one entry point and, with =BYTES, fails above
 # that budget. It exists for the chains of part B (OSD map, CRUSH, placement), whose budgets are tighter than the global one
 # and which would otherwise hide behind the single worst chain of the whole core. An entry that is not in the graph (a rename)
 # is a tool error, so a budget cannot silently stop applying.
 #
 #   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 14] [--stack 3328] [--keep DIR]
-#                                                              [--entry NAME[=BYTES]]...
+#                                                              [--link CALLER=CALLEE]... [--chains] [--entry NAME[=BYTES]]...
 #
 # Run by the `static-limits` job of .github/workflows/harness.yml. Exit 0 = within the limits, 1 = not, 2 = tool error.
 import argparse
@@ -125,10 +132,11 @@ def stack_chain(n, stack, size, edges):
 
 
 def find_entry(name, depth):
-    """A public function is in the graph under its bare name, a static one as '<file>:<name>'."""
+    """A public function is in the graph under its bare name, a static one as '<file>:<name>'. A static name that exists in
+    several files is written with the file's path from the repository root ('core/src/osd/wri_osd_sess_up.c:up_message')."""
     if name in depth:
         return name
-    hits = sorted(k for k in depth if k.endswith(":" + name))
+    hits = sorted(k for k in depth if k.endswith(":" + name) or (":" in name and k.endswith("/" + name)))
     return hits[0] if len(hits) == 1 else None
 
 
@@ -146,6 +154,9 @@ def main():
     ap.add_argument("--depth", type=int, default=14, help="largest allowed call chain, in frames")
     ap.add_argument("--stack", type=int, default=3328, help="largest allowed static stack along a chain, in bytes")
     ap.add_argument("--keep", help="keep the object and .ci files in this directory")
+    ap.add_argument("--link", action="append", default=[], metavar="CALLER=CALLEE",
+                    help="add the edge of a call through a function pointer (resolved like an entry name)")
+    ap.add_argument("--chains", action="store_true", help="also print the largest-stack chain of every --entry")
     ap.add_argument("--entry", action="append", default=[], metavar="NAME[=BYTES]",
                     help="report one entry point; with =BYTES also fail when its static stack is above that")
     a = ap.parse_args()
@@ -162,6 +173,16 @@ def main():
     if not size:
         sys.stderr.write("check_callgraph: no call graph information found (gcc 10 or newer is needed)\n")
         return 2
+    for spec in a.link:
+        src_name, _, dst_name = spec.partition("=")
+        nodes = set(size) | set(edges)
+        src = find_entry(src_name, {k: 0 for k in nodes})
+        dst = find_entry(dst_name, {k: 0 for k in nodes})
+        if not dst_name or src is None or dst is None:
+            sys.stderr.write("check_callgraph: --link %s: both names must be in the call graph (and a static name that exists in "
+                             "more than one file needs its path from the repository root)\n" % spec)
+            return 2
+        edges[src].add(dst)
     depth, stack, cyc = analyse(edges, size)
     if cyc is not None:
         print("check_callgraph: RECURSION: " + " > ".join(cyc))
@@ -197,6 +218,9 @@ def main():
                 line += " ABOVE THE BUDGET"
                 bad = 1
         print(line)
+        if a.chains:
+            print("      " + " > ".join("%s(%d)" % (f.replace(REPO + os.sep, "").split(":")[-1], sz)
+                                         for f, sz in stack_chain(node, stack, size, edges)))
     if depth[top_d] > a.depth:
         print("check_callgraph: call depth %d is above the limit %d" % (depth[top_d], a.depth))
         bad = 1

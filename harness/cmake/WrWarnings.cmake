@@ -16,6 +16,12 @@ function(wr_apply_core_flags target)
     endif()
     if(NOT WR_SANITIZE STREQUAL "")
       target_compile_options(${target} PRIVATE -fsanitize=${WR_SANITIZE} -fno-sanitize-recover=all -fno-omit-frame-pointer)
+      # gcc -O2/-O3 with the sanitizers lays red zones and shadow slots into every frame (wri_monmap_decode: 1,568 bytes with them,
+      # under 1,024 without), which says nothing about the product. The 1 KiB rule is enforced on the plain gcc and clang builds
+      # of every flavour (and by the call-graph check); an instrumented gcc build only keeps a loose ceiling.
+      if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(${target} PRIVATE -Wframe-larger-than=4096)
+      endif()
     endif()
   elseif(MSVC)
     target_compile_options(${target} PRIVATE /W4 /WX)

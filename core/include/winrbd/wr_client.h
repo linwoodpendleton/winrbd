@@ -137,12 +137,15 @@ typedef enum wr_ev_kind {
 	WR_EV_TICKETS_RENEWED = 6,
 	WR_EV_FATAL = 7,               /* unrecoverable (bad config, no random, a first map that can never be decoded); err says why */
 	WR_EV_MAP = 8,                 /* wr_map.h: a new OSD map epoch was adopted (event.epoch); re-target outstanding ops */
-	WR_EV_MAP_RESYNC = 9           /* wr_map.h: a gap or a bad map made the engine ask for a full map; err says why (informational) */
+	WR_EV_MAP_RESYNC = 9,          /* wr_map.h: a gap or a bad map made the engine ask for a full map; err says why (informational) */
+	WR_EV_IMAGE = 10,              /* wr_image.h: an image changed state (opened, failed, closed) or size; event.epoch is its slot */
+	WR_EV_IO_STALL = 11,           /* wr_image.h: operations are unanswered (OSD session reset, OSD map stale); err says why; informational */
+	WR_EV_IO_RESUME = 12           /* wr_image.h: the stall is over (an answer arrived); informational */
 } wr_ev_kind;
 
 typedef struct wr_event {
 	wr_ev_kind kind;
-	uint32_t epoch; /* WR_EV_MAPMSG: newest epoch in the message; WR_EV_MAP: the epoch adopted; else 0 */
+	uint32_t epoch; /* WR_EV_MAPMSG: newest epoch in the message; WR_EV_MAP: the epoch adopted; WR_EV_IMAGE: the image slot; else 0 */
 	wr_errinfo err; /* DOWN / AUTH_FAILED / UNREACHABLE / FATAL */
 } wr_event;
 

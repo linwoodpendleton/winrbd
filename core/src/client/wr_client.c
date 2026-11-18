@@ -13,11 +13,14 @@
  *   3. housekeeping: connect backstop, handshake slots, connections that ended unseen;
  *   4. the monitor client (hunting, subscriptions, keepalive, renewal, map slots);
  *   5. the OSD map store, when maps are on (consumes the monitor's map messages, one epoch per run);
- *   6. fatal check, state, first-failure bookkeeping; return the earliest deadline.
+ *   6. the OSD client, when it is on: the object engine (retarget on a new epoch, sessions, sends, timeouts), then the image layer (open and
+ *      refresh machines, finished operations, admission and cutting of requests, request timeouts, completions);
+ *   7. fatal check, state, first-failure bookkeeping; return the earliest deadline.
  * The host then drains actions and moves bytes.
  */
 #include "wri_client.h"
 
+#include "wri_client_osd.h"
 #include "wri_le.h"
 #include "wri_misc.h"
 
@@ -128,6 +131,7 @@ void wr_client_destroy(wr_client *c)
 	base = c->arena_base;
 	used = c->arena_used;
 	wri_cx_client_wipe(&c->cx); /* principal, session keys, tickets, scratch */
+	wri_client_osd_wipe(c);     /* the zombie area: copies of data the host wrote (the arena part of the OSD client goes with the arena below) */
 	if (c->mon.abuf != NULL) /* the renewal buffers (bulk) carry sealed cephx payloads */
 		wri_secure_zero(c->mon.abuf, c->mon.abuf_cap);
 	if (c->mon.fbuf != NULL)
@@ -168,10 +172,43 @@ static void sync_mon_err(wr_client *c)
 	}
 }
 
+/* The ring is full: drop the oldest informational event, never a fatal or a map one; an image event (opened, failed, closed) only when nothing else is left
+ * (a host that missed one reads wr_image_get_state). Returns 0 when nothing can go and the new event (an informational one) is itself the one that is lost.
+ * A function of its own: the sanitizer builds at -O0 give every temporary of wri_client_push_event a slot and the frame limit is 1 KiB. */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static int ring_make_room(wr_client *c, wr_ev_kind kind)
+{
+	int keep_new = kind == WR_EV_FATAL || kind == WR_EV_MAP || kind == WR_EV_IMAGE;
+	unsigned i, j;
+
+	c->ev_dropped++;
+	for (i = 0; i < c->ev_len; i++) {
+		wr_ev_kind k = c->ev[(c->ev_head + i) % WRI_EVENT_RING].kind;
+
+		if (k != WR_EV_FATAL && k != WR_EV_MAP && k != WR_EV_IMAGE)
+			break;
+	}
+	if (i == c->ev_len) { /* nothing but protected kinds queued */
+		if (!keep_new)
+			return 0;
+		for (i = 0; i < c->ev_len; i++) /* make room by the oldest image event */
+			if (c->ev[(c->ev_head + i) % WRI_EVENT_RING].kind == WR_EV_IMAGE)
+				break;
+		if (i == c->ev_len)
+			i = 0; /* (cannot happen: a ring of 8 holds one fatal and one map event at most) */
+	}
+	for (j = i; j + 1u < c->ev_len; j++)
+		c->ev[(c->ev_head + j) % WRI_EVENT_RING] = c->ev[(c->ev_head + j + 1u) % WRI_EVENT_RING];
+	c->ev_len--;
+	return 1;
+}
+
 void wri_client_push_event(wr_client *c, wr_ev_kind kind, uint32_t epoch, const wr_errinfo *err)
 {
 	wr_event e;
-	unsigned i, j;
+	unsigned i;
 
 	if (!engine_ok(c))
 		return;
@@ -180,6 +217,8 @@ void wri_client_push_event(wr_client *c, wr_ev_kind kind, uint32_t epoch, const 
 	e.epoch = epoch;
 	if (err != NULL)
 		e.err = *err;
+	if (kind == WR_EV_FATAL && err != NULL && c->og != NULL && c->og->fatal.status == WR_OK)
+		c->og->fatal = *err; /* the images end with this, not with an earlier milder failure */
 	if (kind == WR_EV_MON_SESSION_UP) { /* a success: the next failure is a new first failure */
 		WR_MEMSET(&c->last_err, 0, sizeof(c->last_err));
 		c->mon_err_seen = c->mon.err;
@@ -199,23 +238,8 @@ void wri_client_push_event(wr_client *c, wr_ev_kind kind, uint32_t epoch, const 
 			}
 		}
 	}
-	if (c->ev_len == WRI_EVENT_RING) { /* full: drop the oldest informational event, never a fatal or a map one */
-		for (i = 0; i < c->ev_len; i++) {
-			wr_ev_kind k = c->ev[(c->ev_head + i) % WRI_EVENT_RING].kind;
-
-			if (k != WR_EV_FATAL && k != WR_EV_MAP)
-				break;
-		}
-		c->ev_dropped++;
-		if (i == c->ev_len) { /* only protected events queued (cannot happen: one of each per engine) */
-			if (kind != WR_EV_FATAL && kind != WR_EV_MAP)
-				return; /* the new informational event is the one that is lost */
-			i = 0;
-		}
-		for (j = i; j + 1u < c->ev_len; j++)
-			c->ev[(c->ev_head + j) % WRI_EVENT_RING] = c->ev[(c->ev_head + j + 1u) % WRI_EVENT_RING];
-		c->ev_len--;
-	}
+	if (c->ev_len == WRI_EVENT_RING && !ring_make_room(c, kind))
+		return; /* full, and the new event is the one that is lost */
 	c->ev[(c->ev_head + c->ev_len) % WRI_EVENT_RING] = e;
 	c->ev_len++;
 }
@@ -264,6 +288,9 @@ static uint64_t earliest_deadline(const wr_client *c)
 	t = wri_client_map_deadline(c); /* a rate-limited full-map request */
 	if (t < d)
 		d = t;
+	t = wri_client_osd_deadline(c); /* an operation deadline, a session cool-down, a request timeout, a header refresh; "now" while an op waits to be sent */
+	if (t < d)
+		d = t;
 	return d;
 }
 
@@ -271,13 +298,16 @@ wr_run_result wr_client_run(wr_client *c, const wr_clock *now, uint32_t work_bud
 {
 	wr_run_result r;
 	uint32_t budget;
+	uint64_t before;
 
 	r.next_deadline_ms = WR_DEADLINE_NONE;
 	r.more_work = 0;
 	if (!engine_ok(c) || now == NULL)
 		return r;
+	before = c->x.now.mono_ms;
 	if (now->mono_ms > c->x.now.mono_ms) /* the clock is monotonic: a host that steps back is held at the last value */
 		c->x.now.mono_ms = now->mono_ms;
+	wri_client_osd_rebase(c, c->x.now.mono_ms - before); /* an open or a submit since the last run was timed against that run's clock */
 	c->x.now.wall_ms = now->wall_ms;
 	budget = work_budget != 0u ? work_budget : WRI_CLIENT_DEFAULT_BUDGET;
 	if (c->state == WR_CS_CREATED)
@@ -290,8 +320,20 @@ wr_run_result wr_client_run(wr_client *c, const wr_clock *now, uint32_t work_bud
 		wri_mon_step(&c->x, &c->mon, &c->cx, &c->link);
 	if (c->state != WR_CS_FAILED)
 		r.more_work |= (uint32_t)wri_client_map_step(c, budget);
+	if (c->og != NULL && c->state != WR_CS_FAILED) { /* the OSD client: the object engine, then the image layer (called here, see wri_client_osd.h) */
+		uint64_t dl = WR_DEADLINE_NONE;
+		int more = 0;
+		uint32_t n = wri_client_osd_begin(c, budget, &more);
+
+		if (n != 0u) { /* 0: the OSD client is off or the engine has failed: neither the image pass nor the end of the stage is called (wri_client_osd.h) */
+			more |= wri_rbd_step(c->rbd, n, &dl);
+			wri_client_osd_end(c, dl, &more);
+		}
+		r.more_work |= (uint32_t)more;
+	}
 	sync_mon_err(c);
 	check_fatal(c);
+	wri_client_osd_on_fatal(c); /* the engine ended in this run (or in the map step): the images end with it, once */
 	wri_client_conn_housekeeping(c);
 	if (c->state != WR_CS_FAILED)
 		c->state = c->mon.up ? WR_CS_ACTIVE : WR_CS_HUNTING;

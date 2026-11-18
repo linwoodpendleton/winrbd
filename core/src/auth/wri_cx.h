@@ -130,30 +130,55 @@ typedef enum wri_cx_state {
 	WRI_CX_FAILED
 } wri_cx_state;
 
+/*
+ * The per-handshake state of one cephx handshake (section 21.2 of the architecture): which step it is at, the
+ * peer kind, the two challenges, the OSD authorizer nonce, the ticket generation the OSD handshake began
+ * with, the view of the session key it ended with, and the first failure. The same field list is used twice,
+ * so the two can never drift apart: by wri_cx_hs (one handshake slot) and by wri_cx_client (the EMBEDDED
+ * handshake, slot 0, that wri_cx_ops() drives; the fields keep their part A names, which the part A tests
+ * and wri_cx_forget() read).
+ */
+#define WRI_CX_HS_FIELDS                                                                                   \
+	wri_cx_state st;            /* IDLE until begin(); FAILED after any failure */                  \
+	uint8_t target_type;        /* WRI_ENTITY_MON or WRI_ENTITY_OSD for the connection in progress */ \
+	uint8_t req_new_gid;        /* 1: the AUTH_REQUEST of the monitor connection in progress carried   \
+				       global id 0 (a new session); 0: it reclaimed global_id */            \
+	uint64_t server_challenge;                                                                         \
+	uint64_t client_challenge;                                                                         \
+	uint64_t authorizer_nonce;  /* OSD authorizer; wiped when the handshake ends */                    \
+	uint32_t osd_gen;           /* ticket[OSD].gen when the OSD handshake in progress began */         \
+	const uint8_t *sess_key;    /* session key of the finished handshake (inside ticket[]), else NULL */ \
+	size_t sess_key_len;                                                                               \
+	uint32_t key_gen;           /* ticket[].gen of the slot sess_key points into, when the handshake ended */ \
+	uint64_t gid;               /* the global id the handshake ended with (OSD: the one it presented) */ \
+	wr_errinfo err;             /* first failure of the connection in progress; cleared by begin */
+
 typedef struct wri_cx_client {
 	const wri_ctx *x;
-	wri_cx_state st;
-	uint8_t target_type;        /* WRI_ENTITY_MON or WRI_ENTITY_OSD for the connection in progress */
 	char user[WR_ENTITY_MAX];   /* id without "client." */
 	uint8_t user_len;
-	uint8_t req_new_gid;        /* 1: the AUTH_REQUEST of the monitor connection in progress carried
-				       global id 0 (a new session); 0: it reclaimed global_id */
 	wr_key principal;
 	uint64_t global_id;         /* 0 until the monitor assigned one; reused to reclaim */
-	uint64_t server_challenge;
-	uint64_t client_challenge;
-	uint64_t authorizer_nonce;  /* OSD authorizer; wiped when the handshake ends */
 	uint32_t want_mask;         /* service tickets requested, WRI_CX_WANT_MASK; a test may change it */
 	uint32_t renew_mask;        /* services asked for by the last wri_cx_renew_build */
-	uint32_t osd_gen;           /* ticket[OSD].gen when the OSD handshake in progress began */
 	wri_cx_ticket ticket[WRI_CX_NTICKETS];
 	uint32_t ticket_cap;
-	uint8_t *scratch;           /* decrypt scratch, scratch_cap bytes; always wiped after use */
+	uint8_t *scratch;           /* decrypt scratch, scratch_cap bytes; always wiped after use. Shared by every
+				       handshake: the auth callbacks run to completion one at a time */
 	uint32_t scratch_cap;
-	const uint8_t *sess_key;    /* the session key of the finished handshake (inside ticket[]), else NULL */
-	size_t sess_key_len;
-	wr_errinfo err;             /* first failure of the connection in progress; cleared by begin */
+	WRI_CX_HS_FIELDS            /* the embedded slot-0 handshake of wri_cx_ops() */
 } wri_cx_client;
+
+/*
+ * One handshake slot, bound to the client whose ticket store, principal key and global id it uses. The
+ * connection's handshake slot owns it for the life of the handshake (carved with wri_cx_hs_carve, sized with
+ * wri_cx_hs_mem); the `a` argument of wri_cx_hs_ops() is a pointer to it. Everything the handshake needs
+ * from the client is read through `cl`; everything it changes about itself stays in these fields.
+ */
+typedef struct wri_cx_hs {
+	wri_cx_client *cl;          /* NULL while unbound (every op answers WR_E_INVAL) */
+	WRI_CX_HS_FIELDS
+} wri_cx_hs;
 
 /* Arena bytes wri_cx_client_init takes for a given config (ticket blobs + scratch). */
 wr_status wri_cx_client_mem(const wr_config *cfg, size_t *arena_bytes);
@@ -169,15 +194,41 @@ WR_MUST_CHECK wr_status wri_cx_client_init(wri_cx_client *c, const wri_ctx *x, w
 void wri_cx_client_wipe(wri_cx_client *c);
 
 /*
- * The wri_auth_ops table; the `a` argument is a wri_cx_client *. Handles monitor and OSD peers.
- * The machine keeps ONE handshake state (state, target, challenge, nonce): the caller runs one cephx
- * handshake at a time. begin() supersedes an unfinished one (a connection that died mid-handshake
- * never reports it), and a late more / done of the superseded connection then fails or, for two
- * OSD handshakes, can complete against the other one's nonce; a failed monitor done also forgets
- * every ticket. Two connections in handshake at once therefore cause spurious failures and retries,
- * never a weaker authentication, but the engine should not do it.
+ * The wri_auth_ops table whose `a` argument is a wri_cx_client *: the monitor path, driven by the embedded
+ * slot-0 handshake of the client (the WRI_CX_HS_FIELDS of the client struct). It keeps ONE handshake state:
+ * begin() supersedes an unfinished one (a connection that died mid-handshake never reports it), and a late
+ * more / done of the superseded connection then fails or, for two OSD handshakes, can complete against the
+ * other one's nonce. Use it for one connection at a time (the monitor's); several OSD connections in
+ * handshake together use wri_cx_hs_ops() with one wri_cx_hs each.
  */
 const wri_auth_ops *wri_cx_ops(void);
+
+/*
+ * The wri_auth_ops table whose `a` argument is a wri_cx_hs *: the same machine, with its state in the slot.
+ * Any number of handshakes (monitor or OSD, one per slot) may be in flight against one client at the same
+ * time and interleave step by step: a begin / more / done / failure / wipe of one touches nothing of
+ * another. What stays shared on purpose, because it is the client's identity and not a handshake's:
+ *   - the ticket store, the principal key, the global id and the renewal state;
+ *   - a ticket stored while a handshake is in flight (a monitor reply with a new OSD ticket, a renewal)
+ *     bumps the slot's generation, so an OSD handshake that began earlier fails with WR_E_STATE instead of
+ *     finishing with a key that is no longer the held one;
+ *   - a failed monitor done forgets every ticket and the global id (wri_cx_forget), as it does for the
+ *     embedded handshake, so OSD handshakes in flight then fail with WR_E_STATE.
+ * The failure of a slot is recorded in its own `err`; the client's `err` (renewal and the embedded
+ * handshake) is not written by a slot.
+ */
+const wri_auth_ops *wri_cx_hs_ops(void);
+
+/* Arena bytes wri_cx_hs_carve takes for cfg->max_handshakes slots. WR_E_INVAL for max_handshakes 0. */
+WR_MUST_CHECK wr_status wri_cx_hs_mem(const wr_config *cfg, size_t *arena_bytes);
+/* Carve cfg->max_handshakes zeroed, unbound slots (16-byte aligned) into *hs; *n gets their number. WR_E_BUDGET
+ * if the arena is too small (nothing is taken then). */
+WR_MUST_CHECK wr_status wri_cx_hs_carve(wri_arena *a, const wr_config *cfg, wri_cx_hs **hs, uint32_t *n);
+/* Bind a slot to a client and start it idle (whatever the slot held is wiped first). WR_E_INVAL for NULL. */
+WR_MUST_CHECK wr_status wri_cx_hs_init(wri_cx_hs *h, wri_cx_client *c);
+/* Wipe a slot (challenges, nonce, error, the view of the key) and unbind it: the whole struct is zero after.
+ * Call it when the connection that owned the slot ends, on success as well as on failure. Idempotent. */
+void wri_cx_hs_wipe(wri_cx_hs *h);
 
 /* Ticket queries. A ticket counts as held while now < valid_until, needs renewal at renew_at. */
 int wri_cx_have(const wri_cx_client *c, uint32_t service, uint64_t now_ms);
@@ -198,7 +249,20 @@ WR_MUST_CHECK wr_status wri_cx_renew_build(wri_cx_client *c, uint32_t service_ma
  * replayed or unsolicited reply never replaces a ticket); the first accepted reply ends the request. */
 WR_MUST_CHECK wr_status wri_cx_renew_handle(wri_cx_client *c, const uint8_t *payload, size_t n);
 
-/* ---- internal to core/src/auth/ (shared by wri_cx_ticket.c, wri_cx_client.c, wri_cx_renew.c) ------ */
+/* ---- internal to core/src/auth/ (the handshake machine of wri_cx_hs.c, used by wri_cx_client.c) ------ */
+
+/* The machine itself, on a bound slot. wri_cx_hs_ops() is these behind the auth-ops signatures; wri_cx_ops()
+ * runs them on a stack copy of the client's embedded handshake (load, run, store, wipe the copy). */
+wr_status wri_cx_hs_do_begin(wri_cx_hs *h, uint8_t target_type, wri_wr *out);
+wr_status wri_cx_hs_do_more(wri_cx_hs *h, const uint8_t *reply, size_t n, wri_wr *out);
+wr_status wri_cx_hs_do_done(wri_cx_hs *h, uint64_t global_id, uint32_t mode, const uint8_t *payload, size_t n);
+void wri_cx_hs_do_session_key(const wri_cx_hs *h, const uint8_t **key, size_t *len);
+int64_t wri_cx_hs_do_ident_gid(const wri_cx_hs *h, uint8_t target_type);
+/* Copy the embedded handshake fields of the client into h (binding it to c), and back. */
+void wri_cx_hs_load(wri_cx_hs *h, wri_cx_client *c);
+void wri_cx_hs_store(wri_cx_client *c, const wri_cx_hs *h);
+
+/* ---- internal to core/src/auth/ (shared by wri_cx_ticket.c, wri_cx_client.c, wri_cx_hs.c, wri_cx_renew.c) ---- */
 
 /* Drop one ticket slot: wipe the session key and the blob, bump gen. */
 void wri_cx_slot_clear(wri_cx_client *c, unsigned slot);

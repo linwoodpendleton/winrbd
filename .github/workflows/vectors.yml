@@ -38,3 +38,17 @@ jobs:
 
       - name: Live placement vectors (hashes, chain, epochs, no stray file)
         run: python3 -I harness/vectors/public/scripts/check_placement.py
+
+      # The part C vectors (the lab captures of the OSD and RBD message layers and of the core's own image I/O) need python3 only. They
+      # are also ctests of the harness workflow (vectors_osdc_check, vectors_imgio_check and their self-tests, which feed the checker damaged
+      # copies of the vectors and must see every one rejected); here they run beside the Phase 0 checkers so a damaged, unscrubbed or
+      # stray vector fails this job even when nobody built the core.
+      - name: OSD and RBD vectors (sizes, hashes, scrub, message decode, model replay)
+        run: |
+          python3 -I harness/vectors/public/scripts/check_osdc.py check
+          python3 -I harness/vectors/public/scripts/check_imgio.py check
+
+      - name: The checkers reject damaged vectors (self-tests)
+        run: |
+          python3 -I harness/vectors/public/scripts/check_osdc.py selftest
+          python3 -I harness/vectors/public/scripts/check_imgio.py selftest

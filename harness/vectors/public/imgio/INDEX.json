@@ -1,0 +1,52 @@
+{
+ "about": "what the winrbd core puts on the wire for scripted image I/O, with the real OSD's replies and the stock export of the result",
+ "cluster": "Ceph v20.2.5 lab cluster, one VM, 3 OSDs, replicated pool winrbd",
+ "files": {
+  "images/rd64k.after.bin": {
+   "bytes": 131079,
+   "sha256": "92ae0e8e7af5d476141045750e49ac4bc444514e3df8f6179197ddf86472c93c"
+  },
+  "images/rd64k.before.bin": {
+   "bytes": 131079,
+   "sha256": "92ae0e8e7af5d476141045750e49ac4bc444514e3df8f6179197ddf86472c93c"
+  },
+  "images/snap64k.after.bin": {
+   "bytes": 200000,
+   "sha256": "cef163bd85e777167c93009b56d40042afb67a3e903610d7ad77f38b67e8cffc"
+  },
+  "images/w4k.after.bin": {
+   "bytes": 40000,
+   "sha256": "226f02fc1e425f606790463257a5f6eca71379d376affe786ceb1ddcf9d3c754"
+  },
+  "revert-proof.txt": {
+   "bytes": 1315,
+   "sha256": "c92cdef20649a08e41967c6c0155c05397ec0cc2741704f3b76e7aec18939bc5"
+  },
+  "sessions/rd64k.json": {
+   "bytes": 36562,
+   "sha256": "e43e77fa112577ae209e0a0d76d329a0eaef82d8f1ece80e82ccb4556385fc30"
+  },
+  "sessions/snap64k.json": {
+   "bytes": 88937,
+   "sha256": "933e01cf7e674379009ded2885464f721835285fffb0805c4d4a215cfc874f2e"
+  },
+  "sessions/w4k.json": {
+   "bytes": 275119,
+   "sha256": "4adc947489da65c71cbef94e90725985582c4a6780ad497b5b9a7809d1893452"
+  }
+ },
+ "made": "2026-11-18",
+ "sessions": [
+  "w4k",
+  "snap64k",
+  "rd64k"
+ ],
+ "user": {
+  "caps": "mon 'profile rbd', osd 'profile rbd pool=winrbd'",
+  "created": "2026-11-18T11:47:48Z",
+  "deleted": true,
+  "key_published": false,
+  "name": "client.vec-imgio",
+  "verified_gone": "ceph auth get client.vec-imgio fails (ENOENT) and the entity is not in the auth list, checked 2026-11-18T11:48:54Z"
+ }
+}

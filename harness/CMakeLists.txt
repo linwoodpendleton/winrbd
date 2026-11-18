@@ -253,6 +253,38 @@ if(TARGET test_lab_mon)
 endif()
 # ---- module linux-host-loop (end) ------------------------------------------------------------------
 
+# ---- module host-osd-loop (begin) -------------------------------------------------------------------
+# test_host_loop_osd (pthread servers for a simulated monitor and up to 49 simulated OSDs, the pump source included with hooks) is created by the
+# glob above as ctest "host.loop.osd" (the glob turns every underscore of the file name after the first into a dot). All it needs here: threads, a timeout, and no parallel run (timing checks, 50 server threads).
+if(TARGET test_host_loop_osd)
+  find_package(Threads REQUIRED)
+  target_link_libraries(test_host_loop_osd PRIVATE Threads::Threads)
+  set_tests_properties(host.loop.osd PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
+endif()
+# ---- module host-osd-loop (end) ---------------------------------------------------------------------
+
+# ---- module live-rbd-tool (begin) -------------------------------------------------------------------
+# harness/host/tools/wr-rbd.c is built by the tool glob above. test_host_tool_rbd (ctest host.tool.rbd; the glob turns every underscore into a dot, the design calls it host.tool_rbd) runs it as a child process against
+# a simulated monitor and three simulated OSDs over real sockets (pthread server; needs Threads, a long timeout, no parallel run).
+# test_lab_rbd (ctest lab.rbd, label lab) runs the same tool against the real lab cluster and skips without WR_LAB_*.
+if(TARGET test_host_tool_rbd)
+  find_package(Threads REQUIRED)
+  target_link_libraries(test_host_tool_rbd PRIVATE Threads::Threads)
+  set_tests_properties(host.tool.rbd PROPERTIES TIMEOUT 900 RUN_SERIAL TRUE)
+  if(TARGET wr-rbd)
+    add_dependencies(test_host_tool_rbd wr-rbd)
+    set_property(TEST host.tool.rbd APPEND PROPERTY ENVIRONMENT "WR_RBD=$<TARGET_FILE:wr-rbd>")
+  endif()
+endif()
+if(TARGET test_lab_rbd)
+  set_tests_properties(lab.rbd PROPERTIES TIMEOUT 900)
+  if(TARGET wr-rbd)
+    add_dependencies(test_lab_rbd wr-rbd)
+    set_property(TEST lab.rbd APPEND PROPERTY ENVIRONMENT "WR_RBD=$<TARGET_FILE:wr-rbd>")
+  endif()
+endif()
+# ---- module live-rbd-tool (end) ---------------------------------------------------------------------
+
 # ---- module winrbd-probe (begin) --------------------------------------------------------------------
 # harness/src/*.c: end-to-end lab programs built on the Linux host library (winrbd-probe). They may read
 # core internals (wr_core_internal), so they are harness-only and never part of a host.
@@ -328,5 +360,52 @@ if(TARGET test_place_live)
   set_tests_properties(place.live PROPERTIES TIMEOUT 600)
 endif()
 # ---- module place-live (end) --------------------------------------------------------------------------
+
+# ---- module vectors-c (begin) -------------------------------------------------------------------------
+# The lab captures of the OSD and RBD message layers (harness/vectors/public/osdc: header reads of ten images, object operations, writes
+# with a snapshot context, PG backoffs, data objects of patterned images). osd.vec.replay and rbd.vec.replay (test_osd_vec_replay.c,
+# test_rbd_vec_replay.c, created by the glob above; the design calls them osd.vec_replay and rbd.vec_replay) replay them through the real decoders of core/ and skip with a reason when the
+# directory is absent; vectors_osdc_check is the independent python checker (sizes and hashes against INDEX.json, no stray file, no
+# key-looking text, every message decoded again from its bytes, the refusal table, the data objects against their recipe, the backoffs,
+# the coverage the module promises); vectors_osdc_selftest feeds it 23 damaged copies of the vectors, each of which it must reject (the C side adds osd.vec.sweep: the same bytes damaged
+# on purpose, and every refusal rule of the request encoder).
+if(WR_PYTHON3)
+  add_test(NAME vectors_osdc_check COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_osdc.py" check)
+  set_tests_properties(vectors_osdc_check PROPERTIES LABELS "vectors;checks" TIMEOUT 120 SKIP_RETURN_CODE 77)
+  add_test(NAME vectors_osdc_selftest COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_osdc.py" selftest)
+  set_tests_properties(vectors_osdc_selftest PROPERTIES LABELS "vectors;checks" TIMEOUT 600 SKIP_RETURN_CODE 77)
+endif()
+if(TARGET test_osd_vec_replay)
+  set_tests_properties(osd.vec.replay PROPERTIES TIMEOUT 120) # CMake turns every underscore of the file name into a dot
+endif()
+if(TARGET test_rbd_vec_replay)
+  set_tests_properties(rbd.vec.replay PROPERTIES TIMEOUT 300)
+endif()
+if(TARGET test_osd_vec_backoff)
+  set_tests_properties(osd.vec.backoff PROPERTIES TIMEOUT 120)
+endif()
+if(TARGET test_osd_vec_sweep)
+  set_tests_properties(osd.vec.sweep PROPERTIES TIMEOUT 300) # 77 million checks: 2 s plain, 6 s under the sanitizers on the lab VM
+endif()
+# ---- module vectors-c (end) ---------------------------------------------------------------------------
+
+# ---- module vectors-d (begin) -------------------------------------------------------------------------
+# The lab captures of the core's own image I/O (harness/vectors/public/imgio: three scripted sessions of wr-rbd against a real OSD, the
+# requests the core sent, the OSD's replies, the stock export of each image before and after). imgio.replay (test_imgio_replay.c, created by
+# the glob above) re-encodes every captured request, runs the same scripts through the whole engine against the simulated OSDs and compares
+# request by request and answer by answer with the real OSD, then the content with the export; vectors_imgio_check is the independent python
+# checker (check_imgio.py: everything check_osdc.py checks plus the image level: object names, snapshot context, the payload against the
+# script's patterns, a model of the objects replayed over the requests against every read reply and the export); vectors_imgio_selftest feeds
+# it damaged copies. All three skip with a reason when the directory is absent.
+if(WR_PYTHON3)
+  add_test(NAME vectors_imgio_check COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_imgio.py" check)
+  set_tests_properties(vectors_imgio_check PROPERTIES LABELS "vectors;checks" TIMEOUT 120 SKIP_RETURN_CODE 77)
+  add_test(NAME vectors_imgio_selftest COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_imgio.py" selftest)
+  set_tests_properties(vectors_imgio_selftest PROPERTIES LABELS "vectors;checks" TIMEOUT 600 SKIP_RETURN_CODE 77)
+endif()
+if(TARGET test_imgio_replay)
+  set_tests_properties(imgio.replay PROPERTIES TIMEOUT 300)
+endif()
+# ---- module vectors-d (end) ---------------------------------------------------------------------------
 
 message(STATUS "winrbd harness: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, core sources: ${WR_CORE_SOURCES}")

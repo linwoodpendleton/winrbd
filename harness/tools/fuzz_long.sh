@@ -13,6 +13,9 @@
 #   -t LIST      only these targets, e.g. "fuzz_m2_rx fuzz_cx_reply" (default: every harness/fuzz/fuzz_*.c)
 #   -p PRESET    a named group instead of -t: "partb" = the five targets of Phase 1 part B (OSD map, CRUSH, placement):
 #                fuzz_crush_dec fuzz_crush_map fuzz_osdmap_full fuzz_osdmap_inc fuzz_mapstore
+#                "partc" = the seven targets of Phase 1 part C (OSD messages, RBD calls and open, OSD sessions, the request engine and
+#                the whole client with an image): fuzz_osd_reply fuzz_osd_backoff fuzz_rbd_cls fuzz_osd_sess fuzz_osd_req
+#                fuzz_rbd_open fuzz_client_osd
 #   -m           afterwards minimise each corpus against the committed seeds and print the new inputs worth committing
 #                (copy them into harness/fuzz/seeds/<target>/ by hand after reading them: they are fuzzer output)
 #
@@ -28,6 +31,7 @@ only=""
 merge=0
 chosen=0
 partb="fuzz_crush_dec fuzz_crush_map fuzz_osdmap_full fuzz_osdmap_inc fuzz_mapstore"
+partc="fuzz_osd_reply fuzz_osd_backoff fuzz_rbd_cls fuzz_osd_sess fuzz_osd_req fuzz_rbd_open fuzz_client_osd"
 while getopts "s:j:o:t:p:m" o; do
 	case $o in
 	s) secs=$OPTARG ;;
@@ -36,12 +40,18 @@ while getopts "s:j:o:t:p:m" o; do
 	t) only=$OPTARG; chosen=$((chosen + 1)) ;;
 	p) chosen=$((chosen + 1)); case $OPTARG in
 	   partb) only=$partb ;;
-	   *) echo "fuzz_long: unknown preset '$OPTARG' (partb)" >&2; exit 2 ;;
+	   partc) only=$partc ;;
+	   *) echo "fuzz_long: unknown preset '$OPTARG' (partb, partc)" >&2; exit 2 ;;
 	   esac ;;
 	m) merge=1 ;;
 	*) echo "usage: fuzz_long.sh [-s SECONDS] [-j JOBS] [-o WORKDIR] [-t TARGETS | -p PRESET] [-m]" >&2; exit 2 ;;
 	esac
 done
+
+# a typo in a number must not become a run of zero seconds that "finds nothing" (libFuzzer takes -max_total_time=0 as "no limit",
+# and a shell arithmetic error would only show up after the build)
+case $secs in '' | *[!0-9]* | 0) echo "fuzz_long: -s takes a number of seconds above 0" >&2; exit 2 ;; esac
+case $jobs in '' | *[!0-9]* | 0) echo "fuzz_long: -j takes a number above 0" >&2; exit 2 ;; esac
 
 # -t and -p both choose the target list: giving both is a mistake, not "the last one wins"
 if [ "$chosen" -gt 1 ]; then

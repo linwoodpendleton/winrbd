@@ -123,3 +123,94 @@ void wr_config_enable_maps(wr_config *cfg, wr_map_profile p)
 	}
 	cfg->map_refetch_ms = 1000;
 }
+
+/*
+ * OSD client and RBD image layer (docs/design/core-architecture.md section 26). Opt-in like the map module: the three
+ * profiles leave osd_sessions at 0. The numbers are first estimates from the layout arithmetic of section 26.2; the
+ * footprint test of the glue module (client-glue-osd) measures them and corrects this table and the architecture document
+ * together. Sessions are connections, so max_conns grows by osd_sessions (the monitor keeps its two); more handshake slots let
+ * several OSD sessions authenticate at the same time (module cx-hs makes the cephx client per-handshake).
+ */
+/* One function per profile: a single function with all three tables of stores has a frame above the 1 KiB limit under clang's -O0 sanitizer build. */
+static void osd_ipxe(wr_config *cfg)
+{
+	cfg->osd_sessions = 6;
+	cfg->max_handshakes = 2;
+	cfg->max_ops = 16;
+	cfg->ctl_ops = 2;
+	cfg->max_images = 1;
+	cfg->max_reqs = 8;
+	cfg->max_snaps = 16;
+	cfg->backoff_slots = 8;
+	cfg->osd_front_cap = 2048;
+	cfg->op_bytes_max = 1024u * 1024u;
+	cfg->inflight_bytes_max = 4u * 1024u * 1024u;
+	cfg->zombie_bytes = 1024u * 1024u;
+	cfg->op_timeout_ms = 5000;
+	cfg->osd_connect_timeout_ms = 2000;
+	cfg->hdr_refresh_ms = 30000;
+	cfg->img_ctl_bytes = 4096;
+	cfg->osd_idle_ms = 0;
+}
+
+static void osd_kernel(wr_config *cfg)
+{
+	cfg->osd_sessions = 16;
+	cfg->max_handshakes = 4;
+	cfg->max_ops = 256;
+	cfg->ctl_ops = 4;
+	cfg->max_images = 4;
+	cfg->max_reqs = 128;
+	cfg->max_snaps = 64;
+	cfg->backoff_slots = 32;
+	cfg->osd_front_cap = 4096;
+	cfg->op_bytes_max = 4u * 1024u * 1024u;
+	cfg->inflight_bytes_max = 32u * 1024u * 1024u;
+	cfg->zombie_bytes = 8u * 1024u * 1024u;
+	cfg->op_timeout_ms = 10000;
+	cfg->osd_connect_timeout_ms = 3000;
+	cfg->hdr_refresh_ms = 30000;
+	cfg->img_ctl_bytes = 8192;
+	cfg->osd_idle_ms = 300000;
+}
+
+static void osd_harness(wr_config *cfg)
+{
+	cfg->osd_sessions = 48;
+	cfg->max_handshakes = 8;
+	cfg->max_ops = 1024;
+	cfg->ctl_ops = 8;
+	cfg->max_images = 8;
+	cfg->max_reqs = 512;
+	cfg->max_snaps = 256;
+	cfg->backoff_slots = 128;
+	cfg->osd_front_cap = 8192;
+	cfg->op_bytes_max = 4u * 1024u * 1024u;
+	cfg->inflight_bytes_max = 64u * 1024u * 1024u;
+	cfg->zombie_bytes = 16u * 1024u * 1024u;
+	cfg->op_timeout_ms = 10000;
+	cfg->osd_connect_timeout_ms = 3000;
+	cfg->hdr_refresh_ms = 10000;
+	cfg->img_ctl_bytes = 16384;
+	cfg->osd_idle_ms = 300000;
+}
+
+void wr_config_enable_osd(wr_config *cfg, wr_map_profile p)
+{
+	switch (p) {
+	case WR_MAPS_IPXE:
+		osd_ipxe(cfg);
+		break;
+	case WR_MAPS_KERNEL:
+		osd_kernel(cfg);
+		break;
+	case WR_MAPS_HARNESS:
+		osd_harness(cfg);
+		break;
+	default:
+		return; /* not a profile: leave the configuration exactly as it was */
+	}
+	cfg->max_conns = (uint16_t)(cfg->osd_sessions + 2u); /* the monitor session and the one that replaces it during a renewal */
+	cfg->map_stale_ms = 30000;
+	cfg->osd_flags = (uint8_t)(WR_OSDF_FULL_TRY | WR_OSDF_HONOR_PAUSE);
+}
