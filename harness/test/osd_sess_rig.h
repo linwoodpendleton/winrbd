@@ -430,13 +430,15 @@ typedef struct rframe {
 	uint32_t n;
 } rframe;
 
+/* A frame never gets this long; if one did, the last byte would be reused (and n stays at the size). The store is guarded by the very test
+ * that bounds its index: a clamped index (min(n, size - 1)) is just as safe, but GCC 15 at -O3 threads the jumps of the inlined calls and
+ * then warns about a path with index 4096 that cannot happen (-Wstringop-overflow; the warning goes away with -fno-thread-jumps). */
 static inline void rf_u8(rframe *f, uint8_t v)
 {
-	uint32_t n = f->n < (uint32_t)sizeof(f->b) - 1u ? f->n : (uint32_t)sizeof(f->b) - 1u; /* a frame never gets this long: the last byte is reused */
-
-	f->b[n] = v;
 	if (f->n < (uint32_t)sizeof(f->b))
-		f->n++;
+		f->b[f->n++] = v;
+	else
+		f->b[sizeof(f->b) - 1u] = v;
 }
 static inline void rf_le(rframe *f, uint64_t v, unsigned bytes)
 {

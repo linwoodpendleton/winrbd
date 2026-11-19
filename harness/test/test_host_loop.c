@@ -11,7 +11,10 @@
  *                           checks that every send asks for MSG_NOSIGNAL
  *   recv    -> hk_recv      one byte at a time, EAGAIN, EINTR, errors on demand
  *   connect -> hk_connect   counts and timestamps every dial; an immediate failure on demand
- *   poll    -> hk_poll      counts the waits and records the longest one (idle must sleep)
+ *   poll    -> hk_poll      counts the waits and records the longest one (idle must sleep); where a test arms it,
+ *                           checks that no wait is planned past a deadline the pump knows
+ *   wrl_clock / wr_client_run -> the pump's clock readings (dials are stamped with them) and the wait the
+ *                           engine plans after a failed connect (the back-off, read from the engine, not timed)
  *   wr_conn_closed / wr_conn_connected -> spies that log what the pump told the engine (errno included)
  *
  * Checked: a session to ACTIVE with both key types; delivery of the monitor's maps and of a pushed epoch
@@ -52,6 +55,7 @@
 
 #include "wrt.h"
 #include "sim_mon.h"
+#include "wri_client.h" /* WRI_CLIENT_CONNECT_GRACE_MS */
 
 #include "../host/wrl_sys.c"
 
@@ -67,6 +71,8 @@ static int hk_fcntl(int fd, int cmd, ...);
 static int spy_next_action(wr_client *c, wr_action *a);
 static size_t spy_tx_peek(wr_client *c, wr_conn_id id, wr_iov *iov, size_t max_iov);
 static void spy_tx_consume(wr_client *c, wr_conn_id id, size_t n);
+static void spy_clock(wr_clock *c);
+static wr_run_result spy_run(wr_client *c, const wr_clock *now, uint32_t work_budget);
 #define sendmsg hk_sendmsg
 #define recv hk_recv
 #define connect hk_connect
@@ -77,6 +83,8 @@ static void spy_tx_consume(wr_client *c, wr_conn_id id, size_t n);
 #define wr_client_next_action spy_next_action
 #define wr_conn_tx_peek spy_tx_peek
 #define wr_conn_tx_consume spy_tx_consume
+#define wrl_clock spy_clock
+#define wr_client_run spy_run
 
 #include "../host/wrl_loop.c"
 
@@ -90,6 +98,28 @@ static void spy_tx_consume(wr_client *c, wr_conn_id id, size_t n);
 #undef wr_client_next_action
 #undef wr_conn_tx_peek
 #undef wr_conn_tx_consume
+#undef wrl_clock
+#undef wr_client_run
+
+/* The pump's last clock reading: the `now` of the step that dials, from which the connect's deadline is counted (wrl_loop_step reads the
+ * clock, runs the engine, then dials). A dial is stamped with it, not with a later reading: the time the engine's run takes before the dial
+ * (a slow Debug build on a loaded machine) would otherwise come off the measured timeout and a correct pump could look early. */
+static uint64_t g_pump_ms;
+/* g_mark: the next reading is also kept in g_mark_ms (the clock a wrl_loop_run starts from is its first reading) */
+static int g_mark;
+static uint64_t g_mark_ms;
+
+static void spy_clock(wr_clock *c)
+{
+	wrl_clock(c);
+	if (c != NULL) {
+		g_pump_ms = c->mono_ms;
+		if (g_mark) {
+			g_mark = 0;
+			g_mark_ms = c->mono_ms;
+		}
+	}
+}
 
 #define MAXCON 64u
 #define MAXEV 512u
@@ -117,16 +147,22 @@ static struct hk {
 	int max_poll_ms;
 	int last_fd;                        /* the socket of the last recv */
 	uint64_t conn_at[MAXCON];
+	int watch;                          /* check every wait against the deadlines (watch_wait) */
+	int watch_run;                      /* > 0: and against g_mark_ms + this (the end of a run) */
+	unsigned n_overslept;
 } hk;
 
 static struct spy {
 	struct {
 		wr_conn_id id;
 		int err;
-		uint64_t at;
+		uint64_t at, at_pump; /* at_pump: the clock of the step that closed it */
 	} closed[MAXCON];
 	unsigned n_closed, n_connected;
 	wr_conn_id connected[MAXCON];
+	/* the wait the engine planned in its first run after each close: its next deadline less the clock it ran with */
+	uint64_t plan[MAXCON];
+	unsigned n_plan, plan_seen;
 } sp;
 
 /* Actions the test hands to the pump ahead of the engine's own, and a lying tx_peek for fake connections. */
@@ -209,7 +245,7 @@ static ssize_t hk_recv(int fd, void *buf, size_t n, int flags)
 static int hk_connect(int fd, const struct sockaddr *sa, socklen_t sl)
 {
 	if (hk.n_connect < (long)MAXCON)
-		hk.conn_at[hk.n_connect] = now_ms();
+		hk.conn_at[hk.n_connect] = g_pump_ms; /* see spy_clock */
 	hk.n_connect++;
 	if (hk.connect_err != 0) {
 		errno = hk.connect_err;
@@ -219,8 +255,12 @@ static int hk_connect(int fd, const struct sockaddr *sa, socklen_t sl)
 	return connect(fd, sa, sl);
 }
 
+static void watch_wait(int timeout);
+
 static int hk_poll(struct pollfd *pf, nfds_t n, int timeout)
 {
+	if (hk.watch)
+		watch_wait(timeout);
 	if (timeout != 0) {
 		hk.n_poll++;
 		if (timeout > hk.max_poll_ms)
@@ -235,6 +275,7 @@ static void spy_closed(wr_client *c, wr_conn_id id, int err)
 		sp.closed[sp.n_closed].id = id;
 		sp.closed[sp.n_closed].err = err;
 		sp.closed[sp.n_closed].at = now_ms();
+		sp.closed[sp.n_closed].at_pump = g_pump_ms;
 	}
 	sp.n_closed++;
 	wr_conn_closed(c, id, err);
@@ -612,6 +653,49 @@ static struct col {
 	int hold_maps;
 } C;
 
+/* A wait of the pump, checked against the deadlines it knows (armed with hk.watch): the engine's next one, the deadline of the dial
+ * still connecting (counted from the clock of the step that dialled, with the monitor's connect timeout), and the end of the run
+ * (hk.watch_run). The clock the pump planned the wait from is the one spy_clock saw last. A wait planned past one of them is what a pump
+ * that ignored a timeout would do; the check does not depend on how promptly a loaded machine wakes the process up afterwards. */
+static void watch_wait(int timeout)
+{
+	uint64_t now = g_pump_ms, wake = timeout < 0 ? UINT64_MAX : now + (uint64_t)timeout, lim = UINT64_MAX;
+
+	if (timeout == 0 || R.l == NULL)
+		return;
+	if (R.l->next_deadline_ms != WR_DEADLINE_NONE)
+		lim = R.l->next_deadline_ms;
+	if (hk.n_connect > 0 && hk.n_connect <= (long)MAXCON && (unsigned)hk.n_connect > sp.n_closed + sp.n_connected) {
+		uint64_t d = hk.conn_at[hk.n_connect - 1] + R.cfg.connect_timeout_ms;
+
+		if (d < lim)
+			lim = d;
+	}
+	if (hk.watch_run > 0 && g_mark_ms + (uint64_t)hk.watch_run < lim)
+		lim = g_mark_ms + (uint64_t)hk.watch_run;
+	if (lim < now)
+		lim = now;
+	if (wake > lim) {
+		if (hk.n_overslept == 0)
+			fprintf(stderr, "  the pump planned a wait to %llu, past a deadline at %llu\n", (unsigned long long)wake, (unsigned long long)lim);
+		hk.n_overslept++;
+	}
+}
+
+/* After each close the engine plans its next attempt: the first run after it is asked for its next deadline. */
+static wr_run_result spy_run(wr_client *c, const wr_clock *now, uint32_t work_budget)
+{
+	wr_run_result r = wr_client_run(c, now, work_budget);
+
+	if (sp.plan_seen < sp.n_closed) {
+		sp.plan_seen = sp.n_closed;
+		if (sp.n_plan < MAXCON)
+			sp.plan[sp.n_plan++] = r.next_deadline_ms == WR_DEADLINE_NONE ? UINT64_MAX
+					       : r.next_deadline_ms > now->mono_ms ? r.next_deadline_ms - now->mono_ms : 0;
+	}
+	return r;
+}
+
 /* Random bytes that fail once the flag is set (the engine draws its first ones at create, so the failure is
  * armed after that). */
 static int g_rng_fail;
@@ -700,11 +784,6 @@ static int collect(void *arg)
 	return 0;
 }
 
-static int stop_never(void *arg)
-{
-	return collect(arg);
-}
-
 static int stop_active_maps(void *arg)
 {
 	collect(arg);
@@ -750,10 +829,18 @@ static int stop_closed(void *arg)
 	return sp.n_closed >= *(const unsigned *)arg;
 }
 
-/* Run until stop or timeout; the checks name what was waited for. */
+/* Run until stop or timeout; the checks name what was waited for. When the time is up, one more step without a wait runs first: after a
+ * stall of the process (a loaded machine), what has become due meanwhile is handled before stop is asked the last time. */
 static wr_status run_until(int (*stop)(void *), void *arg, int ms)
 {
-	return wrl_loop_run(R.l, stop, arg, ms);
+	wr_status st = wrl_loop_run(R.l, stop, arg, ms);
+
+	if (st == WR_E_TIMEOUT && stop != NULL) {
+		st = wrl_loop_step(R.l, 0);
+		if (st == WR_OK)
+			st = stop(arg) ? WR_OK : WR_E_TIMEOUT;
+	}
+	return st;
 }
 
 /* Steps for `ms` milliseconds; returns the number of steps taken. */
@@ -870,34 +957,46 @@ static unsigned closed_port(void)
 	return p;
 }
 
-/* Nothing listens: ECONNREFUSED, hunting, UNREACHABLE after every round, a growing wait, no spinning. */
+static int stop_connects(void *arg)
+{
+	collect(NULL);
+	return hk.n_connect >= *(const long *)arg;
+}
+
+/* Nothing listens: ECONNREFUSED, hunting, UNREACHABLE after every round, a growing wait, no spinning.
+ * The back-off is read from the engine (the wait it planned after each refusal, from the clock it ran with), and the pump is checked to
+ * honour it: it never dials before that wait is over (the dials are stamped with the pump's clock) and never plans a wait past it
+ * (hk.watch). Wall-clock gaps are not compared: a stall of the process inside the first, shortest wait made it look as long as a later one. */
 static void test_connect_refused(void)
 {
 	unsigned i, n;
-	uint64_t first_gap, last_gap;
+	long six = 6;
 
 	rig_start(WR_KEY_TYPE_AES256K, 0, (uint16_t)closed_port(), NULL, 0);
-	WRT_CHECK_STATUS(WR_E_TIMEOUT, run_until(stop_never, NULL, 1800));
+	hk.watch = 1;
+	WRT_CHECK_STATUS(WR_OK, run_until(stop_connects, &six, 20000)); /* the waits add up to about 1.1 s */
 	WRT_CHECK(wr_client_get_state(R.c) == WR_CS_HUNTING);
 	WRT_CHECK(C.n_kind[WR_EV_CLUSTER_UNREACHABLE] >= 3);
 	WRT_CHECK_U64(C.n_kind[WR_EV_MON_SESSION_UP], 0);
 	n = hk.n_connect < (long)MAXCON ? (unsigned)hk.n_connect : MAXCON;
-	WRT_CHECK(n >= 5 && n <= 20);
+	WRT_CHECK(n >= 6);
 	WRT_CHECK(sp.n_closed >= n - 1u);
+	WRT_CHECK(sp.n_plan >= n - 1u);
 	for (i = 0; i < sp.n_closed && i < n - 1u; i++)
 		WRT_CHECK_U64(sp.closed[i].err, ECONNREFUSED);
-	for (i = 1; i < n; i++) {
-		uint64_t gap = hk.conn_at[i] - hk.conn_at[i - 1u];
+	for (i = 0; i + 1u < n && i < sp.n_plan; i++) {
+		uint64_t gap = hk.conn_at[i + 1u] - hk.conn_at[i];
 
-		WRT_CHECK(gap >= 45u);  /* never below the minimum wait */
-		WRT_CHECK(gap <= 700u); /* never far above the maximum (400 ms) */
+		if (!(sp.plan[i] >= 50u && sp.plan[i] <= 400u && gap >= sp.plan[i]))
+			fprintf(stderr, "  refusal %u: the engine planned %llu ms, the pump dialled again %llu ms later\n", i,
+				(unsigned long long)sp.plan[i], (unsigned long long)gap);
+		WRT_CHECK(sp.plan[i] >= 50u && sp.plan[i] <= 400u); /* hunt_backoff_min_ms .. hunt_backoff_max_ms */
+		WRT_CHECK(gap >= sp.plan[i]);                        /* the pump never dials before the wait is over */
 	}
-	if (n >= 5) {
-		first_gap = hk.conn_at[1] - hk.conn_at[0];
-		last_gap = hk.conn_at[n - 1u] - hk.conn_at[n - 2u];
-		WRT_CHECK(last_gap >= 2u * first_gap); /* exponential back-off */
-	}
-	WRT_CHECK(hk.n_poll < 60); /* it slept between attempts */
+	if (n >= 6 && sp.n_plan >= 5u)
+		WRT_CHECK(sp.plan[4] >= 2u * sp.plan[0]); /* exponential back-off: 50, then 100, 200, 400 less a quarter at most */
+	WRT_CHECK(hk.n_poll < 60);                        /* it slept between attempts */
+	WRT_CHECK_U64(hk.n_overslept, 0);                 /* and woke up when the engine's wait was over */
 	WRT_CHECK_U64(wrl_loop_open_sockets(R.l), 0);
 	WRT_CHECK(C.ev[0].kind != WR_EV_NONE);
 	rig_stop();
@@ -942,12 +1041,22 @@ static void test_connect_timeout(void)
 		fprintf(stderr, "note: this kernel completes connects to a full accept queue; connect timeout test skipped\n");
 	} else {
 		rig_start(WR_KEY_TYPE_AES256K, 0, port, tweak_connect_tmo, 0);
-		WRT_CHECK_STATUS(WR_OK, run_until(stop_closed, &(unsigned){1}, 3000));
+		hk.watch = 1;
+		WRT_CHECK_STATUS(WR_OK, run_until(stop_closed, &(unsigned){1}, 10000));
 		t0 = hk.conn_at[0];
 		WRT_CHECK(sp.n_closed >= 1);
-		WRT_CHECK_U64(sp.closed[0].err, ETIMEDOUT);
-		dt = sp.closed[0].at - t0;
-		WRT_CHECK(dt >= 280u && dt <= 800u);
+		dt = sp.closed[0].at_pump - t0;
+		/* The pump gives up with ETIMEDOUT. The engine's own guard on the connect (the timeout + WRI_CLIENT_CONNECT_GRACE_MS) runs first
+		 * in a step, so a step that only got to run once the guard was due too (the process was stalled) sees the engine's CLOSE: err 0. */
+		if (sp.closed[0].err == 0 && dt >= 300u + WRI_CLIENT_CONNECT_GRACE_MS)
+			fprintf(stderr, "  (the pump only ran again %llu ms after the dial: the engine's own guard closed it)\n", (unsigned long long)dt);
+		else
+			WRT_CHECK_U64(sp.closed[0].err, ETIMEDOUT);
+		/* never before the deadline (t0 is the clock it is counted from, dt the clock of the step that closed it); never a wait planned
+		 * past it (hk.watch): the pump gives up AT the timeout, however late a loaded machine wakes the process up */
+		WRT_CHECK(dt >= 300u);
+		WRT_CHECK_U64(hk.n_overslept, 0);
+		fprintf(stderr, "  (connect given up %llu ms after the dial, timeout 300)\n", (unsigned long long)dt);
 		WRT_CHECK_U64(wrl_loop_open_sockets(R.l), 0);
 		rig_stop();
 	}
@@ -1150,11 +1259,18 @@ static void test_api_and_fatal(void)
 	/* stop is asked before the first step */
 	WRT_CHECK_STATUS(WR_OK, wrl_loop_run(R.l, stop_after_n, &calls, 1000));
 	WRT_CHECK_U64(hk.n_connect, 0);
-	/* the timeout is honoured and not by a long way overshot */
+	/* the timeout is honoured: not before it, and no wait planned past it (hk.watch, from the clock the run started with), however
+	 * late a loaded machine wakes the process up */
+	hk.watch = 1;
+	hk.watch_run = 200;
+	g_mark = 1; /* the run's first reading is the clock it counts the 200 ms from */
 	t = now_ms();
 	WRT_CHECK_STATUS(WR_E_TIMEOUT, wrl_loop_run(R.l, NULL, NULL, 200));
 	t = now_ms() - t;
-	WRT_CHECK(t >= 190u && t < 600u);
+	WRT_CHECK(t >= 200u);
+	WRT_CHECK_U64(hk.n_overslept, 0);
+	hk.watch = 0;
+	hk.watch_run = 0;
 	WRT_CHECK_STATUS(WR_E_TIMEOUT, wrl_loop_run(R.l, NULL, NULL, 0));
 	rig_stop();
 
@@ -1367,7 +1483,9 @@ static void test_injected_actions(void)
 	WRT_CHECK_U64(n_emfile, 70u - (64u - base));
 	WRT_CHECK(closed_err_of(FAKE_BASE + 100u + (64u - base)) == EMFILE); /* the first one that did not fit */
 	WRT_CHECK(closed_err_of(FAKE_BASE + 100u) == -1);                    /* and the first one fitted */
-	(void)steps_for(50); /* the connects complete (or already had) and are reported to the engine */
+	/* the connects complete (or already had) and are reported to the engine: waited for, not assumed done after a fixed time */
+	for (i = 0; i < 500 && !connected_has(FAKE_BASE + 100u); i++)
+		(void)steps_for(10);
 	WRT_CHECK(connected_has(FAKE_BASE + 100u));
 	WRT_CHECK_U64(wrl_loop_open_sockets(R.l), 64);
 
@@ -1428,14 +1546,16 @@ static void test_injected_actions(void)
 	if (l6 >= 0) {
 		inj_connect(FAKE_BASE + 300u, WR_AF_IPV6, port6, lo6, 16);
 		WRT_CHECK_STATUS(WR_OK, wrl_loop_step(R.l, 0));
-		(void)steps_for(50);
+		for (i = 0; i < 500 && !connected_has(FAKE_BASE + 300u); i++)
+			(void)steps_for(10);
 		WRT_CHECK(connected_has(FAKE_BASE + 300u));
 		WRT_CHECK_U64(wrl_loop_open_sockets(R.l), base + 1u);
 		inj_close(FAKE_BASE + 300u);
 		close(l6); /* now nothing listens there */
 		inj_connect(FAKE_BASE + 301u, WR_AF_IPV6, port6, lo6, 16);
 		WRT_CHECK_STATUS(WR_OK, wrl_loop_step(R.l, 0));
-		(void)steps_for(50);
+		for (i = 0; i < 500 && closed_err_of(FAKE_BASE + 301u) == -1; i++)
+			(void)steps_for(10);
 		WRT_CHECK_U64(closed_err_of(FAKE_BASE + 301u), ECONNREFUSED);
 		WRT_CHECK_U64(wrl_loop_open_sockets(R.l), base);
 	}

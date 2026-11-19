@@ -7,7 +7,10 @@
  * wrl_loop_run exactly as a program would and submits image requests through the public API only.
  *
  * The pump source is included, not linked (like test_host_loop.c), so that a few hooks can see what it does: socket / close (every descriptor the pump
- * creates must be closed again), connect, the actions it is given (the timeout each CONNECT carries) and wr_conn_closed (errno and time of every end).
+ * creates must be closed again), connect, poll (no wait planned past a deadline the pump knows; the waits that ran out), the clock (dials are stamped
+ * with the pump's own readings, and a test can hold it), the actions it is given (the timeout each CONNECT carries) and wr_conn_closed / connected
+ * (errno and time of every end). Where a test needs "this cannot have happened yet", it holds a fact in place (a server that stops reading or sending,
+ * a held clock) instead of assuming how far a fast or a slow machine gets in so many milliseconds.
  *
  * Checked:
  *   image I/O      an image opened, written (concurrent, cross-object), flushed, read, discarded and zeroed through real sockets with both key types; every
@@ -16,7 +19,8 @@
  *   server cuts    an OSD that closes in the middle of a reply (orderly close and reset) and one that executes a write and cuts without answering: the
  *                  engine reconnects, resends, the data is right and the duplicate is recognised by the OSD
  *   unreachable    a monitor and an OSD whose connect never completes (accept queue full): each CONNECT carries its own timeout and the pump honours it
- *                  (ETIMEDOUT at the monitor's and at the OSD's own value); the requests of the OTHER OSDs complete long before the connect timeout;
+ *                  (ETIMEDOUT at the monitor's and at the OSD's own value); the requests of the OTHER OSDs complete with the clock held, before the
+ *                  connect timeout could come due;
  *                  the stalled ones finish after the OSD comes back. A silent OSD (accepts, never answers): the handshake timeout makes the engine ask for
  *                  the close and the pump answers it
  *   50 sockets     49 OSDs and the monitor at once (the harness profile, 50 live sockets within the pump's 64) with all of them in use
@@ -64,21 +68,48 @@
 static int hk_socket(int domain, int type, int proto);
 static int hk_close(int fd);
 static int hk_connect(int fd, const struct sockaddr *sa, socklen_t sl);
+static int hk_poll(struct pollfd *pf, nfds_t n, int timeout);
 static void spy_closed(wr_client *c, wr_conn_id id, int err);
+static void spy_connected(wr_client *c, wr_conn_id id);
 static int spy_next_action(wr_client *c, wr_action *a);
+static void spy_clock(wr_clock *c);
 #define socket hk_socket
 #define close hk_close
 #define connect hk_connect
+#define poll hk_poll
 #define wr_conn_closed spy_closed
+#define wr_conn_connected spy_connected
 #define wr_client_next_action spy_next_action
+#define wrl_clock spy_clock
 
 #include "../host/wrl_loop.c"
 
 #undef socket
 #undef close
 #undef connect
+#undef poll
 #undef wr_conn_closed
+#undef wr_conn_connected
 #undef wr_client_next_action
+#undef wrl_clock
+
+/* The pump's last clock reading: the `now` of the step that takes an action, from which a CONNECT's deadline is counted (wrl_loop_step reads
+ * the clock, runs the engine, then takes the actions). A dial is stamped with it, not with a later reading: the time the engine's first run
+ * takes (a slow Debug build on a loaded machine) would otherwise come off the measured timeout and a correct pump could look early.
+ * The clock can also be held (g_hold, see pump_held): the pump and the engine then see no time pass, so no timer of either can fire, and
+ * whatever completes meanwhile was moved on by I/O alone, however long the machine took. */
+static uint64_t g_pump_ms, g_hold_ms;
+static int g_hold;
+
+static void spy_clock(wr_clock *c)
+{
+	wrl_clock(c);
+	if (c != NULL) {
+		if (g_hold)
+			c->mono_ms = g_hold_ms;
+		g_pump_ms = c->mono_ms;
+	}
+}
 
 static uint64_t now_ms(void)
 {
@@ -120,8 +151,8 @@ typedef struct dial {
 	wr_conn_id id;
 	uint16_t port;
 	uint32_t tmo;
-	uint64_t t_act, t_closed;
-	int closed, err;
+	uint64_t t_act, t_closed, t_closed_pump; /* t_closed_pump: the clock of the step that closed it */
+	int closed, err, connected;
 } dial;
 #define MAXDIAL 2048u
 static dial D[MAXDIAL];
@@ -143,10 +174,24 @@ static void spy_closed(wr_client *c, wr_conn_id id, int err)
 			D[i - 1u].closed = 1;
 			D[i - 1u].err = err;
 			D[i - 1u].t_closed = now_ms();
+			D[i - 1u].t_closed_pump = g_pump_ms;
 			break;
 		}
 	}
 	wr_conn_closed(c, id, err);
+}
+
+static void spy_connected(wr_client *c, wr_conn_id id)
+{
+	unsigned i;
+
+	for (i = nD; i > 0; i--) {
+		if (D[i - 1u].id == id && !D[i - 1u].closed) {
+			D[i - 1u].connected = 1; /* its connect deadline no longer applies */
+			break;
+		}
+	}
+	wr_conn_connected(c, id);
 }
 
 static int spy_next_action(wr_client *c, wr_action *a)
@@ -157,9 +202,10 @@ static int spy_next_action(wr_client *c, wr_action *a)
 		D[nD].id = a->conn;
 		D[nD].port = a->addr.port;
 		D[nD].tmo = a->timeout_ms;
-		D[nD].t_act = now_ms();
+		D[nD].t_act = g_pump_ms; /* the deadline is t_act + tmo exactly; t_closed is read after the step that saw it pass */
 		D[nD].closed = 0;
 		D[nD].err = 0;
+		D[nD].connected = 0;
 		nD++;
 	}
 	return r;
@@ -222,6 +268,11 @@ typedef struct srv {
 	/* knobs, set under the mutex */
 	int mode, bh_acked;
 	size_t wr_chunk, rd_chunk;
+	/* caps: when set, the server reads (sends) at most rd_left (wr_left) more bytes over all its connections, then nothing until the cap is
+	 * lifted; what the host sends meanwhile waits in the kernel. A test that needs "this cannot have finished yet" sets a cap smaller than
+	 * the data the requests need, so that it holds whatever the speed of the machine (a slow chunk size alone only makes it unlikely). */
+	int rd_capped, wr_capped;
+	size_t rd_left, wr_left;
 	int cut, cut_rst;
 	uint32_t cut_base;
 	/* stats */
@@ -329,11 +380,16 @@ static void s_conn(srv *s, sconn *c, short rev)
 		}
 		return;
 	}
-	if (rev & (POLLIN | POLLHUP | POLLERR)) {
+	if ((rev & (POLLIN | POLLHUP | POLLERR)) && !(s->rd_capped && s->rd_left == 0)) {
 		size_t want = s->rd_chunk != 0 ? s->rd_chunk : sizeof(buf);
-		ssize_t n = recv(c->fd, buf, want < sizeof(buf) ? want : sizeof(buf), 0);
+		ssize_t n;
 
+		if (s->rd_capped && want > s->rd_left)
+			want = s->rd_left;
+		n = recv(c->fd, buf, want < sizeof(buf) ? want : sizeof(buf), 0);
 		if (n > 0) {
+			if (s->rd_capped)
+				s->rd_left -= (size_t)n;
 			(void)sc_feed(s, c, buf, (size_t)n);
 		} else if (n == 0 || (errno != EAGAIN && errno != EINTR)) {
 			s->n_eof++;
@@ -360,14 +416,18 @@ static void s_conn(srv *s, sconn *c, short rev)
 			s->n_cut++;
 		}
 	}
-	if (c->out_len > c->out_off) {
+	if (c->out_len > c->out_off && !(s->wr_capped && s->wr_left == 0)) {
 		size_t left = c->out_len - c->out_off, k = s->wr_chunk != 0 && s->wr_chunk < left ? s->wr_chunk : left;
 		ssize_t w;
 
 		if (c->cutting && k > c->cut_left)
 			k = c->cut_left;
+		if (s->wr_capped && k > s->wr_left)
+			k = s->wr_left;
 		w = send(c->fd, c->out + c->out_off, k, MSG_NOSIGNAL | MSG_DONTWAIT);
 		if (w > 0) {
+			if (s->wr_capped)
+				s->wr_left -= (size_t)w;
 			c->out_off += (size_t)w;
 			if (c->cutting) {
 				c->cut_left -= (size_t)w;
@@ -405,12 +465,18 @@ static void *srv_main(void *arg)
 		pf[0].events = s->mode == M_BLACKHOLE ? 0 : POLLIN;
 		pf[0].revents = 0;
 		for (i = 0; i < SMAX; i++) {
+			short ev = 0;
+
 			if (s->c[i].fd < 0)
 				continue;
+			if (!(s->rd_capped && s->rd_left == 0))
+				ev |= POLLIN;
+			if (s->c[i].out_len > s->c[i].out_off && !(s->wr_capped && s->wr_left == 0))
+				ev |= POLLOUT;
+			if (ev == 0)
+				continue; /* a capped server does not watch the socket (a hang-up would wake the poll at once, over and over) */
 			pf[n].fd = s->c[i].fd;
-			pf[n].events = POLLIN;
-			if (s->c[i].out_len > s->c[i].out_off)
-				pf[n].events |= POLLOUT;
+			pf[n].events = ev;
 			pf[n].revents = 0;
 			idx[n - 1u] = (int)i;
 			n++;
@@ -688,6 +754,69 @@ static void srv_set_mode(srv *s, int mode)
 	s_unlock();
 }
 
+/* Cap what every OSD reads (rd != 0) or sends (rd == 0) from now on to `bytes`, with `chunk` bytes per call; cap_lift ends the caps. */
+static void osds_cap(int rd, size_t bytes, size_t chunk)
+{
+	unsigned i;
+
+	s_lock();
+	for (i = 0; i < G.n_osd; i++) {
+		srv *s = S_OSD(i);
+
+		if (rd) {
+			s->rd_capped = 1;
+			s->rd_left = bytes;
+			s->rd_chunk = chunk;
+		} else {
+			s->wr_capped = 1;
+			s->wr_left = bytes;
+			s->wr_chunk = chunk;
+		}
+	}
+	s_unlock();
+}
+
+static void osds_cap_lift(void)
+{
+	unsigned i;
+
+	s_lock();
+	for (i = 0; i < G.n_osd; i++) {
+		srv *s = S_OSD(i);
+
+		s->rd_capped = s->wr_capped = 0;
+		s->rd_chunk = s->wr_chunk = 0;
+	}
+	s_unlock();
+}
+
+/* Some OSD has used up its read (rd != 0) or send cap. Run as a stop condition, it makes the pump run until the I/O is really under way: a
+ * fact about the servers, not a guess about how far a fast or a slow machine gets in so many milliseconds. */
+static int osd_cap_used(int rd)
+{
+	unsigned i;
+	int hit = 0;
+
+	s_lock();
+	for (i = 0; i < G.n_osd && !hit; i++) {
+		const srv *s = S_OSD(i);
+
+		hit = rd ? s->rd_capped && s->rd_left == 0 : s->wr_capped && s->wr_left == 0;
+	}
+	s_unlock();
+	return hit;
+}
+static int osd_rd_cap_used(void *a)
+{
+	(void)a;
+	return osd_cap_used(1);
+}
+static int osd_wr_cap_used(void *a)
+{
+	(void)a;
+	return osd_cap_used(0);
+}
+
 /* ---- the client side: engine, loop, jobs --------------------------------------------------------------------- */
 
 static struct rig {
@@ -704,6 +833,45 @@ static struct rig {
 	unsigned n_ev_kind[16];
 	unsigned seq;
 } R;
+
+/* Every wait of the pump is checked against the deadlines it knows: the engine's next one and the deadline of every dial still connecting
+ * (the clock it computed the wait from is the one spy_clock saw last). A wait planned past one of them is counted: that is what a pump that
+ * ignored a timeout would do, and the check does not depend on how promptly a loaded machine wakes the process up afterwards.
+ * g_timed_out_waits counts the waits that ended because their time ran out, with nothing to read or write: the pump woke for a timer. */
+static unsigned g_overslept, g_timed_out_waits;
+
+static int hk_poll(struct pollfd *pf, nfds_t n, int timeout)
+{
+	if (timeout != 0 && R.l != NULL) {
+		uint64_t now = g_pump_ms, wake = timeout < 0 ? UINT64_MAX : now + (uint64_t)timeout, lim = UINT64_MAX;
+		unsigned i;
+
+		if (R.l->next_deadline_ms != WR_DEADLINE_NONE)
+			lim = R.l->next_deadline_ms > now ? R.l->next_deadline_ms : now;
+		for (i = 0; i < nD; i++) {
+			if (!D[i].closed && !D[i].connected) {
+				uint64_t d = D[i].t_act + (D[i].tmo != 0 ? D[i].tmo : WRL_CONNECT_DEFAULT_MS);
+
+				if (d < now)
+					d = now;
+				if (d < lim)
+					lim = d;
+			}
+		}
+		if (wake > lim) {
+			if (g_overslept == 0)
+				fprintf(stderr, "  the pump planned a wait to %llu, past a deadline at %llu\n", (unsigned long long)wake, (unsigned long long)lim);
+			g_overslept++;
+		}
+	}
+	{
+		int r = poll(pf, n, timeout);
+
+		if (r == 0 && timeout != 0)
+			g_timed_out_waits++;
+		return r;
+	}
+}
 
 typedef struct job {
 	wr_io_req r;
@@ -767,7 +935,8 @@ static int stop_wrap(void *p)
 	return w->f != NULL ? w->f(w->a) : 0;
 }
 
-/* Run the pump until f(a) holds or ms passed. */
+/* Run the pump until f(a) holds or ms passed. When the time is up, one more step without a wait runs first: after a stall of the process
+ * (a loaded machine), what has become due meanwhile is handled before f is asked the last time, as the next step of a host would. */
 static wr_status pump(int (*f)(void *), void *a, int ms)
 {
 	pw w;
@@ -776,8 +945,44 @@ static wr_status pump(int (*f)(void *), void *a, int ms)
 	w.f = f;
 	w.a = a;
 	st = wrl_loop_run(R.l, stop_wrap, &w, ms);
+	if (st == WR_E_TIMEOUT && f != NULL) {
+		st = wrl_loop_step(R.l, 0);
+		collect();
+		st = st != WR_OK ? st : f(a) ? WR_OK : WR_E_TIMEOUT;
+	}
 	collect();
 	return st;
+}
+
+/* Hold the pump's clock at the present time (on != 0), or let it run again (see spy_clock). */
+static void clock_hold(int on)
+{
+	g_hold = 0;
+	if (on) {
+		g_hold_ms = now_ms();
+		if (g_hold_ms < g_pump_ms)
+			g_hold_ms = g_pump_ms; /* never back */
+		g_hold = 1;
+	}
+}
+
+/* Run the pump, its clock held, until f(a) holds, for at most wall_ms of real time; 1 if it held. No timer can come due meanwhile, so f
+ * came true by I/O alone, on a fast machine or a stalled one. The steps wait at most 20 ms each: the clock the waits are planned from
+ * does not move. */
+static int pump_held(int (*f)(void *), void *a, int wall_ms)
+{
+	uint64_t end = now_ms() + (uint64_t)wall_ms;
+
+	WRT_CHECK(g_hold);
+	for (;;) {
+		collect();
+		if (f(a) || now_ms() >= end)
+			break;
+		if (wrl_loop_step(R.l, 20) != WR_OK)
+			break;
+	}
+	collect();
+	return f(a);
 }
 
 static int stop_never(void *a)
@@ -805,6 +1010,38 @@ static int jr_done(void *a)
 		if (!J[r->first + i].done)
 			return 0;
 	return 1;
+}
+
+static int jr_any_done(unsigned first, unsigned n)
+{
+	unsigned i;
+
+	for (i = 0; i < n; i++)
+		if (J[first + i].done)
+			return 1;
+	return 0;
+}
+
+/* Some of a read's data is in its buffer (it was filled with 0xEE). */
+static int job_landed(const job *j)
+{
+	size_t b;
+
+	for (b = 0; b < (size_t)j->r.length; b++)
+		if (j->buf[b] != 0xEE)
+			return 1;
+	return 0;
+}
+
+static int jr_any_landed(void *a)
+{
+	const jr *r = (const jr *)a;
+	unsigned i;
+
+	for (i = 0; i < r->n; i++)
+		if (job_landed(&J[r->first + i]))
+			return 1;
+	return 0;
 }
 
 static int img_final(void *a)
@@ -902,6 +1139,9 @@ static void client_start(const wopts *o, void (*tweak)(wr_config *))
 	nD = 0;
 	g_connects = 0;
 	g_nfds = 0;
+	g_overslept = 0;
+	g_timed_out_waits = 0;
+	g_hold = 0;
 	cfg_default(&R.cfg);
 	if (tweak != NULL)
 		tweak(&R.cfg);
@@ -933,7 +1173,9 @@ static void client_start(const wopts *o, void (*tweak)(wr_config *))
 static void client_stop(void)
 {
 	wrl_loop_destroy(R.l);
+	R.l = NULL;
 	WRT_CHECK_U64(g_nfds, 0);
+	WRT_CHECK_U64(g_overslept, 0); /* no wait of the pump went past a deadline it knew */
 	wr_client_destroy(R.c);
 	wrl_mem_free(&R.arena);
 	wrl_mem_free(&R.bulk);
@@ -1339,6 +1581,24 @@ static void map_owners(int owner[], unsigned n_obj, int is_hdr[])
 
 #define NOBJ 64u
 
+/* The writes of phase B that the live OSDs own are all done. */
+typedef struct others {
+	const int *owner;
+	int k;
+	unsigned first;
+} others;
+
+static int others_done(void *a)
+{
+	const others *o = (const others *)a;
+	unsigned i;
+
+	for (i = 0; i < NOBJ; i++)
+		if (o->owner[i] != o->k && !J[o->first + i].done)
+			return 0;
+	return 1;
+}
+
 /* One OSD (`mode`: blackhole or silent) is unreachable while writes go to every object. */
 static void scenario_unreachable_osd(int mode)
 {
@@ -1346,9 +1606,10 @@ static void scenario_unreachable_osd(int mode)
 	int owner[NOBJ], is_hdr[8], k = -1, i2;
 	unsigned first, i, n_other = 0, dial_k0;
 	uint64_t tbh;
-	uint64_t t0;
+	uint64_t t0, t_other = 0;
 	jr r;
 	srv *sk;
+	others ot;
 
 	memset(&o, 0, sizeof(o));
 	o.n_osd = 4;
@@ -1399,33 +1660,32 @@ static void scenario_unreachable_osd(int mode)
 	first = nJ;
 	for (i = 0; i < NOBJ; i++)
 		(void)job_add(WR_IO_WRITE, (uint64_t)i * R.info.object_size + 4096u, 4096u, 300u);
-	t0 = now_ms();
-	r = jobs_submit_range(first, NOBJ);
 	for (i = 0; i < NOBJ; i++)
 		if (owner[i] != k)
 			n_other++;
-	/* the requests of the other OSDs are not held back by the dead one */
-	for (;;) {
-		unsigned done_other = 0;
-
-		idle(20);
-		for (i = 0; i < NOBJ; i++)
-			if (owner[i] != k && J[first + i].done)
-				done_other++;
-		if (done_other == n_other || now_ms() - t0 > 4000u)
-			break;
-	}
+	/* The requests of the other OSDs are not held back by the dead one: they all complete with the pump's clock held from the submit on,
+	 * so before the dead OSD's connect timeout (1500 ms) or any other timer could come due, however fast or slow the machine is. */
+	clock_hold(1);
+	t0 = now_ms();
+	r = jobs_submit_range(first, NOBJ);
+	ot.owner = owner;
+	ot.k = k;
+	ot.first = first;
+	WRT_CHECK(pump_held(others_done, &ot, 30000));
+	clock_hold(0);
 	for (i = 0; i < NOBJ; i++) {
 		job *j = &J[first + i];
 
 		if (owner[i] != k) {
 			WRT_CHECK(j->done);
 			WRT_CHECK_STATUS(WR_OK, j->st);
-			WRT_CHECK(j->done && j->t_done - t0 < 1200u); /* well before the OSD connect timeout of 1500 ms */
+			if (j->done && j->t_done - t0 > t_other)
+				t_other = j->t_done - t0;
 		} else {
 			WRT_CHECK(!j->done); /* nobody can answer these yet */
 		}
 	}
+	fprintf(stderr, "  (the other OSDs' %u writes done %llu ms after the submit, the clock held)\n", n_other, (unsigned long long)t_other);
 	/* the dead OSD's own dial ends the way the mode says, at the time the action carried */
 	{
 		unsigned di = 0, found = 0, w;
@@ -1441,17 +1701,19 @@ static void scenario_unreachable_osd(int mode)
 		}
 		WRT_CHECK(found);
 		if (found && mode == M_BLACKHOLE) {
-			uint64_t dt = D[di].t_closed - D[di].t_act;
+			uint64_t dt = D[di].t_closed_pump - D[di].t_act;
 
 			WRT_CHECK_U64(D[di].tmo, 1500u);        /* the action carried the OSD value, not the monitor's 700 */
 			WRT_CHECK_U64(D[di].err, ETIMEDOUT);
-			WRT_CHECK(dt >= 1400u && dt <= 2300u);
+			WRT_CHECK(dt >= 1500u); /* never early; and never a wait planned past it (g_overslept) */
+			fprintf(stderr, "  (OSD connect given up %llu ms after its action, timeout 1500)\n", (unsigned long long)dt);
 		}
 		if (found && mode == M_SILENT) {
-			uint64_t dt = D[di].t_closed - D[di].t_act;
+			uint64_t dt = D[di].t_closed_pump - D[di].t_act;
 
 			WRT_CHECK_U64(D[di].err, 0);            /* the engine's CLOSE (handshake timeout), answered by the pump */
-			WRT_CHECK(dt >= 700u && dt <= 1900u);
+			WRT_CHECK(dt >= 700u);                  /* not before the handshake timeout; the pump waits for the engine's deadline (g_overslept) */
+			fprintf(stderr, "  (silent OSD closed %llu ms after its dial, handshake timeout 800)\n", (unsigned long long)dt);
 		}
 	}
 	/* the other OSDs' sockets were never disturbed */
@@ -1508,8 +1770,19 @@ static void test_monitor_connect_timeout(void)
 	WRT_CHECK(nD >= 1u && D[0].closed);
 	WRT_CHECK_U64(D[0].port, S_MON()->port);
 	WRT_CHECK_U64(D[0].tmo, 700u);
-	WRT_CHECK_U64(D[0].err, ETIMEDOUT);
-	WRT_CHECK(D[0].t_closed - D[0].t_act >= 650u && D[0].t_closed - D[0].t_act <= 1400u);
+	/* The pump gives up with ETIMEDOUT. The engine has its own guard on a connect, the action's timeout + WRI_CLIENT_CONNECT_GRACE_MS, and a
+	 * step runs the engine before it looks at the connects: a step that only got to run once that guard was due too (the process was stalled
+	 * for a second or more) sees the engine's CLOSE first, err 0. That is the right outcome then, and the pump still planned its wake-up for
+	 * the 700 ms (g_overslept, checked at client_stop). */
+	if (D[0].err == 0 && D[0].t_closed_pump >= D[0].t_act + 700u + WRI_CLIENT_CONNECT_GRACE_MS)
+		fprintf(stderr, "  (the pump only ran again %llu ms after the dial: the engine's own guard closed it)\n",
+			(unsigned long long)(D[0].t_closed_pump - D[0].t_act));
+	else
+		WRT_CHECK_U64(D[0].err, ETIMEDOUT);
+	/* Never before the deadline, and the pump never planned a wait past it (g_overslept, checked at client_stop): the pump gives up AT the
+	 * timeout. How much later the close is in wall-clock time is up to the machine (a loaded runner wakes the process late), so it is not checked. */
+	WRT_CHECK(D[0].t_closed_pump - D[0].t_act >= 700u);
+	fprintf(stderr, "  (monitor connect given up %llu ms after its action, timeout 700)\n", (unsigned long long)(D[0].t_closed - D[0].t_act));
 	blackhole_off(S_MON());
 	if (open_image() == 0) {
 		first = nJ;
@@ -1626,15 +1899,16 @@ static void test_destroy_in_flight(void)
 	world_start(&o);
 	client_start(&o, NULL);
 	if (open_image() == 0) {
-		s_lock();
-		for (i = 1; i <= G.n_osd; i++)
-			G.s[i].rd_chunk = 64; /* the OSDs read slowly: the writes cannot have finished a moment later */
-		s_unlock();
+		/* The OSDs read slowly and take at most 256 KiB each: 4 x 256 KiB is far less than the 3.2 MB the writes carry, so they cannot
+		 * finish before the pump is destroyed, on any machine (a slow read alone did not hold on a fast one). */
+		osds_cap(1, 256u * 1024u, 64u);
 		first = nJ;
 		for (i = 0; i < 32; i++)
 			(void)job_add(WR_IO_WRITE, (uint64_t)i * 100000u, 100000u, 3u);
 		r = jobs_submit_range(first, 32);
-		WRT_CHECK_U64(pump(jr_done, &r, 100), (uint64_t)(int64_t)WR_E_TIMEOUT); /* a moment, not to the end */
+		/* in the middle of the I/O: an OSD has taken all it may (one of the four gets at least 800 KB of the writes), the rest waits */
+		WRT_CHECK_STATUS(WR_OK, pump(osd_rd_cap_used, NULL, 5000));
+		WRT_CHECK_U64(pump(jr_done, &r, 100), (uint64_t)(int64_t)WR_E_TIMEOUT); /* and the pump keeps running with the writes stuck */
 		WRT_CHECK(!jr_done(&r));
 		open_before = wrl_loop_open_sockets(R.l);
 		WRT_CHECK(open_before >= 2u);
@@ -1648,7 +1922,7 @@ static void test_destroy_in_flight(void)
 static void test_submit_runs_now(void)
 {
 	wopts o;
-	unsigned i;
+	unsigned i, n_tw = 0;
 	uint64_t worst = 0, t_wait = 0;
 
 	memset(&o, 0, sizeof(o));
@@ -1674,14 +1948,18 @@ static void test_submit_runs_now(void)
 		uint64_t dt;
 
 		(void)job_add(i % 2u ? WR_IO_READ : WR_IO_WRITE, (uint64_t)i * 40000u, 4096u, 9u);
+		g_timed_out_waits = 0;
 		r = jobs_submit_range(first, 1);
 		WRT_CHECK_STATUS(WR_OK, pump(jr_done, &r, 5000));
 		WRT_CHECK_STATUS(WR_OK, J[first].st);
+		/* The request went out at once and was carried by I/O alone: no wait of the pump ran out before it was done (the next timer is
+		 * seconds away, see above; a request left for the next wake-up would have needed one). Counted, not timed: a loaded machine
+		 * that wakes the process late does not change it. */
+		WRT_CHECK_U64(g_timed_out_waits, 0);
 		dt = J[first].t_done - J[first].t_sub;
 		if (dt > worst)
 			worst = dt;
 	}
-	WRT_CHECK(worst < 1000u);
 	/* what happens without the run: the request waits for the loop's next wake-up (a note, not a rule of the pump) */
 	{
 		unsigned first = nJ;
@@ -1693,14 +1971,16 @@ static void test_submit_runs_now(void)
 		J[first].t_sub = now_ms();
 		r.first = first;
 		r.n = 1;
+		g_timed_out_waits = 0;
 		(void)pump(jr_done, &r, 2500); /* gives up after 2.5 s: the wait would be until the next timer (hdr_refresh_ms is 10 s) */
 		t_wait = now_ms() - J[first].t_sub;
+		n_tw = g_timed_out_waits;
 		WRT_CHECK_STATUS(WR_OK, wrl_loop_step(R.l, 0)); /* the run the host owed */
 		WRT_CHECK_STATUS(WR_OK, pump(jr_done, &r, 20000));
 		WRT_CHECK_STATUS(WR_OK, J[first].st);
 	}
-	fprintf(stderr, "  (submit + run: worst %llu ms of 40; submit without the run: still waiting after %llu ms)\n", (unsigned long long)worst,
-		(unsigned long long)t_wait);
+	fprintf(stderr, "  (submit + run: worst %llu ms of 40, no wait ran out; submit without the run: still waiting after %llu ms, %u waits ran out)\n",
+		(unsigned long long)worst, (unsigned long long)t_wait, n_tw);
 	check_store();
 out:
 	client_stop();
@@ -2060,7 +2340,7 @@ static void free_job_buf(job *j)
 static void test_cancel_landing(void)
 {
 	wopts o;
-	unsigned first, i, n_ok = 0, n_busy = 0, n_state = 0;
+	unsigned first, i, n_ok = 0, n_busy = 0, n_state = 0, n_landed = 0;
 	jr r;
 
 	memset(&o, 0, sizeof(o));
@@ -2080,15 +2360,20 @@ static void test_cancel_landing(void)
 	WRT_CHECK_STATUS(WR_OK, pump(jr_done, &r, 60000));
 	for (i = 0; i < 4; i++)
 		WRT_CHECK_STATUS(WR_OK, J[first + i].st);
-	s_lock();
-	for (i = 1; i <= G.n_osd; i++)
-		G.s[i].wr_chunk = 16; /* the replies trickle in: 600 KB per OSD take far longer than the 60 ms below, however fast the machine */
-	s_unlock();
+	/* The replies trickle in and each OSD sends at most 64 KiB: 4 x 64 KiB is less than one read of 300000 bytes, so none of the reads can
+	 * complete while the caps hold, on any machine (a trickle alone is only slow, and a fast machine got to the end of it). */
+	osds_cap(0, 64u * 1024u, 16u);
 	first = nJ;
 	for (i = 0; i < 8; i++)
 		(void)job_add(WR_IO_READ, (uint64_t)i * 400000u + 11u, 300000u, 0);
 	r = jobs_submit_range(first, 8);
-	idle(60); /* some of the data is in the buffers, none of the reads is complete */
+	/* An OSD has sent all it may (one of the four owes at least 600 KB), and some of it has landed in a caller's buffer: the cancels below
+	 * meet replies half written into the buffers. Both are waited for as facts, none of the reads is complete. */
+	WRT_CHECK_STATUS(WR_OK, pump(osd_wr_cap_used, NULL, 5000));
+	WRT_CHECK_STATUS(WR_OK, pump(jr_any_landed, &r, 5000));
+	WRT_CHECK(!jr_any_done(first, 8));
+	for (i = 0; i < 8; i++)
+		n_landed += job_landed(&J[first + i]);
 	for (i = 0; i < 8; i++) {
 		job *j = &J[first + i];
 		wr_status st;
@@ -2108,10 +2393,7 @@ static void test_cancel_landing(void)
 	}
 	WRT_CHECK_STATUS(WR_OK, wrl_loop_step(R.l, 0));
 	WRT_CHECK(n_ok + n_busy > 0u);
-	s_lock();
-	for (i = 1; i <= G.n_osd; i++)
-		G.s[i].wr_chunk = 0;
-	s_unlock();
+	osds_cap_lift();
 	WRT_CHECK_STATUS(WR_OK, pump(jr_done, &r, 60000));
 	for (i = 0; i < 8; i++) {
 		job *j = &J[first + i];
@@ -2120,7 +2402,8 @@ static void test_cancel_landing(void)
 		if (j->st == WR_OK && j->buf != NULL)
 			WRT_CHECK(memcmp(j->buf, M + j->r.offset, (size_t)j->r.length) == 0);
 	}
-	fprintf(stderr, "  (cancel while landing: %u cancelled at once, %u busy, %u already done)\n", n_ok, n_busy, n_state);
+	fprintf(stderr, "  (cancel while landing: %u of 8 buffers written into, %u cancelled at once, %u busy, %u already done)\n", n_landed, n_ok,
+		n_busy, n_state);
 	check_image(1u << 20); /* the sessions that were reset serve again */
 	check_store();
 	world_check_sane();
@@ -2151,24 +2434,21 @@ static void test_cancel_write_tx(void)
 	client_start(&o, tweak_cuts);
 	if (open_image() != 0)
 		goto out;
-	s_lock();
-	for (i = 1; i <= G.n_osd; i++)
-		G.s[i].rd_chunk = 64;
-	s_unlock();
+	/* The OSDs read slowly and take at most 512 KiB each: 4 x 512 KiB is half of the write, so it cannot complete while the caps hold, on
+	 * any machine (a slow read alone is only slow). */
+	osds_cap(1, 512u * 1024u, 64u);
 	first = nJ;
 	(void)job_add(WR_IO_WRITE, 0, 4u << 20, 301u);
 	r = jobs_submit_range(first, 1);
-	idle(80);
+	WRT_CHECK_STATUS(WR_OK, pump(osd_rd_cap_used, NULL, 5000)); /* the write is under way: an OSD has taken all it may (one owns >= 1 MiB) */
+	idle(20);
 	WRT_CHECK(!J[first].done);
 	cst = wr_image_cancel(R.img, &J[first].r);
 	WRT_CHECK(cst == WR_OK || cst == WR_E_BUSY);
 	if (cst == WR_OK)
 		free_job_buf(&J[first]);
 	fprintf(stderr, "  (cancel of a write with operations in the transmit queues: %s)\n", cst == WR_OK ? "answered WR_OK" : "answered WR_E_BUSY");
-	s_lock();
-	for (i = 1; i <= G.n_osd; i++)
-		G.s[i].rd_chunk = 0;
-	s_unlock();
+	osds_cap_lift();
 	WRT_CHECK_STATUS(WR_OK, pump(jr_done, &r, 60000));
 	WRT_CHECK_STATUS(WR_E_CANCELLED, J[first].st);
 	first = nJ;
