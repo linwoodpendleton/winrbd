@@ -1029,18 +1029,29 @@ static void check_policy_grid(tally *t)
 
 /* ---- the snapshot context decoder at its edges (the captured contexts hold two ids: nothing near these limits) -------------------------------- */
 
-static size_t snapc_out(uint8_t *b, uint64_t seq, uint32_t count, const uint64_t *ids, uint32_t n_ids)
+/* Little-endian stores that test the index against the buffer before every byte, so that the bound is in the code the compiler sees (an
+ * unchecked b[at++] makes GCC 15 at -O3 warn about paths it cannot tell are impossible: -Wstringop-overflow). A byte past the end is
+ * not stored, but `at` still counts it: a caller that overflowed would see a size larger than the buffer, never a corrupted stack. */
+static void snapc_put_le(uint8_t *b, size_t cap, size_t *at, uint64_t v, unsigned nbytes)
+{
+	unsigned k;
+
+	for (k = 0; k < nbytes; k++) {
+		if (*at < cap)
+			b[*at] = (uint8_t)(v >> (8u * k));
+		(*at)++;
+	}
+}
+
+static size_t snapc_out(uint8_t *b, size_t cap, uint64_t seq, uint32_t count, const uint64_t *ids, uint32_t n_ids)
 {
 	size_t at = 0;
-	uint32_t i, k;
+	uint32_t i;
 
-	for (k = 0; k < 8; k++)
-		b[at++] = (uint8_t)(seq >> (8 * k));
-	for (k = 0; k < 4; k++)
-		b[at++] = (uint8_t)(count >> (8 * k));
+	snapc_put_le(b, cap, &at, seq, 8);
+	snapc_put_le(b, cap, &at, count, 4);
 	for (i = 0; i < n_ids; i++)
-		for (k = 0; k < 8; k++)
-			b[at++] = (uint8_t)(ids[i] >> (8 * k));
+		snapc_put_le(b, cap, &at, ids[i], 8);
 	return at;
 }
 
@@ -1080,7 +1091,7 @@ static void check_snapc_edges(void)
 		s.snaps = store;
 		s.seq = 1;
 		s.n = 1;
-		n = snapc_out(b, rows[r].seq, rows[r].n, rows[r].ids, rows[r].n);
+		n = snapc_out(b, sizeof(b), rows[r].seq, rows[r].n, rows[r].ids, rows[r].n);
 		WRT_CHECK_STATUS(rows[r].want, wri_rbd_dec_snapcontext(b, (uint32_t)n, &s, &total));
 		if (rows[r].want == WR_OK) {
 			WRT_CHECK(s.seq == rows[r].seq && s.n == rows[r].n && total == rows[r].n && wri_snapc_valid(&s));
@@ -1093,16 +1104,16 @@ static void check_snapc_edges(void)
 	memset(store, 0, sizeof(store));
 	s.cap = 2;
 	s.snaps = store;
-	n = snapc_out(b, 9, 3, (const uint64_t[]){9, 7, 5}, 3);
+	n = snapc_out(b, sizeof(b), 9, 3, (const uint64_t[]){9, 7, 5}, 3);
 	WRT_CHECK_STATUS(WR_E_RBD_SNAPC, wri_rbd_dec_snapcontext(b, (uint32_t)n, &s, &total)); /* valid, but three ids in room for two */
 	WRT_CHECK(total == 3u && s.n == 0 && store[0] == 0 && store[1] == 0);
-	n = snapc_out(b, 9, 3, (const uint64_t[]){9, 7}, 2);
+	n = snapc_out(b, sizeof(b), 9, 3, (const uint64_t[]){9, 7}, 2);
 	WRT_CHECK_STATUS(WR_E_RBD_PROTO, wri_rbd_dec_snapcontext(b, (uint32_t)n, &s, &total)); /* says three, holds two */
-	n = snapc_out(b, 9, 1, (const uint64_t[]){9, 7}, 2);
+	n = snapc_out(b, sizeof(b), 9, 1, (const uint64_t[]){9, 7}, 2);
 	WRT_CHECK_STATUS(WR_E_RBD_PROTO, wri_rbd_dec_snapcontext(b, (uint32_t)n, &s, &total)); /* says one, holds two */
-	n = snapc_out(b, 9, 0xffffffffu, (const uint64_t[]){9}, 1);
+	n = snapc_out(b, sizeof(b), 9, 0xffffffffu, (const uint64_t[]){9}, 1);
 	WRT_CHECK_STATUS(WR_E_RBD_PROTO, wri_rbd_dec_snapcontext(b, (uint32_t)n, &s, &total)); /* hostile count: refused before anything is read */
-	n = snapc_out(b, 9, 0x20000000u, (const uint64_t[]){9}, 1);
+	n = snapc_out(b, sizeof(b), 9, 0x20000000u, (const uint64_t[]){9}, 1);
 	WRT_CHECK_STATUS(WR_E_RBD_PROTO, wri_rbd_dec_snapcontext(b, (uint32_t)n, &s, &total)); /* count * 8 wraps a 32-bit multiplication */
 	WRT_CHECK_STATUS(WR_E_INVAL, wri_rbd_dec_snapcontext(b, (uint32_t)n, NULL, &total));
 }
