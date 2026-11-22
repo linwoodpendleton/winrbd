@@ -135,6 +135,9 @@ osdc/            OSD and RBD captures of the stock client (module vectors-c, sec
 imgio/           the core's OWN image I/O against a real OSD (module vectors-d, section 13): three scripted sessions of wr-rbd (a writer on an
                  empty image of 4 KiB objects, a writer on an image with two snapshots, a reader on a default-feature image) with the requests
                  the core sent, the real OSD's replies and the stock `rbd export` of each image before and after; see imgio/README.md
+secure/          the core's OWN msgr2 secure-mode sessions against a real monitor and OSDs (module vectors-sec, section 14): one wr-rbd session per cephx
+                 key type with the connection secret, the plaintext and the wire bytes of every frame of both directions, and the AUTH_BAD_METHOD answers
+                 of daemons that allow only one mode; keys of the two throwaway users (deleted); see secure/README.md
 crushleg/        five offline CRUSH maps made with `crushtool -c` and 10,368 `crushtool --test --show-mappings` results over them (about
                  0.2 MB; `gen_crushleg.py` regenerates all of it in the cluster's tool image, no cluster state is read or changed): flat
                  list, uniform, straw and straw2 buckets of 1 to 300 items under legacy (local retries 2, fallback 5) and jewel
@@ -276,3 +279,26 @@ checked: [`imgio/README.md`](imgio/README.md), `imgio/INDEX.json` (size and SHA-
 | Scrub | none needed: crc-mode OSD messages carry no secret; scanned for key-, ticket- and password-looking text, for any directory of the lab and for any address outside `10.77.0.x` / `192.0.2.x` (0 hits) |
 | Check | `python3 -I harness/vectors/public/scripts/check_imgio.py check` (ctest `vectors_imgio_check`; `selftest` = `vectors_imgio_selftest`, 12 damaged copies); the C replay is ctest `imgio.replay`: the core's requests re-encoded byte for byte, the same scripts through the whole engine against the simulated OSDs compared with the real OSD request by request and answer by answer, the content against the export |
 | Regenerate | `scripts/capture_imgio.sh run` inside the lab VM (see `imgio/README.md` 5); all scripts are our own code (MIT) |
+
+## 14 The core's own secure-mode sessions (`secure/`)
+
+What the winrbd core itself put on the wire in msgr2 secure mode (AES-128-GCM framing, `docs/spec/msgr2-secure-mode.md`) against a real v20.2.5 monitor and real OSDs, and what those
+daemons answered when they were set to allow only one mode: two `wr-rbd --mode secure` sessions (one per cephx key type: `aes256k`, `aes`; open an image of 4 MiB, write 1 MiB, read it back,
+a small write, a partial and a whole-object discard) with every connection (a monitor and two or three OSDs), per connection the plaintext handshake bytes of both directions, the 64-byte
+connection secret and the session key that the independent checker recovers from them with the published key, and every secure frame of both directions (tag, alignments, the plaintext of
+every segment, the wire bytes; the two 1 MiB data frames of an OSD connection as wire size and SHA-256 with their data given as the pattern `wr-rbd` wrote), and eight refusals (a monitor and an OSD
+that allow only `secure` or only `crc`, against a client that offered the other mode, both key types). About 142 KB in 10 files. Index, formats, what each check proves and what the captures showed:
+[`secure/README.md`](secure/README.md), `secure/INDEX.json` (size and SHA-256 of every file).
+
+| Item | Value |
+|---|---|
+| Ceph release | v20.2.5 "Tentacle", the same private lab as section 1 (one VM, 1 mon, 3 OSDs, pool `winrbd`, size 3, 32 PGs) |
+| Client | the winrbd core through `wr-rbd` (`harness/host/tools/wr-rbd.c`, `shell` mode, `--depth 1`, `--mode secure --require-mode secure`: the offer to the monitor and to the OSDs is `[secure]`) as two throw-away cephx users `client.vec-sec-k2` (`aes256k`) and `client.vec-sec-k1` (`aes`, created with `--key_type aes`), caps `mon 'profile rbd'`, `osd 'profile rbd pool=winrbd'`, in a network namespace under `tcpdump`; created and deleted by the script (`ceph auth get` fails afterwards, `secure/INDEX.json` `verified_gone`); **their keys are published** (`secure/keys/`, like section 2's: the users no longer exist and the independent checker needs the keys to recompute the connection secrets) |
+| Capture window | 2026-11-20: the sessions 09:53Z to 09:54Z (OSD map epoch 6785 before and after each, the script refuses a session during which it changes), the refusals 09:54Z to 09:57Z |
+| What was made on the cluster | images `wrtest-vsec-k2`, `-k1`, `-ref` (4 MiB, layering) and the two users: all removed again |
+| Settings changed for a few minutes | `ms_mon_service_mode` (monitor: `secure`, then `crc`) and `ms_service_mode` of `osd.1` (`secure`, then `crc`), each followed by a restart of that daemon (the options are read at daemon start); put back (removed: they were not set) and the daemon restarted again; no other daemon was touched |
+| Restore | `secure/revert-proof.txt`: the state taken before and after (osd tree, pools, upmap lines, flags, health checks and mutes, images, objects, auth entities, every set configuration option, the mode options in effect, the ceph units) is identical; all OSDs up and in, no `ms_*` option set |
+| Scrub | none needed beyond the choice of users: no regular lab user, no admin key and no other secret is in the tree (the checker scans for key-looking text, hex strings in the prose files, any address outside `10.77.0.x` / `192.0.2.x`, any home directory path) |
+| Answers to the notes | `sec.md` 6.4: the `result` of AUTH_BAD_METHOD for a mode mismatch is **-95 (`EOPNOTSUPP`)**, from a monitor and from an OSD, for both key types and both directions, allowed methods {cephx}, allowed modes = the one mode the server allows (it is -13 for a wrong key or a missing OSD cap); `sec.md` 6.5: a v20.2.5 server accepts a client that advertises REVISION_1 only (supported 0x1, required 0x0), with no COMPRESSION frame at all, in secure mode, with the monitor and with OSDs, for both key types |
+| Check | `python3 -I harness/vectors/public/scripts/check_secure_core.py check` (ctest `vectors_secure_check`; `selftest` = `vectors_secure_selftest`, 31 damaged copies); the C replay is ctest `m2.sec.replay`: the recorded server streams through the real secure receive parser (many deliveries), the core's secure transmit reproducing the recorded client streams byte for byte, the recorded client streams through a server-side parser, the pre-auth signatures with the core's transcript code, damaged, replayed and truncated streams (every kind of byte of every recorded server frame damaged one bit at a time, and cut), and the refusals injected into a connection |
+| Regenerate | `scripts/capture_secure.sh run` inside the lab VM (see `secure/README.md` 7); all scripts are our own code (MIT) |

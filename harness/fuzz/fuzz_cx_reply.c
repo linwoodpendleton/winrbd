@@ -4,7 +4,10 @@
  * wri_cx_ticket.c, wri_cx_renew.c): the AUTH_REPLY_MORE and AUTH_DONE payloads of a monitor and an OSD
  * connection, and the renewal reply, against a machine with fixed keys.
  *
- * Byte 0: bits 0..2 the operation, bit 3 the key type (0: type 1, 1: type 2), bit 7 "sealed".
+ * Byte 0: bits 0..2 the operation, bit 3 the key type (0: type 1, 1: type 2), bit 5 "slot" (the handshake runs on a wri_cx_hs
+ * of its own through wri_cx_hs_ops() instead of the client's embedded one through wri_cx_ops(); the same checks hold), bit 6 "secure" (the connection
+ * mode the AUTH_DONE is given: crc when clear, secure when set; it matters for the operations that end in a
+ * done()), bit 7 "sealed".
  *   0  monitor AUTH_DONE      begin + more (fixed challenge) + done(payload)
  *   1  monitor AUTH_REPLY_MORE  begin + more(payload)
  *   2  OSD AUTH_REPLY_MORE    begin + more(payload)           (an OSD ticket is installed first)
@@ -27,6 +30,12 @@
  * ticket and the global id 1000 (so it reclaims); the reply's AUTH ticket is valid, byte 1 = n, the next n
  * bytes are the plaintext of its ticket blob field (sealed with usage 0x05 under the OLD session key),
  * ticket_enc = 1.
+ *
+ * Secure mode (architecture 34.3): op 5 and op 3 carry the connection secret (the plaintext item the input
+ * controls: op 5 u32 len | bytes under usage 0x03, op 3 the version byte, the secret length and bytes), so the
+ * length rules (40 .. 128, none, crc with one) are reached from both sides. Whenever done() succeeds in secure
+ * mode conn_secret() hands out a secret of 40 .. 128 bytes exactly once and the held copy is gone after; in crc
+ * mode, and whenever done() fails, there never is one and the record is all zero.
  *
  * Properties: no crash, no read or write outside the buffers, the machine ends in a consistent state:
  * a failed monitor AUTH_DONE leaves no ticket and no global id, a successful one holds the AUTH ticket
@@ -57,6 +66,38 @@ static wr_status fuzz_random(void *ctx, uint8_t *out, size_t n)
 	for (i = 0; i < n; i++)
 		out[i] = (uint8_t)(0x1D * i + 0x42);
 	return WR_OK;
+}
+
+static int zero_bytes(const void *p, size_t n)
+{
+	const uint8_t *b = (const uint8_t *)p;
+	size_t i;
+
+	for (i = 0; i < n; i++)
+		if (b[i] != 0)
+			return 0;
+	return 1;
+}
+
+/* The connection secret after a done() that returned st in `mode` (34.3), through the ops the machine ran on: `a` is the
+ * handshake the ops table is called with (the client's embedded one, or a slot) and `sec` the record it holds. */
+static void check_secret(const wri_auth_ops *ops, void *a, const wri_cx_client *c, const wri_cx_secret *sec, uint32_t mode, wr_status st)
+{
+	const uint8_t *s = (const uint8_t *)1;
+	size_t n = 7;
+
+	check(ops->conn_secret != NULL);
+	if (st == WR_OK && mode == WRI_CONN_MODE_SECURE) {
+		check(sec->len >= WRI_CX_SECRET_MIN && sec->len <= WRI_CX_SECRET_MAX && !sec->taken);
+		ops->conn_secret(a, &s, &n);
+		check(s == sec->buf && n == sec->len && sec->taken);
+		ops->conn_secret(a, &s, &n); /* read once: the second call gives nothing and wipes */
+	} else {
+		check(zero_bytes(sec, sizeof(*sec))); /* crc, or a failure: there is no secret */
+		ops->conn_secret(a, &s, &n);
+	}
+	check(s == NULL && n == 0 && zero_bytes(sec, sizeof(*sec)));
+	check(zero_bytes(c->scratch, c->scratch_cap)); /* the decrypted item is gone */
 }
 
 static uint8_t *heap_copy(const uint8_t *p, size_t n)
@@ -168,10 +209,14 @@ static int put_auth_ticket(const wri_ctx *x, const wr_key *pk, const wr_key *ses
 	return wri_wr_ok(w);
 }
 
+/* a field of the handshake the run drives: the slot's own, or the client's embedded one */
+#define HS(f) (slot ? hs.f : c.f)
+
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
 	unsigned op, ktype;
 	int sealed;
+	uint32_t mode;
 	wri_ctx x;
 	wri_arena a;
 	wri_cx_client c;
@@ -182,6 +227,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	wr_key pk, ak, ok;
 	wri_wr w;
 	const wri_auth_ops *ops = wri_cx_ops();
+	wri_cx_hs hs;      /* the slot of the run when bit 5 of byte 0 is set: the same machine through wri_cx_hs_ops() */
+	void *ah = &c;     /* what the ops are called with */
+	int slot;
 	wr_status st;
 	uint64_t nonce;
 	size_t ilen, blen;
@@ -191,6 +239,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	op = data[0] & 7u;
 	ktype = (data[0] & 8u) != 0 ? WR_KEY_TYPE_AES256K : WR_KEY_TYPE_AES;
 	sealed = (data[0] & 0x80u) != 0;
+	mode = (data[0] & 0x40u) != 0 ? WRI_CONN_MODE_SECURE : WRI_CONN_MODE_CRC;
+	slot = (data[0] & 0x20u) != 0;
 	if (op > 6 || ((op == 5 || op == 6) && !sealed) || (sealed && (op == 0 || op == 4 || op >= 5) && size < 2))
 		return 0;
 
@@ -213,6 +263,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	memcpy(spec.user, "fuzz", 5);
 	spec.key = pk;
 	check(wri_cx_client_init(&c, &x, &a, &spec) == WR_OK);
+	memset(&hs, 0, sizeof(hs));
+	if (slot) {
+		check(wri_cx_hs_init(&hs, &c) == WR_OK);
+		ops = wri_cx_hs_ops();
+		ah = &hs;
+	}
 	{
 		uint8_t nb[8];
 
@@ -320,25 +376,26 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 			install(&c, WRI_CX_SLOT_AUTH, WRI_CX_SERVICE_AUTH, &oldk);
 			c.global_id = 1000;
 		}
-		check(ops->begin(&c, WRI_ENTITY_MON, &w) == WR_OK);
-		check(c.req_new_gid == (op == 6 ? 0u : 1u));
+		check(ops->begin(ah, WRI_ENTITY_MON, &w) == WR_OK);
+		check(HS(req_new_gid) == (op == 6 ? 0u : 1u));
 		wri_wr_init(&w, obuf, 2048);
-		check(ops->more(&c, chal, sizeof(chal), &w) == WR_OK);
-		st = ops->done(&c, 1000, WRI_CONN_MODE_CRC, pl, pn);
+		check(ops->more(ah, chal, sizeof(chal), &w) == WR_OK);
+		st = ops->done(ah, 1000, mode, pl, pn);
+		check_secret(ops, ah, &c, slot ? &hs.sec : &c.sec, mode, st);
 		if (st == WR_OK) {
-			check(c.st == WRI_CX_DONE && c.global_id == 1000 && c.ticket[WRI_CX_SLOT_AUTH].have);
+			check(HS(st) == WRI_CX_DONE && c.global_id == 1000 && c.ticket[WRI_CX_SLOT_AUTH].have);
 			check(op != 5 || c.ticket[WRI_CX_SLOT_OSD].have);
 			check(c.ticket[0].blob_len >= 13 && c.ticket[0].blob_len <= c.ticket_cap && c.ticket[0].valid_until_ms > 1000);
-			check(c.ticket[0].renew_at_ms <= c.ticket[0].valid_until_ms && c.sess_key != NULL);
+			check(c.ticket[0].renew_at_ms <= c.ticket[0].valid_until_ms && HS(sess_key) != NULL);
 		} else {
-			check(c.st == WRI_CX_FAILED && !c.ticket[0].have && !c.ticket[1].have && c.global_id == 0 && c.sess_key == NULL);
+			check(HS(st) == WRI_CX_FAILED && !c.ticket[0].have && !c.ticket[1].have && c.global_id == 0 && HS(sess_key) == NULL);
 		}
 		break;
 	case 1: /* monitor AUTH_REPLY_MORE */
-		check(ops->begin(&c, WRI_ENTITY_MON, &w) == WR_OK);
+		check(ops->begin(ah, WRI_ENTITY_MON, &w) == WR_OK);
 		wri_wr_init(&w, obuf, 2048);
-		st = ops->more(&c, pl, pn, &w);
-		check(st == WR_OK ? c.st == WRI_CX_MON_SENT_AUTH && c.server_challenge != 0 : c.st == WRI_CX_FAILED);
+		st = ops->more(ah, pl, pn, &w);
+		check(st == WR_OK ? HS(st) == WRI_CX_MON_SENT_AUTH && HS(server_challenge) != 0 : HS(st) == WRI_CX_FAILED);
 		break;
 	case 2:
 	case 3: {
@@ -347,7 +404,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 		install(&c, WRI_CX_SLOT_OSD, WRI_CX_SERVICE_OSD, &ok);
 		c.global_id = 1000;
-		check(ops->begin(&c, WRI_ENTITY_OSD, &w) == WR_OK);
+		check(ops->begin(ah, WRI_ENTITY_OSD, &w) == WR_OK);
 		wri_wr_init(&w, obuf, 2048);
 		if (op == 2) {
 			if (sealed) {
@@ -355,16 +412,16 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 				memcpy(item, pl, k);
 				check(wri_cx_seal(&x, &ok, WRI_CX_USAGE_AUTHORIZE_CHALLENGE, item, k, ct, sizeof(ct), &cn) == WR_OK);
-				st = ops->more(&c, ct, cn, &w);
+				st = ops->more(ah, ct, cn, &w);
 			} else {
-				st = ops->more(&c, pl, pn, &w);
+				st = ops->more(ah, pl, pn, &w);
 			}
-			check(st == WR_OK ? c.st == WRI_CX_OSD_SENT_CHALLENGE : c.st == WRI_CX_FAILED && c.authorizer_nonce == 0);
+			check(st == WR_OK ? HS(st) == WRI_CX_OSD_SENT_CHALLENGE : HS(st) == WRI_CX_FAILED && HS(authorizer_nonce) == 0);
 		} else {
 			item[0] = 1;
 			wri_le64_put(item + 1, 0x0123456789abcdefull);
 			check(wri_cx_seal(&x, &ok, WRI_CX_USAGE_AUTHORIZE_CHALLENGE, item, 9, ct, sizeof(ct), &cn) == WR_OK);
-			check(ops->more(&c, ct, cn, &w) == WR_OK);
+			check(ops->more(ah, ct, cn, &w) == WR_OK);
 			if (sealed) {
 				size_t k = pn < sizeof(item) ? pn : sizeof(item);
 
@@ -374,14 +431,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 				check(wri_cx_seal(&x, &ok, WRI_CX_USAGE_AUTHORIZE_REPLY, item, k, ct, sizeof(ct), &cn) == WR_OK);
 				wri_le32_put(rep, (uint32_t)cn);
 				memcpy(rep + 4, ct, cn);
-				st = ops->done(&c, 1000, WRI_CONN_MODE_CRC, rep, cn + 4);
+				st = ops->done(ah, 1000, mode, rep, cn + 4);
 			} else {
-				st = ops->done(&c, 1000, WRI_CONN_MODE_CRC, pl, pn);
+				st = ops->done(ah, 1000, mode, pl, pn);
 			}
+			check_secret(ops, ah, &c, slot ? &hs.sec : &c.sec, mode, st);
 			if (st == WR_OK)
-				check(c.st == WRI_CX_DONE && c.sess_key != NULL && c.authorizer_nonce == 0);
+				check(HS(st) == WRI_CX_DONE && HS(sess_key) != NULL && HS(authorizer_nonce) == 0);
 			else
-				check(c.st == WRI_CX_FAILED && c.sess_key == NULL && c.authorizer_nonce == 0);
+				check(HS(st) == WRI_CX_FAILED && HS(sess_key) == NULL && HS(authorizer_nonce) == 0);
 		}
 		break;
 	}
@@ -406,6 +464,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	free(pl);
 done:
 	wri_cx_client_wipe(&c);
+	wri_cx_hs_wipe(&hs);
+	check(zero_bytes(&hs, sizeof(hs)));
 	{
 		size_t i;
 

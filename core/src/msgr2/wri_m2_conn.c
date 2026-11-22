@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /*
- * wri_m2_conn.c - one msgr2 client connection: lifecycle, byte plumbing, the step loop and failure
- * handling. The handshake frames are in wri_m2_conn_hs.c, the READY-state flow in wri_m2_conn_msg.c;
+ * wri_m2_conn.c - one msgr2 client connection: lifecycle, the deadline, the step loop and failure
+ * handling. The handshake frames are in wri_m2_conn_hs.c, the READY-state flow and the byte plumbing (rx window, tx peek and consume) in wri_m2_conn_msg.c;
  * see wri_m2_conn.h for the contract and docs/design/core-architecture.md 8.1 for the states.
  *
  * The step loop is a thin dispatcher over the events of the receive parser. Two rules keep it simple:
@@ -15,6 +15,7 @@
  *     layer once.
  */
 #include "wri_m2_conn.h"
+#include "wri_m2_sec.h"
 #include "wri_misc.h"
 
 WR_FILE_LICENCE_MIT
@@ -22,7 +23,7 @@ WR_FILE_LICENCE_MIT
 /* ---- small helpers ------------------------------------------------------------------------ */
 
 static int is_handshake_state(unsigned s) { return s >= WRI_M2_BANNER && s <= WRI_M2_IDENT; }
-static int is_live_state(unsigned s) { return s >= WRI_M2_BANNER && s <= WRI_M2_READY; }
+static int is_live_state(unsigned s) { return wri_m2c_state_live(s); }
 
 /* Transcript taps. Local wrappers, so that no code takes the address of a function of another object
  * (in position independent code that goes through the GOT, which the libc-free link check rejects). */
@@ -42,29 +43,32 @@ static void report_closed(wri_m2_conn *c)
  * signature, staged bytes (they may hold ticket data), unsent output. */
 static void release(wri_m2_conn *c)
 {
-	if (c->pa != NULL) {
-		wri_m2_preauth_wipe(c->pa);
-		c->pa = NULL; /* the client sees NULL and returns the handshake slot to its pool */
-	}
 	wri_secure_zero(c->sig_want, sizeof(c->sig_want));
 	wri_ring_reset_wipe(&c->ring);
 	if (c->ctl_buf != NULL)
 		wri_secure_zero(c->ctl_buf, c->ctl_cap);
 	if (c->tx.buf != NULL)
 		wri_secure_zero(c->tx.buf, c->tx.used);
-	wri_m2_txq_reset(&c->tx);
+	wri_m2_txq_reset(&c->tx); /* forgets an active secure stream: before the seam is taken away below */
+	/* The secure life ends with every connection: key schedule, nonces, staging and bounce buffer erased, the slot zero, the seam cleared.
+	 * While the handshake slot is still ours (c->pa), the auth layer is told to drop its copy of the secret as well. */
+	wri_m2c_sec_end(c);
+	if (c->pa != NULL) {
+		wri_m2_preauth_wipe(c->pa);
+		c->pa = NULL; /* the client sees NULL and returns the handshake slot to its pool */
+	}
 	c->held_ev = WRI_RXE_NONE;
 	c->stalled = 0;
 	c->deadline_ms = WR_DEADLINE_NONE;
 }
 
-void wri_m2c_fail(const wri_ctx *x, wri_m2_conn *c, wr_status st, unsigned line, const char *what, uint64_t a0,
-		  uint64_t a1, uint64_t a2)
+/* Record the failure and drop everything (state FAILED); the report to the upper layer is the caller's to make (now, or at the next step). */
+static int fail_record(const wri_ctx *x, wri_m2_conn *c, wr_status st, unsigned line, const char *what, uint64_t a0, uint64_t a1, uint64_t a2)
 {
 	unsigned was;
 
 	if (c == NULL || c->state == WRI_M2_FAILED || c->state == WRI_M2_CLOSING || c->state == WRI_M2_FREE)
-		return;
+		return 0;
 	was = c->state;
 	wri_errinfo_set(&c->err, st, WR_MOD_M2, line, what, a0, a1, a2);
 	c->err.conn = c->id;
@@ -72,7 +76,20 @@ void wri_m2c_fail(const wri_ctx *x, wri_m2_conn *c, wr_status st, unsigned line,
 	release(c);
 	if (x != NULL)
 		WRI_LOG(x, WR_LOG_WARN, WR_MOD_M2, c->id, st, "msgr2 connection failed", was, a0, a1, a2);
-	report_closed(c);
+	return 1;
+}
+
+void wri_m2c_fail(const wri_ctx *x, wri_m2_conn *c, wr_status st, unsigned line, const char *what, uint64_t a0,
+		  uint64_t a1, uint64_t a2)
+{
+	if (fail_record(x, c, st, line, what, a0, a1, a2))
+		report_closed(c);
+}
+
+void wri_m2c_fail_deferred(const wri_ctx *x, wri_m2_conn *c, wr_status st, unsigned line, const char *what, uint64_t a0,
+			   uint64_t a1, uint64_t a2)
+{
+	(void)fail_record(x, c, st, line, what, a0, a1, a2); /* up->closed follows at the next step (wri_m2_conn_step reports a failure nobody reported) */
 }
 
 /* ---- transmit helpers (shared with the other two files) ----------------------------------- */
@@ -189,6 +206,8 @@ void wri_m2_conn_open(wri_m2_conn *c, wr_conn_id id, uint8_t role, const wri_ead
 	if (c == NULL)
 		return;
 	bound_save(c, &b); /* keep what bind() gave us, reset everything else */
+	if (c->sec != NULL) /* a slot reused without the previous life having ended through close / on_closed: no key survives into the new one */
+		wri_m2_secure_off(&c->rx, &c->tx, c->sec);
 	bound_apply(c, &b);
 	c->id = id;
 	c->role = role;
@@ -270,38 +289,15 @@ void wri_m2_conn_close(const wri_ctx *x, wri_m2_conn *c, wr_status why)
 	report_closed(c);
 }
 
-/* ---- plumbing ----------------------------------------------------------------------------- */
-
-size_t wri_m2_conn_rx_window(wri_m2_conn *c, uint8_t **ptr)
+void wri_m2_conn_wipe(wri_m2_conn *c)
 {
-	if (ptr != NULL)
-		*ptr = NULL;
-	if (c == NULL || !is_live_state(c->state))
-		return 0;
-	return wri_m2_rx_window(&c->rx, &c->ring, ptr);
-}
-
-void wri_m2_conn_rx_commit(wri_m2_conn *c, size_t n)
-{
-	if (c == NULL || !is_live_state(c->state))
+	if (c == NULL)
 		return;
-	wri_m2_rx_commit(&c->rx, &c->ring, n);
-}
-
-size_t wri_m2_conn_tx_peek(const wri_m2_conn *c, wr_iov *iov, size_t max)
-{
-	if (c == NULL || !is_live_state(c->state))
-		return 0;
-	return wri_m2_txq_peek(&c->tx, iov, max);
-}
-
-void wri_m2_conn_tx_consume(wri_m2_conn *c, size_t n)
-{
-	if (c == NULL || !is_live_state(c->state))
-		return;
-	wri_m2_txq_consume(&c->tx, n);
-	if (c->stalled)
-		c->retry_ms = 0; /* room may have appeared: ask for a step at once */
+	release(c); /* transcripts, expected signature, staged bytes, control buffer, unsent output, the secure slot and its bounce buffer */
+	if (c->tx.buf != NULL)
+		wri_secure_zero(c->tx.buf, c->tx.cap); /* the whole encode buffer, not only what is queued: earlier frames (a sealed signature, an authorizer) are gone too */
+	c->state = WRI_M2_FREE;
+	c->close_reported = 1; /* nobody is told: the engine is going away */
 }
 
 uint64_t wri_m2_conn_deadline(const wri_m2_conn *c)
@@ -310,6 +306,8 @@ uint64_t wri_m2_conn_deadline(const wri_m2_conn *c)
 
 	if (c == NULL)
 		return d;
+	if (c->state == WRI_M2_FAILED && !c->close_reported)
+		return 0; /* a failure that happened inside a send call: the next step reports it to the upper layer */
 	if (is_handshake_state(c->state))
 		d = c->deadline_ms;
 	if (c->stalled && is_live_state(c->state) && c->retry_ms < d)

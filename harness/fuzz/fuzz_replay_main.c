@@ -30,8 +30,10 @@ static int replay_file(const char *path)
 		fclose(f);
 		return -1;
 	}
-	b = (uint8_t *)malloc((size_t)len + 1);
-	if (!b || fread(b, 1, (size_t)len, f) != (size_t)len) {
+	/* exactly len bytes (no spare byte): a read one past the input, or any read of an empty input, is an ASan report here as it is in libFuzzer,
+	 * which hands the target a copy of its own size. malloc(0) may return NULL: that is the "no data" input and must not be taken for a failure. */
+	b = (uint8_t *)malloc((size_t)len);
+	if ((!b && len != 0) || (len != 0 && fread(b, 1, (size_t)len, f) != (size_t)len)) {
 		free(b);
 		fclose(f);
 		return -1;

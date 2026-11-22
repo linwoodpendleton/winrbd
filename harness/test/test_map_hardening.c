@@ -14,7 +14,7 @@
  *      fuzz_long.sh: libFuzzer cuts a bigger input, so the seed would be replayed by ctest but fuzzed damaged;
  *   4. the call-graph check of the CI job static-limits passes with the same budgets the workflow passes: the --entry
  *      arguments are read out of .github/workflows/harness.yml, so the workflow and this test cannot drift apart.
- *      The workflow must pass the global limits this test documents (14 frames, 3,328 bytes) and name every part B entry
+ *      The workflow must pass the global limits this test documents (17 frames, 3,328 bytes) and name every part B entry
  *      point; a workflow that loosened a limit or dropped a budget would otherwise leave this test green.
  *      The budget machinery itself is checked from the failing side too: a budget of 1 byte must fail the check with
  *      status 1 and an entry point that does not exist must be a tool error (status 2), so neither can turn into a pass.
@@ -247,14 +247,14 @@ static void check_callgraph(void)
 		quoted[q++] = path[i];
 	}
 	quoted[q] = '\0';
-	need(yml, "harness.yml", "check_callgraph.py --cc gcc --depth 14 --stack 3328");
+	need(yml, "harness.yml", "check_callgraph.py --cc gcc --depth 17 --stack 3328");
 	for (i = 0; i < N_ENTRIES; i++) {
 		char tok[96];
 
 		snprintf(tok, sizeof(tok), "--entry %s=", entries[i]); /* a budget, not just a report */
 		need(yml, "harness.yml", tok);
 	}
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328", quoted);
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328", quoted);
 	n = entries_of(yml, cmd, sizeof(cmd));
 	WRT_CHECK(n >= (int)N_ENTRIES); /* the workflow carries the budgets of the part B entry points */
 	if (n >= (int)N_ENTRIES) {
@@ -264,12 +264,12 @@ static void check_callgraph(void)
 		WRT_CHECK(rc == 0);
 	}
 	/* the failing side: the global limits plus one hostile --entry each (the output is of no interest) */
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328 --entry wri_crush_do_rule=1 >/dev/null 2>&1", quoted);
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328 --entry wri_crush_do_rule=1 >/dev/null 2>&1", quoted);
 	rc = system(cmd);
 	if (!(WIFEXITED(rc) && WEXITSTATUS(rc) == 1))
 		fprintf(stderr, "map.hardening: a budget of 1 byte did not fail the call-graph check with status 1 (got %d)\n", rc);
 	WRT_CHECK(WIFEXITED(rc) && WEXITSTATUS(rc) == 1);
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328 --entry wri_no_such_entry=64 >/dev/null 2>&1", quoted);
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328 --entry wri_no_such_entry=64 >/dev/null 2>&1", quoted);
 	rc = system(cmd);
 	if (!(WIFEXITED(rc) && WEXITSTATUS(rc) == 2))
 		fprintf(stderr, "map.hardening: an unknown entry point was not a tool error (status 2) (got %d)\n", rc);

@@ -10,7 +10,7 @@
 
 **winrbd** is an open research project to boot and run Windows directly from a Ceph RBD image, with no iSCSI and no gateway in between. The client speaks Ceph's native protocol end to end.
 
-**Status: early design. Nothing works yet.** There is no code, only a plan, a licensing intent and two pinned reference trees. If you are looking for something you can deploy, this is not it. If you like hard systems problems and want to help build it in spare time, read on.
+**Status: Phase 1 (the portable core and its Linux harness) works against a live Ceph v20.2.5 cluster; Windows cannot boot from it yet.** The core logs in over msgr2 (crc and secure mode, AES-GCM) with cephx, follows the OSDMap, maps objects with CRUSH and reads and writes RBD format-2 images, byte for byte identical to the Linux kernel client (krbd) in the lab. The iPXE driver (Phase 2) and the Windows driver (later phases) are not written yet, so there is nothing to deploy. If you like hard systems problems and want to help build it in spare time, read on.
 
 ### Why
 
@@ -71,7 +71,7 @@ The same core is hosted three ways: in the Linux harness, in iPXE, and in the Wi
 
 ### Status
 
-Early design. Nothing works yet. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan and [docs/design/handoff-table.md](docs/design/handoff-table.md) for the draft handoff table.
+Phase 1 works in the Linux harness: msgr2 (crc and secure mode), cephx, OSDMap and CRUSH, OSD object I/O and RBD format-2 image I/O, compared byte for byte with krbd on a lab cluster; the long exit run of Phase 1 is still being reported (see the roadmap). Booting is not possible yet: the iPXE `rbd://` driver and the Windows driver are later phases. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan, the per-milestone state and the evidence and [docs/design/handoff-table.md](docs/design/handoff-table.md) for the draft handoff table.
 
 What we have checked so far, against the pinned source trees:
 
@@ -168,7 +168,7 @@ or, in an existing clone, `git submodule update --init --recursive`.
 
 **winrbd** 是一个开源研究项目:让 Windows 直接从 Ceph RBD 镜像启动并运行,中间**没有 iSCSI、没有网关**,客户端从头到尾说 Ceph 原生协议。
 
-**当前状态:早期设计,还没有任何可用的东西。** 仓库里只有计划、许可意向和两份固定版本的参考源码树,没有代码。如果你想找能部署的东西,这里还没有;如果你喜欢啃硬骨头,愿意利用业余时间一起做,欢迎继续看。
+**当前状态:第一阶段(可移植的 C 核心与 Linux 测试宿主)已能对接真实的 Ceph v20.2.5 集群;Windows 还不能从它启动。** 核心用 cephx 通过 msgr2(crc 与 secure 模式,AES-GCM)登录,跟随 OSDMap,用 CRUSH 定位对象,读写 RBD format 2 镜像,在实验集群上与 Linux 内核客户端(krbd)逐字节一致。iPXE 驱动(第二阶段)和 Windows 驱动(后续阶段)还没写,所以还没有能部署的东西。如果你喜欢啃硬骨头,愿意利用业余时间一起做,欢迎继续看。
 
 ### 为什么做
 
@@ -232,7 +232,7 @@ UEFI 固件不做任何修改。`ExitBootServices` 之后 iPXE 的块设备和�
 
 ### 状态
 
-早期设计,还没有任何东西能跑。分阶段计划见 [docs/ROADMAP.md](docs/ROADMAP.md),交接表草案见 [docs/design/handoff-table.md](docs/design/handoff-table.md)。
+第一阶段在 Linux 测试宿主里已经能用:msgr2(crc 与 secure 模式)、cephx、OSDMap 与 CRUSH、OSD 对象读写、RBD format 2 镜像读写,在实验集群上与 krbd 逐字节对比;第一阶段的长时间退出测试结果还在出(见路线图)。目前还不能启动:iPXE `rbd://` 驱动和 Windows 驱动在后续阶段。分阶段计划、各里程碑状态和证据见 [docs/ROADMAP.md](docs/ROADMAP.md),交接表草案见 [docs/design/handoff-table.md](docs/design/handoff-table.md)。
 
 目前对照固定版本的源码已经核实的内容:
 

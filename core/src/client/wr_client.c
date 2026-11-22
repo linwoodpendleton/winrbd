@@ -125,11 +125,16 @@ void wr_client_destroy(wr_client *c)
 {
 	uint8_t *base;
 	size_t used;
+	uint32_t i;
 
 	if (!engine_ok(c))
 		return;
 	base = c->arena_base;
 	used = c->arena_used;
+	/* Every connection first: the key schedule, nonces, staging and bounce buffer of a secure one (wri_m2_secure_off also hands the host's key objects
+	 * back, which zeroing the arena would not), the transcripts and the auth layer's copy of a connection secret that was not taken yet. No callbacks. */
+	for (i = 0; i < c->n_slot; i++)
+		wri_m2_conn_wipe(&c->slot[i].conn);
 	wri_cx_client_wipe(&c->cx); /* principal, session keys, tickets, scratch */
 	wri_client_osd_wipe(c);     /* the zombie area: copies of data the host wrote (the arena part of the OSD client goes with the arena below) */
 	if (c->mon.abuf != NULL) /* the renewal buffers (bulk) carry sealed cephx payloads */
@@ -385,5 +390,5 @@ void wr_client_get_stats(const wr_client *c, wr_stats *out)
 	wri_client_conn_stats(c, out);
 	wri_mon_mapmsg_stats(&c->mon, &out->mapmsg_in_use, &out->mapmsg_hiwater);
 	out->arena_used = c->stats.arena_used;
-	out->bulk_used = c->stats.bulk_used;
+	out->bulk_used = c->stats.bulk_used; /* the connection fields, the mode counters included, are filled by wri_client_conn_stats above */
 }

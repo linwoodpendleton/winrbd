@@ -11,6 +11,11 @@ capture set (Ceph v20.2.5, one mon, one mgr, 3 OSDs, both cephx key types, crc, 
 frames, 1,390 AES-GCM operations, all tags verified; about 50 s on a laptop). See "Corrections after capture" at the end of section 6 and
 `harness/vectors/secure/README.md` for how to re-run it.
 
+Second capture check (Phase 1 part D): the core's **own** secure sessions against the same real v20.2.5 monitor and OSDs, one `wr-rbd` session per
+cephx key type (`aes256k`, `aes`), every connection with its connection secret, plaintext and wire bytes, and the AUTH_BAD_METHOD answers of a
+monitor and an OSD that allow only one mode: `harness/vectors/public/secure` (README there; independent checker `check_secure_core.py`, replayed through
+the core's receive parser and transmit code by the ctest `m2.sec.replay`). It settled questions 6.4 and 6.5 below and found no difference from sections 2 and 3.
+
 Markers used below: **[unverified]** = not pinned in source, also listed in section 6.
 **[confirm on capture]** = read from source, still to be confirmed against a live v20.2.5 cluster (the captures
 could not settle it; the reason is given next to the mark).
@@ -643,14 +648,25 @@ themselves are synthetic (key 00..3f); they are also in `harness/vectors/secure/
    *Status after capture:* secure sessions were obtained without touching the cluster, by making the stock client
    offer only `secure` (`ms_client_mode secure`, `ms_mon_client_mode secure`): default servers accept it
    (`k1-sec-*`, `k2-sec-*`: mon, mgr and all OSD connections secure, including a 9 MiB write and read). That checks the
-   real peer's side of the protocol. Still open: the same with **our own client**, and the cluster-side forcing.
+   real peer's side of the protocol. **The same with our own client is done** (part D, `harness/vectors/public/secure`: `wr-rbd --mode secure`
+   offers `[secure]` only to the monitor and to the OSDs, both key types, a monitor and two or three OSD connections per session, a 1 MiB write and read
+   back, a small write and two discards: every server frame and every client frame of the session is byte-identical to what the independent
+   encoder produces from the recorded secret, and the real daemons answered all of it). Still open: the cluster-side forcing with a client that
+   offers `secure` to a daemon that allows only `secure` (the daemons were set to one mode only for the refusals below); the live matrix
+   `harness/lab/secure-live.sh` does it (its dry run against stand-in tools is the ctest `secure.live.dry`); its live result belongs to the exit run of Phase 1.
 2. The connection dump of the reference messenger prints the cipher per direction (`AES-128-GCM` or `PLAIN`)
    (`ProtocolV2.cc:776-808`); which admin-socket command exposes it is **[unverified]** (not settled: needs an admin socket on a lab daemon, which the
    capture set did not use; the client's own debug log shows only whether a crypto handler is attached, not the cipher name).
 3. Negative tests, expect close: flip one bit in each of preamble ciphertext, a tag, a data segment; send two
    frames with the same nonce; start with the wrong seed (swap seed A and B).
+   *Status:* done against the core's receive parser and the simulator's independent peer (every kind of byte of every recorded server
+   frame damaged one bit at a time is refused with the tag status and never delivered; swapped seeds, repeated and reordered frames
+   likewise; `m2.sec.replay`, `m2.sec.rx.bad`). What the real daemon does on receiving such a frame was not tried; the reference behaviour (close the connection) is read from source.
 4. Offer `[crc]` only against a secure-only cluster; expect AUTH_BAD_METHOD with `allowed_modes = [2]`. Offer
    `[secure]` only against a crc-only cluster (`ms_*_service_mode crc`); expect the same frame with `[1]`.
+   **[confirmed: `harness/vectors/public/secure/refusals.json`, 8 attempts, both key types]**: a monitor (`ms_mon_service_mode`) and an OSD
+   (`ms_service_mode` of `osd.1`) set to `secure` only answered a client that offered `[crc]` with AUTH_BAD_METHOD, allowed modes `[secure]`, and set to `crc`
+   only answered a client that offered `[secure]` with `[crc]`; allowed methods `{cephx}` and `result` -95 in all eight (6.4).
 5. Capture the plaintext handshake (banner through AUTH_DONE) and recompute the pre-auth HMAC offline from a
    known keyring to settle the exact HMAC key bytes (section 6, item 1).
    **[confirmed: secure_check.py groups `signature.*`, all 39 pcaps]**
@@ -678,19 +694,27 @@ themselves are synthetic (key 00..3f); they are also in `harness/vectors/secure/
    carry alignment 8 for segment 0; MESSAGE frames carry 8 (header only), 8,8 or 8,8,8,4096, in both directions; unused
    slots are zero. Whether a peer *enforces* the values, and what the kernel client sends, stay open.
 4. Exact numeric of the `result` field of AUTH_BAD_METHOD for "mode not allowed" on a v20.2.5 server
-   (-EOPNOTSUPP, 95 on Linux). **[confirm on capture]** Not settled: needs a server whose service modes exclude what
-   the client offers, which means changing `ms_*_service_mode` and restarting daemons on the lab cluster (the capture
-   plan skipped it). What the captures do show for the other AUTH_BAD_METHOD causes: result **-13** with
+   (-EOPNOTSUPP, 95 on Linux). **[confirmed: `harness/vectors/public/secure/refusals.json`, checker `check_secure_core.py`, replayed into a
+   connection by `m2.sec.replay`]**: the `result` is **-95 (`EOPNOTSUPP`)**, from a monitor and from an OSD, for both key types and
+   both directions of the mismatch (client offers `crc` to a daemon that allows only `secure`, and the reverse), with allowed methods
+   `{cephx}` (`[2]`) and allowed modes equal to the one mode the daemon allows (`[2]` or `[1]`); nothing follows on the connection (the
+   client had sent nothing after its AUTH_REQUEST, the refusal is the last server frame). The daemons were put to one mode for a few minutes
+   and restarted (the options are read at daemon start), then put back; the lab state before and after is identical
+   (`secure/revert-proof.txt`). It differs from the **-13** (`EACCES`) that the same frame carries for other causes. What the earlier
+   captures show for those other AUTH_BAD_METHOD causes: result **-13** with
    `allowed_methods = [2]` from a monitor for a wrong key (`k1-wrongkey`, `k2-wrongkey`: `allowed_modes = [2, 1]`, the
    monitor's `secure crc` order) and from an OSD for a user without OSD caps (`x-t0-noosd`: `allowed_modes = [1, 2]`, the
    OSD's `crc secure` order). Both confirm the field layout of 2.4 and that the server lists its allowed modes in its
-   configured order. Open for the mode-mismatch case.
+   configured order. Closed. The core reports a mode refusal as `WR_E_M2_BAD_METHOD` with the peer's `result` (-95) and the allowed modes in
+   its errinfo, which is how a tool tells the operator which `ms_*_mode` setting to change.
 5. Whether a v20.2.5 server really accepts a client that advertises REVISION_1 but not COMPRESSION without any
-   compression frame (code path: `ProtocolV2.cc:1926-1940`). **[confirm on capture]** Not settled: the stock client
-   advertises `supported = 3` in all captured connections (both bits) and always runs the compression handshake;
-   only our own client can show the REVISION_1-only case. What the captures do settle is option 2 of 4.2: a client that
-   advertises bit 1 and sends the empty-list COMPRESSION_REQUEST gets COMPRESSION_DONE(0, 0), encrypted in secure mode
-   (see 2.10). Open for option 1.
+   compression frame (code path: `ProtocolV2.cc:1926-1940`). **[confirmed: `harness/vectors/public/secure/sessions/k1.json`,
+   `k2.json`, checker group 3 of `check_secure_core.py`]**: yes. The core's client banner is `supported 0x1`, `required 0x0` (it never
+   advertises COMPRESSION); the server's is `supported 0x3`; no COMPRESSION_REQUEST or COMPRESSION_DONE crossed in either direction;
+   after AUTH_SIGNATURE the server went on to SERVER_IDENT and served I/O. Seen in secure mode, with the monitor and with OSDs, for both
+   key types (the core's captured sessions are all secure). The stock client's own
+   behaviour is option 2 of 4.2: a client that advertises bit 1 and sends the empty-list COMPRESSION_REQUEST gets COMPRESSION_DONE(0, 0),
+   encrypted in secure mode (see 2.10). The core takes option 1 of 4.2 (decline: advertise REVISION_1 only). Closed.
 6. Whether `ms_client_mode`-style options are consulted for a client built from other languages: the module type
    check is `CEPH_ENTITY_TYPE_CLIENT` in the registry (`AuthRegistry.cc:198`); our client simply chooses its own
    offer list, so this only matters for interpreting server logs.
@@ -701,11 +725,23 @@ themselves are synthetic (key 00..3f); they are also in `harness/vectors/secure/
    and a 12-byte IV (needed for part P3 and for zero-copy data segments): iPXE ships GCM code under
    `third_party/ipxe/src/crypto/gcm.c` (our tree, not Ceph); its streaming behaviour and its performance on a
    firmware heap are **[unverified]** (not settled by captures: it concerns our own iPXE tree, not the wire).
+   **Decided in the core (Phase 1 part D)**: the core does not use that code. It carries its own portable streaming GCM (`wri_gcm`: constant-time
+   bitsliced AES and a table-free GHASH, one operation spanning any number of update calls with one tag and a 96-bit IV, in place or not, the
+   operation length capped at 2^36 - 32 bytes), behind a per-direction dispatcher (`wri_pgcm`) that uses the host's accelerated GCM (AES-NI and
+   PCLMULQDQ in user space, BCrypt in the Windows kernel) when the host's table offers one and falls back to the portable code otherwise. The
+   speed on a 32-bit firmware heap is a Phase 2 measurement; the default of the core stays crc.
 9. Memory strategy for the data segment in secure mode: bytes are only authenticated when the P3 tag verifies, so
    zero-copy reads into a caller buffer must be treated as scratch until then (a bounded-memory client may have to
    verify per request before copying out). Policy to be decided in Phase 1.
+   **Decided in the core (Phase 1 part D)**: same contract as crc mode, which already has it. The receive parser decrypts into the sink in
+   place as the bytes land; the sink holds plaintext that nobody was told about until the frame's last tag verified and the FRAME event is
+   delivered, and on any error its contents are undefined (the sink of a request is the request's own buffer; a caller that used it earlier
+   would be wrong in crc mode as well). A frame whose tag fails is fatal for the connection: no resynchronisation, no event of that frame
+   and none of the frame's later operations is shown.
 10. Upper bounds on segment lengths that a peer may legitimately send, and a safe cap for a bounded-memory client:
-    not read from source in this note.
+    not read from source in this note. **Decided in the core (Phase 1 part D)**: segment 0 is checked against the connection's own buffer and
+    the other segments against `seg_cap_max` of the configuration, in secure mode as in crc mode and only after the preamble's tag verified (a
+    hostile length is never acted on before it); the largest frame in the captures is 4,194,656 bytes (a 4 MiB data segment).
 11. Older releases (Reef 18, Squid 19): not researched.
 12. Session reconnect after a TCP loss: the reference code resets the per-connection security state and runs a new
     AUTH exchange (`ProtocolV2.cc:246-254`, `:1766-1772`), so no secret is ever reused. SESSION_RECONNECT (or
@@ -735,6 +771,14 @@ Changes made to this note because real bytes disagreed with, or sharpened, what 
    only for the 1- and 2-operation shapes; the 3-operation shape cannot occur in v20.2.5 traffic (only MESSAGE has more
    than one segment, and its segment 0 is the 41-byte header), so the last two rows of the 5.1 table are arithmetic
    only. Stated in 5.2.
+
+4. **6.4 and 6.5 answered** (part D captures of the core's own client against the real monitor and OSDs, `harness/vectors/public/secure`):
+   the `result` of AUTH_BAD_METHOD for a mode mismatch is -95 (`EOPNOTSUPP`), not -13; and a client that advertises REVISION_1 without
+   COMPRESSION is accepted and runs without any compression frame. 6.4's "confirm on capture" mark and 6.5's open option 1 of 4.2 are closed
+   above; nothing else of sections 2 to 4 differed from what the core's own client put on the wire and the real daemons accepted.
+5. **A fact about the lab that is not about the protocol.** The service tickets in the monitor's reply were of the legacy `aes` type (a 16-byte
+   session key) even for the `aes256k` user, so the OSD connections of such a user have a 16-byte session key; the cluster still rotates its service
+   keys with the older type (its health warning says so). The signature and the connection secret do not depend on it (section 6 item 1).
 
 ### Confirmed against capture (statements that carried no mark)
 
@@ -773,8 +817,10 @@ vector README.
   frame.
 - Frame sequence after authentication (3.2 / 12): AUTH_SIGNATURE, COMPRESSION_REQUEST, CLIENT_IDENT from the client;
   AUTH_SIGNATURE, COMPRESSION_DONE, SERVER_IDENT from the server.
-- Not exercised by any capture: three-operation frames (see 5.2), nonce wrap, a 2.0 peer, auth method `none`, AUTH_BAD_METHOD
-  for a mode mismatch, a client without the COMPRESSION bit, SESSION_RECONNECT.
+- Not exercised by any capture of the stock client: three-operation frames (see 5.2), nonce wrap, a 2.0 peer, auth method `none`, a client
+  without the COMPRESSION bit (the core's own sessions cover that), SESSION_RECONNECT. AUTH_BAD_METHOD for a mode mismatch was captured in part D
+  (6.4). Of the rest only the nonce wrap and a 2.0 peer are not covered by a real peer at all; both are covered by the core's tests
+  against the independent simulator (`m2.sec.nonce`, `m2.conn.sec.hs`).
 
 ## 7. Licensing questions
 

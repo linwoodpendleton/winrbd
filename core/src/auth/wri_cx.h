@@ -12,6 +12,9 @@
  *   4. the client machine: monitor handshake (CEPHX_GET_AUTH_SESSION_KEY), in-session renewal
  *                  (CEPHX_GET_PRINCIPAL_SESSION_KEY), OSD authorizer with its challenge round
  *                  trip. It plugs into a msgr2 connection through wri_auth_ops.
+ * Secure mode (architecture 34.3): the connection secret the monitor's AUTH_DONE (the blob `cbl`) or the OSD's
+ * authorizer reply (version 2) carries is checked (40 .. 128 bytes, WRI_CX_SECRET_MIN / _MAX) and held in the
+ * handshake until the connection has taken it through the conn_secret member of wri_auth_ops.
  * Secrets are never logged and are wiped with wri_secure_zero when dropped.
  */
 #ifndef WRI_CX_H
@@ -131,6 +134,23 @@ typedef enum wri_cx_state {
 } wri_cx_state;
 
 /*
+ * The connection secret of a secure-mode handshake (architecture 34.3): 40 .. 128 bytes (the servers send 64), held
+ * by the handshake that received it from the moment its done() succeeded until the connection has taken it.
+ * len 0 = nothing held. `taken` is set when conn_secret() handed the bytes out; the copy is wiped by the next call
+ * of any member of the same handshake's ops (the connection has used the pointer by then), and in every case by a
+ * failure, a new begin, a forget, a wipe or the destroy of the client. The bytes are never copied anywhere else
+ * (not into an errinfo, not onto the stack of the embedded handshake's calls except while done() writes them).
+ */
+#define WRI_CX_SECRET_MIN 40u  /* 16 key + two 12-byte nonce seeds (msgr2 secure mode); shorter: WR_E_M2_SECRET */
+#define WRI_CX_SECRET_MAX 128u /* longer: WR_E_M2_SECRET */
+
+typedef struct wri_cx_secret {
+	uint8_t buf[WRI_CX_SECRET_MAX];
+	uint8_t len;
+	uint8_t taken;
+} wri_cx_secret;
+
+/*
  * The per-handshake state of one cephx handshake (section 21.2 of the architecture): which step it is at, the
  * peer kind, the two challenges, the OSD authorizer nonce, the ticket generation the OSD handshake began
  * with, the view of the session key it ended with, and the first failure. The same field list is used twice,
@@ -151,7 +171,8 @@ typedef enum wri_cx_state {
 	size_t sess_key_len;                                                                               \
 	uint32_t key_gen;           /* ticket[].gen of the slot sess_key points into, when the handshake ended */ \
 	uint64_t gid;               /* the global id the handshake ended with (OSD: the one it presented) */ \
-	wr_errinfo err;             /* first failure of the connection in progress; cleared by begin */
+	wr_errinfo err;             /* first failure of the connection in progress; cleared by begin */          \
+	wri_cx_secret sec;          /* the connection secret of a secure-mode handshake that finished (34.3) */
 
 typedef struct wri_cx_client {
 	const wri_ctx *x;
@@ -159,7 +180,9 @@ typedef struct wri_cx_client {
 	uint8_t user_len;
 	wr_key principal;
 	uint64_t global_id;         /* 0 until the monitor assigned one; reused to reclaim */
-	uint32_t want_mask;         /* service tickets requested, WRI_CX_WANT_MASK; a test may change it */
+	uint32_t want_mask;         /* service tickets requested, WRI_CX_WANT_MASK; a test may change it, but never to 0:
+				       it is the other_keys of the monitor request, and with 0 a monitor sends no connection
+				       secret (the handshake's `more` step refuses it with WR_E_INVAL) */
 	uint32_t renew_mask;        /* services asked for by the last wri_cx_renew_build */
 	wri_cx_ticket ticket[WRI_CX_NTICKETS];
 	uint32_t ticket_cap;
@@ -200,6 +223,14 @@ void wri_cx_client_wipe(wri_cx_client *c);
  * more / done of the superseded connection then fails or, for two OSD handshakes, can complete against the
  * other one's nonce. Use it for one connection at a time (the monitor's); several OSD connections in
  * handshake together use wri_cx_hs_ops() with one wri_cx_hs each.
+ *
+ * Both tables implement conn_secret (architecture 34.3). After a done() that accepted a secure mode, conn_secret
+ * hands out the 40 .. 128 byte secret once: the pointer stays valid until the next call of ANY member of the
+ * same table for the same handshake (begin, more, done, session_key, ident_gid, a second conn_secret, which
+ * answers NULL / 0, or conn_secret with a NULL out pointer), when the copy is wiped. The connection therefore
+ * passes it to its key schedule first and reads the session key after (the order of 34.4). A failure of any
+ * step, a new begin, wri_cx_forget (embedded handshake), wri_cx_hs_wipe and wri_cx_client_wipe wipe it too. In
+ * crc mode, and when nothing is held, it answers NULL / 0.
  */
 const wri_auth_ops *wri_cx_ops(void);
 
@@ -258,9 +289,24 @@ wr_status wri_cx_hs_do_more(wri_cx_hs *h, const uint8_t *reply, size_t n, wri_wr
 wr_status wri_cx_hs_do_done(wri_cx_hs *h, uint64_t global_id, uint32_t mode, const uint8_t *payload, size_t n);
 void wri_cx_hs_do_session_key(const wri_cx_hs *h, const uint8_t **key, size_t *len);
 int64_t wri_cx_hs_do_ident_gid(const wri_cx_hs *h, uint8_t target_type);
-/* Copy the embedded handshake fields of the client into h (binding it to c), and back. */
+/* Copy the embedded handshake fields of the client into h (binding it to c), and back. The connection secret
+ * is NOT copied in (no step reads one: begin / more / done start from none) but IS copied back, so the
+ * secret a successful done() put into the copy reaches the client and a step that ended without one clears the
+ * client's. */
 void wri_cx_hs_load(wri_cx_hs *h, wri_cx_client *c);
 void wri_cx_hs_store(wri_cx_client *c, const wri_cx_hs *h);
+/* Judge a connection secret (n bytes at p) against the mode and keep it in h->sec (WR_E_AUTH_PROTO: crc with one;
+ * WR_E_M2_SECRET: secure with none or one outside 40 .. 128 bytes, h->err records the length only). Mode crc with
+ * n == 0 is fine and keeps nothing. wri_cx_secret.c. */
+wr_status wri_cx_hs_take_secret(wri_cx_hs *h, uint32_t mode, const uint8_t *p, uint32_t n);
+/* Wipe a held connection secret (all of the struct: bytes, length, taken). Idempotent. */
+void wri_cx_sec_wipe(wri_cx_secret *s);
+/* conn_secret() on a secret record: while `done` (the handshake finished) and one is held and not handed out
+ * yet, hand it out (*secret / *len) and mark it taken; in any other case (none, or already handed out: the
+ * connection is done with the first pointer) wipe the record and answer NULL / 0. NULL out pointers release. */
+void wri_cx_sec_hand_out(wri_cx_secret *s, int done, const uint8_t **secret, size_t *len);
+/* The next call of a handshake's ops after the secret was handed out: the connection has used it, wipe it. */
+void wri_cx_sec_release_taken(wri_cx_secret *s);
 
 /* ---- internal to core/src/auth/ (shared by wri_cx_ticket.c, wri_cx_client.c, wri_cx_hs.c, wri_cx_renew.c) ---- */
 

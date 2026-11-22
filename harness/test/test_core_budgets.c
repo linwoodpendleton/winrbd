@@ -90,6 +90,7 @@ typedef struct profile {
 	void (*fill)(wr_config *);
 	size_t arena_budget, bulk_budget;
 	int budgeted; /* 1: a product profile, the documented budget is part of the contract */
+	int secure;   /* 1: a policy that may end in secure (STOCK): the session runs sealed, with a smaller map message (the simulator's cipher is slow) */
 } profile;
 
 typedef struct hw { /* high-water marks seen while the session ran */
@@ -160,6 +161,24 @@ static void harness_osd(wr_config *c)
 	wr_config_enable_osd(c, WR_MAPS_HARNESS);
 }
 
+static void ipxe_osd_sec(wr_config *c)
+{
+	ipxe_osd(c);
+	wr_config_enable_secure(c, WR_MAPS_IPXE, WR_MODE_STOCK);
+}
+
+static void kernel_osd_sec(wr_config *c)
+{
+	kernel_osd(c);
+	wr_config_enable_secure(c, WR_MAPS_KERNEL, WR_MODE_STOCK);
+}
+
+static void harness_osd_sec(wr_config *c)
+{
+	harness_osd(c);
+	wr_config_enable_secure(c, WR_MAPS_HARNESS, WR_MODE_STOCK);
+}
+
 static wr_status h_random(void *ctx, uint8_t *out, size_t n)
 {
 	host *h = (host *)ctx;
@@ -196,6 +215,8 @@ static host *host_new(const profile *pr, uint32_t pad_over_cap)
 	h->scfg.osdmap_pad = cap / 4u * 3u;
 	if (h->scfg.osdmap_pad > (4u << 20))
 		h->scfg.osdmap_pad = 4u << 20;
+	if (h->cfg.mode_policy != WR_MODE_CRC_ONLY && h->scfg.osdmap_pad > (128u << 10))
+		h->scfg.osdmap_pad = 128u << 10; /* sealed by the simulator's reference cipher (about 1 MB/s): keep the secure rows quick */
 	if (pad_over_cap == NO_PAD)
 		h->scfg.osdmap_pad = 0;
 	else if (pad_over_cap != 0)
@@ -515,6 +536,13 @@ static void check_profile(const profile *pr)
 	line("arena taken / announced", st.arena_used, req.arena);
 	line("bulk taken / announced", st.bulk_used, req.bulk);
 
+	if (pr->secure) { /* STOCK offers [secure, crc] to the monitor and the simulator allows both: every session ran sealed, none in crc */
+		WRT_CHECK(st.conns_secure >= 2u && st.conns_crc == 0u && st.sec_failures == 0u);
+		printf("  modes: %u secure, %u crc connections, %u secure failures; secure state per connection %zu B + %u B bounce\n", st.conns_secure,
+		       st.conns_crc, st.sec_failures, wri_m2s_slot_bytes(), cfg.sec_tx_chunk);
+	} else {
+		WRT_CHECK(st.conns_secure == 0u && st.conns_crc >= 2u && st.sec_failures == 0u);
+	}
 	WRT_CHECK_U64(st.arena_used, req.arena); /* nothing is taken after create, and create takes what it announced */
 	WRT_CHECK_U64(st.bulk_used, req.bulk);
 	WRT_CHECK(st.conns_hiwater >= 1u && st.conns_hiwater <= cfg.max_conns);
@@ -681,28 +709,34 @@ static void check_readme_rows(void)
 	readme_row(doc, "ipxe + maps + osd", ipxe_osd, WRB_IPXE_OSD_ARENA, WRB_IPXE_OSD_BULK, 1);
 	readme_row(doc, "kernel + maps + osd", kernel_osd, WRB_KERNEL_OSD_ARENA, WRB_KERNEL_OSD_BULK, 1);
 	readme_row(doc, "harness + maps + osd", harness_osd, WRB_HARNESS_OSD_ARENA, WRB_HARNESS_OSD_BULK, 0);
+	readme_row(doc, "ipxe + maps + osd + secure", ipxe_osd_sec, WRB_IPXE_OSD_SEC_ARENA, WRB_IPXE_OSD_BULK, 1);
+	readme_row(doc, "kernel + maps + osd + secure", kernel_osd_sec, WRB_KERNEL_OSD_SEC_ARENA, WRB_KERNEL_OSD_BULK, 1);
+	readme_row(doc, "harness + maps + osd + secure", harness_osd_sec, WRB_HARNESS_OSD_SEC_ARENA, WRB_HARNESS_OSD_BULK, 0);
 	free(doc);
 }
 
 int main(void)
 {
 	static const profile profiles[] = {
-		{"ipxe", wr_config_profile_ipxe, WRB_IPXE_ARENA, WRB_IPXE_BULK, 1},
-		{"kernel", wr_config_profile_kernel, WRB_KERNEL_ARENA, WRB_KERNEL_BULK, 1},
-		{"harness", harness_profile, WRB_HARNESS_ARENA, WRB_HARNESS_BULK, 0},
-		{"ipxe+maps", ipxe_maps, WRB_IPXE_MAPS_ARENA, WRB_IPXE_MAPS_BULK, 1},
-		{"kern+maps", kernel_maps, WRB_KERNEL_MAPS_ARENA, WRB_KERNEL_MAPS_BULK, 1},
-		{"harn+maps", harness_maps, WRB_HARNESS_MAPS_ARENA, WRB_HARNESS_MAPS_BULK, 0},
-		{"ipxe+osd", ipxe_osd, WRB_IPXE_OSD_ARENA, WRB_IPXE_OSD_BULK, 1},
-		{"kern+osd", kernel_osd, WRB_KERNEL_OSD_ARENA, WRB_KERNEL_OSD_BULK, 1},
-		{"harn+osd", harness_osd, WRB_HARNESS_OSD_ARENA, WRB_HARNESS_OSD_BULK, 0},
+		{"ipxe", wr_config_profile_ipxe, WRB_IPXE_ARENA, WRB_IPXE_BULK, 1, 0},
+		{"kernel", wr_config_profile_kernel, WRB_KERNEL_ARENA, WRB_KERNEL_BULK, 1, 0},
+		{"harness", harness_profile, WRB_HARNESS_ARENA, WRB_HARNESS_BULK, 0, 0},
+		{"ipxe+maps", ipxe_maps, WRB_IPXE_MAPS_ARENA, WRB_IPXE_MAPS_BULK, 1, 0},
+		{"kern+maps", kernel_maps, WRB_KERNEL_MAPS_ARENA, WRB_KERNEL_MAPS_BULK, 1, 0},
+		{"harn+maps", harness_maps, WRB_HARNESS_MAPS_ARENA, WRB_HARNESS_MAPS_BULK, 0, 0},
+		{"ipxe+osd", ipxe_osd, WRB_IPXE_OSD_ARENA, WRB_IPXE_OSD_BULK, 1, 0},
+		{"kern+osd", kernel_osd, WRB_KERNEL_OSD_ARENA, WRB_KERNEL_OSD_BULK, 1, 0},
+		{"harn+osd", harness_osd, WRB_HARNESS_OSD_ARENA, WRB_HARNESS_OSD_BULK, 0, 0},
+		{"ipxe+osd+sec", ipxe_osd_sec, WRB_IPXE_OSD_SEC_ARENA, WRB_IPXE_OSD_BULK, 1, 1},
+		{"kern+osd+sec", kernel_osd_sec, WRB_KERNEL_OSD_SEC_ARENA, WRB_KERNEL_OSD_BULK, 1, 1},
+		{"harn+osd+sec", harness_osd_sec, WRB_HARNESS_OSD_SEC_ARENA, WRB_HARNESS_OSD_BULK, 0, 1},
 	};
 	size_t i;
 
 	for (i = 0; i < sizeof(profiles) / sizeof(profiles[0]); i++)
 		check_profile(&profiles[i]);
 	for (i = 0; i < sizeof(profiles) / sizeof(profiles[0]); i++)
-		if (profiles[i].budgeted)
+		if (profiles[i].budgeted && !profiles[i].secure) /* a 4 MiB front sealed by the simulator's cipher is not worth the minutes: client.sec.* run the secure refusals */
 			check_oversize(&profiles[i]);
 	for (i = 3; i < sizeof(profiles) / sizeof(profiles[0]); i++)
 		check_maps_clean(&profiles[i]);

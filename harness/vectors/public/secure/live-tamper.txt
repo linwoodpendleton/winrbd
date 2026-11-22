@@ -1,0 +1,105 @@
+# A frame damaged on the wire, against the real lab cluster (Ceph v20.2.5, 1 monitor, 3 OSDs), made by harness/lab/secure-tamper.sh on 2026-11-21.
+# The winrbd core ran in its own network namespace behind harness/lab/secure_tamper_proxy.py, which flipped bit 0 of ONE byte of ONE direction of ONE
+# connection (offset counted from the first byte of that connection's stream) and wrote down what it did; wr-rbd printed the core's events and counters.
+# The image (10 MiB, layering) was written and read through secure frames (--mode secure) except in crc-s2c (--mode crc). The cephx user was a throwaway
+# (created for the run and deleted at its end); no key appears here. dst= is the daemon the connection went to (10.77.0.10:3300 the monitor, 68xx an OSD).
+# Per case: the relay's lines (TAMPER = the bit that was flipped; END = bytes each way per connection), the core's event and result lines, the counters.
+#   osd-s2c  a bit of an OSD's read reply: WR_E_M2_SEC_TAG ("secure frame failed authentication"), the connection redialled, 8 reads resent, the data right
+#   osd-c2s  a bit of the core's write: the OSD dropped the connection (WR_E_NET_CLOSED), the core redialled and resent, a clean read-back shows the pattern
+#   mon-s2c  a bit of the monitor's stream after the handshake: the monitor session is refused (WR_E_M2_SEC_TAG) and a new one comes up
+#   hs-s2c   a bit of the monitor's handshake (offset 120): that attempt fails, the next one succeeds
+#   crc-s2c  the same flip as osd-s2c in crc mode: WR_E_M2_FRAME_CRC, the same recovery
+# In every case "result verify ok=1 diffs=0": the bytes the core delivered are the bytes that were written.
+
+== control
+END 1 dst=10.77.0.10:3300 c2s=820 s2c=5116 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 2 dst=10.77.0.10:6808 c2s=6311962 s2c=17010 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 3 dst=10.77.0.10:6800 c2s=4207482 s2c=10850 c2s_pattern=0 s2c_pattern=0 tampered=0
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+result fill ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+result require_mode ok=1 wanted=secure conns_secure=3 conns_crc=0 sec_failures=0
+ops_resent=0 ops_failed=0 session_resets=0 io_stalls=0 conns_secure=3 conns_crc=0 sec_failures=0 
+
+== osd-s2c
+TAMPER conn=2 dst=10.77.0.10:6808 dir=s2c offset=200000 bit=0
+END 1 dst=10.77.0.10:3300 c2s=820 s2c=5116 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 2 dst=10.77.0.10:6808 c2s=5530 s2c=1184178 c2s_pattern=0 s2c_pattern=0 tampered=1
+END 3 dst=10.77.0.10:6808 c2s=18938 s2c=6176034 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 4 dst=10.77.0.10:6800 c2s=13178 s2c=4205154 c2s_pattern=0 s2c_pattern=0 tampered=0
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+event IO_STALL status=WR_E_M2_SEC_TAG peer_result=0 what="secure frame failed authentication"
+event IO_RESUME
+result verify ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+ops_resent=8 ops_failed=0 session_resets=1 io_stalls=1 conns_secure=4 conns_crc=0 sec_failures=1 
+
+== osd-c2s
+TAMPER conn=2 dst=10.77.0.10:6808 dir=c2s offset=200000 bit=0
+END 1 dst=10.77.0.10:3300 c2s=820 s2c=5116 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 2 dst=10.77.0.10:6808 c2s=330874 s2c=1650 c2s_pattern=0 s2c_pattern=0 tampered=1
+END 3 dst=10.77.0.10:6808 c2s=6310778 s2c=15970 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 4 dst=10.77.0.10:6800 c2s=4207482 s2c=10850 c2s_pattern=0 s2c_pattern=0 tampered=0
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+event IO_STALL status=WR_E_NET_CLOSED peer_result=0 what="closed by the peer or the host"
+event IO_RESUME
+result fill ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+ops_resent=3 ops_failed=0 session_resets=1 io_stalls=1 conns_secure=4 conns_crc=0 sec_failures=0 
+
+== osd-c2s-back
+END 1 dst=10.77.0.10:3300 c2s=820 s2c=5116 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 2 dst=10.77.0.10:6808 c2s=20506 s2c=6308466 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 3 dst=10.77.0.10:6800 c2s=13178 s2c=4205154 c2s_pattern=0 s2c_pattern=0 tampered=0
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+result verify ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+result require_mode ok=1 wanted=secure conns_secure=3 conns_crc=0 sec_failures=0
+ops_resent=0 ops_failed=0 session_resets=0 io_stalls=0 conns_secure=3 conns_crc=0 sec_failures=0 
+
+== mon-s2c
+TAMPER conn=1 dst=10.77.0.10:3300 dir=s2c offset=3000 bit=0
+END 1 dst=10.77.0.10:3300 c2s=820 s2c=5116 c2s_pattern=0 s2c_pattern=0 tampered=1
+END 2 dst=10.77.0.10:3300 c2s=982 s2c=4769 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 3 dst=10.77.0.10:6808 c2s=20506 s2c=6308466 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 4 dst=10.77.0.10:6800 c2s=13178 s2c=4205154 c2s_pattern=0 s2c_pattern=0 tampered=0
+event MON_SESSION_UP
+event MON_SESSION_DOWN status=WR_E_M2_SEC_TAG peer_result=0 what="secure frame failed authentication"
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+result verify ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+ops_resent=0 ops_failed=0 session_resets=0 io_stalls=0 conns_secure=4 conns_crc=0 sec_failures=1 
+
+== hs-s2c
+TAMPER conn=1 dst=10.77.0.10:3300 dir=s2c offset=120 bit=0
+END 1 dst=10.77.0.10:3300 c2s=184 s2c=147 c2s_pattern=0 s2c_pattern=0 tampered=1
+END 2 dst=10.77.0.10:3300 c2s=820 s2c=5116 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 3 dst=10.77.0.10:6808 c2s=20506 s2c=6308466 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 4 dst=10.77.0.10:6800 c2s=13178 s2c=4205154 c2s_pattern=0 s2c_pattern=0 tampered=0
+event CLUSTER_UNREACHABLE status=WR_E_MON_UNREACHABLE peer_result=0 what="a full round of monitors failed"
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+result verify ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+ops_resent=0 ops_failed=0 session_resets=0 io_stalls=0 conns_secure=3 conns_crc=0 sec_failures=0 
+
+== crc-s2c
+TAMPER conn=2 dst=10.77.0.10:6808 dir=s2c offset=200000 bit=0
+END 1 dst=10.77.0.10:3300 c2s=700 s2c=4870 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 2 dst=10.77.0.10:6808 c2s=5373 s2c=925790 c2s_pattern=0 s2c_pattern=0 tampered=1
+END 3 dst=10.77.0.10:6808 c2s=17044 s2c=6173700 c2s_pattern=0 s2c_pattern=0 tampered=0
+END 4 dst=10.77.0.10:6800 c2s=11869 s2c=4203525 c2s_pattern=0 s2c_pattern=0 tampered=0
+event MON_SESSION_UP
+event MAP epoch=12865
+event IMAGE slot=0 state=OPEN
+event IO_STALL status=WR_E_M2_FRAME_CRC peer_result=0 what="segment crc"
+event IO_RESUME
+result verify ok=1 off=0 len=10485760 bytes=10485760 diffs=0 errors=0
+result require_mode ok=1 wanted=crc conns_secure=0 conns_crc=4 sec_failures=0
+ops_resent=9 ops_failed=0 session_resets=1 io_stalls=1 conns_secure=0 conns_crc=4 sec_failures=0 
+

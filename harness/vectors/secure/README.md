@@ -5,7 +5,7 @@ Small, scrubbed files the core can load for unit tests of msgr2 secure mode (AES
 slicing, the pre-auth signature) and for the pieces of cephx that hand over the connection secret.
 
 **Nothing in this directory is key material of the lab or of anyone else.** Every key, secret, nonce seed and
-transcript below is synthetic (bytes `00 01 02 ...`, or a fixed pattern). What came from real captures is reduced to
+transcript below is synthetic (bytes `00 01 02 ...`, or a fixed pattern), except the published test keys of `gcm-nist.json`. What came from real captures is reduced to
 structure: tags, lengths, counts, flags, negotiated numbers.
 
 ## Files
@@ -18,6 +18,7 @@ structure: tags, lengths, counts, flags, negotiated numbers.
 | `pre-auth-signature-synthetic.json` | HMAC-SHA256 over a short synthetic transcript, for a type-1 (16-byte) and a type-2 (32-byte) session key | synthetic |
 | `connection-secret-blob-synthetic.json` | the `cbl` blob of a monitor's AUTH_DONE (`u32 outer | u32 inner | ciphertext`) for key type 1 and 2, in secure mode (64-byte secret) and crc mode (empty string), fixed confounder | synthetic keys; cipher code is the one that decrypts every real reply in the captures |
 | `captured-structure.json` | for each distinct (peer, mode, offered modes) combination seen in the captures: the plaintext handshake frames and the first frames after authentication with their segment lengths, alignments, late status, wire sizes and GCM operation counts; the banner values | real captures, reduced to structure (see below) |
+| `gcm-nist.json` | public AES-GCM known-answer tests: the 18 test cases of the GCM specification (McGrew and Viega, "The Galois/Counter Mode of Operation (GCM)", appendix B: AES-128, AES-192 and AES-256, 96-bit, 64-bit and 480-bit IVs, with and without additional data, whole and partial blocks) as `gcm-spec-tc1` .. `gcm-spec-tc18`, and two empty-message cases of the NIST CAVP GCM vectors (`gcmEncryptExtIV128`, 96-bit IV); each case names its source and has `key_hex`, `iv_hex`, `aad_hex`, `pt_hex`, `ct_hex`, `tag_hex` (full 16-byte tag) | public test vectors (see below) |
 
 All integers inside the byte strings are little-endian; `*_hex` values are lower-case hex.
 
@@ -73,3 +74,23 @@ Python standard library plus `cryptography`:
 5. The pre-auth signature in both directions for every connection.
 6. A re-assembly round trip: the checker's sender must reproduce each captured frame, crc and secure, byte for byte.
 7. The compression handshake frames and the frame order after authentication.
+
+## `gcm-nist.json`: public AES-GCM vectors
+
+The inputs of the 18 specification cases are the published ones (the keys `00..00` and `feffe992 8665731c 6d6a8f94
+67308308` (repeated or extended with `feffe992 8665731c` for the longer keys), the 64-byte plaintext starting
+`d9313225`, the 20-byte additional data `feedface deadbeef feedface deadbeef abaddad2`, the IVs `cafebabe facedbad
+decaf888` (96 bits), `cafebabe facedbad` (64 bits) and the 60-byte `9313225d ...`). The expected ciphertexts and
+tags were not typed in from the PDF: each was computed by two unrelated implementations, OpenSSL (through the Python
+`cryptography` package) and `harness/test/support/ref_gcm.c` (the textbook reference of the secure-mode tests, which
+`test_ref_gcm` runs against every case in both directions), and the file was generated from the OpenSSL result.
+The two agree on all 20 cases. As a check against the printed specification, the tags of all 18 specification cases were compared with the published values and match; that check is a sanity check on the
+inputs, the cross-check between the two implementations is the basis. The specification has no case whose IV is a
+whole number of blocks (16, 32, 128 bytes), where the IV hash needs no zero padding: `test_ref_gcm` carries four
+such cases as literals (computed with OpenSSL, not part of this file), and `test_ref_gcm_ossl` compares the
+reference with OpenSSL on thousands of random cases of every IV length from 1 to 128 bytes.
+The two CAVP cases are the first two vectors of the 128-bit, 96-bit-IV, empty-message group of `gcmEncryptExtIV128.rsp`
+(key, IV and tag as published).
+
+Use: the core's GCM tests (`test_crypto_gcm`), the accelerated hook's tests and `test_ref_gcm` read it; a case with
+an IV that is not 96 bits is for the reference only (the core's GCM refuses those with `WR_E_CRYPTO_LEN`).

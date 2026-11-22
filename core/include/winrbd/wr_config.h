@@ -16,7 +16,18 @@
 #include "wr_types.h"
 
 /* mode_policy */
-#define WR_MODE_CRC_ONLY 1u /* offer connection mode crc only (the only mode implemented so far) */
+#define WR_MODE_CRC_ONLY 1u      /* offer [crc] only: the default of every profile; no secure-mode memory is reserved */
+#define WR_MODE_CRC_FIRST 2u     /* offer [crc, secure]: crc when the server allows it, secure when it must */
+#define WR_MODE_SECURE_FIRST 3u  /* offer [secure, crc] */
+#define WR_MODE_SECURE_ONLY 4u   /* offer [secure]: a server that allows crc only refuses us (WR_E_M2_BAD_METHOD) */
+#define WR_MODE_STOCK 5u         /* offer what the stock Ceph client offers: [secure, crc] to a monitor, [crc, secure] to an OSD */
+/* The server walks OUR list in order and takes the first mode it allows (msgr2-secure-mode.md 2.9), so the order is the
+ * preference. Secure mode is implemented by part D of docs/design/core-architecture.md (sections 32 to 41).
+ * wr_client_mem_required() and wr_client_create() refuse a policy value outside 1 .. 5 (mode_policy_osd: 0 or 1 .. 5) with WR_E_INVAL, and with any
+ * policy that may end in secure (everything but CRC_ONLY on both roles) they reserve a secure slot and a bounce buffer of sec_tx_chunk bytes for every
+ * connection, so sec_tx_chunk must be set then (wr_config_enable_secure does it). There is no automatic second attempt with another mode: a
+ * server that allows none of the offered modes ends the connection with WR_E_M2_BAD_METHOD (WR_EV_AUTH_FAILED for the monitor, the allowed
+ * modes in the event's errinfo) and the engine's log record names the setting to change. */
 
 typedef struct wr_config {
 	uint32_t size; /* sizeof(wr_config); set by the profile functions, checked at create */
@@ -49,9 +60,10 @@ typedef struct wr_config {
 	uint32_t hunt_backoff_max_ms;    /* cap of the exponential back-off */
 
 	/* ---- policy ------------------------------------------------------------------------- */
-	uint8_t mode_policy;     /* WR_MODE_* */
+	uint8_t mode_policy;     /* WR_MODE_*: the offer made to a monitor (and, unless mode_policy_osd says otherwise, to an OSD) */
 	uint8_t map_verify_crc;  /* check the CRC of every full map and incremental (0 = trust the transport's CRC) */
-	uint8_t reserved8[2];
+	uint8_t mode_policy_osd; /* WR_MODE_* for OSD connections; 0 = the same as mode_policy */
+	uint8_t reserved8;
 
 	/* ---- OSD map and placement (docs/design/core-architecture.md section 15) -------------- */
 	/* The engine decodes the monitor's maps itself only when map_slot_bytes is non-zero; with 0 (what the three
@@ -91,7 +103,10 @@ typedef struct wr_config {
 	uint32_t osd_idle_ms;        /* an OSD session with nothing to do is closed after this; 0 = only when its slot is needed */
 	uint8_t osd_flags;           /* WR_OSDF_* */
 	uint8_t reserved_osd8[3];
-	uint32_t reserved[5];
+	uint32_t sec_tx_chunk;       /* secure mode: bytes of the per-connection bounce buffer in which transmit data is encrypted a piece at a
+					time (a multiple of 16, at least 256, else WR_E_INVAL; wr_config_enable_secure fills the profile's value). Not allocated
+					under CRC_ONLY, where 0 is the usual value (a non-zero value is still checked). */
+	uint32_t reserved[4];
 } wr_config;
 
 /* osd_flags */
@@ -121,5 +136,15 @@ void wr_config_enable_maps(wr_config *cfg, wr_map_profile p);
  * A bad p leaves the configuration unchanged.
  */
 void wr_config_enable_osd(wr_config *cfg, wr_map_profile p);
+
+/*
+ * Choose the connection-mode policy (WR_MODE_*, 1 .. 5) and fill sec_tx_chunk
+ * with the profile's value (iPXE 4 KiB, kernel 16 KiB, harness 64 KiB); mode_policy_osd is set to 0 (same as mode_policy). Call
+ * it after wr_config_profile_*(). With WR_MODE_CRC_ONLY nothing of secure mode costs memory; with any other policy
+ * wr_client_mem_required() adds the per-connection secure slots (docs/design/core-architecture.md section 36).
+ * A policy outside 1 .. 5, or a value that is not a profile, cannot be honoured and must not silently leave the crc-only default in place: the call sets
+ * mode_policy to 0 (no policy), so wr_client_mem_required() and wr_client_create() refuse the configuration with WR_E_INVAL; nothing else changes.
+ */
+void wr_config_enable_secure(wr_config *cfg, wr_map_profile p, uint8_t policy);
 
 #endif /* WR_CONFIG_H */

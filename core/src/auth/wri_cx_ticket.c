@@ -215,6 +215,7 @@ void wri_cx_forget(wri_cx_client *c)
 	c->sess_key_len = 0;
 	c->req_new_gid = 0;
 	c->st = WRI_CX_IDLE;
+	wri_cx_sec_wipe(&c->sec); /* the embedded handshake is idle again: a connection secret it held goes too */
 }
 
 /* ---- queries ----------------------------------------------------------------------------------- */

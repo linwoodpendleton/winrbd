@@ -214,3 +214,42 @@ void wr_config_enable_osd(wr_config *cfg, wr_map_profile p)
 	cfg->map_stale_ms = 30000;
 	cfg->osd_flags = (uint8_t)(WR_OSDF_FULL_TRY | WR_OSDF_HONOR_PAUSE);
 }
+
+/*
+ * Secure mode (docs/design/core-architecture.md section 36). Opt-in: the profiles offer crc only. The bounce buffer sizes are
+ * the pieces in which a transmit data segment is encrypted on its way to the wire (section 34.6): a bigger piece means fewer
+ * host calls, a smaller one less memory per connection.
+ *
+ * A call that cannot be honoured (a policy outside 1 .. 5, a value that is not a profile) must not leave the profile's crc-only default standing as if
+ * nothing had been asked: a host that wanted secure mode would run in the clear without a word. This function cannot return an error (like its
+ * siblings), so it poisons the configuration instead: mode_policy becomes 0, a value no policy has, and wr_client_mem_required() and wr_client_create()
+ * refuse the configuration with WR_E_INVAL (wri_m2_policy_valid). Nothing else is touched.
+ */
+void wr_config_enable_secure(wr_config *cfg, wr_map_profile p, uint8_t policy)
+{
+	uint32_t chunk;
+
+	if (cfg == NULL)
+		return;
+	if (policy < WR_MODE_CRC_ONLY || policy > WR_MODE_STOCK) {
+		cfg->mode_policy = 0;
+		return;
+	}
+	switch (p) {
+	case WR_MAPS_IPXE:
+		chunk = 4u * 1024u;
+		break;
+	case WR_MAPS_KERNEL:
+		chunk = 16u * 1024u;
+		break;
+	case WR_MAPS_HARNESS:
+		chunk = 64u * 1024u;
+		break;
+	default:
+		cfg->mode_policy = 0;
+		return;
+	}
+	cfg->mode_policy = policy;
+	cfg->mode_policy_osd = 0;
+	cfg->sec_tx_chunk = chunk;
+}

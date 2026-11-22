@@ -239,6 +239,45 @@ static void commit(wri_mapstore *s, unsigned nxt, const wri_osdmap *nm, int is_f
 	s->ev_epoch = nm->epoch;
 }
 
+/*
+ * The checks that come before any decoding: an entry with epoch 0, an incremental with nothing to build on, a gap, a pool tracked
+ * after the held map was built. Returns 1 when the entry may be decoded; otherwise the failure is already reported and the answer
+ * is 0. A function of its own so that process() keeps a small frame (the sanitizer builds of clang lay a slot for every temporary).
+ */
+static int entry_ok(const wri_ctx *x, wri_mapstore *s, const wri_map_io *io, const wri_osdmap *held, const entry *e)
+{
+	wr_errinfo why;
+
+	WR_MEMSET(&why, 0, sizeof(why));
+	if (e->epoch == 0) {
+		WRI_ERRINFO(&why, WR_E_MAP_CORRUPT, WR_MOD_MAP, "list entry with epoch 0", e->is_full, e->len, 0);
+		entry_failed(x, s, io, e->is_full, 1, WR_E_MAP_CORRUPT, &why);
+		return 0;
+	}
+	if (e->is_full)
+		return 1;
+	if (held == NULL) {
+		WRI_ERRINFO(&why, WR_E_MAP_NONE, WR_MOD_MAP, "incremental with no map held: a full map is needed", e->epoch, 0, 0);
+		entry_failed(x, s, io, 0, 0, WR_E_MAP_NONE, &why);
+		return 0;
+	}
+	if (e->epoch != s->epoch + 1u) {
+		WRI_ERRINFO(&why, WR_E_MAP_EPOCH, WR_MOD_MAP, "incremental does not follow the held epoch (gap)", s->epoch, e->epoch, 0);
+		entry_failed(x, s, io, 0, 0, WR_E_MAP_EPOCH, &why);
+		return 0;
+	}
+	if (held->n_pools != s->cfg.n_pools) {
+		/* a pool was tracked after this map was built: its record is not in the map, an incremental cannot add it */
+		WRI_ERRINFO(&why, WR_E_MAP_RESYNC, WR_MOD_MAP, "pool tracked after the held map was built: a full map is needed",
+			    held->n_pools, s->cfg.n_pools, s->epoch);
+		s->st.last_err = WR_E_MAP_RESYNC;
+		drop_rest(s);
+		wri_mapstore_need_full(s, &why);
+		return 0;
+	}
+	return 1;
+}
+
 static void process(const wri_ctx *x, wri_mapstore *s, const wri_map_io *io, const wr_mapmsg *m, const entry *e)
 {
 	wr_errinfo why;
@@ -247,37 +286,13 @@ static void process(const wri_ctx *x, wri_mapstore *s, const wri_map_io *io, con
 	uint8_t *slot = s->slot[nxt];
 	wr_status st;
 
-	WR_MEMSET(&why, 0, sizeof(why));
-	if (e->epoch == 0) {
-		WRI_ERRINFO(&why, WR_E_MAP_CORRUPT, WR_MOD_MAP, "list entry with epoch 0", e->is_full, e->len, 0);
-		entry_failed(x, s, io, e->is_full, 1, WR_E_MAP_CORRUPT, &why);
+	if (!entry_ok(x, s, io, held, e))
 		return;
-	}
-	if (!e->is_full) {
-		if (held == NULL) {
-			WRI_ERRINFO(&why, WR_E_MAP_NONE, WR_MOD_MAP, "incremental with no map held: a full map is needed", e->epoch, 0, 0);
-			entry_failed(x, s, io, 0, 0, WR_E_MAP_NONE, &why);
-			return;
-		}
-		if (e->epoch != s->epoch + 1u) {
-			WRI_ERRINFO(&why, WR_E_MAP_EPOCH, WR_MOD_MAP, "incremental does not follow the held epoch (gap)", s->epoch, e->epoch,
-				    0);
-			entry_failed(x, s, io, 0, 0, WR_E_MAP_EPOCH, &why);
-			return;
-		}
-		if (held->n_pools != s->cfg.n_pools) {
-			/* a pool was tracked after this map was built: its record is not in the map, an incremental cannot add it */
-			WRI_ERRINFO(&why, WR_E_MAP_RESYNC, WR_MOD_MAP, "pool tracked after the held map was built: a full map is needed",
-				    held->n_pools, s->cfg.n_pools, s->epoch);
-			s->st.last_err = WR_E_MAP_RESYNC;
-			drop_rest(s);
-			wri_mapstore_need_full(s, &why);
-			return;
-		}
+	WR_MEMSET(&why, 0, sizeof(why));
+	if (!e->is_full)
 		st = wri_osdmap_apply_inc(&s->cfg, held, e->p, e->len, slot, s->cfg.slot_bytes, &why);
-	} else {
+	else
 		st = wri_osdmap_decode_full(&s->cfg, e->p, e->len, slot, s->cfg.slot_bytes, &why);
-	}
 	if (st == WR_OK) {
 		nm = (const wri_osdmap *)(const void *)slot;
 		st = check_new(nm, e, m->front, &why);

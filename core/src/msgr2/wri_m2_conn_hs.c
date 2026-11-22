@@ -12,8 +12,12 @@
  *   - the pre-auth transcripts are stopped before our AUTH_SIGNATURE is built, the signature the
  *     server must send is computed at that moment (the key is never kept), and both transcripts are
  *     wiped as soon as the server's signature has been compared in constant time.
+ *   - secure mode (34.4): AUTH_DONE is the last plaintext frame. A secure answer switches the codec at once
+ *     (wri_m2c_sec_switch), before our AUTH_SIGNATURE is built, so the signatures and everything after them
+ *     are sealed; the room checks of the frames sent after the switch use the secure frame size.
  */
 #include "wri_m2_conn.h"
+#include "wri_m2_modes.h"
 #include "wri_misc.h"
 
 WR_FILE_LICENCE_MIT
@@ -22,8 +26,8 @@ WR_FILE_LICENCE_MIT
 #define CLIENT_REQUIRED 0x0800000000000000ull  /* MSG_ADDR2 */
 #define CLIENT_FLAG_LOSSY 1u
 #define FRAME_FIXED (WRI_M2_PREAMBLE_LEN + WRI_M2_CRC_LEN) /* a single-segment frame minus its payload */
-#define SIG_FRAME (FRAME_FIXED + 32u)
-#define IDENT_FRAME_MAX (FRAME_FIXED + 160u) /* IPv6 CLIENT_IDENT: 52 + 47 + 5 * 8 + 8 */
+#define SIG_PAYLOAD 32u
+#define IDENT_PAYLOAD_MAX 160u /* IPv6 CLIENT_IDENT: 52 + 47 + 5 * 8 + 8 */
 #define HELLO_FRAME_MAX (FRAME_FIXED + 1u + WRI_EADDR_MAX_WIRE)
 
 #define FAIL(x, c, st, what, a0, a1, a2) \
@@ -104,24 +108,27 @@ HS_NOINLINE static wr_status send_auth_request(const wri_ctx *x, wri_m2_conn *c)
 {
 	wri_wr w;
 	uint8_t *sp = NULL;
-	uint32_t scap = 0;
-	size_t plen = 0;
+	uint32_t scap = 0, modes[2];
+	size_t plen = 0, nmodes, hdr, i;
 	wr_status st = scratch_get(c, &sp, &scap);
 
 	if (st == WR_E_BUSY)
 		return st;
 	if (st != WR_OK)
 		return FAIL(x, c, st, "transmit buffer too small for AUTH_REQUEST", c->tx.cap, 0, 0);
+	nmodes = wri_m2_offer_list(wri_m2c_offer(c), modes); /* the preferred modes, in our order of preference: crc only unless the slot says more */
 	wri_wr_init(&w, sp, scap);
 	wri_wr_u32(&w, WRI_AUTH_METHOD_CEPHX);
-	wri_wr_u32(&w, 1u); /* preferred modes: crc only, never a silent secure offer */
-	wri_wr_u32(&w, WRI_CONN_MODE_CRC);
+	wri_wr_u32(&w, (uint32_t)nmodes);
+	for (i = 0; i < nmodes; i++)
+		wri_wr_u32(&w, modes[i]);
 	wri_wr_u32(&w, 0); /* payload length, patched below */
+	hdr = wri_wr_len(&w);
 	st = c->auth->begin(c->auth_ctx, c->role, &w);
 	if (st == WR_OK && !wri_wr_ok(&w))
 		st = w.err;
 	if (st == WR_OK) {
-		plen = wri_wr_len(&w) - 16u;
+		plen = wri_wr_len(&w) - hdr;
 		if (plen > WRI_M2_AUTH_BLOB_MAX)
 			st = WR_E_TOOBIG;
 	}
@@ -129,7 +136,7 @@ HS_NOINLINE static wr_status send_auth_request(const wri_ctx *x, wri_m2_conn *c)
 		wri_secure_zero(sp, wri_wr_len(&w));
 		return FAIL(x, c, st, "authentication request could not be built", c->role, 0, 0);
 	}
-	wri_wr_patch_u32(&w, 12u, (uint32_t)plen);
+	wri_wr_patch_u32(&w, hdr - 4u, (uint32_t)plen);
 	st = scratch_send(x, c, WRI_M2_TAG_AUTH_REQUEST, sp, (uint32_t)wri_wr_len(&w));
 	if (st != WR_OK)
 		return FAIL0(x, c, st, "AUTH_REQUEST could not be queued");
@@ -218,7 +225,8 @@ HS_NOINLINE static wr_status on_bad_method(const wri_ctx *x, wri_m2_conn *c, wri
 		    list_mask(b.allowed_methods, b.n_methods), list_mask(b.allowed_modes, b.n_modes), b.method);
 }
 
-/* Our AUTH_SIGNATURE out, the server's expected one computed (the key is not kept). */
+/* Our AUTH_SIGNATURE out, the server's expected one computed (the key is not kept). In secure mode the codec is already switched on, so the
+ * queue seals the frame; the session key is read here, after the switch: reading it is what makes the auth layer forget the secret. */
 HS_NOINLINE static wr_status sign_and_send(const wri_ctx *x, wri_m2_conn *c)
 {
 	const uint8_t *key = NULL;
@@ -245,13 +253,18 @@ HS_NOINLINE static wr_status sign_and_send(const wri_ctx *x, wri_m2_conn *c)
 HS_NOINLINE static wr_status on_auth_done(const wri_ctx *x, wri_m2_conn *c, wri_rd *r)
 {
 	wri_m2_auth_done d;
+	int secure;
 	wr_status st = wri_m2_auth_done_decode(r, &d);
 
 	if (st != WR_OK)
 		return FAIL0(x, c, st, "malformed AUTH_DONE");
-	if (d.mode != WRI_CONN_MODE_CRC) /* we offered crc only: a secure answer is a refusal to talk crc */
-		return FAIL(x, c, WR_E_M2_MODE, "connection mode we did not offer", d.mode, WRI_CONN_MODE_CRC, 0);
-	st = wri_m2c_need_room(x, c, SIG_FRAME + 16u);
+	secure = d.mode == WRI_CONN_MODE_SECURE;
+	if (wri_m2c_sec_check_mode(x, c, d.mode) != WR_OK) /* only a mode we offered (the check has failed the connection otherwise) */
+		return WR_E_M2_MODE;
+	if (secure && (c->auth->conn_secret == NULL || c->sec == NULL))
+		return FAIL0(x, c, WR_E_M2_SECRET, "secure mode but the authentication has no connection secret"); /* before done(): nothing was consumed */
+	/* our signature is the next frame, in the framing of the mode just chosen (a secure one is at least 96 bytes); the 16 is slack as before */
+	st = wri_m2c_need_room(x, c, wri_m2c_frame_bytes(secure, SIG_PAYLOAD) + 16u);
 	if (st != WR_OK)
 		return st;
 	/* from here on nothing is repeated */
@@ -261,6 +274,11 @@ HS_NOINLINE static wr_status on_auth_done(const wri_ctx *x, wri_m2_conn *c, wri_
 		return FAIL0(x, c, st, "authentication did not complete");
 	c->global_id = d.global_id;
 	c->mode = (uint8_t)d.mode;
+	if (secure) {
+		st = wri_m2c_sec_switch(x, c); /* the secret, the release of this frame, the codec; fails the connection itself */
+		if (st != WR_OK)
+			return st;
+	}
 	st = sign_and_send(x, c);
 	if (st != WR_OK)
 		return st;
@@ -316,9 +334,9 @@ HS_NOINLINE static wr_status on_signature(const wri_ctx *x, wri_m2_conn *c, wri_
 	wri_secure_zero(got, sizeof(got));
 	if (!eq)
 		return FAIL0(x, c, WR_E_M2_SIGNATURE, "server signature does not match our transcript");
-	st = wri_m2c_need_room(x, c, IDENT_FRAME_MAX);
+	st = wri_m2c_need_room(x, c, wri_m2c_frame_bytes(c->tx.sx != NULL, IDENT_PAYLOAD_MAX)); /* BUSY: the comparison is repeatable, nothing was wiped yet */
 	if (st != WR_OK)
-		return st; /* BUSY: the comparison is repeatable, nothing was wiped yet */
+		return st;
 	st = send_client_ident(x, c);
 	if (st != WR_OK)
 		return st;
@@ -349,7 +367,7 @@ HS_NOINLINE static wr_status on_server_ident(const wri_ctx *x, wri_m2_conn *c, w
 	c->server_cookie = si.cookie;
 	c->deadline_ms = WR_DEADLINE_NONE;
 	c->state = WRI_M2_READY;
-	WRI_LOG(x, WR_LOG_INFO, WR_MOD_M2, c->id, WR_OK, "msgr2 session ready", c->role, (uint64_t)si.gid, si.flags, 0);
+	WRI_LOG(x, WR_LOG_INFO, WR_MOD_M2, c->id, WR_OK, "msgr2 session ready", c->role, (uint64_t)si.gid, si.flags, c->mode);
 	c->up->ready(c->up_ctx, c);
 	return WR_OK;
 }

@@ -13,6 +13,8 @@
  *
  * A slot is opened with a role: MON authenticates with the cephx client's embedded handshake, OSD with a context of its own per slot.
  *
+ * Secure mode (design 34, 36): the slot, bounce buffer and offer of a connection, the mode counters and the mode-refusal hint are wri_client_modes.c.
+ *
  * Handshake slots. A connection borrows one of max_handshakes transcript pairs at open; the msgr2
  * connection sets its `pa` pointer to NULL once the transcript is wiped (signature verified, or any
  * failure), and the engine then returns the slot (housekeeping runs after every call that can do it).
@@ -96,7 +98,7 @@ static void slot_release(wr_client *c, wri_cslot *s)
 	s->connect_deadline_ms = WR_DEADLINE_NONE;
 }
 
-static uint32_t conns_in_use(const wr_client *c)
+uint32_t wri_client_conns_in_use(const wr_client *c)
 {
 	uint32_t i, n = 0;
 
@@ -166,11 +168,12 @@ wr_status wri_client_conn_open(wr_client *c, uint8_t role, const wri_eaddr *addr
 	c->global_seq++;
 	id = ((wr_conn_id)s->conn.gen << 16) | (wr_conn_id)(i + 1u);
 	wri_m2_conn_open(&s->conn, id, role, addr, &dial, auth, auth_ctx, up, up_ctx, &c->pa[pa], c->my_nonce, c->global_seq);
+	wri_client_conn_secure(c, s, i, role); /* secure mode: the slot's state, bounce buffer and offer (wri_client_modes.c) */
 	s->flags = (uint8_t)WRI_CF_WANT_CONNECT;
 	s->in_use = 1;
 	s->connect_deadline_ms = WR_DEADLINE_NONE;
 	pa_reclaim(c, s); /* a refused open() already let go of the transcript */
-	n = conns_in_use(c);
+	n = wri_client_conns_in_use(c);
 	if (n > c->stats.conns_hiwater)
 		c->stats.conns_hiwater = n;
 	*slot_out = (uint16_t)i;
@@ -258,6 +261,7 @@ int wri_client_conn_step_all(wr_client *c, uint32_t *budget)
 		if (wri_m2_conn_step(&c->x, &s->conn, budget) && hit == WRI_NIL)
 			hit = i; /* the first connection that ran the budget out with work left */
 		pa_reclaim(c, s);
+		wri_client_conn_account(c, s);
 	}
 	if (hit == WRI_NIL)
 		return 0;
@@ -297,6 +301,7 @@ void wri_client_conn_housekeeping(wr_client *c)
 		if (!s->in_use)
 			continue;
 		pa_reclaim(c, s);
+		wri_client_conn_account(c, s);
 		st = s->conn.state;
 		if (is_dead(st) && !(s->flags & WRI_CF_CONNECT_SENT) && s->conn.close_reported) {
 			/* ended before the host saw a connect: there is no socket, nobody will call wr_conn_closed */
@@ -342,14 +347,6 @@ void wri_client_conn_close_all(wr_client *c, wr_status why)
 		wri_m2_conn_close(&c->x, &s->conn, why);
 		pa_reclaim(c, s);
 	}
-}
-
-void wri_client_conn_stats(const wr_client *c, wr_stats *out)
-{
-	out->conns_in_use = conns_in_use(c);
-	out->conns_hiwater = c->stats.conns_hiwater;
-	out->handshakes_in_use = c->pa_in_use;
-	out->handshakes_hiwater = c->stats.handshakes_hiwater;
 }
 
 /* ---- derived actions ------------------------------------------------------------------------------------------ */
@@ -432,6 +429,7 @@ void wr_conn_closed(wr_client *c, wr_conn_id id, int host_errno)
 
 	if (s == NULL)
 		return;
+	wri_client_conn_account(c, s); /* NOW: on_closed turns the state FREE, and a failure recorded inside a send call (reported at the next step) would never be counted */
 	wri_m2_conn_on_closed(&c->x, &s->conn, host_errno); /* tells the monitor client (closed callback) if nobody was told yet */
 	slot_release(c, s);
 }

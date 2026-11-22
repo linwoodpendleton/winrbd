@@ -14,6 +14,11 @@
  * the encode buffer + data referenced in place. out_seq moves only when the frame is queued: a
  * rejected send (BUSY, TOOBIG) never burns a sequence number and a number is never reused, because
  * the stock server stops reading a connection that repeats one (msgr2.md 2.9).
+ *
+ * Secure mode changes nothing here except sizes and one more reason to say WR_E_BUSY: a MESSAGE whose data is still being sealed piece by
+ * piece (a stream, 34.6) owns the end of the wire, so the next send waits (BUSY, nothing consumed, no sequence number and no nonce used)
+ * until the host has drained it. A refused nonce (34.5) ends the connection before any byte of the frame exists (WR_E_M2_NONCE in c->err);
+ * the send returns WR_E_STATE and the upper layer hears of it at the next step (wri_m2c_tx_status).
  */
 #include "wri_m2_conn.h"
 
@@ -23,7 +28,7 @@ WR_FILE_LICENCE_MIT
 	(WRI_M2C_FAIL((x), (c), (st), (what), (a0), (a1), (a2)), (st))
 #define FAIL0(x, c, st, what) FAIL((x), (c), (st), (what), 0, 0, 0)
 
-#define KEEPALIVE_FRAME (WRI_M2_PREAMBLE_LEN + 8u + WRI_M2_CRC_LEN)
+#define KEEPALIVE_PAYLOAD 8u
 
 /* ---- receive ------------------------------------------------------------------------------ */
 
@@ -106,7 +111,7 @@ static wr_status on_keepalive(const wri_ctx *x, wri_m2_conn *c, wri_rd *r)
 
 	if (st != WR_OK)
 		return FAIL0(x, c, st, "malformed KEEPALIVE2");
-	st = wri_m2c_need_room(x, c, KEEPALIVE_FRAME);
+	st = wri_m2c_need_room(x, c, wri_m2c_frame_bytes(c->tx.sx != NULL, KEEPALIVE_PAYLOAD)); /* a secure frame is 96 bytes */
 	if (st != WR_OK)
 		return st;
 	wri_wr_init(&w, b, sizeof(b));
@@ -199,8 +204,9 @@ wr_status wri_m2_conn_send_message(const wri_ctx *x, wri_m2_conn *c, const wri_m
 	set_seg(&seg[3], m->data, m->data_len, 1, hb); /* the data segment is referenced, never copied */
 	st = wri_m2_tx_frame(&c->tx, x->host.prim, WRI_M2_TAG_MESSAGE, seg,
 			     m->data_len != 0 ? 4u : (m->front_len != 0 ? 2u : 1u), NULL, NULL);
-	if (st != WR_OK)
-		return st; /* BUSY / TOOBIG / INVAL: the sequence number was not used */
+	if (st != WR_OK) /* BUSY (a secure stream is still draining, or no room) / TOOBIG / INVAL: the sequence number was not used;
+			  * a refused nonce (WR_E_M2_NONCE) also ends the connection */
+		return wri_m2c_tx_status(x, c, st);
 	c->out_seq++;
 	c->last_tx_ms = x->now.mono_ms;
 	return WR_OK;
@@ -217,5 +223,40 @@ wr_status wri_m2_conn_send_keepalive(const wri_ctx *x, wri_m2_conn *c, uint32_t 
 		return WR_E_STATE;
 	wri_wr_init(&w, b, sizeof(b));
 	wri_m2_keepalive_encode(&w, sec, nsec);
-	return wri_m2c_send(x, c, WRI_M2_TAG_KEEPALIVE2, b, (uint32_t)wri_wr_len(&w));
+	return wri_m2c_tx_status(x, c, wri_m2c_send(x, c, WRI_M2_TAG_KEEPALIVE2, b, (uint32_t)wri_wr_len(&w))); /* BUSY while a stream drains */
+}
+
+/* ---- plumbing: the bytes in and out (the host's side of the pump; moved here to keep wri_m2_conn.c under the 500 lines of the core) ---------- */
+
+size_t wri_m2_conn_rx_window(wri_m2_conn *c, uint8_t **ptr)
+{
+	if (ptr != NULL)
+		*ptr = NULL;
+	if (c == NULL || !wri_m2c_state_live(c->state))
+		return 0;
+	return wri_m2_rx_window(&c->rx, &c->ring, ptr);
+}
+
+void wri_m2_conn_rx_commit(wri_m2_conn *c, size_t n)
+{
+	if (c == NULL || !wri_m2c_state_live(c->state))
+		return;
+	wri_m2_rx_commit(&c->rx, &c->ring, n);
+}
+
+size_t wri_m2_conn_tx_peek(const wri_m2_conn *c, wr_iov *iov, size_t max)
+{
+	if (c == NULL || !wri_m2c_state_live(c->state))
+		return 0;
+	return wri_m2_txq_peek(&c->tx, iov, max);
+}
+
+void wri_m2_conn_tx_consume(wri_m2_conn *c, size_t n)
+{
+	if (c == NULL || !wri_m2c_state_live(c->state))
+		return;
+	wri_m2_txq_consume(&c->tx, n);
+	wri_m2c_tx_check(NULL, c); /* no context here: the failure is recorded and reported at the next step, without a log line of its own */
+	if (c->stalled)
+		c->retry_ms = 0; /* room may have appeared: ask for a step at once */
 }

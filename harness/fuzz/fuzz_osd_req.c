@@ -977,6 +977,11 @@ static void quiesce(fz *f)
 	   * operation for a pool the map never has would wait for a newer map for ever (map_stale_ms 0) */
 		uint32_t hi = f->m.epoch < 100u ? 100u : f->m.epoch;
 
+		/* the epoch the engine last saw counts too: a held operation looks at a map only when the epoch differs from that one, and the
+		 * scripted map may have gone back below it since (a finding of the long run: ending on the very epoch the engine had seen left a
+		 * paused write held for ever, because no operation had recorded that epoch) */
+		if (o->map_epoch_seen > hi)
+			hi = o->map_epoch_seen;
 		for (i = 0; i < o->n_op; i++) {
 			if (o->op[i].sub_epoch > hi)
 				hi = o->op[i].sub_epoch;

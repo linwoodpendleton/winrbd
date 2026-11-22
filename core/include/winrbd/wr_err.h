@@ -70,6 +70,9 @@
 	X(WR_E_M2_ABORTED_FRAME, 57, "peer sent an aborted frame")                                \
 	X(WR_E_M2_SEQ, 58, "message sequence number out of order")                                \
 	X(WR_E_M2_HANDSHAKE_TIMEOUT, 59, "connection handshake did not finish in time")           \
+	X(WR_E_M2_SECRET, 60, "connection secret missing, too short or unusable")                 \
+	X(WR_E_M2_NONCE, 61, "secure-mode nonce limit reached (reconnect for a new key)")         \
+	X(WR_E_M2_SEC_TAG, 62, "secure frame failed authentication")                              \
 	/* cephx */                                                                               \
 	X(WR_E_AUTH_DENIED, 80, "server denied authentication (wrong key or no permission)")      \
 	X(WR_E_AUTH_DECRYPT, 81, "could not decrypt an authentication message (wrong key?)")      \

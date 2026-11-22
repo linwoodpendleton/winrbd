@@ -36,6 +36,12 @@
  * 43 (mosdmap-v4-inc-e42-e43-synthetic, labelled synthetic there); newest = 42, epoch 43 is committed by
  * sim_mon_push_epoch(). With those defaults the start-0 reply is byte for byte the vector.
  *
+ * Secure mode: sim_mon_cfg.m2.modes is the monitor's allowed list (the server takes the first of the client's offer that it allows,
+ * AUTH_BAD_METHOD -95 with its list otherwise); with secure negotiated, the AUTH_DONE's `cbl` carries a 64-byte secret from a seeded
+ * generator (cephx.md 2.7: u32 outer | u32 inner | sealed(u8 1 | magic | u32 len | secret), usage 0x03 under the AUTH session
+ * key), every later frame in both directions is secure framing (sim_m2.h), and every issued secret is recorded (sim_mon_secrets()).
+ * The hooks of sim_m2_fault.sec (a plan's `fault`) drop the secret, shorten it, send one in crc mode, or break the framing.
+ *
  * Fault hooks: sim_mon_restart() (all sessions cut at once, monmap epoch bumped), sim_mon_expire_tickets()
  * (every ticket issued so far stops being accepted), sim_mon_push_epoch() / sim_mon_bump_monmap() (a new
  * epoch is committed and pushed to the subscribers), per-connection plans (silent close = -EBUSY style,
@@ -213,6 +219,7 @@ struct sim_mon {
 	uint32_t n_restarts, n_getmap, n_subscribe, n_monmap_sent, n_osdmap_sent;
 	uint32_t last_renew_mask;   /* service mask of the last accepted renewal */
 	wr_status build_err;        /* first failure to BUILD a cephx reply (a misconfigured ticket); the connection is closed */
+	sim_sec_log sec_log;        /* every connection secret this monitor issued (secure mode); sim_mon_secrets() */
 
 	/* internals */
 	uint64_t rng;
@@ -236,6 +243,9 @@ size_t sim_mon_feed(sim_mon_conn *c, const uint8_t *p, size_t n);
 size_t sim_mon_drain(sim_mon_conn *c, uint8_t *out, size_t cap);
 /* 1 once the client would read EOF (sim_m2_closed). */
 int sim_mon_closed(const sim_mon_conn *c);
+
+/* The secrets issued to secure connections so far (a test checks that every connection got its own). */
+static inline const sim_sec_log *sim_mon_secrets(const sim_mon *m) { return &m->sec_log; }
 
 /* ---- fault hooks and driving the monitor ---------------------------------------------------------- */
 

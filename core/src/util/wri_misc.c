@@ -114,20 +114,18 @@ int64_t wri_div_s64_u32(int64_t num, uint32_t den)
 
 /* ---- base64 ------------------------------------------------------------------------------- */
 
-/* Value of a base64 digit, or -1. */
+/* Value of a base64 digit (the standard alphabet), or -1. Each range test is one unsigned subtraction: below the range it wraps high. */
 static int wri_b64_val(unsigned char c)
 {
-	if (c >= 'A' && c <= 'Z')
-		return c - 'A';
-	if (c >= 'a' && c <= 'z')
-		return c - 'a' + 26;
-	if (c >= '0' && c <= '9')
-		return c - '0' + 52;
-	if (c == '+')
-		return 62;
-	if (c == '/')
-		return 63;
-	return -1;
+	const unsigned v = c;
+
+	if (v - 'A' < 26u)
+		return (int)(v - 'A');
+	if (v - 'a' < 26u)
+		return (int)(v - 'a') + 26;
+	if (v - '0' < 10u)
+		return (int)(v - '0') + 52;
+	return v == '+' ? 62 : (v == '/' ? 63 : -1);
 }
 
 static int wri_b64_space(unsigned char c)

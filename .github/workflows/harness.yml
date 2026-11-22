@@ -4,18 +4,28 @@
 # Nothing here needs a secret, a lab cluster or the network beyond the package mirror: the live lab tests
 # (harness/lab, label "lab") are never part of CI. The Ceph run-time data of vectors.yml is not needed either.
 #
-#   build-test       gcc and clang, each plain and with -DWR_SANITIZE=address,undefined: cmake, -Werror build, ctest
+#   build-test       gcc and clang, each plain and with -DWR_SANITIZE=address,undefined: cmake, -Werror build, ctest; in the plain
+#                    flavours also the constant-time checks of the secure-mode crypto under Valgrind (required: a runner image that
+#                    loses Valgrind turns the job red, it is not a skip)
 #   compile-matrix   compile-only: gcc -m32, clang -m32, and the iPXE-flag build of the core (gcc); the object code of
 #                    those builds goes through the no-libc and no-globals checks too
 #   object-gates     the no-libc / no-globals / sources-in-sync checks on OPTIMISED builds (Release and MinSizeRel, gcc and
 #                    clang): the test jobs build Debug, where a compiler never turns a loop into a library call
 #   static-limits    call depth and worst-case stack of the core, measured from gcc's call graph (no recursion); the chains of
-#                    part B (map decode, incremental apply, placement) and of part C (the OSD step, the image step, the request
-#                    encode, the reply decode, and the reply path through the msgr2 upper-layer table) also have a budget of
+#                    part B (map decode, incremental apply, placement), of part C (the OSD step, the image step, the request
+#                    encode, the reply decode, and the reply path through the msgr2 upper-layer table) and of part D (secure
+#                    mode: the receive step, the transmit frame, the GCM update chain and their neighbours) also have a budget of
 #                    their own
 #   fuzz-smoke       clang + libFuzzer, 30 s per target, seeded from harness/fuzz/seeds (the checkout is not modified); a
-#                    target that was not built, or has no committed seeds, fails the job (the five targets of part B and the
-#                    seven of part C are named)
+#                    target that was not built, or has no committed seeds, fails the job (the five targets of part B, the
+#                    seven of part C and the five of part D are named)
+#
+# Two runner images. ubuntu-24.04 (gcc 13.3, clang 18.1) is the one the call-graph job and the measured numbers of the docs are pinned to,
+# so they stay comparable from run to run. ubuntu-26.04 (gcc 15.2, clang 21.1.8, the image core.yml reaches as ubuntu-latest) is where the
+# newest compilers' warnings and frame sizes show up first: build-test and fuzz-smoke run on both, so the sanitizer build with clang 21
+# (the flavour that once measured 1,048 bytes for two functions of the map half against the 1,024-byte rule) is a CI job and not only a
+# check on the lab box. harness/tools/ci26_vm.sh builds the same 26.04 toolchain on the lab box, so the whole matrix of this file (the
+# sanitizers, Release and MinSizeRel, -m32, the iPXE flags) is also run there before a change lands.
 #
 # Warnings are errors everywhere (WR_WERROR is ON by default and is never turned off here).
 name: harness
@@ -33,12 +43,16 @@ concurrency:
 
 jobs:
   build-test:
-    name: ${{ matrix.cc }}${{ matrix.sanitize != '' && ' + asan/ubsan' || '' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    name: ${{ matrix.os }} ${{ matrix.cc }}${{ matrix.sanitize != '' && ' + asan/ubsan' || '' }}
+    runs-on: ${{ matrix.os }}
+    # Part D added tests that are slow by design: the secure peers of the host tests use the independent (slow) GCM, so host.loop.sec and
+    # host.tool.rbd.sec take 2 to 3 minutes each in a plain Debug build on 8 cores and 5 to 7 minutes under the sanitizers (they run alone,
+    # RUN_SERIAL), and the whole suite is about 15 minutes at -j 4 on 8 cores. A runner has 4: the limit leaves a factor of three or more.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
         cc: [gcc, clang]
         sanitize: ["", "address,undefined"]
     steps:
@@ -47,9 +61,9 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends cmake ninja-build libssl-dev python3 ${{ matrix.cc == 'clang' && 'clang' || 'gcc' }}
+          sudo apt-get install -y --no-install-recommends cmake ninja-build libssl-dev python3 valgrind ${{ matrix.cc == 'clang' && 'clang' || 'gcc' }}
 
-      # The 24.04 runner kernel randomises mmap addresses more widely than the AddressSanitizer runtimes of both
+      # The runner kernels randomise mmap addresses more widely than the AddressSanitizer runtimes of both
       # compilers can place their shadow memory around, and the instrumented tests then die at start with a SEGV that
       # has nothing to do with the code. Lowering the randomisation is the documented workaround; a failure to do so is
       # reported (and then the tests tell if it mattered), it is not a reason to stop.
@@ -74,15 +88,39 @@ jobs:
         env:
           ASAN_OPTIONS: strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1
           UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
-        run: ctest --test-dir build/harness --output-on-failure -j 4 --timeout 600
+        run: ctest --test-dir build/harness --output-on-failure -j 4 --timeout 600 -E '^crypto\.ct\.valgrind$'
+
+      # The constant-time claim of the secure-mode crypto (AES, GHASH, GCM and the nonce stream, docs/design/core-architecture.md 35.6)
+      # is checked on the OBJECT CODE: Valgrind runs the test with the key, the IV and the data marked as undefined, so a branch or an
+      # address that depends on them is reported (and the known-bad control, a table AES and an early-exit compare, must be reported or
+      # the check fails), and the read-only data scan fails a table of 256 bytes or more. WRT_CT_REQUIRE=1 turns a missing Valgrind (or
+      # a missing binutils tool) into a failure instead of a skip, so the check cannot disappear from a runner image unnoticed. Not in
+      # the sanitizer flavours: the sanitizer runtimes do not run under Valgrind (the test says so and skips, exit 77, there).
+      - name: Constant-time checks under Valgrind
+        if: matrix.sanitize == ''
+        env:
+          WRT_CT_REQUIRE: 1
+        run: ctest --test-dir build/harness --output-on-failure --timeout 1800 -R '^crypto\.ct\.' --no-tests=error
+
+      # The same claim by a second, independent method (design 41.4): the crypto of the core is built into a small program that takes its
+      # secrets from a file, run under Valgrind's lackey tool with eight different secrets (random, all zero bits, all one bits), and the
+      # traces of the executed instructions and touched addresses must be identical, while the table AES of the cephx code must give a
+      # different one for every secret (the control: a check that cannot see a table fails). All five optimisation levels with the compiler of the job. A
+      # missing Valgrind or static C library is a failure here, as above.
+      - name: Constant-time traces under Valgrind
+        if: matrix.sanitize == ''
+        env:
+          WRT_CT_REQUIRE: 1
+        run: sh harness/tools/ct_trace_check.sh --cc ${{ matrix.cc }}
 
   compile-matrix:
-    name: compile only (-m32, iPXE flags)
-    runs-on: ubuntu-24.04
+    name: compile only (${{ matrix.os }}, ${{ matrix.cc }}, -m32, iPXE flags)
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
         cc: [gcc, clang]
     steps:
       - uses: actions/checkout@v4
@@ -135,12 +173,13 @@ jobs:
           sh harness/tools/check_no_globals.sh build/core_ipxe.a
 
   object-gates:
-    name: object gates (${{ matrix.cc }}, ${{ matrix.build_type }})
-    runs-on: ubuntu-24.04
+    name: object gates (${{ matrix.os }}, ${{ matrix.cc }}, ${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
         cc: [gcc, clang]
         build_type: [Release, MinSizeRel]
     steps:
@@ -169,10 +208,16 @@ jobs:
       - name: core_sources_in_sync, core_no_libc, core_no_globals
         run: ctest --test-dir build/gates --output-on-failure -R '^core_' --no-tests=error
 
+  # Both images: the budgets below are the larger of the gcc 13 and gcc 15 measurements plus about 8 %, so a change that grows a chain
+  # fails on whichever compiler measures it larger.
   static-limits:
-    name: call depth and stack
-    runs-on: ubuntu-24.04
+    name: call depth and stack (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
     steps:
       - uses: actions/checkout@v4
 
@@ -181,10 +226,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc python3
 
-      # No recursion, at most 14 frames deep, at most 3,328 bytes of stack along any chain (measured with gcc 13: 14 frames
-      # and 3,064 bytes; the deepest chain is the failure of an image that cancels its operations down to the session reset,
-      # the largest stack is the incremental apply of the map store, which decodes the full map embedded in an incremental
-      # and audits its rules). The per-entry budgets are ratchets about 8 % above the measured stack of each entry point
+      # No recursion, at most 17 frames deep, at most 3,328 bytes of stack along any chain (measured with gcc 13: 17 frames
+      # and 3,064 bytes; gcc 15 on the 26.04 box: 17 and 3,080. The deepest chain is, since part D, the AUTH_SIGNATURE frame that goes out
+      # in secure mode: the handshake > the connection's send > the secure frame builder > the first GCM refill > the tag > the GHASH
+      # multiplication, 17 frames and only 1,304 bytes of stack, three frames more than the 14 of part C, whose deepest chain was a failed
+      # image cancelling its operations down to the session reset. The depth limit follows the measured depth like every other number
+      # here, and the stack, which is what a frame count stands for, did not move: the largest stack is still the incremental apply of
+      # the map store, which decodes the full map embedded in an incremental and audits its rules). The per-entry budgets are ratchets about 8 % above the measured stack of each entry point
       # (part B: placement 1,528, store step 2,792, full-map decode 1,720, incremental apply 2,488, CRUSH decode 568, rule
       # interpreter 696 bytes; part C: OSD step 912, image step 1,080, the engine's OSD stage 944, the request encode 152,
       # the reply decode 264 bytes); an entry that is renamed away is an error, not a pass. An earlier version of the check
@@ -195,7 +243,7 @@ jobs:
       # next step.
       - name: Measure
         run: >
-          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 3328
+          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 17 --stack 3328
           --entry wr_client_map_target=1664
           --entry wri_mapstore_step=3072
           --entry wri_osdmap_decode_full=1920
@@ -219,16 +267,45 @@ jobs:
       # step above, does not take file-qualified names for a plain function name.
       - name: Measure the reply path through the msgr2 table
         run: >
-          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 14 --stack 3328
+          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 17 --stack 3328
           --link wri_m2c_ready_frame=core/src/osd/wri_osd_sess_up.c:up_message
           --link wri_m2c_ready_frame=core/src/mon/wri_mon.c:up_message
           --entry=core/src/osd/wri_osd_sess_up.c:up_message=1224
           --entry=wri_m2c_ready_frame=1936
 
+      # The chains of part D (docs/design/core-architecture.md 36.4). Budget = the larger of the stack measured with gcc 13 (24.04) and
+      # gcc 15 (26.04), plus about 8 %, rounded up to 8 bytes (measured, gcc 13 / gcc 15, in bytes): the secure receive step 888 / 920;
+      # the secure transmit frame 840 / 888 (its refill, which finishes the tag, is the tail of the chain) and the consume that refills
+      # 552 / 600; the portable GCM update 408 / 440 (the update inside it 392 / 408) on top of the GHASH multiplication
+      # (`wri_ghash_blocks` 328 / 344: its own frame is 224 / 240 bytes against the design target of 128, section 41.3); the two tags
+      # (`final_enc` 456 / 488, `final_dec` 472 / 488); the key schedule 288 / 320; the switch 568 / 584; the bitsliced block function
+      # 176 / 208; and the two chains from the connection down: the receive parser with the secure step under it 1,000 / 1,032 and the
+      # connection's send of one frame 1,256 / 1,304. The calls through the host's GCM hook end a chain in this measurement; the hook's
+      # own frames are the host's to bound. An entry that is renamed away is an error, not a pass.
+      - name: Measure the secure-mode chains
+        run: >
+          python3 harness/tests/ci-docs-hardening/check_callgraph.py --cc gcc --depth 17 --stack 3328
+          --entry wri_m2s_rx_step=1000
+          --entry wri_m2s_tx_frame=960
+          --entry wri_m2s_tx_consume=648
+          --entry wri_pgcm_update=480
+          --entry wri_pgcm_final_enc=528
+          --entry wri_pgcm_final_dec=528
+          --entry wri_pgcm_setkey=352
+          --entry wri_m2_secure_on=632
+          --entry wri_ghash_blocks=376
+          --entry wri_aesct_encrypt_blocks=232
+          --entry wri_m2_rx_step=1120
+          --entry wri_m2c_send=1416
+
   fuzz-smoke:
-    name: fuzz smoke (clang, 30 s per target)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    name: fuzz smoke (${{ matrix.os }}, clang, 30 s per target)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
     steps:
       - uses: actions/checkout@v4
 
@@ -272,6 +349,34 @@ jobs:
             [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
             [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
           done
+
+      # The same for the five part D targets (secure mode: the GCM operation scripts against the textbook reference, the transmit and the
+      # receive codec of the secure frames, a whole secure connection against the simulator, the whole client under a secure policy), and
+      # for the seeds that fuzz_cx_reply gained in part D (replies that carry a connection secret, good and bad lengths, both versions).
+      - name: The part D targets exist and have seeds
+        run: |
+          set -eu
+          for t in fuzz_gcm fuzz_m2_sec_tx fuzz_m2_sec_rx fuzz_m2_conn_sec fuzz_client_secure; do
+            [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
+            [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
+          done
+          [ -n "$(ls harness/fuzz/seeds/fuzz_cx_reply/sec_* 2>/dev/null)" ] || { echo "::error::fuzz_cx_reply lost its secret-carrying seeds"; exit 1; }
+
+      # The whole set: every target that was built, except the smoke target of the harness itself, has committed seeds, and the number of
+      # targets is the number of fuzz_*.c files of harness/fuzz (a target that stops being built, or a new one nobody seeded, is a red job).
+      - name: Every target exists and has seeds
+        run: |
+          set -eu
+          built=0
+          for src in harness/fuzz/fuzz_*.c; do
+            t=$(basename "$src" .c)
+            [ "$t" = fuzz_replay_main ] && continue
+            [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
+            built=$((built + 1))
+            [ "$t" = fuzz_smoke ] && continue
+            [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
+          done
+          echo "$built fuzz targets built, all seeded"
 
       # Each target runs on a COPY of its seeds, so the new inputs libFuzzer finds stay out of the checkout.
       # A crash leaves crash-* / oom-* / timeout-* files in build/fuzz-artifacts and fails the step.

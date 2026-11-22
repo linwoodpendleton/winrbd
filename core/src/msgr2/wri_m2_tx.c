@@ -12,6 +12,7 @@
 #include "wri_ctx.h"
 #include "wri_le.h"
 #include "wri_m2_frame.h"
+#include "wri_m2_sec.h"
 #include "wri_prim.h"
 
 WR_FILE_LICENCE_MIT
@@ -31,6 +32,8 @@ void wri_m2_txq_init(wri_m2_txq *q, uint8_t *buf, uint32_t cap)
 
 void wri_m2_txq_reset(wri_m2_txq *q)
 {
+	if (q->sx != NULL)
+		wri_m2s_tx_reset(q);
 	q->used = 0;
 	q->niov = 0;
 	q->pending = 0;
@@ -45,6 +48,8 @@ size_t wri_m2_txq_peek(const wri_m2_txq *q, wr_iov *out, size_t max)
 		return 0;
 	for (i = 0; i < n; i++)
 		out[i] = q->iov[i];
+	if (q->sx != NULL)
+		n = wri_m2s_tx_peek_more(q, out, n, max); /* the active secure stream's slice goes last */
 	return n;
 }
 
@@ -68,7 +73,9 @@ void wri_m2_txq_consume(wri_m2_txq *q, size_t n)
 			n = 0;
 		}
 	}
-	if (q->niov == 0) { /* drained: the whole encode buffer is free again */
+	if (n > 0 && q->sx != NULL)
+		(void)wri_m2s_tx_consume(q, n); /* bytes beyond the entries are the active secure stream's */
+	if (q->niov == 0 && (q->sx == NULL || wri_m2s_tx_done(q))) { /* drained: the whole encode buffer is free again */
 		q->pending = 0;
 		q->used = 0;
 	}
@@ -165,6 +172,8 @@ wr_status wri_m2_tx_banner(wri_m2_txq *q, wri_m2_log_fn log_fn, void *log)
 
 	if (q == NULL)
 		return WR_E_INVAL;
+	if (q->sx != NULL)
+		return WR_E_STATE; /* the banner is the first plaintext of a connection; behind the switch to secure framing it would be a plaintext write */
 	wri_m2_banner_build(b);
 	txw_start(&now, q, 0, 1, NULL, NULL);
 	txw_start(&alone, q, 1, 1, NULL, NULL);
@@ -226,6 +235,11 @@ wr_status wri_m2_tx_frame(wri_m2_txq *q, const wr_prim_ops *prim, uint8_t tag, c
 	if (nseg > 1u && seg[nseg - 1u].len == 0) { /* the last segment of a multi-segment frame is never empty */
 		txq_note(q, WR_E_INVAL);
 		return WR_E_INVAL;
+	}
+	if (q->sx != NULL) { /* secure mode: the codec seam; the transcript callback is not used any more */
+		st = wri_m2s_tx_frame(q, prim, tag, seg, nseg);
+		txq_note(q, st);
+		return st;
 	}
 
 	/*

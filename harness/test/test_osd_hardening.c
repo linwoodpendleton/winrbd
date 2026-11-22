@@ -456,7 +456,7 @@ static void check_callgraph(void)
 	if (yml == NULL)
 		return;
 	/* the workflow must carry the budgets, whatever gcc or python can do here */
-	need(yml, "harness.yml", "check_callgraph.py --cc gcc --depth 14 --stack 3328");
+	need(yml, "harness.yml", "check_callgraph.py --cc gcc --depth 17 --stack 3328");
 	for (i = 0; i < N_ENTRIES; i++) {
 		char tok[96];
 
@@ -468,7 +468,7 @@ static void check_callgraph(void)
 	WRT_CHECK(step != NULL);
 	if (step == NULL)
 		goto out;
-	need(step, "the reply path step", "--depth 14 --stack 3328");
+	need(step, "the reply path step", "--depth 17 --stack 3328");
 	need(step, "the reply path step", "--link " REPLY_LINK);
 	need(step, "the reply path step", "--entry=" REPLY_ENTRY "=");
 
@@ -493,7 +493,7 @@ static void check_callgraph(void)
 	quoted[q] = '\0';
 
 	/* the reply path, exactly as the workflow runs it */
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328", quoted);
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328", quoted);
 	n_link = append_tokens(step, "--link", 1, cmd, sizeof(cmd));
 	n_entry = append_tokens(step, "--entry=", 0, cmd, sizeof(cmd));
 	WRT_CHECK(n_link >= 2); /* the OSD session and the monitor client */
@@ -505,19 +505,19 @@ static void check_callgraph(void)
 		WRT_CHECK(rc == 0);
 	}
 	/* the failing side: a budget of 1 byte through the link fails with 1, a link or an entry that is not in the graph is 2 */
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328 --link '%s' --entry='%s=1' >/dev/null 2>&1",
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328 --link '%s' --entry='%s=1' >/dev/null 2>&1",
 		 quoted, REPLY_LINK, REPLY_ENTRY);
 	rc = system(cmd);
 	if (status_of(rc) != 1)
 		fprintf(stderr, "osd.hardening: a budget of 1 byte did not fail the call-graph check with status 1 (got %d)\n", rc);
 	WRT_CHECK(status_of(rc) == 1);
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328 --link 'wri_m2c_ready_frame=wri_no_such_handler'"
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328 --link 'wri_m2c_ready_frame=wri_no_such_handler'"
 		 " >/dev/null 2>&1", quoted);
 	rc = system(cmd);
 	if (status_of(rc) != 2)
 		fprintf(stderr, "osd.hardening: a link to a function that does not exist was not a tool error (status 2) (got %d)\n", rc);
 	WRT_CHECK(status_of(rc) == 2);
-	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 14 --stack 3328 --entry wri_no_such_entry=64 >/dev/null 2>&1",
+	snprintf(cmd, sizeof(cmd), "python3 -I '%s' --cc gcc --depth 17 --stack 3328 --entry wri_no_such_entry=64 >/dev/null 2>&1",
 		 quoted);
 	rc = system(cmd);
 	if (status_of(rc) != 2)

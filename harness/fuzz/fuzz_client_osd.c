@@ -420,8 +420,17 @@ static void do_op(fz *f)
 		break;
 	case 7:
 		if (f->img != NULL) {
+			unsigned k;
+
 			if (a & 1u)
 				f->model_ok = 0; /* abandoned writes continue as zombies: they may land later */
+			/* a draining close lets the writes in flight finish on the OLD handle (the close returns at once), and the fence that orders
+			 * overlapping requests is per handle: a read on the new handle may run before a write, discard or write-zeroes of the old one has
+			 * landed (a finding of the long fuzz run: a discard still in flight when the image was reopened, a read of the new handle that
+			 * returned the bytes the discard was going to remove). The model holds only while no such request is in flight at the reopen. */
+			for (k = 0; k < FZ_NREQ; k++)
+				if (f->rq[k].live && f->rq[k].is_write)
+					f->model_ok = 0;
 			cw_dig_u64(&f->w, (uint64_t)(int64_t)wr_image_close(f->img, (a & 1u) ? WR_CLOSE_ABANDON : WR_CLOSE_DRAIN));
 		}
 		open_image(f);

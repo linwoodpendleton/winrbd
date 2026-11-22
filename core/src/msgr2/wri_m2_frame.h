@@ -7,8 +7,8 @@
  *   - an incremental RECEIVE parser that is fed bytes through the same window/commit shape as
  *     the public pump, verifies everything and reports events;
  *   - a frame BUILDER that appends complete frames to a transmit queue (gather list).
- * Secure mode (milestone 11) adds a second codec behind the same interface; nothing above this
- * file changes. Invariant for the layers above: they only ever see bytes of segments that
+ * Secure mode (milestone 11, wri_m2_sec.h) is a second codec behind the same interface, switched on at the
+ * frame boundary after AUTH_DONE through the `sx` pointers below; nothing above this file changes. Invariant for the layers above: they only ever see bytes of segments that
  * passed their integrity check (inline CRC for segment 0, epilogue CRC for the others).
  */
 #ifndef WRI_M2_FRAME_H
@@ -18,6 +18,10 @@
 #include "wr_host.h"
 #include "wr_types.h"
 #include "wri_mem.h"
+
+/* The secure codec (wri_m2_sec.h) hangs off the parser and the queue through one pointer each; NULL = crc mode. */
+struct wri_m2s_rx;
+struct wri_m2s_tx;
 
 /* ---- constants (msgr2.md 2.2, 2.3, 2.4, 2.6.1) -------------------------------------------- */
 
@@ -150,6 +154,7 @@ typedef struct wri_m2_rx {
 	uint8_t stage[WRI_M2_PREAMBLE_LEN]; /* staging for preamble / epilogue / inline CRC */
 	uint32_t direct;      /* bytes committed straight into the sink but not yet CRC'd (see window) */
 	uint32_t seg_cap_max; /* hard cap on any segment length (config) */
+	struct wri_m2s_rx *sx; /* secure parser state; NULL = this crc parser (wri_m2_secure_on sets it) */
 	wr_errinfo err;
 } wri_m2_rx;
 
@@ -226,6 +231,7 @@ typedef struct wri_m2_txq {
 	uint64_t pending;  /* bytes not yet consumed */
 	wr_status err;     /* first hard failure of the builder (WR_E_INVAL / WR_E_TOOBIG), kept for diagnostics;
 			      WR_E_BUSY is not recorded and nothing here blocks later appends; cleared by reset */
+	struct wri_m2s_tx *sx; /* secure transmit state; NULL = crc frames (wri_m2_secure_on sets it) */
 } wri_m2_txq;
 
 void wri_m2_txq_init(wri_m2_txq *q, uint8_t *buf, uint32_t cap);

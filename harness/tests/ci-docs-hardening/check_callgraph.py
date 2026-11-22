@@ -17,7 +17,10 @@
 # some orders and under-reported the worst chain by about 1.4 KiB).
 #
 # Both numbers are measured, not estimated; the limits below are ratchets set just above today's values so a change
-# that makes the worst case grow shows up in review. Lower them when the code gets shallower.
+# that makes the worst case grow shows up in review. Lower them when the code gets shallower. The depth limit is 17 frames since
+# part D (it was 14): the deepest chain became the AUTH_SIGNATURE frame going out in secure mode (the handshake, the connection's
+# send, the secure frame builder, the first GCM refill, the tag, the GHASH multiplication), which is 1.3 KiB of stack, so the
+# stack limit did not move. gcc 13 and gcc 15 measure the same depth.
 #
 # --link CALLER=CALLEE (repeatable) adds the edge of a call through a function pointer that gcc cannot see (the msgr2 connection
 # delivering a message to the upper layer's table, for one). Without it such a call ends the chain and the numbers under-report
@@ -27,11 +30,13 @@
 # measurement too, so a hidden chain cannot slip past the limits just because it goes through a table.
 #
 # --entry NAME[=BYTES] (repeatable) reports the depth and the static stack of one entry point and, with =BYTES, fails above
-# that budget. It exists for the chains of part B (OSD map, CRUSH, placement), whose budgets are tighter than the global one
+# that budget. It exists for the chains of part B (OSD map, CRUSH, placement), of part C (the OSD step, the image step, the codecs)
+# and of part D (secure mode: the receive step, the transmit frame, the GCM update chain and the chains around them; budgets are the
+# larger of the gcc 13 and gcc 15 measurements plus about 8 %, rounded to 8 bytes), whose budgets are tighter than the global one
 # and which would otherwise hide behind the single worst chain of the whole core. An entry that is not in the graph (a rename)
 # is a tool error, so a budget cannot silently stop applying.
 #
-#   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 14] [--stack 3328] [--keep DIR]
+#   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 17] [--stack 3328] [--keep DIR]
 #                                                              [--link CALLER=CALLEE]... [--chains] [--entry NAME[=BYTES]]...
 #
 # Run by the `static-limits` job of .github/workflows/harness.yml. Exit 0 = within the limits, 1 = not, 2 = tool error.
@@ -151,7 +156,7 @@ def chain(n, depth, edges):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cc", default=os.environ.get("CC", "gcc"))
-    ap.add_argument("--depth", type=int, default=14, help="largest allowed call chain, in frames")
+    ap.add_argument("--depth", type=int, default=17, help="largest allowed call chain, in frames")
     ap.add_argument("--stack", type=int, default=3328, help="largest allowed static stack along a chain, in bytes")
     ap.add_argument("--keep", help="keep the object and .ci files in this directory")
     ap.add_argument("--link", action="append", default=[], metavar="CALLER=CALLEE",

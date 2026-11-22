@@ -741,8 +741,23 @@ static void rig_start(unsigned key_type, int wrong_key, uint16_t port, void (*tw
 	WRT_CHECK_STATUS(WR_OK, wrl_loop_create(R.c, &R.l));
 }
 
+/* A port that nothing listens on, for the tests that want connection refusals. It is the port of a socket that is bound and never listens: connect(2)
+ * to it is refused like a connect to any closed port, and nobody else can take the port while the socket is held. (A port that was only bound and
+ * closed again can be handed to another process that listens, for instance another test running beside this one, and the dials of a test that wants
+ * refusals, which go on for more than a second, then reach it: seen once, "a session came up on a closed port", while three copies of the socket
+ * tests ran side by side, 2026-11-22.) The socket is held until the rig stops. */
+static int g_held_fd = -1;
+
+static void held_close(void)
+{
+	if (g_held_fd >= 0)
+		close(g_held_fd);
+	g_held_fd = -1;
+}
+
 static void rig_stop(void)
 {
+	held_close();
 	wrl_loop_destroy(R.l);
 	wr_client_destroy(R.c);
 	wrl_mem_free(&R.arena);
@@ -950,11 +965,21 @@ static void test_server_cuts(void)
 
 static unsigned closed_port(void)
 {
-	uint16_t p;
-	int fd = listen_on(&p, 1);
+	struct sockaddr_in sa;
+	socklen_t sl = (socklen_t)sizeof(sa);
+	int fd;
 
-	close(fd);
-	return p;
+	held_close();
+	fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd < 0)
+		abort();
+	memset(&sa, 0, sizeof(sa));
+	sa.sin_family = AF_INET;
+	sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	if (bind(fd, (struct sockaddr *)&sa, sizeof(sa)) != 0 || getsockname(fd, (struct sockaddr *)&sa, &sl) != 0)
+		abort();
+	g_held_fd = fd;
+	return ntohs(sa.sin_port);
 }
 
 static int stop_connects(void *arg)

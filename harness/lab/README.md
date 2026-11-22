@@ -19,6 +19,10 @@ Contents:
 | `krbd-check.sh` | inside the VM | oracle check: krbd map, pattern write / read back, unmap |
 | `collect-facts.sh` | inside the VM | version and configuration facts for the protocol work (no keys) |
 | `teardown.sh` | VM host | stop the VM and delete what the lab created |
+| `krbd-compare.sh` | inside the VM | milestone 9: the core and the kernel client (krbd) write and read the same images, compared byte for byte with a model and with `rbd export` (`--mode secure` maps krbd with `ms_mode=secure`) |
+| `secure-live.sh` | inside the VM | milestone 11: the live matrix of secure mode (the five offer policies, the cluster forced to secure and to crc, refusals, the wire, krbd in secure mode) and the restore of every option it touched |
+| `secure-tamper.sh`, `secure_tamper_proxy.py` | inside the VM | milestone 11: the core in a network namespace behind a relay that flips one bit of one frame (OSD reply, OSD request, monitor stream, handshake) in secure and in crc mode; the core must refuse the frame and recover |
+| `live-rbd.sh`, `exit-run.sh` | inside the VM | the milestone 8 matrix and the long exit run of Phase 1 (with `harness/tools/fault_inject.sh`); late recoveries are a WARN and Ceph's own `osd_mclock_max_capacity_iops_hdd` / `_ssd` config lines are a NOTE in its state comparison, everything else still fails (design 40.3) |
 
 ## Design
 
@@ -157,6 +161,19 @@ marker file `LAB_DIR/.winrbd-lab` exists.
 To rebuild the cluster only (keep the VM), stop the Ceph daemons with
 `cephadm rm-cluster --force --zap-osds --fsid <fsid>` inside the guest and run
 `bootstrap-ceph.sh` again.
+
+## Live runs of milestones 9 and 11 (2026-11-21)
+
+First run of `krbd-compare.sh`, `secure-live.sh` and `secure-tamper.sh` on the lab cluster (Ceph v20.2.5, one monitor, three OSDs in the VM), build gcc 13.3
+Release. All zero differences; the lab was compared with a snapshot taken first and matched after each script.
+
+| Run | What | Result |
+|---|---|---|
+| `krbd-compare.sh --keys both --orders 12,16,22,25 --time 900 --parallel 4` (crc) | 8 images (orders 12 / 16 / 22 / 25, sizes that are not a whole number of objects), core key `aes256k` and legacy `aes`, krbd `ms_mode=prefer-crc`; edges, random, interleave, scans, `rbd export` against the core | 8 of 8 pass, 0 differences, 0 transients; 40,641 operations; 20.0 GiB written by the core, 15.7 GiB by krbd; 46.5 GiB read by each; 16 full-image scans (18.2 GiB read by each). The run ended with exit 1 only because krbd logged `watch error -107` on four devices while the VM's disk stalled BlueStore for 5 to 10 s under four parallel runs (each device re-established its watch, every comparison afterwards agreed); a run with `--parallel 2` had no kernel message |
+| `krbd-compare.sh --mode secure --keys both --orders 12,16,22,25 --time 400 --parallel 2` | the same matrix with krbd `ms_mode=secure` and the core `--mode secure --require-mode secure` (the tool and the `rbd export` comparison) | 8 of 8 pass, 0 differences, `conns_crc=0`, `sec_failures=0`; 83,917 operations; 12.0 GiB written by the core, 11.4 GiB by krbd; 30.2 GiB read by each; 26 scans (21.4 GiB read by each); dmesg quiet |
+| `secure-live.sh --keys both` | client matrix with both key types, the five offer policies against the default cluster (same modes as the stock client), the cluster forced to secure and to crc (the monitor and every OSD restarted one at a time), refusals, the wire, a wrong key, the AES-NI hook, the restore | 202 passed, 0 failed; restore done, state as before |
+| `secure-tamper.sh` | one bit flipped on the wire (OSD reply, core write, monitor stream, handshake; crc contrast) | 9 passed, 0 failed; `vectors/public/secure/live-tamper.txt` |
+| three-way digest of the whole image (kernel device read with `O_DIRECT`, `rbd export`, the core), after a `wr-krbdcmp` run | secure order 16 (79,643,648 B), secure order 22 with the legacy key (409,601,024 B), crc order 25 (614,400,000 B) | the three SHA-256 equal in all three |
 
 ## Security
 

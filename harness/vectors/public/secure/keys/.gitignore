@@ -1,0 +1,2 @@
+# the throwaway keyrings of the capture are published on purpose (the users were deleted, see ../README.md); the repository ignores *.keyring elsewhere
+!*.keyring

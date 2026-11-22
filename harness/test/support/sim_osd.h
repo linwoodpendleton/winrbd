@@ -229,6 +229,13 @@ typedef struct sim_osd_cls_call {
 } sim_osd_cls_call;
 void sim_osd_set_class_hook(sim_osd *o, int (*fn)(void *ctx, sim_osd_cls_call *call, int run), void *ctx);
 
+/* Secure mode: sim_osd_cfg.m2.modes is the allowed list (the default of sim_osd_cfg_default is crc only, as it always was; a stock OSD
+ * allows both: set n_modes = 2, modes = {crc, secure}). With secure negotiated the final AUTH_DONE payload is a
+ * CephXAuthorizeReply of version 2 with a 64-byte secret (cephx.md 2.7, usage 0x12 under the ticket's session key; version 1 and
+ * no secret in crc mode), and every later frame is secure framing (sim_m2.h). Every issued secret is recorded here. The hooks of
+ * sim_m2_fault.sec go in cfg.m2.f.sec (or into the connection's sim_m2 after sim_osd_accept). */
+const sim_sec_log *sim_osd_secrets(const sim_osd *o);
+
 /* The OSD's own map epoch (cfg.epoch != 0): parked requests whose epoch is now reached are handled, in arrival order. */
 void sim_osd_set_epoch(sim_osd *o, uint32_t epoch);
 uint32_t sim_osd_n_parked(const sim_osd *o);

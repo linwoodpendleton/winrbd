@@ -19,6 +19,11 @@
  * connection (AUTH_SIGNATURE, cephx.md 2.9). ident_gid(): -1 on a monitor connection that asked for a
  * new id, the reclaimed id when it carried one, the monitor-assigned id on an OSD connection.
  *
+ * conn_secret() (architecture 34.3): the connection secret of a secure-mode handshake is held in the handshake's
+ * own `sec` (the slot's, or the client's embedded one). It is read in place, never through the stack copy of the
+ * embedded handshake (that copy only carries it OUT of done()), and it is wiped by the next call of any op of the
+ * same handshake once it was handed out.
+ *
  * Secrets: nothing is logged.
  */
 #include "wri_cx.h"
@@ -147,6 +152,7 @@ void wri_cx_hs_load(wri_cx_hs *h, wri_cx_client *c)
 	h->key_gen = c->key_gen;
 	h->gid = c->gid;
 	h->err = c->err;
+	/* h->sec stays as the caller made it (zero for a stack copy): no step reads a secret */
 }
 
 void wri_cx_hs_store(wri_cx_client *c, const wri_cx_hs *h)
@@ -163,6 +169,7 @@ void wri_cx_hs_store(wri_cx_client *c, const wri_cx_hs *h)
 	c->key_gen = h->key_gen;
 	c->gid = h->gid;
 	c->err = h->err;
+	c->sec = h->sec; /* the secret a good secure done() produced, or none: whatever the client held is replaced */
 }
 
 /* ---- the auth ops of a slot (wri_cx_hs_ops) ------------------------------------------------------ */
@@ -191,17 +198,45 @@ static wr_status hso_done(void *a, uint64_t global_id, uint32_t mode, const uint
 
 static void hso_session_key(void *a, const uint8_t **key, size_t *len)
 {
-	wri_cx_hs_do_session_key(hs_of(a), key, len);
+	wri_cx_hs *h = hs_of(a);
+
+	wri_cx_hs_do_session_key(h, key, len);
+	if (h != NULL)
+		wri_cx_sec_release_taken(&h->sec); /* the connection has keyed itself by now */
 }
 
 static int64_t hso_ident_gid(void *a, uint8_t target_type)
 {
-	return wri_cx_hs_do_ident_gid(hs_of(a), target_type);
+	wri_cx_hs *h = hs_of(a);
+	int64_t gid = wri_cx_hs_do_ident_gid(h, target_type);
+
+	if (h != NULL)
+		wri_cx_sec_release_taken(&h->sec);
+	return gid;
+}
+
+static void hso_conn_secret(void *a, const uint8_t **secret, size_t *len)
+{
+	wri_cx_hs *h = hs_of(a);
+	const uint8_t *k = NULL;
+	size_t kn = 0;
+
+	if (h == NULL) {
+		if (secret != NULL)
+			*secret = NULL;
+		if (len != NULL)
+			*len = 0;
+		return;
+	}
+	/* Only while the session key the handshake ended with is still the held one: a forget (or a swap) of the
+	 * ticket it points into takes the secret with it, the connection could not sign its AUTH_SIGNATURE anyway. */
+	wri_cx_hs_do_session_key(h, &k, &kn);
+	wri_cx_sec_hand_out(&h->sec, h->st == WRI_CX_DONE && k != NULL, secret, len);
 }
 
 const wri_auth_ops *wri_cx_hs_ops(void)
 {
-	static const wri_auth_ops ops = {hso_begin, hso_more, hso_done, hso_session_key, hso_ident_gid};
+	static const wri_auth_ops ops = {hso_begin, hso_more, hso_done, hso_session_key, hso_ident_gid, hso_conn_secret};
 
 	return &ops;
 }
@@ -280,6 +315,7 @@ static void cx_session_key(void *a, const uint8_t **key, size_t *len)
 	emb_load(&h, c);
 	wri_cx_hs_do_session_key(&h, key, len);
 	emb_drop(&h);
+	wri_cx_sec_release_taken(&c->sec);
 }
 
 static int64_t cx_ident_gid(void *a, uint8_t target_type)
@@ -293,12 +329,34 @@ static int64_t cx_ident_gid(void *a, uint8_t target_type)
 	emb_load(&h, c);
 	gid = wri_cx_hs_do_ident_gid(&h, target_type);
 	emb_drop(&h);
+	wri_cx_sec_release_taken(&c->sec);
 	return gid;
+}
+
+static void cx_conn_secret(void *a, const uint8_t **secret, size_t *len)
+{
+	wri_cx_client *c = cx_of(a);
+	wri_cx_hs h;
+	const uint8_t *k = NULL;
+	size_t kn = 0;
+
+	if (c == NULL) {
+		if (secret != NULL)
+			*secret = NULL;
+		if (len != NULL)
+			*len = 0;
+		return;
+	}
+	/* as for a slot: handed out only while the session key the handshake ended with is still the held one */
+	emb_load(&h, c);
+	wri_cx_hs_do_session_key(&h, &k, &kn);
+	emb_drop(&h);
+	wri_cx_sec_hand_out(&c->sec, c->st == WRI_CX_DONE && k != NULL, secret, len);
 }
 
 const wri_auth_ops *wri_cx_ops(void)
 {
-	static const wri_auth_ops ops = {cx_begin, cx_more, cx_done, cx_session_key, cx_ident_gid};
+	static const wri_auth_ops ops = {cx_begin, cx_more, cx_done, cx_session_key, cx_ident_gid, cx_conn_secret};
 
 	return &ops;
 }

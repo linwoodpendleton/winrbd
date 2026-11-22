@@ -17,6 +17,17 @@
  *   CLIENT_IDENT -> SERVER_IDENT / IDENT_MISSING_FEATURES / WAIT, then MESSAGE receive (recorded;
  *   sequence numbers enforced), MESSAGE send, KEEPALIVE2 echo and ACK tolerance.
  *
+ * Secure mode (sim_m2_sec.h, written from msgr2-secure-mode.md with ref_gcm and nothing of the core): the server picks the first of
+ * the client's modes that cfg.modes allows (none: AUTH_BAD_METHOD, -EOPNOTSUPP, its lists); when secure was picked it issues a
+ * 64-byte secret from a seeded generator (sim_m2_conn_secret: the auth callbacks put it into the cephx payload, the two ways of
+ * cephx.md 2.10), and once it has sent AUTH_DONE with mode secure EVERYTHING after it, in both directions, goes through the
+ * secure encoder and decoder: the signature frames first, then the session. The crc handshake and the crc session are byte for
+ * byte what they were. Every secret issued is recorded (sim_m2_cfg.sec / sim_m2_sec_setup, sim_sec_log). The faults of
+ * sim_m2_fault.sec are the secure-mode hooks; the part A hooks (out_limit, out_chunk, corrupt_frame, bad_signature,
+ * oversize_frame, no_keepalive_ack, send_wait, missing_features) keep working: corrupt_frame damages ciphertext (the tag is
+ * the integrity of this mode: PREAMBLE flips a bit of the preamble's ciphertext, SEG0 of segment 0's, EPILOGUE of the
+ * epilogue block's), oversize_frame is an authentic part 1 that claims the length.
+ *
  * A protocol violation by the client makes the server close (sim_m2_closed() turns true once what
  * it had queued is drained), like a stock daemon does. sim_m2_error() says why.
  */
@@ -26,6 +37,7 @@
 #include "wr_err.h"
 #include "wr_types.h"
 #include "wri_m2_frame.h"
+#include "sim_m2_sec.h"
 
 #define SIM_M2_ENT_MON 0x01u
 #define SIM_M2_ENT_OSD 0x04u
@@ -102,10 +114,12 @@ typedef struct sim_m2_fault {
 	uint8_t bad_signature;    /* our AUTH_SIGNATURE is wrong (one bit flipped) */
 	uint64_t missing_features;/* != 0: answer CLIENT_IDENT with IDENT_MISSING_FEATURES, this mask */
 	uint8_t send_wait;        /* answer CLIENT_IDENT with WAIT */
-	uint32_t done_mode;       /* != 0: connection mode written into AUTH_DONE (2 = secure, unsupported here) */
+	uint32_t done_mode;       /* != 0: connection mode written into AUTH_DONE instead of the negotiated one (1 = crc although secure was
+				   * negotiated: the conversation stays crc; 2 = secure although crc was negotiated: no secret, the server stops) */
 	uint32_t oversize_frame;  /* != 0: server frame K is only a preamble that claims oversize_len bytes in its last segment */
 	uint32_t oversize_len;
 	uint8_t no_keepalive_ack; /* swallow KEEPALIVE2 without answering */
+	sim_sec_fault sec;        /* secure-mode hooks (sim_m2_sec.h); zero = off */
 } sim_m2_fault;
 #define SIM_M2_CORRUPT_PREAMBLE 0
 #define SIM_M2_CORRUPT_SEG0 1     /* the inline CRC after segment 0 */
@@ -144,6 +158,7 @@ typedef struct sim_m2_cfg {
 	uint8_t seq_policy;             /* SIM_M2_SEQ_STRICT (default) or SIM_M2_SEQ_STOCK */
 	uint32_t preauth_cap;           /* cap of each pre-auth log, default 1 MiB */
 	uint32_t out_cap;               /* cap of the queued server output, default 16 MiB */
+	sim_sec_cfg sec;                /* where the connection secret comes from (seed, or a fixed one) */
 	sim_m2_fault f;
 } sim_m2_cfg;
 
@@ -182,6 +197,29 @@ enum { /* sim_m2.state */
 	SIM_M2_ST_DEAD     /* protocol violation or hook: closed */
 };
 
+/* The frame the server is handling now (from the crc parser or the secure decoder): the dispatch reads only this. */
+typedef struct sim_m2_cur {
+	uint8_t tag, nseg;
+	uint32_t len[4];
+	const uint8_t *p[4];  /* valid until the next frame is parsed */
+} sim_m2_cur;
+
+typedef struct sim_m2_secst {
+	uint8_t secret[SIM_SEC_SECRET_MAX]; /* the secret issued for the current AUTH attempt */
+	uint32_t secret_len;                /* 0 = none issued */
+	uint8_t issued;
+	uint64_t rng;                       /* the generator of the secrets of this connection */
+	uint64_t seed;                      /* from sim_m2_sec_setup, used when cfg.sec.seed is 0 */
+	sim_sec_log *log;                   /* where issued secrets are recorded (may be NULL) */
+	sim_sec_ctx ctx;                    /* the server's two directions, live once tx_on */
+	sim_sec_dec dec;                    /* reads the client's frames once rx_on */
+	uint8_t tx_on;                      /* secure framing in the server's transmit direction */
+	uint8_t rx_on;                      /* ... and in its receive direction */
+	uint8_t rx_pending;                 /* AUTH_DONE sent: the receive side switches at the next frame boundary */
+	uint32_t n_tx_frames, n_rx_frames;  /* secure frames sent / received (aborted ones included in rx) */
+	uint32_t n_aborted;                 /* frames received with late_status 0x1 */
+} sim_m2_secst;
+
 typedef struct sim_m2 sim_m2;
 struct sim_m2 {
 	sim_m2_cfg cfg;
@@ -215,6 +253,9 @@ struct sim_m2 {
 	uint32_t n_rx_frames;
 	uint32_t n_rx_by_tag[WRI_M2_TAG_MAX + 1u];
 	uint32_t n_tx_frames; /* server frames emitted so far (the index of corrupt_frame / oversize_frame) */
+
+	sim_m2_cur cur;
+	sim_m2_secst sec;
 
 	/* session */
 	uint64_t in_seq, out_seq;
@@ -273,6 +314,19 @@ WR_MUST_CHECK wr_status sim_m2_send_message(sim_m2 *s, uint16_t type, uint64_t t
 					    const uint8_t *front, uint32_t flen, const uint8_t *middle,
 					    uint32_t mlen, const uint8_t *data, uint32_t dlen);
 WR_MUST_CHECK wr_status sim_m2_send_keepalive(sim_m2 *s, uint32_t sec, uint32_t nsec);
+
+/* ---- secure mode ---------------------------------------------------------------------------------------------------- */
+
+/* For the auth callbacks of a monitor / OSD simulation: where to record the secrets this connection issues and a seed for them
+ * (used unless cfg.sec.seed is set). Call it from the first AUTH_REQUEST callback, before sim_m2_conn_secret(). */
+void sim_m2_sec_setup(sim_m2 *s, sim_sec_log *log, uint64_t seed);
+/* The connection secret to put into the auth payload of this AUTH_DONE: NULL when there is none (crc was negotiated, or the
+ * omit_secret hook). Issues it (and records it) on the first call of an attempt. *len gets its length. */
+const uint8_t *sim_m2_conn_secret(sim_m2 *s, uint32_t *len);
+/* The connection mode the server negotiated for the current AUTH_REQUEST (0 before one, or when it refused). */
+uint32_t sim_m2_negotiated_mode(const sim_m2 *s);
+/* 1 once the server talks secure in both directions. */
+int sim_m2_is_secure(const sim_m2 *s);
 
 /* Drop the recorded messages (the counters stay). */
 void sim_m2_msgs_clear(sim_m2 *s);

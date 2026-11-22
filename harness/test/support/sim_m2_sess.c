@@ -29,10 +29,10 @@ static void on_message(sim_m2 *s, const uint8_t *h, size_t hlen)
 	cur.flags = h[36];
 	cur.compat_version = wri_le16_get(h + 37);
 	cur.reserved = wri_le16_get(h + 39);
-	cur.nseg = s->rx.desc.nseg;
+	cur.nseg = s->cur.nseg;
 	for (i = 0; i < 3; i++) {
-		cur.seg_len[i] = s->rx.stored[i + 1u];
-		cur.seg[i] = cur.seg_len[i] != 0 ? s->sink[i] : NULL;
+		cur.seg_len[i] = s->cur.len[i + 1u];
+		cur.seg[i] = cur.seg_len[i] != 0 ? (uint8_t *)s->cur.p[i + 1u] : NULL;
 	}
 	if (seq != s->in_seq + 1u) {
 		if (s->cfg.seq_policy == SIM_M2_SEQ_STRICT) {
@@ -105,12 +105,12 @@ static void note_frame(sim_m2 *s, uint8_t tag)
 
 void sim_m2_on_frame(sim_m2 *s)
 {
-	uint8_t tag = s->rx.desc.tag;
-	const uint8_t *p = s->seg0;
-	size_t n = s->rx.stored[0];
+	uint8_t tag = s->cur.tag;
+	const uint8_t *p = s->cur.p[0];
+	size_t n = s->cur.len[0];
 
 	note_frame(s, tag);
-	if (s->rx.desc.nseg > 1 && tag != WRI_M2_TAG_MESSAGE) {
+	if (s->cur.nseg > 1 && tag != WRI_M2_TAG_MESSAGE) {
 		sim_m2_die(s, WR_E_M2_FRAME_FORM, "sim: control frame with several segments", tag, 0);
 		return;
 	}

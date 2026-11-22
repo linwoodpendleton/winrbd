@@ -1063,7 +1063,8 @@ static void ep_osd_cases(unsigned kt)
 		WRT_CHECK(all_zero(p.e.c.scratch, p.e.c.scratch_cap)); /* nothing decrypted is left behind */
 	}
 
-	/* the final reply: damaged, truncated, a connection secret, stray bytes after it, a length beyond it */
+	/* the final reply: damaged, truncated, a secret that claims more bytes than the item holds, stray bytes
+	 * after it, a length beyond it (a complete secret of either mode is test_auth_secret.c's) */
 	for (c = 0; c < 5; c++) {
 		uint64_t nonce_item;
 		size_t rn;
@@ -1079,7 +1080,7 @@ static void ep_osd_cases(unsigned kt)
 		nonce_item = p.h.authorizer_nonce + 1u;
 		item[0] = c == 2 ? 2u : 1u;
 		wri_le64_put(item + 1, nonce_item);
-		wri_le32_put(item + 9, 5); /* v2: a connection secret of 5 bytes */
+		wri_le32_put(item + 9, 5); /* v2: a connection secret of 5 bytes, of which 3 are there */
 		memset(item + 13, 0x33, 3);
 		cn = ep_seal(&p, &p.ok, WRI_CX_USAGE_AUTHORIZE_REPLY, item, c == 1 ? 4u : (c == 2 ? 16u : 9u), ct, sizeof(ct));
 		if (c == 0)
@@ -1091,7 +1092,7 @@ static void ep_osd_cases(unsigned kt)
 			rep[rn++] = 0x55;
 		}
 		st = wri_cx_hs_ops()->done(&p.h, 4100, WRI_CONN_MODE_CRC, rep, rn);
-		ep_failed(&p, st, c == 0 ? WR_E_AUTH_DECRYPT : (c == 1 ? WR_OK : (c == 2 ? WR_E_M2_MODE : WR_E_AUTH_PROTO)));
+		ep_failed(&p, st, c == 0 ? WR_E_AUTH_DECRYPT : (c == 1 ? WR_OK : (c == 2 ? WR_E_TRUNCATED : WR_E_AUTH_PROTO)));
 		WRT_CHECK(all_zero(p.e.c.scratch, p.e.c.scratch_cap));
 		WRT_CHECK(p.e.c.ticket[WRI_CX_SLOT_OSD].have && p.e.c.global_id == 4100); /* still: nothing forgotten */
 	}

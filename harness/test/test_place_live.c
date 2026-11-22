@@ -206,6 +206,7 @@ static void check_answers(live *lv, const wri_osdmap *m, const mv_ctx *cx, const
 		uint32_t i = (uint32_t)mv_int(sj, wrt_json_at(sj, r, 1));
 		char nm[64], *pgid = wrt_json_strdup(sj, wrt_json_at(sj, r, 4)), *pshex = wrt_json_strdup(sj, wrt_json_at(sj, r, 3));
 		mv_exp e;
+		size_t nl;
 
 		if (pgid == NULL || pshex == NULL || i >= lv->n_names || (uint32_t)mv_int(sj, wrt_json_at(sj, r, 2)) != cx->epoch)
 			die_at(lv, "an answer row of a state does not fit the state", cx->epoch, cx->label);
@@ -216,7 +217,10 @@ static void check_answers(live *lv, const wri_osdmap *m, const mv_ctx *cx, const
 		e.up_primary = wrt_json_at(sj, r, 6);
 		e.acting = wrt_json_at(sj, r, 7);
 		e.acting_primary = wrt_json_at(sj, r, 8);
-		mv_name_check(cx, m, id, (const uint8_t *)nm, strlen(nm), NULL, 0, (int64_t)parse_hex64(pshex), pgid, &e, &lv->t);
+		nl = strlen(nm);
+		if (nl > sizeof(nm) - 1u) /* cannot happen (name_of() bounds the name); the clamp lets gcc 15 see it: -Warray-bounds at -Os with the sanitizers */
+			nl = sizeof(nm) - 1u;
+		mv_name_check(cx, m, id, (const uint8_t *)nm, nl, NULL, 0, (int64_t)parse_hex64(pshex), pgid, &e, &lv->t);
 		lv->answers++;
 		free(pgid);
 		free(pshex);

@@ -23,6 +23,7 @@
 #include "wri_ctx.h"
 #include "wri_le.h"
 #include "wri_m2_frame.h"
+#include "wri_m2_sec.h"
 #include "wri_prim.h"
 
 WR_FILE_LICENCE_MIT
@@ -84,6 +85,8 @@ size_t wri_m2_rx_window(wri_m2_rx *rx, wri_ring *ring, uint8_t **ptr)
 
 	if (ptr != NULL)
 		*ptr = NULL;
+	if (rx->sx != NULL)
+		return wri_m2s_rx_window(rx, ring, ptr); /* secure mode: the codec seam */
 	if (rx->state == WRI_RX_DEAD)
 		return 0;
 	if (direct_ok(rx, ring, &room)) {
@@ -98,6 +101,10 @@ void wri_m2_rx_commit(wri_m2_rx *rx, wri_ring *ring, size_t n)
 {
 	uint32_t room = 0, k;
 
+	if (rx->sx != NULL) {
+		wri_m2s_rx_commit(rx, ring, n);
+		return;
+	}
 	if (rx->state == WRI_RX_DEAD || n == 0)
 		return;
 	if (direct_ok(rx, ring, &room)) {
@@ -376,6 +383,8 @@ wri_m2_rx_ev wri_m2_rx_step(wri_m2_rx *rx, wri_ring *ring, const wr_prim_ops *pr
 	uint32_t unlimited = 0xffffffffu;
 	int rc;
 
+	if (rx->sx != NULL) /* secure mode: the codec seam (the transcript callback is not used any more) */
+		return wri_m2s_rx_step(rx, ring, prim, budget);
 	if (budget == NULL)
 		budget = &unlimited;
 	for (;;) {
@@ -447,4 +456,6 @@ void wri_m2_rx_next_frame(wri_m2_rx *rx)
 	rx->seg_pos = 0;
 	rx->direct = 0;
 	rx->crc = CRC_SEED;
+	if (rx->sx != NULL)
+		wri_m2s_rx_next(rx);
 }

@@ -87,6 +87,111 @@ static void answer_bad_method(sim_m2 *s, uint32_t method, const sim_m2_auth_repl
 	s->await_more = 0;
 }
 
+/* ---- secure mode: the secret of an AUTH attempt and the switch after AUTH_DONE ---------------------------------------- */
+
+static uint64_t sec_rand64(sim_m2 *s)
+{
+	uint64_t x = s->sec.rng;
+
+	x ^= x >> 12;
+	x ^= x << 25;
+	x ^= x >> 27;
+	s->sec.rng = x;
+	return x * 0x2545f4914f6cdd1dull;
+}
+
+void sim_m2_sec_setup(sim_m2 *s, sim_sec_log *log, uint64_t seed)
+{
+	s->sec.log = log;
+	s->sec.seed = seed;
+}
+
+/* Issue the secret of this attempt (once): 64 random bytes from the seeded generator, or the fixed secret of the
+ * configuration; the hooks may shorten it, drop it or patch the counters of its seeds. Nothing is issued when crc was
+ * negotiated (unless the secret_in_crc hook asks for it) or when the omit_secret hook is on. */
+static void sec_issue(sim_m2 *s)
+{
+	const sim_sec_fault *sf = &s->cfg.f.sec;
+	uint32_t len = sf->secret_len != 0 ? sf->secret_len : SIM_SEC_SECRET_LEN, i;
+
+	if (s->sec.issued || sf->omit_secret || (s->negotiated_mode != SIM_M2_MODE_SECURE && !sf->secret_in_crc))
+		return;
+	if (len > SIM_SEC_SECRET_MAX)
+		len = SIM_SEC_SECRET_MAX;
+	if (s->sec.rng == 0) {
+		uint64_t seed = s->cfg.sec.seed != 0 ? s->cfg.sec.seed : s->sec.seed != 0 ? s->sec.seed : 0x5ec12e75eed5eedull;
+
+		s->sec.rng = seed * 0x9e3779b97f4a7c15ull + 0x1234567u;
+		if (s->sec.rng == 0)
+			s->sec.rng = 1;
+	}
+	if (s->cfg.sec.fixed_len != 0) {
+		len = s->cfg.sec.fixed_len; /* a uint8_t: up to 255, the buffers hold SIM_SEC_SECRET_MAX */
+		if (len > SIM_SEC_SECRET_MAX)
+			len = SIM_SEC_SECRET_MAX;
+		memcpy(s->sec.secret, s->cfg.sec.fixed, len);
+	} else {
+		for (i = 0; i < len; i += 8u) {
+			uint64_t v = sec_rand64(s);
+			uint32_t k;
+
+			for (k = 0; k < 8u && i + k < len; k++)
+				s->sec.secret[i + k] = (uint8_t)(v >> (8u * k));
+		}
+	}
+	sim_sec_secret_set_counters(s->sec.secret, len, sf->has_ctr_a, sf->ctr_a, sf->has_ctr_b, sf->ctr_b);
+	s->sec.secret_len = len;
+	s->sec.issued = 1;
+	if (s->sec.log != NULL)
+		sim_sec_log_add(s->sec.log, s->sec.secret, len);
+}
+
+const uint8_t *sim_m2_conn_secret(sim_m2 *s, uint32_t *len)
+{
+	sec_issue(s);
+	if (!s->sec.issued) {
+		if (len != NULL)
+			*len = 0;
+		return NULL;
+	}
+	if (len != NULL)
+		*len = s->sec.secret_len;
+	return s->sec.secret;
+}
+
+uint32_t sim_m2_negotiated_mode(const sim_m2 *s) { return s->negotiated_mode; }
+int sim_m2_is_secure(const sim_m2 *s) { return s->sec.tx_on && s->sec.rx_on; }
+
+/* AUTH_DONE with mode secure was queued. The server can only go on in secure framing when it holds a secret of at least 40
+ * bytes that the auth layer asked for (or cfg.sec.issue_at_done); otherwise (no secret, a short one, a mode the client did
+ * not get a secret for) it stops reading, as it always did for a mode it could not serve. Returns 1 when secure framing is on. */
+static int sec_begin(sim_m2 *s)
+{
+	const sim_sec_fault *sf = &s->cfg.f.sec;
+	uint8_t key[SIM_SEC_KEY], a[SIM_SEC_NONCE], b[SIM_SEC_NONCE];
+
+	if (s->cfg.sec.issue_at_done)
+		sec_issue(s); /* otherwise only a secret the auth callback asked for (sim_m2_conn_secret) counts */
+	if (!s->sec.issued || s->sec.secret_len < SIM_SEC_SECRET_MIN)
+		return 0;
+	if (sim_sec_ctx_init(&s->sec.ctx, s->sec.secret, s->sec.secret_len, 1) != 0)
+		return 0;
+	(void)sim_sec_slice(s->sec.secret, s->sec.secret_len, key, a, b);
+	if (sf->wrong_seed_tx)
+		sim_sec_dir_init(&s->sec.ctx.tx, key, b); /* the seed the client sends with */
+	if (sf->wrong_seed_rx)
+		sim_sec_dir_init(&s->sec.ctx.rx, key, a); /* the seed the client reads with */
+	if (sf->wrong_key_tx) {
+		key[0] ^= 0x01;
+		sim_sec_dir_init(&s->sec.ctx.tx, key, sf->wrong_seed_tx ? b : a);
+	}
+	sim_sec_wipe(key, sizeof(key));
+	sim_sec_dec_init(&s->sec.dec, &s->sec.ctx.rx, s->cfg.ctl_cap, s->cfg.seg_cap);
+	s->sec.tx_on = 1;
+	s->sec.rx_pending = 1; /* the parser switches once it has released the frame it is in */
+	return 1;
+}
+
 static void apply_auth(sim_m2 *s, int verdict, const sim_m2_auth_reply *rep, uint32_t method)
 {
 	sw w = sim_m2_ctl_writer(s);
@@ -110,7 +215,12 @@ static void apply_auth(sim_m2 *s, int verdict, const sim_m2_auth_reply *rep, uin
 		sw_blob(&w, rep->payload, rep->payload != NULL ? rep->payload_len : 0);
 		sim_m2_emit_ctl(s, WRI_M2_TAG_AUTH_DONE, &w);
 		s->tx_log_on = 0; /* the log of what we sent ends with AUTH_DONE */
-		sim_m2_next_state(s, mode == SIM_M2_MODE_CRC ? SIM_M2_ST_SIGNATURE : SIM_M2_ST_REFUSED);
+		if (s->state == SIM_M2_ST_DEAD)
+			break;
+		if (mode == SIM_M2_MODE_CRC)
+			s->state = SIM_M2_ST_SIGNATURE;
+		else
+			s->state = mode == SIM_M2_MODE_SECURE && sec_begin(s) ? SIM_M2_ST_SIGNATURE : SIM_M2_ST_REFUSED;
 		break;
 	}
 	case SIM_AUTH_BAD_METHOD:
@@ -151,6 +261,9 @@ static void on_auth_request(sim_m2 *s, const uint8_t *p, size_t n)
 	s->auth_method = method;
 	memset(&rep, 0, sizeof(rep));
 	s->negotiated_mode = 0;
+	sim_sec_wipe(s->sec.secret, sizeof(s->sec.secret)); /* a new attempt gets a new secret */
+	s->sec.secret_len = 0;
+	s->sec.issued = 0;
 	for (i = 0; i < nm && s->negotiated_mode == 0; i++) /* the first of the client's modes we allow */
 		if (in_list(s->cfg.modes, s->cfg.n_modes, modes[i]))
 			s->negotiated_mode = modes[i];

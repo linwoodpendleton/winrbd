@@ -14,7 +14,8 @@
  *
  * Source layout: wr_client.c (public lifecycle, run, events, state), wri_client_conn.c (connection
  * table, the host-facing wr_conn_* calls, derived actions, the monitor link hooks),
- * wri_client_mem.c (configuration check, memory layout, create-time carving), wri_client_map.c (the map store's
+ * wri_client_mem.c (configuration check, memory layout, create-time carving), wri_client_modes.c (secure mode at the connection table: slots, offers,
+ * mode counters, the stats of the connections), wri_client_map.c (the map store's
  * stage of a run and its io adapter over the monitor client), wr_map.c (the public map API, wr_map.h); with the OSD
  * client on (wr_config.osd_sessions != 0) also wri_client_osd.c (memory, create, the stage of a run, stats),
  * wri_client_osd_conn.c (the OSD link: connections with role OSD), wr_image.c (the public image API, wr_image.h) and
@@ -31,6 +32,8 @@
 #include "wri_ctx.h"
 #include "wri_cx.h"
 #include "wri_m2_conn.h"
+#include "wri_m2_modes.h"
+#include "wri_m2_sec.h"
 #include "wri_mem.h"
 #include "wri_mapstore.h"
 #include "wri_mon.h"
@@ -52,6 +55,7 @@
 #define WRI_CLIENT_AUTH_SLACK 256u        /* request header, challenge proof, envelope framing around a ticket */
 #define WRI_CLIENT_TX_FRAME 72u           /* frame preamble, CRC and epilogue around the payload */
 #define WRI_CLIENT_PREAUTH_MIN 256u
+#define WRI_CLIENT_SEC_CHUNK_MIN 256u     /* smallest sec_tx_chunk (the bounce buffer of a secure connection), design 34.6 */
 #define WRI_CLIENT_DEFAULT_BUDGET (256u * 1024u)
 #define WRI_CLIENT_CONNECT_GRACE_MS 1000u /* the engine's own connect deadline = the action timeout + this */
 
@@ -61,6 +65,8 @@
 #define WRI_CF_CLOSE_SENT 0x04u   /* WR_ACT_CLOSE was handed to the host */
 #define WRI_CF_TX_NOTIFIED 0x08u  /* WR_ACT_TX_READY emitted for the current transmit queue contents */
 #define WRI_CF_REBASE 0x10u       /* wr_conn_connected ran since the last run: re-base the handshake deadline */
+#define WRI_CF_READY_SEEN 0x20u   /* the connection reached READY and was counted in conns_secure / conns_crc (once per connection) */
+#define WRI_CF_END_SEEN 0x40u     /* the connection's end was looked at (sec_failures, the mode-refusal hint): once per connection */
 
 typedef struct wri_cslot {
 	wri_m2_conn conn;
@@ -103,6 +109,13 @@ struct wr_client {
 	wri_m2_preauth *pa;    /* x.cfg.max_handshakes entries; pa_used[] marks the ones in use */
 	uint8_t *pa_used;
 	uint32_t n_pa;
+
+	/* Secure mode (design 34, 36): one slot and one bounce buffer per connection slot, carved from the arena only when the policy may end in
+	 * secure (wri_m2_policy_may_secure); both NULL under CRC_ONLY, where nothing of secure mode costs memory. wri_client_conn_open hands
+	 * slot i (sec[i], sec_bounce + i * sec_chunk) to the connection it opens in slot i whenever the offer of its role has the secure bit. */
+	wri_m2s_slot *sec;
+	uint8_t *sec_bounce;
+	uint32_t sec_chunk;    /* bytes of one bounce buffer (a multiple of 16, at least 256) */
 
 	uint32_t my_nonce;     /* random entity_addr nonce, drawn once at create */
 	uint64_t global_seq;   /* strictly increasing across connections */
@@ -180,8 +193,18 @@ void wri_client_conn_close_all(wr_client *c, wr_status why);
 /* Step every connection (rotating start, one shared work budget). Returns 1 if the budget ran out with work left. */
 int wri_client_conn_step_all(wr_client *c, uint32_t *budget);
 
-/* Fill the connection and handshake fields of a wr_stats. */
+/* Fill the connection and handshake fields of a wr_stats (wri_client_modes.c), the mode counters included. */
 void wri_client_conn_stats(const wr_client *c, wr_stats *out);
+/* Connection slots in use. */
+uint32_t wri_client_conns_in_use(const wr_client *c);
+
+/* ---- secure mode at the connection table (wri_client_modes.c) -------------------------------------------- */
+
+/* Right after wri_m2_conn_open() of connection slot idx: give it its secure slot, bounce buffer and the offer of `role` when the policy may end in secure. */
+void wri_client_conn_secure(wr_client *c, wri_cslot *s, uint32_t idx, uint8_t role);
+/* After a connection ran (and before its slot is released): count the mode it reached READY in and its end, once each, and log which setting to change on a
+ * mode refusal. Idempotent. */
+void wri_client_conn_account(wr_client *c, wri_cslot *s);
 
 /* ---- the OSD map stage (wri_client_map.c) ---------------------------------------------------------------- */
 

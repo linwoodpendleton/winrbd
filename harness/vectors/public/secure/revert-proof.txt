@@ -1,0 +1,34 @@
+# revert proof of capture_secure.sh, 2026-11-20T09:57:41Z
+# the facts of the lab before the run and after the clean-up (osd tree, pools, upmap lines, flags, health checks and mutes, images, objects, auth
+# entities, every explicitly set configuration option, the mode options in effect, the state of the ceph units), then the lines that differ
+--- before:
+osd tree:
+[('osd.0', 'up', 1), ('osd.1', 'up', 1), ('osd.2', 'up', 1)]
+pools:
+[('.mgr', 1, 2), ('winrbd', 32, 3)]
+upmap lines: 0
+osd flags: flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+health checks: 5, sha256 b4ecd94b9c55848f; mutes: 4, sha256 c019866f63a0d228
+rbd images: 3
+rados objects: 17, sha256 c8ad401badae4767
+auth entities: 14, sha256 6706453a0fbe695f
+config options set: 12, sha256 f1794fe486c1ba0f
+mode options in effect: mon service 'secure crc', osd service 'crc secure', ms_* options set: 0
+ceph units: 6b21cb7304285115
+--- after:
+osd tree:
+[('osd.0', 'up', 1), ('osd.1', 'up', 1), ('osd.2', 'up', 1)]
+pools:
+[('.mgr', 1, 2), ('winrbd', 32, 3)]
+upmap lines: 0
+osd flags: flags sortbitwise,recovery_deletes,purged_snapdirs,pglog_hardlimit
+health checks: 5, sha256 b4ecd94b9c55848f; mutes: 4, sha256 c019866f63a0d228
+rbd images: 3
+rados objects: 17, sha256 c8ad401badae4767
+auth entities: 14, sha256 6706453a0fbe695f
+config options set: 12, sha256 f1794fe486c1ba0f
+mode options in effect: mon service 'secure crc', osd service 'crc secure', ms_* options set: 0
+ceph units: 6b21cb7304285115
+--- diff:
+(none)
+--- throwaway users: ceph auth get fails (ENOENT) for client.vec-sec-k2 and client.vec-sec-k1 and neither is in the auth list, checked 2026-11-20T09:57:40Z

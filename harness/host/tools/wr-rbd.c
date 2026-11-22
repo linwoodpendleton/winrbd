@@ -34,6 +34,21 @@
  *   checked against what each read must see at its submission).
  *   Flags may stand before or after the command. A write needs --rw (the writer profile P1); without it the image opens read-only.
  *
+ * Connection modes (msgr2 secure mode, docs/design/core-architecture.md part D): --mode crc|crc-first|secure-first|secure|stock is the
+ *   offer made to the monitor (and to the OSDs unless --mode-osd says otherwise; default crc, the behaviour of every earlier run);
+ *   --mode-osd MODE overrides the offer to the OSDs; --accel uses the AES-NI / PCLMULQDQ GCM hook of the host instead of the portable
+ *   GCM of the core (refused with exit 2 when this build or CPU does not have it); --require-mode secure|crc turns the run into an
+ *   assertion: exit 3 when a connection ended in the other mode, or when no connection reached the required one (conns_crc != 0 or
+ *   conns_secure == 0 for "secure", the reverse for "crc": a run in which nothing connected proves nothing), or when any secure connection ended on
+ *   a secret, nonce or tag failure (sec_failures != 0: the engine redials and carries on, which must not read as a clean run). A data difference
+ *   (exit 1) or a broken contract of the core (exit 4) is the more serious finding and keeps its code; the "result require_mode" line says what was
+ *   counted either way. These four apply to the
+ *   whole run: in the shell they belong on the command line, a shell line that carries one is refused (rc=2).
+ *   The stats line ends with conns_secure= conns_crc= (connections that reached READY in each mode), sec_failures= (secure connections that
+ *   ended on a secret, nonce or tag failure), accel= (--accel given), gcm=host|portable (host = the hook's key objects were really used by at
+ *   least one connection) and gcm_ops= (the hook's update calls). A refused offer (the server allows none of the modes) shows on the event
+ *   and open lines as status=M2_BAD_METHOD with allowed_modes= (bit v = mode v: 1 crc, 2 secure), allowed_methods= and offered_method=.
+ *
  * Output (stdout, "@<ms since start> <kind> <key=value ...>"): event, image, result, stats, mismatch / error lines.
  * Diagnostics go to stderr. The key is read from the keyring file, handed to the core and wiped; it is never printed.
  *
@@ -60,6 +75,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "wrl_gcm_aesni.h"
 #include "wrl_host.h"
 
 #define KEYRING_MAX 4096u
@@ -253,7 +269,8 @@ static void pat_fill(const pat *p, uint8_t *buf, uint64_t off, size_t n)
 
 typedef struct opts {
 	const char *mon, *user, *keyring, *pool, *image, *id, *data_pool, *fsid;
-	int rw, ordersnap, no_full_try, stats_only, verbose;
+	const char *mode, *mode_osd, *require_mode; /* connection modes: --mode, --mode-osd, --require-mode (whole run) */
+	int rw, ordersnap, no_full_try, stats_only, verbose, accel;
 	uint64_t io_size, depth, open_timeout_ms, io_timeout_ms, run_timeout_ms, op_timeout_ms, hdr_refresh_ms;
 	int have_op_timeout, have_hdr_refresh;
 	/* per command */
@@ -274,8 +291,20 @@ typedef struct slot {
 
 struct job;
 
+/* The GCM hook of the host as the core sees it (--accel): a table whose six members count their calls and pass them on to the AES-NI hook,
+ * so the stats line can say whether the hook really ran (a table that was installed and never used would otherwise look the same as one that
+ * was). ctx of the table is this struct; the hook itself ignores its ctx. */
+typedef struct gcm_spy {
+	wr_prim_ops tab;   /* what the core is given */
+	wr_prim_ops hook;  /* the hook's own table */
+	uint64_t setkeys, starts, updates, finals, wipes;
+} gcm_spy;
+
 typedef struct tool {
 	opts o;
+	gcm_spy spy;
+	int accel_on;      /* tab is installed in the host ops */
+	uint8_t pol, pol_osd; /* WR_MODE_* offered to the monitor / the OSDs (0 = same as pol) */
 	wr_client *c;
 	wrl_loop *loop;
 	wr_image *img;
@@ -343,6 +372,15 @@ static uint64_t since(const tool *t)
 	return now_ms() - t->t0_ms;
 }
 
+/* The words of a refused offer (AUTH_BAD_METHOD): what the server allows, from the errinfo (wri_m2_conn.h): a0 = allowed methods, a1 = allowed
+ * connection modes (bit v for mode v: 1 crc, 2 secure), a2 = the method we offered; peer_result is the server's result. Nothing for any other status. */
+static void print_refusal(const wr_errinfo *e)
+{
+	if (e->status == WR_E_M2_BAD_METHOD)
+		printf(" allowed_modes=0x%llx allowed_methods=0x%llx offered_method=%llu", (unsigned long long)e->a1, (unsigned long long)e->a0,
+		       (unsigned long long)e->a2);
+}
+
 static void print_event(tool *t, const wr_event *e)
 {
 	t->n_events++;
@@ -367,6 +405,7 @@ static void print_event(tool *t, const wr_event *e)
 	if (e->err.status != WR_OK)
 		printf(" status=%s peer_result=%d what=\"%s\"", wr_status_name(e->err.status), (int)e->err.peer_result,
 		       e->err.what != NULL ? e->err.what : "");
+	print_refusal(&e->err);
 	printf("\n");
 	fflush(stdout);
 }
@@ -561,6 +600,93 @@ static int tool_run(tool *t, job *j)
 	return rc;
 }
 
+/* ---- the GCM hook ------------------------------------------------------------------------------------------- */
+
+static wr_status spy_setkey(void *ctx, void *state, const uint8_t key[16])
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->setkeys++;
+	return g->hook.gcm_setkey(g->hook.ctx, state, key);
+}
+
+static wr_status spy_start(void *ctx, void *state, const uint8_t iv[12], int decrypt)
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->starts++;
+	return g->hook.gcm_start(g->hook.ctx, state, iv, decrypt);
+}
+
+static void spy_update(void *ctx, void *state, const uint8_t *in, uint8_t *out, size_t n)
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->updates++;
+	g->hook.gcm_update(g->hook.ctx, state, in, out, n);
+}
+
+static void spy_final_enc(void *ctx, void *state, uint8_t tag[16])
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->finals++;
+	g->hook.gcm_final_enc(g->hook.ctx, state, tag);
+}
+
+static wr_status spy_final_dec(void *ctx, void *state, const uint8_t tag[16])
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->finals++;
+	return g->hook.gcm_final_dec(g->hook.ctx, state, tag);
+}
+
+static void spy_wipe(void *ctx, void *state)
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->wipes++;
+	g->hook.gcm_wipe(g->hook.ctx, state);
+}
+
+/* 0 when the hook is available and the counting table is ready, -1 otherwise (nothing is changed then). */
+static int gcm_spy_init(gcm_spy *g)
+{
+	if (wrl_gcm_aesni_ops(&g->hook) != 0 || g->hook.gcm_setkey == NULL || g->hook.gcm_start == NULL || g->hook.gcm_update == NULL ||
+	    g->hook.gcm_final_enc == NULL || g->hook.gcm_final_dec == NULL || g->hook.gcm_wipe == NULL)
+		return -1;
+	memset(&g->tab, 0, sizeof(g->tab));
+	g->tab.size = (uint32_t)sizeof(g->tab);
+	g->tab.ctx = g;
+	g->tab.gcm_state_bytes = g->hook.gcm_state_bytes;
+	g->tab.gcm_setkey = spy_setkey;
+	g->tab.gcm_start = spy_start;
+	g->tab.gcm_update = spy_update;
+	g->tab.gcm_final_enc = spy_final_enc;
+	g->tab.gcm_final_dec = spy_final_dec;
+	g->tab.gcm_wipe = spy_wipe;
+	return 0;
+}
+
+/* One of crc, crc-first, secure-first, secure, stock (the words of wr-krbdcmp); NULL = crc. 0 or -1. */
+static int mode_parse(const char *s, uint8_t *out)
+{
+	if (s == NULL || strcmp(s, "crc") == 0)
+		*out = WR_MODE_CRC_ONLY;
+	else if (strcmp(s, "crc-first") == 0)
+		*out = WR_MODE_CRC_FIRST;
+	else if (strcmp(s, "secure-first") == 0)
+		*out = WR_MODE_SECURE_FIRST;
+	else if (strcmp(s, "secure") == 0)
+		*out = WR_MODE_SECURE_ONLY;
+	else if (strcmp(s, "stock") == 0)
+		*out = WR_MODE_STOCK;
+	else
+		return -1;
+	return 0;
+}
+
 /* ---- opening ------------------------------------------------------------------------------------------------- */
 
 static int tool_create(tool *t, const wr_cluster_spec *spec, unsigned *level)
@@ -573,6 +699,11 @@ static int tool_create(tool *t, const wr_cluster_spec *spec, unsigned *level)
 	wr_config_profile_harness(&cfg);
 	wr_config_enable_maps(&cfg, WR_MAPS_HARNESS);
 	wr_config_enable_osd(&cfg, WR_MAPS_HARNESS);
+	if (t->o.mode != NULL || t->o.mode_osd != NULL) { /* without either option the configuration is what it always was: crc only, no secure memory */
+		wr_config_enable_secure(&cfg, WR_MAPS_HARNESS, t->pol);
+		if (t->pol_osd != 0u)
+			cfg.mode_policy_osd = t->pol_osd;
+	}
 	cfg.mon_msg_cap = 8u * 1024u * 1024u;
 	cfg.max_images = 1;
 	if (t->o.have_op_timeout)
@@ -584,6 +715,8 @@ static int tool_create(tool *t, const wr_cluster_spec *spec, unsigned *level)
 	if (t->o.no_full_try)
 		cfg.osd_flags = (uint8_t)(cfg.osd_flags & ~WR_OSDF_FULL_TRY);
 	wrl_host_ops_init(&ops, level);
+	if (t->accel_on)
+		ops.prim = &t->spy.tab; /* outlives the client: it lives in the tool */
 	st = wr_client_mem_required(&cfg, &req);
 	if (st == WR_OK)
 		st = wrl_mem_alloc(&t->arena, req.arena);
@@ -600,7 +733,7 @@ static int tool_create(tool *t, const wr_cluster_spec *spec, unsigned *level)
 		}
 	}
 	if (st != WR_OK) {
-		fprintf(stderr, "wr-rbd: cannot create the client: %s\n", wr_strerror(st));
+		fprintf(stderr, "wr-rbd: cannot create the client: %s (%s)\n", wr_strerror(st), wr_status_name(st));
 		return -1;
 	}
 	st = wrl_loop_create(t->c, &t->loop);
@@ -654,9 +787,10 @@ static int tool_open_image(tool *t)
 		const wr_errinfo *e = wr_image_error(t->img);
 		wr_status why = t->fatal != WR_OK ? t->fatal : e->status;
 
-		printf("@%llu result open ok=0 state=%s status=%s peer_result=%d what=\"%s\" (%s)\n", (unsigned long long)since(t),
-		       img_state_name(wr_image_get_state(t->img)), wr_status_name(why), (int)e->peer_result, e->what != NULL ? e->what : "",
-		       wr_strerror(why));
+		printf("@%llu result open ok=0 state=%s status=%s peer_result=%d what=\"%s\"", (unsigned long long)since(t),
+		       img_state_name(wr_image_get_state(t->img)), wr_status_name(why), (int)e->peer_result, e->what != NULL ? e->what : "");
+		print_refusal(e);
+		printf(" (%s)\n", wr_strerror(why));
 		return -1;
 	}
 	if (wr_image_get_info(t->img, &t->info) != WR_OK) {
@@ -1565,6 +1699,7 @@ static void usage(void)
 		"usage: wr-rbd --mon <ip[:port]> --user <name> --keyring <file> --pool <pool> (--image <name> | --id <id>) [--data-pool <pool>] [--rw]\n"
 		"              [--io-size N] [--depth N] [--timeout MS] [--io-timeout MS] [--run-timeout MS] [--op-timeout MS] [--hdr-refresh MS]\n"
 		"              [--ordersnap] [--no-full-try] [--fsid UUID] [--stats-only] [-v] <command> [args]\n"
+		"              [--mode crc|crc-first|secure-first|secure|stock] [--mode-osd MODE] [--accel] [--require-mode secure|crc]\n"
 		"commands: info | read OFF LEN [FILE] | write OFF LEN (--pattern P | --file FILE) | fill [OFF LEN] [--pattern P] |\n"
 		"          verify [OFF LEN] --pattern P | discard OFF LEN | zeroes OFF LEN | compare FILE | bench read|write [--total N] [--random] |\n"
 		"          random N SEED [--model-bytes N] [--max-len N] [--delay-ms N] [--overlap] [--save FILE] [--no-final-verify] | shell\n"
@@ -1597,7 +1732,8 @@ static int parse_args(opts *o, int argc, char **argv, char **pos, int max_pos)
 	if (strcmp(a, flag) == 0 && has_val) { if (num_opt(flag, argv[++i], &o->field) != 0) return -1; continue; }
 			STROPT("--mon", mon) STROPT("--user", user) STROPT("--keyring", keyring) STROPT("--pool", pool) STROPT("--image", image)
 			STROPT("--id", id) STROPT("--data-pool", data_pool) STROPT("--fsid", fsid) STROPT("--pattern", pattern)
-			STROPT("--file", file) STROPT("--save", save)
+			STROPT("--file", file) STROPT("--save", save) STROPT("--mode", mode) STROPT("--mode-osd", mode_osd)
+			STROPT("--require-mode", require_mode)
 			NUMOPT("--io-size", io_size) NUMOPT("--depth", depth) NUMOPT("--timeout", open_timeout_ms)
 			NUMOPT("--io-timeout", io_timeout_ms) NUMOPT("--run-timeout", run_timeout_ms) NUMOPT("--total", total)
 			NUMOPT("--model-bytes", model_bytes) NUMOPT("--max-len", max_len) NUMOPT("--delay-ms", delay_ms)
@@ -1619,6 +1755,8 @@ static int parse_args(opts *o, int argc, char **argv, char **pos, int max_pos)
 				o->no_full_try = 1;
 			else if (strcmp(a, "--stats-only") == 0)
 				o->stats_only = 1;
+			else if (strcmp(a, "--accel") == 0)
+				o->accel = 1;
 			else if (strcmp(a, "--random") == 0)
 				o->random_io = 1;
 			else if (strcmp(a, "--overlap") == 0)
@@ -1763,6 +1901,12 @@ static int shell_getline(tool *t, char *line, size_t cap)
 	}
 }
 
+/* Two option values are the same when both are absent or both read the same (a shell line may repeat what the command line said; it may not change it). */
+static int same_text(const char *a, const char *b)
+{
+	return a == b || (a != NULL && b != NULL && strcmp(a, b) == 0);
+}
+
 static int cmd_shell(tool *t)
 {
 	char line[LINE_MAX_BYTES];
@@ -1809,7 +1953,12 @@ static int cmd_shell(tool *t)
 				tool_pump_for(t, ms);
 		} else {
 			npos = parse_args(&o, argc - 1, argv + 1, pos, (int)MAX_ARGS);
-			if (npos < 0 || check_limits(&o) != 0)
+			if (npos >= 0 && (!same_text(o.mode, t->o.mode) || !same_text(o.mode_osd, t->o.mode_osd) || !same_text(o.require_mode, t->o.require_mode) ||
+					  o.accel != t->o.accel)) {
+				/* the client exists already: these cannot change now, and ignoring one would be a run that looks as asked and is not */
+				fprintf(stderr, "wr-rbd: --mode, --mode-osd, --accel and --require-mode apply to the whole run: give them on the command line, not to a shell command\n");
+				rc = 2;
+			} else if (npos < 0 || check_limits(&o) != 0)
 				rc = 2;
 			else {
 				saved = t->o;
@@ -1845,6 +1994,8 @@ int main(int argc, char **argv)
 	wr_status st;
 	const char *cmd;
 	wr_osd_stats os;
+	wr_stats ws;
+	int host_gcm;
 
 	memset(&t, 0, sizeof(t));
 	t.o.io_size = DEFAULT_IO;
@@ -1866,6 +2017,21 @@ int main(int argc, char **argv)
 		fprintf(stderr, "wr-rbd: unknown command %s\n", cmd);
 		usage();
 		return 2;
+	}
+	if (mode_parse(t.o.mode, &t.pol) != 0 || (t.o.mode_osd != NULL && mode_parse(t.o.mode_osd, &t.pol_osd) != 0)) {
+		fprintf(stderr, "wr-rbd: --mode and --mode-osd take crc, crc-first, secure-first, secure or stock\n");
+		return 2;
+	}
+	if (t.o.require_mode != NULL && strcmp(t.o.require_mode, "secure") != 0 && strcmp(t.o.require_mode, "crc") != 0) {
+		fprintf(stderr, "wr-rbd: --require-mode takes secure or crc\n");
+		return 2;
+	}
+	if (t.o.accel) {
+		if (gcm_spy_init(&t.spy) != 0) {
+			fprintf(stderr, "wr-rbd: --accel: this build or CPU has no AES-NI / PCLMULQDQ GCM hook: refused (run without --accel for the portable code)\n");
+			return 2;
+		}
+		t.accel_on = 1;
 	}
 	memset(&spec, 0, sizeof(spec));
 	if (strlen(t.o.user) >= sizeof(spec.user)) {
@@ -1912,11 +2078,32 @@ int main(int argc, char **argv)
 	pump_events(&t);
 	memset(&os, 0, sizeof(os));
 	wr_client_osd_stats(t.c, &os);
+	memset(&ws, 0, sizeof(ws));
+	wr_client_get_stats(t.c, &ws);
+	host_gcm = t.accel_on && t.spy.setkeys != 0u; /* the hook's key objects were really used */
 	printf("@%llu stats ops_inflight=%u ops_hiwater=%u reqs_hiwater=%u sessions_hiwater=%u ops_done=%llu ops_resent=%llu ops_failed=%llu "
-	       "session_resets=%u backoff_blocks=%u backoff_overflow=%u osdmap_discarded=%u zombie_bytes_max=%u events=%llu io_stalls=%u io_resumes=%u maps=%u barrier_violations=%u bad_completions=%u\n",
+	       "session_resets=%u backoff_blocks=%u backoff_overflow=%u osdmap_discarded=%u zombie_bytes_max=%u events=%llu io_stalls=%u io_resumes=%u maps=%u barrier_violations=%u bad_completions=%u "
+	       "conns_secure=%u conns_crc=%u sec_failures=%u accel=%d gcm=%s gcm_ops=%llu\n",
 	       (unsigned long long)since(&t), os.ops_inflight, os.ops_hiwater, os.reqs_hiwater, os.sessions_hiwater, (unsigned long long)os.ops_done,
 	       (unsigned long long)os.ops_resent, (unsigned long long)os.ops_failed, os.n_session_resets, os.n_backoff_blocks,
-	       os.n_backoff_overflow, os.n_osdmap_discarded, os.zombie_bytes_max, (unsigned long long)t.n_events, t.n_stall, t.n_resume, t.n_map, t.barrier_viol, t.bad_done);
+	       os.n_backoff_overflow, os.n_osdmap_discarded, os.zombie_bytes_max, (unsigned long long)t.n_events, t.n_stall, t.n_resume, t.n_map, t.barrier_viol, t.bad_done,
+	       ws.conns_secure, ws.conns_crc, ws.sec_failures, t.accel_on, host_gcm ? "host" : "portable", (unsigned long long)t.spy.updates);
+	if (t.o.require_mode != NULL) {
+		int want_secure = strcmp(t.o.require_mode, "secure") == 0;
+		/* "every connection was in the mode" needs one that was: an empty count proves nothing */
+		/* a secure connection that ended on a secret, nonce or tag failure is not a clean secure run even if the engine redialled and carried on: on a
+		 * cluster nothing forges or damages a frame, so a script that asserts "secure" must see it */
+		int ok = (want_secure ? ws.conns_crc == 0u && ws.conns_secure != 0u : ws.conns_secure == 0u && ws.conns_crc != 0u) && ws.sec_failures == 0u;
+
+		printf("@%llu result require_mode ok=%d wanted=%s conns_secure=%u conns_crc=%u sec_failures=%u\n", (unsigned long long)since(&t), ok,
+		       t.o.require_mode, ws.conns_secure, ws.conns_crc, ws.sec_failures);
+		if (!ok) {
+			fprintf(stderr, "wr-rbd: --require-mode %s: %u secure and %u crc connection(s) reached READY, %u secure-mode failure(s)\n", t.o.require_mode,
+				ws.conns_secure, ws.conns_crc, ws.sec_failures);
+			if (rc != 1 && rc != 4) /* a data difference or a broken contract of the core is the more serious finding and keeps its code */
+				rc = 3;
+		}
+	}
 	fflush(stdout);
 	if (t.img != NULL && wr_image_get_state(t.img) != WR_IMG_FREE && t.fatal == WR_OK)
 		st = wr_image_close(t.img, WR_CLOSE_ABANDON); /* the process ends next: a refusal changes nothing */

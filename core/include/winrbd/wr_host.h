@@ -43,7 +43,7 @@ typedef struct wr_log_rec {
  * the core stays allocation free. All inputs are validated by the core before the call.
  *
  * The table is extensible: `size` is sizeof(wr_prim_ops) as the host compiled it, and members
- * beyond `size` are treated as NULL. GCM members join with the secure-mode milestone.
+ * beyond `size` are treated as NULL. The GCM members (secure mode, milestone 11) are the newest.
  */
 typedef struct wr_prim_ops {
 	uint32_t size;
@@ -61,7 +61,39 @@ typedef struct wr_prim_ops {
 				 const uint8_t *in, uint8_t *out, size_t nblocks);
 	wr_status (*aes_cbc_dec)(void *ctx, const uint8_t *key, size_t klen, const uint8_t iv[16],
 				 const uint8_t *in, uint8_t *out, size_t nblocks);
+
+	/*
+	 * AES-128-GCM for msgr2 secure mode (docs/design/core-architecture.md section 35.4). STREAMING and STATEFUL, unlike
+	 * the one-shot members above, because a connection keeps its key for its whole life and a frame is two to three
+	 * operations whose data arrives in pieces; rebuilding a key schedule (or a BCrypt key handle) per call would cost more
+	 * than the cipher. The override is used only when gcm_state_bytes is in 1 .. WR_GCM_HOST_STATE_MAX AND all six
+	 * function members are non-NULL AND the host's `size` covers them; otherwise the portable constant-time GCM of the
+	 * core runs. The core hands the host `gcm_state_bytes` bytes of 8-byte-aligned memory inside the connection's slot (the
+	 * host never allocates); one state per direction of a connection.
+	 *
+	 * Operation rules (the core guarantees them, a host may rely on them):
+	 *   - gcm_setkey once per state, key is 16 bytes (AES-128; the only key size msgr2 has);
+	 *   - gcm_start begins one operation with a fresh 12-byte IV and NO additional authenticated data;
+	 *   - every gcm_update length is a multiple of 16 (every msgr2 operation is: 80, 16 * k, 16 * k + 16); in == out is
+	 *     allowed, otherwise the buffers do not overlap; a decrypt update writes plaintext at once (the core does not act
+	 *     on it before gcm_final_dec succeeded);
+	 *   - an operation ends with gcm_final_enc (tag out) or gcm_final_dec (tag in, WR_OK or WR_E_CRYPTO_MAC, constant
+	 *     time); after a final the state is ready for the next gcm_start;
+	 *   - gcm_wipe erases the state and any host key object (connection end, failure, destroy).
+	 * No call blocks, allocates or calls back into the core; each is safe at the IRQL the host drives the core at (a
+	 * host that cannot guarantee that for BCrypt leaves the members NULL and takes the portable code).
+	 */
+	uint32_t gcm_state_bytes;
+	wr_status (*gcm_setkey)(void *ctx, void *state, const uint8_t key[16]);
+	wr_status (*gcm_start)(void *ctx, void *state, const uint8_t iv[12], int decrypt);
+	void (*gcm_update)(void *ctx, void *state, const uint8_t *in, uint8_t *out, size_t n);
+	void (*gcm_final_enc)(void *ctx, void *state, uint8_t tag[16]);
+	wr_status (*gcm_final_dec)(void *ctx, void *state, const uint8_t tag[16]);
+	void (*gcm_wipe)(void *ctx, void *state);
 } wr_prim_ops;
+
+/* The most state bytes a host GCM override may ask for per direction of a connection. */
+#define WR_GCM_HOST_STATE_MAX 256u
 
 /* ---- the host ops table ------------------------------------------------------------------ */
 

@@ -191,6 +191,13 @@ typedef struct wr_stats {
 	uint32_t handshakes_in_use, handshakes_hiwater;
 	uint32_t mapmsg_in_use, mapmsg_hiwater;
 	uint32_t arena_used, bulk_used;
+	/* Connection modes (secure mode, docs/design/core-architecture.md 34.8, 37), counted since create: connections that reached READY in each mode,
+	 * and secure connections that ended on a connection-secret, nonce or tag failure (WR_E_M2_SECRET / WR_E_M2_NONCE / WR_E_M2_SEC_TAG). A tool proves
+	 * "every connection was secure" with conns_crc == 0 and conns_secure != 0. The "msgr2 session ready" log record carries the mode too (its fourth number).
+	 * READY is noticed at the end of the engine step that made a connection READY: a connection that is already failed or closed again by then (a peer that
+	 * sends garbage right behind SERVER_IDENT, a session layer that closes at once) has its "session ready" record in the log and is not in these counters.
+	 * Counters stop at 2^32 - 1. */
+	uint32_t conns_secure, conns_crc, sec_failures;
 } wr_stats;
 
 void wr_client_get_stats(const wr_client *c, wr_stats *out);

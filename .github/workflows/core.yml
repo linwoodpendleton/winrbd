@@ -40,7 +40,10 @@ jobs:
   core:
     name: ${{ matrix.cc }} ${{ matrix.build_type }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Part D added tests that are slow by design (the secure peers of the host tests use the independent, slow GCM of the simulators): the
+    # whole suite is about 15 minutes at -j 4 on 8 cores in a plain Debug build, and a runner has 4 cores. The limit leaves a factor of
+    # three or more; the timing-sensitive tests do not depend on the speed of the machine (they run on the pump's own clock).
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:

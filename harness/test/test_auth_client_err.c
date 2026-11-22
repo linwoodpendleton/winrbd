@@ -261,15 +261,17 @@ static void test_mon_errors(unsigned pt, unsigned at, unsigned ot)
 	WRT_CHECK(t.e.c.ticket[1].have && t.e.c.ticket[1].service == WRI_CX_SERVICE_OSD);
 	cxt_env_free(&t.e);
 
-	/* secure mode: a connection secret or a secure mode is refused, not silently downgraded */
+	/* secure mode (architecture 34.3; the whole table is in test_auth_secret.c): a connection secret in crc mode
+	 * is a protocol error, a secure mode without one is WR_E_M2_SECRET, and neither is silently accepted */
 	cx_new(&t, pt, at, ot, 0);
 	t.o.secret_len = 64;
-	WRT_CHECK_STATUS(WR_E_M2_MODE, cx_run(&t, 900));
-	expect_clean(&t, WR_E_M2_MODE);
+	WRT_CHECK_STATUS(WR_E_AUTH_PROTO, cx_run(&t, 900));
+	expect_clean(&t, WR_E_AUTH_PROTO);
 	cxt_env_free(&t.e);
 	cx_new(&t, pt, at, ot, 0);
-	t.n = cxt_build_done(&t.e, &t.o, t.buf, sizeof(t.buf));
-	WRT_CHECK_STATUS(WR_E_M2_MODE, cxt_mon_hs(&t.e, t.buf, t.n, 900, WRI_CONN_MODE_SECURE, NULL, NULL, NULL, NULL));
+	t.n = cxt_build_done(&t.e, &t.o, t.buf, sizeof(t.buf)); /* an empty secret string */
+	WRT_CHECK_STATUS(WR_E_M2_SECRET, cxt_mon_hs(&t.e, t.buf, t.n, 900, WRI_CONN_MODE_SECURE, NULL, NULL, NULL, NULL));
+	expect_clean(&t, WR_E_M2_SECRET);
 	cxt_env_free(&t.e);
 
 	/* extra signed with the wrong key (the principal key instead of the AUTH session key) */
@@ -522,12 +524,12 @@ static void test_osd(unsigned pt, unsigned ot)
 			if (c == 3) { /* answers nonce + 2 */
 				rn = srv_reply(&o, 1, nn + 2u, 0, WRI_CX_USAGE_AUTHORIZE_REPLY, rep, sizeof(rep));
 				WRT_CHECK_STATUS(WR_E_AUTH_DECRYPT, ops->done(&o.t.e.c, o.gid, 1, rep, rn));
-			} else if (c == 4) { /* a connection secret: secure mode */
+			} else if (c == 4) { /* a connection secret in crc mode */
 				rn = srv_reply(&o, 2, nn + 1u, 64, WRI_CX_USAGE_AUTHORIZE_REPLY, rep, sizeof(rep));
-				WRT_CHECK_STATUS(WR_E_M2_MODE, ops->done(&o.t.e.c, o.gid, 1, rep, rn));
-			} else if (c == 5) { /* the mode itself is secure */
+				WRT_CHECK_STATUS(WR_E_AUTH_PROTO, ops->done(&o.t.e.c, o.gid, 1, rep, rn));
+			} else if (c == 5) { /* the mode is secure and the reply (version 1) has no secret */
 				rn = srv_reply(&o, 1, nn + 1u, 0, WRI_CX_USAGE_AUTHORIZE_REPLY, rep, sizeof(rep));
-				WRT_CHECK_STATUS(WR_E_M2_MODE, ops->done(&o.t.e.c, o.gid, WRI_CONN_MODE_SECURE, rep, rn));
+				WRT_CHECK_STATUS(WR_E_M2_SECRET, ops->done(&o.t.e.c, o.gid, WRI_CONN_MODE_SECURE, rep, rn));
 			} else if (c == 6) { /* length prefix does not match */
 				rn = srv_reply(&o, 1, nn + 1u, 0, WRI_CX_USAGE_AUTHORIZE_REPLY, rep, sizeof(rep));
 				WRT_CHECK_STATUS(WR_E_AUTH_PROTO, ops->done(&o.t.e.c, o.gid, 1, rep, rn - 1));

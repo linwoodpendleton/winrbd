@@ -221,6 +221,8 @@ int sim_mon_auth_request(void *ctx, uint32_t method, const uint32_t *modes, uint
 
 	(void)method, (void)modes, (void)nmodes;
 	memset(rep, 0, sizeof(*rep));
+	/* the secrets of this connection: recorded here, from a seed of its own that does not touch the monitor's generator */
+	sim_m2_sec_setup(c->m2, &m->sec_log, (m->cfg.seed ^ 0x5ec12e7000000000ull) + (uint64_t)(c->index + 1u) * 0x9e3779b97f4a7c15ull);
 	if (c->plan.auth == SIM_MON_AUTH_BUSY) { /* no quorum yet: the connection is dropped without a word */
 		m->n_busy++;
 		return SIM_AUTH_CLOSE;
@@ -264,9 +266,10 @@ static wr_status build_done(sim_mon_conn *c, uint32_t other, const sim_mon_issue
 {
 	sim_mon *m = c->mon;
 	wr_status st;
-	uint8_t item[4] = {0, 0, 0, 0}; /* the connection secret as a string: empty in crc mode */
-	size_t ct_len;
-	uint32_t n;
+	uint8_t item[4 + SIM_SEC_SECRET_MAX]; /* the connection secret as a string: empty in crc mode */
+	size_t ct_len, item_len;
+	uint32_t n, slen = 0;
+	const uint8_t *sec;
 
 	wri_wr_u16(w, WRI_CX_REQ_GET_AUTH_SESSION_KEY);
 	wri_wr_i32(w, 0);
@@ -279,9 +282,15 @@ static wr_status build_done(sim_mon_conn *c, uint32_t other, const sim_mon_issue
 	c->auth_key = m->last[sim_mon_slot(WRI_CX_SERVICE_AUTH)].key;
 	if (other == 0)
 		return w->err;
-	ct_len = wri_cx_cipher_len(c->auth_key.type, 9u + sizeof(item));
+	sec = sim_m2_conn_secret(c->m2, &slen); /* NULL in crc mode: an encrypted empty string, as a monitor sends it */
+	wri_le32_put(item, slen);
+	if (sec != NULL)
+		memcpy(item + 4, sec, slen);
+	item_len = 4u + slen;
+	ct_len = wri_cx_cipher_len(c->auth_key.type, 9u + item_len);
 	wri_wr_u32(w, (uint32_t)(4u + ct_len)); /* cbl: u32 inner length + the ciphertext */
-	st = put_sealed(m, w, &c->auth_key, WRI_CX_USAGE_CONN_SECRET, item, sizeof(item));
+	st = put_sealed(m, w, &c->auth_key, WRI_CX_USAGE_CONN_SECRET, item, item_len);
+	wri_secure_zero(item, sizeof(item));
 	if (st != WR_OK)
 		return st;
 	if ((other & CX_SERVICES_MASK & ~m->cfg.omit_services) == 0) {

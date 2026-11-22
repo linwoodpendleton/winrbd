@@ -181,6 +181,94 @@ static wr_status emit_oversize(sim_m2 *s, uint8_t tag, const wri_m2_seg_src *seg
 	return st;
 }
 
+/* One server frame in secure framing (everything after AUTH_DONE of a secure connection). The hooks of part A map as the
+ * header says: corrupt_frame flips a bit of the ciphertext, oversize_frame is an authentic part 1 claiming the length;
+ * sim_m2_fault.sec.mut is applied to frame number sec.mut_frame (it wins when both name the same frame). */
+static wr_status sec_send(sim_m2 *s, uint8_t tag, const wri_m2_seg_src *seg, unsigned nseg, uint32_t idx)
+{
+	sim_sec_spec sp;
+	sim_sec_mut m;
+	unsigned i, nops;
+	size_t total, produced = 0, parts[3];
+	int use_mut = 0, oversize = 0;
+
+	if (seg == NULL || nseg < 1u || nseg > SIM_SEC_MAX_SEG)
+		return WR_E_INVAL;
+	memset(&sp, 0, sizeof(sp));
+	sp.tag = tag;
+	sp.nseg = nseg;
+	for (i = 0; i < nseg; i++) {
+		sp.seg[i] = seg[i].p;
+		sp.len[i] = seg[i].len;
+	}
+	if (sim_sec_frame_len(&sp, NULL, NULL) == 0) /* a bad shape: a segment with bytes and no pointer */
+		return WR_E_INVAL;
+	memset(&m, 0, sizeof(m));
+	if (s->cfg.f.sec.mut_frame == idx) {
+		m = s->cfg.f.sec.mut;
+		use_mut = 1;
+	} else if (s->cfg.f.oversize_frame == idx) {
+		unsigned last = nseg;
+
+		while (last > 1u && sp.len[last - 1u] == 0)
+			last--; /* the segment the sender would put last on the wire */
+		m.mask = SIM_SEC_M_PRE_LEN | SIM_SEC_M_TRUNC;
+		m.pre_len_mask = (uint8_t)(1u << (last - 1u));
+		m.pre_len[last - 1u] = s->cfg.f.oversize_len;
+		m.truncate_at = SIM_SEC_P1_WIRE;
+		use_mut = 1;
+		oversize = 1;
+	} else if (s->cfg.f.corrupt_frame == idx) {
+		uint8_t part = s->cfg.f.corrupt_part;
+
+		if (part == SIM_M2_CORRUPT_EPILOGUE && nseg < 2)
+			part = SIM_M2_CORRUPT_SEG0;
+		if (part == SIM_M2_CORRUPT_SEG0 && seg[0].len == 0)
+			part = nseg >= 2 ? SIM_M2_CORRUPT_EPILOGUE : SIM_M2_CORRUPT_PREAMBLE;
+		m.mask = SIM_SEC_M_FLIP;
+		m.flip_bit = 0;
+		if (part == SIM_M2_CORRUPT_PREAMBLE) {
+			m.flip_part = 1;
+			m.flip_byte = 28; /* the preamble CRC byte, as the crc damage hits it */
+		} else if (part == SIM_M2_CORRUPT_SEG0) {
+			m.flip_part = 1;
+			m.flip_byte = SIM_SEC_PRE; /* the first byte of segment 0 */
+		} else {
+			m.flip_part = 3;
+			m.flip_region = SIM_SEC_R_EPILOGUE;
+			m.flip_byte = 1;
+		}
+		use_mut = 1;
+	}
+	/* the size of the frame as it will be built: a mutation that keeps empty trailing segments adds an epilogue block and its tag */
+	total = sim_sec_frame_len_m(&sp, use_mut ? &m : NULL, &nops, parts);
+	if (total == 0)
+		return WR_E_INVAL;
+	if (total > s->cfg.out_cap)
+		return WR_E_TOOBIG;
+	{
+		wr_status st = out_reserve(s, total);
+
+		if (st != WR_OK)
+			return st;
+	}
+	if (sim_sec_encode(&s->sec.ctx.tx, &sp, use_mut ? &m : NULL, s->out + s->out_len, total, &produced) != 0)
+		return WR_E_INVAL;
+	s->out_len += produced;
+	s->sec.n_tx_frames++;
+	if (oversize)
+		s->out_dead = 1; /* the rest of the claimed frame never comes */
+	if (use_mut && (m.mask & SIM_SEC_M_TRUNC) != 0 && produced < total) {
+		if (s->cfg.f.sec.mut_close) {
+			s->close_pending = 1;
+			s->state = SIM_M2_ST_DEAD;
+		} else {
+			s->out_dead = 1;
+		}
+	}
+	return s->state == SIM_M2_ST_DEAD && !s->close_pending ? WR_E_STATE : WR_OK;
+}
+
 wr_status sim_m2_send_frame(sim_m2 *s, uint8_t tag, const wri_m2_seg_src *seg, unsigned nseg)
 {
 	wri_m2_txq q;
@@ -195,6 +283,8 @@ wr_status sim_m2_send_frame(sim_m2 *s, uint8_t tag, const wri_m2_seg_src *seg, u
 	if (s->out_dead)
 		return WR_OK; /* the stream already stalled inside an oversize frame: nothing more gets out */
 	idx = ++s->n_tx_frames;
+	if (s->sec.tx_on)
+		return sec_send(s, tag, seg, nseg, idx);
 	if (s->cfg.f.oversize_frame == idx && seg != NULL && nseg >= 1 && nseg <= WRI_M2_MAX_SEGS)
 		return emit_oversize(s, tag, seg, nseg);
 	wri_m2_txq_init(&q, s->enc, s->enc_cap);
@@ -265,8 +355,81 @@ static int input_closed(const sim_m2 *s)
 	return s->state == SIM_M2_ST_DEAD || s->state == SIM_M2_ST_REFUSED || s->stall_in;
 }
 
+/* The frame the crc parser just completed, as the dispatch wants to see it. */
+static void cur_from_rx(sim_m2 *s)
+{
+	unsigned i;
+
+	memset(&s->cur, 0, sizeof(s->cur));
+	s->cur.tag = s->rx.desc.tag;
+	s->cur.nseg = s->rx.desc.nseg;
+	for (i = 0; i < 4u; i++) {
+		s->cur.len[i] = s->rx.stored[i];
+		s->cur.p[i] = i == 0 ? s->seg0 : s->sink[i - 1u];
+	}
+}
+
+/* Secure receive: whole frames out of the decoder, one dispatch each. */
+static void sec_pump(sim_m2 *s)
+{
+	for (;;) {
+		sim_sec_frame f;
+		int r = sim_sec_dec_next(&s->sec.dec, &f);
+		unsigned i;
+
+		if (s->state == SIM_M2_ST_DEAD)
+			return;
+		if (r == SIM_SEC_DEC_NEED)
+			return;
+		if (r == SIM_SEC_DEC_ERROR) {
+			sim_m2_die(s, s->sec.dec.err != WR_OK ? s->sec.dec.err : WR_E_M2_FRAME_FORM, s->sec.dec.why != NULL ? s->sec.dec.why : "sim: secure receive error",
+				   (uint64_t)s->sec.dec.rx->ops, 0);
+			return;
+		}
+		s->sec.n_rx_frames++;
+		if (r == SIM_SEC_DEC_ABORTED) { /* the sender dropped the frame: so do we (tag verified, nonces advanced) */
+			s->sec.n_aborted++;
+			continue;
+		}
+		memset(&s->cur, 0, sizeof(s->cur));
+		s->cur.tag = f.tag;
+		s->cur.nseg = f.nseg;
+		for (i = 0; i < 4u; i++) {
+			s->cur.len[i] = f.len[i];
+			s->cur.p[i] = f.seg[i];
+		}
+		sim_m2_on_frame(s);
+		if (input_closed(s))
+			return;
+	}
+}
+
+/* AUTH_DONE (secure) was sent and the frame that carried the last plaintext request has been released: from here the
+ * parser reads secure frames. Whatever the client already wrote behind that frame moves from the ring to the decoder. */
+static void sec_switch_rx(sim_m2 *s)
+{
+	const uint8_t *p;
+	uint32_t n;
+
+	s->sec.rx_pending = 0;
+	s->sec.rx_on = 1;
+	s->rx_log_on = 0; /* the log of what the client sent ends at its last plaintext frame */
+	s->frame_start = s->rx_log_len;
+	while ((n = wri_ring_read_span(&s->ring, &p)) != 0) {
+		if (sim_sec_dec_feed(&s->sec.dec, p, n) != 0) {
+			sim_m2_die(s, WR_E_BUDGET, "sim: out of memory in the secure decoder", 0, 0);
+			return;
+		}
+		wri_ring_drop(&s->ring, n);
+	}
+}
+
 static void pump(sim_m2 *s)
 {
+	if (s->sec.rx_on) {
+		sec_pump(s);
+		return;
+	}
 	for (;;) {
 		wri_m2_rx_ev ev = wri_m2_rx_step(&s->rx, &s->ring, NULL, NULL, s->rx_log_on ? rx_tap : NULL, s);
 		unsigned i;
@@ -293,9 +456,16 @@ static void pump(sim_m2 *s)
 					wri_m2_rx_sink(&s->rx, i, s->sink[i - 1u], s->cfg.seg_cap);
 			break;
 		case WRI_RXE_FRAME:
+			cur_from_rx(s);
 			sim_m2_on_frame(s);
 			wri_m2_rx_next_frame(&s->rx);
 			s->frame_start = s->rx_log_len;
+			if (s->sec.rx_pending && s->state != SIM_M2_ST_DEAD) {
+				sec_switch_rx(s);
+				if (s->state != SIM_M2_ST_DEAD)
+					sec_pump(s);
+				return;
+			}
 			break;
 		case WRI_RXE_ABORTED: /* the sender dropped the frame: so do we */
 			wri_m2_rx_next_frame(&s->rx);
@@ -313,7 +483,7 @@ static void pump(sim_m2 *s)
 }
 
 
-/* ---- public entry points ------------------------------------------------------------------------ */
+/* ---- public entry points ------------------------------------------------------------------------------------------ */
 
 size_t sim_m2_feed(sim_m2 *s, const uint8_t *p, size_t n)
 {
@@ -327,6 +497,13 @@ size_t sim_m2_feed(sim_m2 *s, const uint8_t *p, size_t n)
 
 		if (input_closed(s))
 			return n; /* dropped: the peer is not reading any more */
+		if (s->sec.rx_on) { /* the decoder keeps its own buffer: the whole chunk goes in */
+			if (sim_sec_dec_feed(&s->sec.dec, p + done, want) != 0)
+				sim_m2_die(s, WR_E_BUDGET, "sim: out of memory in the secure decoder", 0, 0);
+			else
+				sec_pump(s);
+			return n;
+		}
 		k = wri_ring_write(&s->ring, p + done, want > (1u << 30) ? (1u << 30) : (uint32_t)want);
 		done += k;
 		pump(s);
@@ -398,6 +575,10 @@ void sim_m2_free(sim_m2 *s)
 	free(s->out);
 	free(s->rx_log);
 	free(s->tx_log);
+	sim_sec_ctx_wipe(&s->sec.ctx);
+	sim_sec_dec_free(&s->sec.dec);
+	sim_sec_wipe(s->sec.secret, sizeof(s->sec.secret));
+	sim_sec_wipe(s->key, sizeof(s->key)); /* the session key of the cephx exchange (the pre-auth HMAC key) */
 	free(s);
 }
 

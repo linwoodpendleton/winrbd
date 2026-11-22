@@ -5,11 +5,9 @@
  *
  * The principal key, the ticket store, the global id and the renewal state belong to the client
  * (wri_cx_client); the state of ONE handshake belongs to a wri_cx_hs: the step, the peer kind, the two
- * challenges, the OSD authorizer nonce, the ticket generation seen at begin, the view of the session key and
- * the first failure. Several slots may be in flight against one client at the same time and interleave
- * freely; no operation on one touches another's fields. The protocol steps, their payloads and their error
- * codes are exactly those of part A (they are described at the top of the old machine and in cephx.md); this
- * file only moves where the per-handshake fields live.
+ * challenges, the OSD authorizer nonce, the ticket generation seen at begin, the view of the session key, the
+ * connection secret of secure mode (wri_cx_secret.c) and the first failure. Several slots may be in flight
+ * against one client at once and interleave freely; no operation on one touches another's fields.
  *
  * Monitor peer (CEPHX_GET_AUTH_SESSION_KEY):
  *   begin  AUTH_REQUEST payload: u8 10 | EntityName (u32 8, string id) | u64 global_id. The global id is
@@ -19,15 +17,16 @@
  *          request header 0x0100 | CephXAuthenticate {v 3, client challenge from the host RNG, proof
  *          (wri_cx_challenge_proof), old ticket (empty, or the held AUTH ticket when reclaiming),
  *          other_keys = want_mask}.
- *   done   AUTH_DONE payload: response header (0x0100, status 0), the AUTH ticket reply (msg_a under
- *          the principal key), then if bytes remain `cbl` (the connection secret, empty in crc mode)
- *          and `extra` (the second ticket reply under the new AUTH session key; zero length when
- *          only AUTH was asked for). Secure mode (a non-empty secret, or mode != crc) is refused with
- *          WR_E_M2_MODE. Global id 0 is WR_E_AUTH_GID0. After a successful done every service in
- *          want_mask that this client keeps must be held, else WR_E_AUTH_PROTO. ANY failure of done
- *          drops all tickets and the global id (wri_cx_forget): the next attempt starts clean and
- *          nothing here retries (cephx.md 3.8). That rule is the client's, not the slot's, so it reaches
- *          every handshake: one in flight finds its ticket gone and fails with WR_E_STATE.
+ *   done   AUTH_DONE payload: response header (0x0100, status 0), the AUTH ticket reply (msg_a under the
+ *          principal key), then if bytes remain `cbl` (the connection secret, empty in crc mode) and `extra`
+ *          (the second ticket reply under the new AUTH session key; zero length when only AUTH was asked for).
+ *          A mode other than crc or secure is WR_E_M2_MODE. The secret (architecture 34.3): crc with one is
+ *          WR_E_AUTH_PROTO; secure without one, or with fewer than WRI_CX_SECRET_MIN or more than
+ *          WRI_CX_SECRET_MAX bytes, is WR_E_M2_SECRET; a good one is kept in the slot for conn_secret. Global id
+ *          0 is WR_E_AUTH_GID0. After a successful done every service in want_mask that this client keeps must
+ *          be held, else WR_E_AUTH_PROTO. ANY failure of done drops all tickets and the global id
+ *          (wri_cx_forget): the next attempt starts clean and nothing here retries (cephx.md 3.8). That rule is
+ *          the client's, not the slot's, so it reaches every handshake: one in flight fails with WR_E_STATE.
  *
  * OSD peer (authorizer, always one challenge round trip):
  *   begin  authorizer: u8 1 | u64 global_id | u32 4 | ticket blob | sealed CephXAuthorize{nonce, no
@@ -35,19 +34,19 @@
  *   more   AUTH_REPLY_MORE = RAW ciphertext of CephXAuthorizeChallenge (usage 0x11); answer = the same
  *          authorizer with the same nonce and have_challenge 1, plus_one = challenge + 1.
  *   done   AUTH_DONE payload = u32 len | ciphertext of CephXAuthorizeReply (usage 0x12); requires
- *          nonce_plus_one == nonce + 1 (else WR_E_AUTH_DECRYPT). A connection secret in it is secure
- *          mode: WR_E_M2_MODE. The ticket slot must not have been replaced since begin (WR_E_STATE).
+ *          nonce_plus_one == nonce + 1 (else WR_E_AUTH_DECRYPT). Version 2 of the reply carries the
+ *          connection secret (u32 len | bytes; version 1 has none), judged like the monitor's. The ticket
+ *          slot must not have been replaced since begin (WR_E_STATE).
  *
- * session_key(): the AUTH session key on a monitor connection, the OSD ticket session key on an OSD
- * connection (AUTH_SIGNATURE, cephx.md 2.9); NULL once the ticket it points into was replaced or forgotten.
- * ident_gid(): -1 on a monitor connection that asked for a new id, else the slot's own copy of the id it
- * ended with (the reclaimed or monitor-assigned one; on an OSD connection the one its authorizer carried).
+ * session_key(): the AUTH session key on a monitor connection, the OSD ticket session key on an OSD connection
+ * (AUTH_SIGNATURE, cephx.md 2.9); NULL once the ticket it points into was replaced or forgotten. ident_gid():
+ * -1 on a monitor connection that asked for a new id, else the slot's own copy of the id it ended with.
  *
- * The decrypt scratch of the client is shared by every slot: safe because the auth callbacks run to
- * completion, one at a time (wri_m2_conn.h), and the scratch is wiped after every use.
- * Secrets: nothing is logged; the nonce, the challenges and every decrypted byte are wiped when the
- * handshake ends, fails or its slot is wiped. The embedded handshake of wri_cx_ops() (wri_cx_client.c)
- * runs this same machine on a stack copy of the client's fields (wri_cx_hs_load / _store).
+ * The decrypt scratch of the client is shared by every slot: safe because the auth callbacks run to completion,
+ * one at a time (wri_m2_conn.h), and it is wiped after every use. Secrets: nothing is logged; the nonce, the
+ * challenges, the connection secret and every decrypted byte are wiped when the handshake ends, fails or its
+ * slot is wiped (the secret of a good secure handshake stays until the connection has taken it, see wri_cx.h).
+ * The embedded handshake of wri_cx_ops() (wri_cx_client.c) runs this machine on a stack copy of its fields.
  */
 #include "wri_cx.h"
 
@@ -77,6 +76,7 @@ static void hs_scrub(wri_cx_hs *h)
 	h->sess_key_len = 0;
 	h->key_gen = 0;
 	h->gid = 0;
+	wri_cx_sec_wipe(&h->sec);
 }
 
 /* ---- begin ---------------------------------------------------------------------------------------- */
@@ -165,6 +165,9 @@ static wr_status hs_more_mon(wri_cx_hs *h, const uint8_t *reply, size_t n, wri_w
 
 	if (h->st != WRI_CX_MON_SENT_REQ)
 		return HS_FAIL(h, WR_E_AUTH_PROTO, "unexpected AUTH_REPLY_MORE", h->st, 0, 0);
+	/* other_keys is want_mask and must not be 0: a monitor sends no connection secret then (sec.md 2.5). */
+	if (c->want_mask == 0)
+		return HS_FAIL(h, WR_E_INVAL, "no service ticket requested (other_keys would be 0)", 0, 0, 0);
 	wri_rd_init(&r, reply, n);
 	(void)wri_rd_u8(&r); /* struct version */
 	h->server_challenge = wri_rd_u64(&r);
@@ -258,11 +261,8 @@ wr_status wri_cx_hs_do_more(wri_cx_hs *h, const uint8_t *reply, size_t n, wri_wr
 
 /* ---- done ----------------------------------------------------------------------------------------- */
 
-/*
- * The ticket store records its own failures in the client's err (wri_cx_ticket.c, shared with renewal). A slot
- * must not write the client's err, and must see the failure of its own call and no older one: run the call
- * against a clean err, move what it recorded into the slot, put the client's err back.
- */
+/* The ticket store records failures in the client's err (shared with renewal); a slot must not write that: run the
+ * call against a clean err, move what it recorded into the slot, put the client's err back. */
 static wr_status hs_ticket_reply(wri_cx_hs *h, wri_rd *r, unsigned kind, uint32_t *stored)
 {
 	wri_cx_client *c = h->cl;
@@ -281,14 +281,14 @@ static wr_status hs_ticket_reply(wri_cx_hs *h, wri_rd *r, unsigned kind, uint32_
 }
 
 /* `cbl`: u32 inner_len | sealed (string connection_secret), usage 0x03 under the AUTH session key. */
-static wr_status hs_open_cbl(wri_cx_hs *h, const uint8_t *cbl, size_t n)
+static wr_status hs_open_cbl(wri_cx_hs *h, const uint8_t *cbl, size_t n, uint32_t mode)
 {
 	wri_cx_client *c = h->cl;
-	const uint8_t *item = NULL, *ct;
+	const uint8_t *item = NULL, *ct, *sbytes;
 	size_t ilen = 0;
 	wri_rd r, ri;
 	uint32_t inner, slen;
-	wr_status st;
+	wr_status st = WR_OK;
 
 	wri_rd_init(&r, cbl, n);
 	inner = wri_rd_u32(&r);
@@ -302,12 +302,12 @@ static wr_status hs_open_cbl(wri_cx_hs *h, const uint8_t *cbl, size_t n)
 			       inner, 0);
 	wri_rd_init(&ri, item, ilen);
 	slen = wri_rd_u32(&ri);
-	if (!wri_rd_ok(&ri) || slen > wri_rd_left(&ri))
+	sbytes = wri_rd_ok(&ri) && slen <= wri_rd_left(&ri) ? wri_rd_bytes(&ri, slen) : NULL;
+	if (sbytes == NULL)
 		st = HS_FAIL(h, WR_E_AUTH_PROTO, "connection secret malformed", ilen, slen, 0);
-	else if (slen != 0)
-		st = HS_FAIL(h, WR_E_M2_MODE, "server sent a connection secret: secure mode is not supported", slen, 0,
-			     0);
-	wri_secure_zero(c->scratch, c->scratch_cap);
+	else
+		st = wri_cx_hs_take_secret(h, mode, sbytes, slen);
+	wri_secure_zero(c->scratch, c->scratch_cap); /* the plaintext item held the secret */
 	return st;
 }
 
@@ -315,8 +315,8 @@ static wr_status hs_done_mon_body(wri_cx_hs *h, uint64_t gid, uint32_t mode, con
 {
 	wri_cx_client *c = h->cl;
 	wri_rd r, sub;
-	uint32_t stored = 0, more = 0, cbl_n, extra_n, svc;
-	const uint8_t *cbl, *extra;
+	uint32_t stored = 0, more = 0, cbl_n = 0, extra_n = 0, svc;
+	const uint8_t *cbl = NULL, *extra = NULL; /* absent: a reply that stops after the AUTH ticket */
 	uint64_t prev_gid = c->global_id;
 	unsigned slot;
 	uint16_t rtype;
@@ -325,8 +325,8 @@ static wr_status hs_done_mon_body(wri_cx_hs *h, uint64_t gid, uint32_t mode, con
 
 	if (h->st != WRI_CX_MON_SENT_AUTH)
 		return HS_FAIL(h, WR_E_AUTH_PROTO, "unexpected AUTH_DONE", h->st, 0, 0);
-	if (mode != WRI_CONN_MODE_CRC)
-		return HS_FAIL(h, WR_E_M2_MODE, "connection mode is not crc", mode, 0, 0);
+	if (mode != WRI_CONN_MODE_CRC && mode != WRI_CONN_MODE_SECURE)
+		return HS_FAIL(h, WR_E_M2_MODE, "connection mode is neither crc nor secure", mode, 0, 0);
 	if (gid == 0)
 		return HS_FAIL(h, WR_E_AUTH_GID0, "server assigned global id 0", 0, 0, 0);
 	if ((gid >> 63) != 0) /* CLIENT_IDENT carries it as int64, where -1 means "none" */
@@ -358,24 +358,25 @@ static wr_status hs_done_mon_body(wri_cx_hs *h, uint64_t gid, uint32_t mode, con
 		extra = wri_rd_bytes(&r, extra_n);
 		if (!wri_rd_ok(&r))
 			return HS_FAIL(h, r.err, "connection secret / extra tickets truncated", n, r.pos, 0);
-		if (cbl_n != 0) {
-			st = hs_open_cbl(h, cbl, cbl_n);
-			if (st != WR_OK)
-				return st;
-		}
-		if (extra_n != 0) {
-			wri_rd_init(&sub, extra, extra_n);
-			st = hs_ticket_reply(h, &sub, WRI_CX_TR_SERVICES, &more);
-			stored |= more;
-			if (st != WR_OK)
-				return st;
-		}
 	}
-	/*
-	 * Every ticket we asked for and keep must be held afterwards (the reference client fails the same
-	 * way). "Held" means unexpired: an old OSD ticket that outlived its validity and that this reply did
-	 * not replace must not make the handshake look complete.
-	 */
+	/* The secret comes first on the wire and is judged first. Secure mode needs one: with no cbl, an empty cbl or
+	 * an empty string in it the connection cannot be keyed (the reference client aborts later, sec.md 2.5). */
+	if (cbl_n != 0) {
+		st = hs_open_cbl(h, cbl, cbl_n, mode);
+		if (st != WR_OK)
+			return st;
+	}
+	if (mode == WRI_CONN_MODE_SECURE && h->sec.len == 0)
+		return HS_FAIL(h, WR_E_M2_SECRET, "secure mode without a connection secret", 0, 0, 0);
+	if (extra_n != 0) {
+		wri_rd_init(&sub, extra, extra_n);
+		st = hs_ticket_reply(h, &sub, WRI_CX_TR_SERVICES, &more);
+		stored |= more;
+		if (st != WR_OK)
+			return st;
+	}
+	/* Every ticket we asked for and keep must be held afterwards (the reference client fails the same way); "held"
+	 * means unexpired: an old OSD ticket that outlived its validity must not make the handshake look complete. */
 	for (slot = 0; slot < WRI_CX_NTICKETS; slot++) {
 		svc = slot == WRI_CX_SLOT_AUTH ? WRI_CX_SERVICE_AUTH : WRI_CX_SERVICE_OSD;
 		if ((c->want_mask & svc) != 0 && !wri_cx_have(c, svc, c->x->now.mono_ms))
@@ -394,7 +395,7 @@ static wr_status hs_done_osd_body(wri_cx_hs *h, uint32_t mode, const uint8_t *pa
 {
 	wri_cx_client *c = h->cl;
 	const wri_cx_ticket *t = &c->ticket[WRI_CX_SLOT_OSD];
-	const uint8_t *item = NULL, *ct;
+	const uint8_t *item = NULL, *ct, *sbytes = NULL;
 	size_t ilen = 0;
 	wri_rd r, ri;
 	uint32_t clen, slen = 0;
@@ -404,8 +405,8 @@ static wr_status hs_done_osd_body(wri_cx_hs *h, uint32_t mode, const uint8_t *pa
 
 	if (h->st != WRI_CX_OSD_SENT_CHALLENGE)
 		return HS_FAIL(h, WR_E_AUTH_PROTO, "unexpected AUTH_DONE", h->st, 0, 0);
-	if (mode != WRI_CONN_MODE_CRC)
-		return HS_FAIL(h, WR_E_M2_MODE, "connection mode is not crc", mode, 0, 0);
+	if (mode != WRI_CONN_MODE_CRC && mode != WRI_CONN_MODE_SECURE)
+		return HS_FAIL(h, WR_E_M2_MODE, "connection mode is neither crc nor secure", mode, 0, 0);
 	if (!t->have || t->gen != h->osd_gen)
 		return HS_FAIL(h, WR_E_STATE, "OSD ticket replaced during the handshake", 0, 0, 0);
 	wri_rd_init(&r, payload, n);
@@ -421,16 +422,17 @@ static wr_status hs_done_osd_body(wri_cx_hs *h, uint32_t mode, const uint8_t *pa
 	wri_rd_init(&ri, item, ilen);
 	v = wri_rd_u8(&ri);
 	npo = wri_rd_u64(&ri);
-	if (v >= 2u)
-		slen = wri_rd_u32(&ri); /* the connection secret of secure mode */
+	if (v >= 2u) { /* version 2 carries the connection secret (version 1 has none) */
+		slen = wri_rd_u32(&ri);
+		sbytes = wri_rd_bytes(&ri, slen);
+	}
 	if (!wri_rd_ok(&ri))
 		st = HS_FAIL(h, ri.err, "authorizer reply truncated", ilen, 0, 0);
 	else if (npo != h->authorizer_nonce + 1u)
 		st = HS_FAIL(h, WR_E_AUTH_DECRYPT, "authorizer reply answers a different nonce", 0, 0, 0);
-	else if (slen != 0)
-		st = HS_FAIL(h, WR_E_M2_MODE, "server sent a connection secret: secure mode is not supported", slen, 0,
-			     0);
-	wri_secure_zero(c->scratch, c->scratch_cap);
+	else
+		st = wri_cx_hs_take_secret(h, mode, sbytes, slen);
+	wri_secure_zero(c->scratch, c->scratch_cap); /* the plaintext item held the secret */
 	if (st == WR_OK) {
 		h->authorizer_nonce = 0;
 		h->gid = c->global_id; /* the id the authorizer carried: the ticket (checked above) was not replaced since begin */

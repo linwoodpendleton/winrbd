@@ -360,8 +360,8 @@ static void test_required_args(void)
 	cfg.mapmsg_queue = 0;
 	WRT_CHECK_STATUS(WR_E_INVAL, wr_client_mem_required(&cfg, &req));
 	wr_config_profile_kernel(&cfg);
-	cfg.mode_policy = 0;
-	WRT_CHECK_STATUS(WR_E_UNSUPPORTED, wr_client_mem_required(&cfg, &req));
+	cfg.mode_policy = 0; /* a policy that does not exist (a zeroed config): refused, never a silent crc */
+	WRT_CHECK_STATUS(WR_E_INVAL, wr_client_mem_required(&cfg, &req));
 	wr_config_profile_kernel(&cfg);
 	cfg.tx_buf_bytes = 100; /* below the largest handshake frame */
 	WRT_CHECK_STATUS(WR_E_INVAL, wr_client_mem_required(&cfg, &req));

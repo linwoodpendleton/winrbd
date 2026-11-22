@@ -11,6 +11,10 @@
  * Every allocation uses an alignment of 16 bytes or less (the host contract for the regions), so
  * the padding is the same for every legal base address and the plan is exact.
  *
+ * Secure mode (docs/design/core-architecture.md 34, 36): when the policy may end in secure (wri_m2_policy_may_secure), the arena also holds one
+ * wri_m2s_slot and one bounce buffer of sec_tx_chunk bytes per connection slot, right behind the handshake transcripts; under CRC_ONLY nothing
+ * is taken and nothing of secure mode costs more than the three pointers of the seam (rx, queue, connection) per connection.
+ *
  * The OSD map store (wri_mapstore.h) is embedded in the client struct (that is part of the first take), and when
  * map_slot_bytes != 0 it adds its placement cache to the arena (after the cephx client's part) and two map slots to
  * the bulk (after the monitor client's part); the sizes are planned with the same takes the store's init makes.
@@ -48,8 +52,14 @@ static wr_status check_cfg(const wr_config *cfg)
 	if ((uint64_t)cfg->tx_buf_bytes <
 	    2u * ((uint64_t)cfg->ticket_cap + WRI_CLIENT_AUTH_SLACK) + WRI_CLIENT_TX_FRAME)
 		return WR_E_INVAL;
-	if (cfg->mode_policy != WR_MODE_CRC_ONLY)
-		return WR_E_UNSUPPORTED; /* crc is the only connection mode implemented so far */
+	/* Secure mode (design 34.2, 36, 37). An unknown policy value is a configuration error, never a silent crc (and a zeroed config, whose policy
+	 * is 0, is one too). sec_tx_chunk is the bounce buffer of every connection: a multiple of 16, at least 256; it is checked whenever it is set
+	 * and must be set whenever the policy may end in secure (under CRC_ONLY no bounce buffer exists and 0 is the usual value). */
+	if (!wri_m2_policy_valid(cfg->mode_policy, cfg->mode_policy_osd))
+		return WR_E_INVAL;
+	if ((cfg->sec_tx_chunk != 0u || wri_m2_policy_may_secure(cfg->mode_policy, cfg->mode_policy_osd)) &&
+	    (cfg->sec_tx_chunk < WRI_CLIENT_SEC_CHUNK_MIN || (cfg->sec_tx_chunk % 16u) != 0u))
+		return WR_E_INVAL;
 	/* the map module (map_slot_bytes != 0): map_pools 1..8, a slot of at least 16 KiB, map_max_osd within the hard cap, a
 	 * non-zero CRUSH work budget; wri_mapstore_mem is the one place that knows (and refuses the rest with WR_E_INVAL) */
 	if (cfg->map_slot_bytes != 0u) {
@@ -116,6 +126,8 @@ typedef struct parts {
 	wri_m2_preauth *pa;
 	uint8_t *pa_used;
 	uint8_t *pa_mem;
+	wri_m2s_slot *sec;  /* secure mode: NULL under a policy that cannot end in secure */
+	uint8_t *sec_bounce;
 } parts;
 
 static void parts_take(take *t, const wr_config *cfg, const wri_layout *lay, parts *p)
@@ -128,6 +140,12 @@ static void parts_take(take *t, const wr_config *cfg, const wri_layout *lay, par
 	p->pa = (wri_m2_preauth *)tk(t, cfg->max_handshakes, sizeof(wri_m2_preauth));
 	p->pa_used = (uint8_t *)tk(t, cfg->max_handshakes, 1u);
 	p->pa_mem = (uint8_t *)tk(t, 1u, lay->pa_mem);
+	p->sec = NULL;
+	p->sec_bounce = NULL;
+	if (wri_m2_policy_may_secure(cfg->mode_policy, cfg->mode_policy_osd)) { /* a slot and a bounce buffer for EVERY connection (design 36.1) */
+		p->sec = (wri_m2s_slot *)tk(t, cfg->max_conns, wri_m2s_slot_bytes());
+		p->sec_bounce = (uint8_t *)tk(t, cfg->max_conns, cfg->sec_tx_chunk);
+	}
 	(void)tk(t, 0u, 1u); /* pad to 16: the cephx client's own plan starts at an aligned offset */
 }
 
@@ -217,10 +235,10 @@ wr_status wr_client_mem_required(const wr_config *cfg, wr_mem_req *out)
 
 /* ---- carving ----------------------------------------------------------------------------------------- */
 
-static void init_slots(wr_client *c, const parts *p, const wr_config *cfg, const wri_layout *lay)
+/* The connection slots, bound to their buffers (one function of its own: the sanitizer builds of clang lay big frames for it otherwise, see -Wframe-larger-than). */
+static void init_conns(const parts *p, const wr_config *cfg, const wri_layout *lay)
 {
 	uint32_t i;
-	size_t stride = lay->pa_stride;
 
 	for (i = 0; i < cfg->max_conns; i++) {
 		wri_cslot *s = &p->slot[i];
@@ -231,11 +249,22 @@ static void init_slots(wr_client *c, const parts *p, const wr_config *cfg, const
 		s->conn.pa_slot = WRI_NIL;
 		s->connect_deadline_ms = WR_DEADLINE_NONE;
 	}
+}
+
+static void init_slots(wr_client *c, const parts *p, const wr_config *cfg, const wri_layout *lay)
+{
+	uint32_t i;
+	size_t stride = lay->pa_stride;
+
+	init_conns(p, cfg, lay);
 	for (i = 0; i < cfg->max_handshakes; i++) {
 		uint8_t *rx = p->pa_mem + (size_t)i * 2u * stride;
 
 		wri_m2_preauth_init(&p->pa[i], rx, rx + stride, cfg->preauth_cap);
 	}
+	c->sec = p->sec;
+	c->sec_bounce = p->sec_bounce;
+	c->sec_chunk = p->sec != NULL ? cfg->sec_tx_chunk : 0u;
 	c->slot = p->slot;
 	c->n_slot = cfg->max_conns;
 	c->pa = p->pa;

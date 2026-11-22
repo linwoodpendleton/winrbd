@@ -5,13 +5,24 @@
  * cephx for either key type, monitor subscriptions) against a real cluster.
  *
  *   wr-monprobe --mon <ip[:port]> --user <name> --keyring <file> [--timeout <ms>] [--fsid <uuid>] [-v]
+ *               [--mode crc|crc-first|secure-first|secure|stock] [--mode-osd MODE] [--accel] [--require-mode secure|crc]
  *
  * It waits for WR_CS_ACTIVE, prints one line per client event, then the MonMap epoch and fsid (read
  * from the raw MMonMap the monitor sent) and the newest MOSDMap epoch received, and exits 0.
  *
+ * Connection modes (msgr2 secure mode, docs/design/core-architecture.md part D): --mode is the offer made to the monitor (crc, crc-first,
+ * secure-first, secure or stock; default crc, the behaviour of every earlier run); --mode-osd is accepted so that a script can give the same
+ * options to this tool and to wr-rbd (the probe never dials an OSD, so it changes nothing here); --accel uses the host's AES-NI / PCLMULQDQ GCM
+ * hook instead of the portable GCM of the core (exit 2 when this build or CPU has none); --require-mode secure|crc asserts the mode the session
+ * ended up in: exit 3 when a connection reached READY in the other mode, none reached the required one (an empty count proves nothing) or a secure
+ * connection ended on a secret, nonce or tag failure (sec_failures != 0).
+ * A fsid mismatch (exit 4) keeps its code, being the more serious finding. A refused offer shows on the event line as
+ * status=M2_BAD_METHOD with allowed_modes= (bit v = mode v: 1 crc, 2 secure), allowed_methods= and offered_method=.
+ *
  * Output (stdout, one record per line, "@<ms since start> <kind> <key=value ...>"):
- *   event, monmap, osdmap, result. A diagnostic goes to stderr. The key is read from the keyring file,
- * handed to the core and wiped; it is never printed or logged.
+ *   event, monmap, osdmap, result, stats (conns_secure= conns_crc= sec_failures= accel= gcm=host|portable gcm_ops=; gcm=host means the hook's
+ * key objects were really used) and, with --require-mode, "result require_mode ok=". A diagnostic goes to stderr. The key is read from the
+ * keyring file, handed to the core and wiped; it is never printed or logged.
  *
  * Exit status: 0 active (maps printed if they arrived), 1 not active within the timeout, 2 usage or
  * setup error, 3 the client failed fatally, 4 the cluster id of a map differs from --fsid, the maps
@@ -23,6 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "wrl_gcm_aesni.h"
 #include "wrl_host.h"
 
 #define PROBE_DEFAULT_TIMEOUT_MS 10000
@@ -47,6 +59,99 @@ static void wipe(void *p, size_t n)
 
 	while (n-- > 0)
 		*v++ = 0;
+}
+
+/* The GCM hook of the host as the core sees it (--accel): a table whose six members count their calls and pass them on to the AES-NI hook,
+ * so the stats line can say whether the hook really ran. ctx of the table is this struct; the hook itself ignores its ctx. */
+typedef struct gcm_spy {
+	wr_prim_ops tab;  /* what the core is given */
+	wr_prim_ops hook; /* the hook's own table */
+	uint64_t setkeys, starts, updates, finals, wipes;
+} gcm_spy;
+
+static wr_status spy_setkey(void *ctx, void *state, const uint8_t key[16])
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->setkeys++;
+	return g->hook.gcm_setkey(g->hook.ctx, state, key);
+}
+
+static wr_status spy_start(void *ctx, void *state, const uint8_t iv[12], int decrypt)
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->starts++;
+	return g->hook.gcm_start(g->hook.ctx, state, iv, decrypt);
+}
+
+static void spy_update(void *ctx, void *state, const uint8_t *in, uint8_t *out, size_t n)
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->updates++;
+	g->hook.gcm_update(g->hook.ctx, state, in, out, n);
+}
+
+static void spy_final_enc(void *ctx, void *state, uint8_t tag[16])
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->finals++;
+	g->hook.gcm_final_enc(g->hook.ctx, state, tag);
+}
+
+static wr_status spy_final_dec(void *ctx, void *state, const uint8_t tag[16])
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->finals++;
+	return g->hook.gcm_final_dec(g->hook.ctx, state, tag);
+}
+
+static void spy_wipe(void *ctx, void *state)
+{
+	gcm_spy *g = (gcm_spy *)ctx;
+
+	g->wipes++;
+	g->hook.gcm_wipe(g->hook.ctx, state);
+}
+
+/* 0 when the hook is available and the counting table is ready, -1 otherwise (nothing is changed then). */
+static int gcm_spy_init(gcm_spy *g)
+{
+	if (wrl_gcm_aesni_ops(&g->hook) != 0 || g->hook.gcm_setkey == NULL || g->hook.gcm_start == NULL || g->hook.gcm_update == NULL ||
+	    g->hook.gcm_final_enc == NULL || g->hook.gcm_final_dec == NULL || g->hook.gcm_wipe == NULL)
+		return -1;
+	memset(&g->tab, 0, sizeof(g->tab));
+	g->tab.size = (uint32_t)sizeof(g->tab);
+	g->tab.ctx = g;
+	g->tab.gcm_state_bytes = g->hook.gcm_state_bytes;
+	g->tab.gcm_setkey = spy_setkey;
+	g->tab.gcm_start = spy_start;
+	g->tab.gcm_update = spy_update;
+	g->tab.gcm_final_enc = spy_final_enc;
+	g->tab.gcm_final_dec = spy_final_dec;
+	g->tab.gcm_wipe = spy_wipe;
+	return 0;
+}
+
+/* One of crc, crc-first, secure-first, secure, stock (the words of wr-rbd and wr-krbdcmp); NULL = crc. 0 or -1. */
+static int mode_parse(const char *s, uint8_t *out)
+{
+	if (s == NULL || strcmp(s, "crc") == 0)
+		*out = WR_MODE_CRC_ONLY;
+	else if (strcmp(s, "crc-first") == 0)
+		*out = WR_MODE_CRC_FIRST;
+	else if (strcmp(s, "secure-first") == 0)
+		*out = WR_MODE_SECURE_FIRST;
+	else if (strcmp(s, "secure") == 0)
+		*out = WR_MODE_SECURE_ONLY;
+	else if (strcmp(s, "stock") == 0)
+		*out = WR_MODE_STOCK;
+	else
+		return -1;
+	return 0;
 }
 
 static uint64_t probe_now(void)
@@ -165,6 +270,9 @@ static void print_event(const probe *p, const wr_event *e)
 	if (e->err.status != WR_OK)
 		printf(" status=%s module=%u peer_result=%d what=\"%s\"", wr_status_name(e->err.status),
 		       (unsigned)e->err.module, (int)e->err.peer_result, e->err.what != NULL ? e->err.what : "");
+	if (e->err.status == WR_E_M2_BAD_METHOD) /* a0 = allowed methods, a1 = allowed connection modes (bit v = mode v), a2 = the method offered */
+		printf(" allowed_modes=0x%llx allowed_methods=0x%llx offered_method=%llu", (unsigned long long)e->err.a1,
+		       (unsigned long long)e->err.a0, (unsigned long long)e->err.a2);
 	printf("\n");
 	fflush(stdout);
 }
@@ -232,12 +340,17 @@ static int probe_stop(void *arg)
 
 static void usage(void)
 {
-	fprintf(stderr, "usage: wr-monprobe --mon <ip[:port]> --user <name> --keyring <file> [--timeout <ms>] [--fsid <uuid>] [-v]\n");
+	fprintf(stderr, "usage: wr-monprobe --mon <ip[:port]> --user <name> --keyring <file> [--timeout <ms>] [--fsid <uuid>] [-v]\n"
+			"                   [--mode crc|crc-first|secure-first|secure|stock] [--mode-osd MODE] [--accel] [--require-mode secure|crc]\n");
 }
 
 int main(int argc, char **argv)
 {
-	const char *mon = NULL, *user = NULL, *keyring = NULL, *fsid_arg = NULL;
+	const char *mon = NULL, *user = NULL, *keyring = NULL, *fsid_arg = NULL, *mode_arg = NULL, *mode_osd_arg = NULL, *require_arg = NULL;
+	uint8_t pol = WR_MODE_CRC_ONLY, pol_osd = 0;
+	int accel = 0;
+	gcm_spy spy;
+	wr_stats ws;
 	int timeout_ms = PROBE_DEFAULT_TIMEOUT_MS, i;
 	unsigned level = WR_LOG_WARN;
 	probe p;
@@ -266,6 +379,14 @@ int main(int argc, char **argv)
 			keyring = argv[++i];
 		else if (strcmp(a, "--fsid") == 0 && has_val)
 			fsid_arg = argv[++i];
+		else if (strcmp(a, "--mode") == 0 && has_val)
+			mode_arg = argv[++i];
+		else if (strcmp(a, "--mode-osd") == 0 && has_val)
+			mode_osd_arg = argv[++i];
+		else if (strcmp(a, "--require-mode") == 0 && has_val)
+			require_arg = argv[++i];
+		else if (strcmp(a, "--accel") == 0)
+			accel = 1;
 		else if (strcmp(a, "--timeout") == 0 && has_val) {
 			char *end = NULL;
 			long v;
@@ -290,6 +411,19 @@ int main(int argc, char **argv)
 	}
 	memset(&p, 0, sizeof(p));
 	memset(&spec, 0, sizeof(spec));
+	memset(&spy, 0, sizeof(spy));
+	if (mode_parse(mode_arg, &pol) != 0 || (mode_osd_arg != NULL && mode_parse(mode_osd_arg, &pol_osd) != 0)) {
+		fprintf(stderr, "wr-monprobe: --mode and --mode-osd take crc, crc-first, secure-first, secure or stock\n");
+		return 2;
+	}
+	if (require_arg != NULL && strcmp(require_arg, "secure") != 0 && strcmp(require_arg, "crc") != 0) {
+		fprintf(stderr, "wr-monprobe: --require-mode takes secure or crc\n");
+		return 2;
+	}
+	if (accel && gcm_spy_init(&spy) != 0) {
+		fprintf(stderr, "wr-monprobe: --accel: this build or CPU has no AES-NI / PCLMULQDQ GCM hook: refused (run without --accel for the portable code)\n");
+		return 2;
+	}
 	if (strlen(user) >= sizeof(spec.user)) {
 		fprintf(stderr, "wr-monprobe: user name too long\n");
 		return 2;
@@ -319,8 +453,15 @@ int main(int argc, char **argv)
 	/* fsid_known stays 0 on purpose: the probe reports the fsid the monitor sends and compares it itself. */
 
 	wr_config_profile_harness(&cfg);
+	if (mode_arg != NULL || mode_osd_arg != NULL) { /* without either option the configuration is what it always was: crc only, no secure memory */
+		wr_config_enable_secure(&cfg, WR_MAPS_HARNESS, pol);
+		if (pol_osd != 0u)
+			cfg.mode_policy_osd = pol_osd;
+	}
 	cfg.mon_msg_cap = 4u * 1024u * 1024u;
 	wrl_host_ops_init(&ops, &level);
+	if (accel)
+		ops.prim = &spy.tab; /* outlives the client */
 	st = wr_client_mem_required(&cfg, &req);
 	if (st == WR_OK)
 		st = wrl_mem_alloc(&arena, req.arena);
@@ -339,7 +480,7 @@ int main(int argc, char **argv)
 	}
 	if (st != WR_OK) {
 		wr_key_wipe(&spec.key);
-		fprintf(stderr, "wr-monprobe: cannot create the client: %s\n", wr_strerror(st));
+		fprintf(stderr, "wr-monprobe: cannot create the client: %s (%s)\n", wr_strerror(st), wr_status_name(st));
 		return 2;
 	}
 	st = wrl_loop_create(c, &loop);
@@ -387,6 +528,25 @@ int main(int argc, char **argv)
 		printf("@%llu result active=0 fatal=%s (%s)\n", (unsigned long long)(probe_now() - p.t0),
 		       wr_status_name(st), wr_strerror(st));
 		rc = 3;
+	}
+	memset(&ws, 0, sizeof(ws));
+	wr_client_get_stats(c, &ws);
+	printf("@%llu stats conns_secure=%u conns_crc=%u sec_failures=%u accel=%d gcm=%s gcm_ops=%llu\n", (unsigned long long)(probe_now() - p.t0),
+	       ws.conns_secure, ws.conns_crc, ws.sec_failures, accel, accel && spy.setkeys != 0u ? "host" : "portable", (unsigned long long)spy.updates);
+	if (require_arg != NULL) {
+		int want_secure = strcmp(require_arg, "secure") == 0;
+		/* "every connection was in the mode" needs one that was: an empty count proves nothing */
+		/* a secure connection that ended on a secret, nonce or tag failure is not a clean secure run even if the client redialled and carried on */
+		int ok = (want_secure ? ws.conns_crc == 0u && ws.conns_secure != 0u : ws.conns_secure == 0u && ws.conns_crc != 0u) && ws.sec_failures == 0u;
+
+		printf("@%llu result require_mode ok=%d wanted=%s conns_secure=%u conns_crc=%u sec_failures=%u\n", (unsigned long long)(probe_now() - p.t0),
+		       ok, require_arg, ws.conns_secure, ws.conns_crc, ws.sec_failures);
+		if (!ok) {
+			fprintf(stderr, "wr-monprobe: --require-mode %s: %u secure and %u crc connection(s) reached READY, %u secure-mode failure(s)\n", require_arg,
+				ws.conns_secure, ws.conns_crc, ws.sec_failures);
+			if (rc != 4) /* a fsid mismatch is the more serious finding and keeps its code */
+				rc = 3;
+		}
 	}
 	fflush(stdout);
 	wrl_loop_destroy(loop);

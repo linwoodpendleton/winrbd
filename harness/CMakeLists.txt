@@ -285,6 +285,33 @@ if(TARGET test_lab_rbd)
 endif()
 # ---- module live-rbd-tool (end) ---------------------------------------------------------------------
 
+# ---- module host-sec-loop (begin) -------------------------------------------------------------------
+# Secure mode on the Linux host (docs/design/core-architecture.md part D, module tool-modes). harness/host/tools/wr-rbd.c and wr-monprobe.c (--mode, --mode-osd,
+# --accel, --require-mode, the secure fields of the stats line) are built by the tool glob above. Both tests are created by the test glob (it turns every underscore of
+# the file name after the first into a dot): test_host_loop_sec.c is ctest "host.loop.sec" (pthread servers with secure peers for a monitor and OSDs, the pump and the AES-NI
+# hook included with hooks; it also runs wr-monprobe when WR_MONPROBE names it), test_host_tool_rbd_sec.c is ctest "host.tool.rbd.sec" (wr-rbd run as a child process against the
+# same kind of servers; needs WR_RBD). Both need threads, a long timeout (the secure peers use the slow independent GCM of the tests: a Debug build with the sanitizers
+# takes 5 to 7 minutes on a fast machine, so the limits leave a factor of three for a slow runner) and no parallel run.
+if(TARGET test_host_loop_sec)
+  find_package(Threads REQUIRED)
+  target_link_libraries(test_host_loop_sec PRIVATE Threads::Threads)
+  set_tests_properties(host.loop.sec PROPERTIES TIMEOUT 1200 RUN_SERIAL TRUE)
+  if(TARGET wr-monprobe)
+    add_dependencies(test_host_loop_sec wr-monprobe)
+    set_property(TEST host.loop.sec APPEND PROPERTY ENVIRONMENT "WR_MONPROBE=$<TARGET_FILE:wr-monprobe>")
+  endif()
+endif()
+if(TARGET test_host_tool_rbd_sec)
+  find_package(Threads REQUIRED)
+  target_link_libraries(test_host_tool_rbd_sec PRIVATE Threads::Threads)
+  set_tests_properties(host.tool.rbd.sec PROPERTIES TIMEOUT 1800 RUN_SERIAL TRUE)
+  if(TARGET wr-rbd)
+    add_dependencies(test_host_tool_rbd_sec wr-rbd)
+    set_property(TEST host.tool.rbd.sec APPEND PROPERTY ENVIRONMENT "WR_RBD=$<TARGET_FILE:wr-rbd>")
+  endif()
+endif()
+# ---- module host-sec-loop (end) ---------------------------------------------------------------------
+
 # ---- module winrbd-probe (begin) --------------------------------------------------------------------
 # harness/src/*.c: end-to-end lab programs built on the Linux host library (winrbd-probe). They may read
 # core internals (wr_core_internal), so they are harness-only and never part of a host.
@@ -407,5 +434,206 @@ if(TARGET test_imgio_replay)
   set_tests_properties(imgio.replay PROPERTIES TIMEOUT 300)
 endif()
 # ---- module vectors-d (end) ---------------------------------------------------------------------------
+
+# ---- module ci26-vm (begin) ---------------------------------------------------------------------------
+# tools/ci26_vm.sh (the Ubuntu 26.04 build machine on the shared box) has a self test that needs no VM and no network: the memory and
+# core/RAM guards, the refusal to delete in a directory that is not its own, the argument checks. It only needs bash.
+find_program(WR_BASH bash)
+if(WR_BASH)
+  add_test(NAME ci26.selftest COMMAND "${WR_BASH}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/ci26_vm.sh" selftest)
+  set_tests_properties(ci26.selftest PROPERTIES LABELS "ci26;checks" TIMEOUT 120)
+endif()
+# ---- module ci26-vm (end) -----------------------------------------------------------------------------
+
+# ---- module krbd-compare (begin) ---------------------------------------------------------------------
+# The comparison with the kernel client (docs/design/core-architecture.md section 33): harness/host/wrl_cmp.c and wrl_cmp_edges.c (the engine and its
+# edge generator) are part of the host library by the glob above and need threads (the device's blocking calls run on a worker of their own);
+# harness/host/tools/wr-krbdcmp.c is built by the tool glob. Tests (created by the test glob; the glob turns every underscore after the first into
+# a dot): host.cmp (every phase and direction against the simulated cluster with an in-process device), host.cmp.edges (the edge generator, no
+# network), host.tool.krbdcmp (the built tool over real sockets with a regular file as the device and the test-only flags). krbdcmp.selftest runs
+# harness/lab/krbd-compare.sh --selftest against stand-in rbd / ceph commands (no lab needed: an injected failing step must still unmap, remove the
+# images and match the state snapshot).
+if(TARGET wr_linux_host)
+  find_package(Threads REQUIRED)
+  target_link_libraries(wr_linux_host PUBLIC Threads::Threads)
+  foreach(_t test_host_cmp test_host_cmp_edges)
+    if(TARGET ${_t})
+      target_link_libraries(${_t} PRIVATE wr_linux_host Threads::Threads)
+    endif()
+  endforeach()
+  if(TARGET test_host_cmp)
+    set_tests_properties(host.cmp PROPERTIES TIMEOUT 900 RUN_SERIAL TRUE)
+  endif()
+  if(TARGET test_host_cmp_edges)
+    set_tests_properties(host.cmp.edges PROPERTIES TIMEOUT 120)
+  endif()
+  if(TARGET test_host_tool_krbdcmp)
+    target_link_libraries(test_host_tool_krbdcmp PRIVATE Threads::Threads)
+    set_tests_properties(host.tool.krbdcmp PROPERTIES TIMEOUT 1500 RUN_SERIAL TRUE)
+    if(TARGET wr-krbdcmp)
+      add_dependencies(test_host_tool_krbdcmp wr-krbdcmp)
+      set_property(TEST host.tool.krbdcmp APPEND PROPERTY ENVIRONMENT "WR_KRBDCMP=$<TARGET_FILE:wr-krbdcmp>")
+    endif()
+  endif()
+  find_program(WR_BASH_KRBDCMP bash)
+  if(WR_BASH_KRBDCMP)
+    add_test(NAME krbdcmp.selftest COMMAND "${WR_BASH_KRBDCMP}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/krbd-compare.sh" --selftest)
+    set_tests_properties(krbdcmp.selftest PROPERTIES LABELS "krbdcmp;checks" TIMEOUT 600 SKIP_RETURN_CODE 77)
+  endif()
+else()
+  # no host library (WR_BUILD_HOST=OFF, or a platform without it): the two tests that link the engine cannot be built or run
+  foreach(_t test_host_cmp test_host_cmp_edges)
+    if(TARGET ${_t})
+      set_target_properties(${_t} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    endif()
+  endforeach()
+  set(_wr_cmp_tests "")
+  if(TARGET test_host_cmp)
+    list(APPEND _wr_cmp_tests host.cmp)
+  endif()
+  if(TARGET test_host_cmp_edges)
+    list(APPEND _wr_cmp_tests host.cmp.edges)
+  endif()
+  if(_wr_cmp_tests)
+    set_tests_properties(${_wr_cmp_tests} PROPERTIES DISABLED TRUE)
+  endif()
+endif()
+# ---- module krbd-compare (end) -----------------------------------------------------------------------
+
+# ---- module crypto-ct (begin) ------------------------------------------------------------------------
+# Constant-time checks of the portable crypto (docs/design/core-architecture.md 35.6), no timing involved.
+#   crypto.ct.valgrind  test_crypto_ct_vg --drive: runs the test under "valgrind --error-exitcode=99" with the key, IV and data marked
+#                       undefined (aesct, ghash, gcm, pgcm, wri_m2s_init and, once the transmit codec exists, a sealed frame), must be
+#                       clean, then runs the known-bad control (table AES and an early-exit compare through the same harness), which
+#                       Memcheck must report. Skips (77) with a reason when
+#                       valgrind or its header (valgrind/memcheck.h) is missing, or in a sanitizer flavour (the sanitizer runtimes do not
+#                       run under Valgrind).
+#                       WRT_CT_REQUIRE=1 in the environment (CI sets it) turns the missing-Valgrind skip, and the missing-tool skips of
+#                       the two rodata tests below, into failures, so the check cannot vanish from a runner image unnoticed.
+#   crypto.ct.vg        the same binary with no argument (made by the test glob): the checks in process, the Valgrind requests inert
+#                       outside Valgrind. It proves the functional results against the reference and, in the sanitizer flavours, the
+#                       memory safety of the harness around them.
+#   crypto.ct.rodata    tools/check_ct_rodata.sh: wri_aesct.o, wri_ghash.o, wri_gcm.o and wri_pgcm.o have no read-only (or initialised writable) data
+#                       section of 256 bytes or more (the table-driven wri_aes.o must be flagged by the same scan).
+#   crypto.ct.rodata.selftest  the same script compiles a 256-byte table, a 4 KiB table and a writable 256-byte table and must flag all
+#                       three, and must pass a 64-byte one: proof that the scan sees a lone S-box.
+#                       Both need ar and readelf / objdump / size; else they skip.
+#                       The plain flavours scan libwr_core.a itself. A sanitizer adds read-only strings and location records to every object
+#                       (kilobytes of source paths), so in a sanitizer flavour the same sources (and the table-driven control) are compiled once more with the core's
+#                       flags and the flavour's optimisation level but WITHOUT the sanitizer (library wr_ct_scan) and those objects are scanned.
+include(CheckIncludeFile)
+check_include_file("valgrind/memcheck.h" WR_HAVE_VALGRIND_H)
+if(TARGET test_crypto_ct_vg)
+  if(WR_HAVE_VALGRIND_H)
+    target_compile_definitions(test_crypto_ct_vg PRIVATE WRT_HAVE_VALGRIND_H=1)
+  endif()
+  if(NOT WR_SANITIZE STREQUAL "")
+    target_compile_definitions(test_crypto_ct_vg PRIVATE "WRT_CT_SANITIZE=\"${WR_SANITIZE}\"")
+  endif()
+  add_test(NAME crypto.ct.valgrind COMMAND test_crypto_ct_vg --drive)
+  set_tests_properties(crypto.ct.valgrind PROPERTIES LABELS "crypto;ct" SKIP_RETURN_CODE 77 TIMEOUT 1800)
+endif()
+# The limit is the smallest section that fails: 256 bytes or more (an AES S-box is exactly 256, so "larger than 256" let a lone one pass;
+# the x86-64 objects have 0 to 144). A 16-byte-vector target may need more for the compiler's own mask constants (clang on arm64 puts 17
+# of them, 272 bytes, into the object); raise it there on purpose, never to hide a table. The self test compiles real tables to prove that
+# the scan flags 256 bytes, 4 KiB and a writable table, and passes a small one.
+set(WR_CT_RODATA_LIMIT 256 CACHE STRING "Size (bytes) of a read-only data section from which wri_aesct.o, wri_ghash.o, wri_gcm.o, wri_pgcm.o fail the scan")
+find_program(WR_SH_CT sh)
+if(WR_SH_CT AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+  if(WR_SANITIZE STREQUAL "")
+    set(_wr_ct_scan_src "$<TARGET_FILE:wr_core>")
+  else()
+    set(_wr_ct_dir "${WR_CORE_DIR}/src/crypto")
+    add_library(wr_ct_scan OBJECT "${_wr_ct_dir}/wri_aesct.c" "${_wr_ct_dir}/wri_ghash.c" "${_wr_ct_dir}/wri_gcm.c" "${_wr_ct_dir}/wri_pgcm.c" "${_wr_ct_dir}/wri_aes.c")
+    target_include_directories(wr_ct_scan PRIVATE "${WR_CORE_DIR}/include" ${WR_CORE_INCLUDE_DIRS})
+    target_compile_options(wr_ct_scan PRIVATE ${_wr_gnu_core} -fno-stack-protector)
+    if(WR_WERROR)
+      target_compile_options(wr_ct_scan PRIVATE -Werror)
+    endif()
+    set(_wr_ct_scan_src "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/wr_ct_scan.dir")
+  endif()
+  add_test(NAME crypto.ct.rodata COMMAND "${WR_SH_CT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_ct_rodata.sh" --limit "${WR_CT_RODATA_LIMIT}" --control wri_aes
+           "${_wr_ct_scan_src}" wri_aesct wri_ghash wri_gcm wri_pgcm)
+  set_tests_properties(crypto.ct.rodata PROPERTIES LABELS "crypto;ct;checks" SKIP_RETURN_CODE 77 TIMEOUT 120)
+  add_test(NAME crypto.ct.rodata.selftest COMMAND "${WR_SH_CT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_ct_rodata.sh" --limit "${WR_CT_RODATA_LIMIT}"
+           --selftest "${CMAKE_C_COMPILER}")
+  set_tests_properties(crypto.ct.rodata.selftest PROPERTIES LABELS "crypto;ct;checks" SKIP_RETURN_CODE 77 TIMEOUT 120)
+  if(NOT WR_SANITIZE STREQUAL "")
+    add_dependencies(wr_core wr_ct_scan) # built with the core, so the scan finds its objects whenever the tests were built
+  endif()
+endif()
+# ---- module crypto-ct (end) --------------------------------------------------------------------------
+
+# ---- module vectors-sec (begin) ----------------------------------------------------------------------
+# The lab captures of the core's own secure mode (harness/vectors/public/secure: a monitor and OSD sessions of wr-rbd in secure mode per cephx key type
+# against a real v20.2.5 cluster with the connection secret, session key, the plaintext and the wire bytes of every frame, and the AUTH_BAD_METHOD
+# answers of daemons that allow only one mode). m2.sec.replay (test_m2_sec_replay.c, created by the glob above) runs the recorded server streams through
+# the real secure receive parser in many deliveries, makes the core's secure transmit reproduce the recorded client streams byte for byte, checks the
+# pre-auth signatures with the core's transcript code, damages the streams, and replays the refusals into a connection. The independent encoder
+# runs at about 1 MB/s and the portable GCM of the core is slow under the sanitizers: the limit leaves a factor of three on the slowest flavour.
+# vectors_secure_check is the independent python checker (check_secure_core.py: the cephx exchange replayed from the handshake bytes with the published
+# throwaway key, every frame encrypted again and decrypted with a library, the structure of sec.md 2.8, the signatures, the refusals, the file list
+# against INDEX.json, no stray file, no key-looking text); vectors_secure_selftest feeds it damaged copies. Both skip (77) with a reason when the
+# directory or the python package `cryptography` is absent.
+if(WR_PYTHON3)
+  add_test(NAME vectors_secure_check COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_secure_core.py" check)
+  set_tests_properties(vectors_secure_check PROPERTIES LABELS "vectors;checks" TIMEOUT 300 SKIP_RETURN_CODE 77)
+  add_test(NAME vectors_secure_selftest COMMAND "${WR_PYTHON3}" -I "${CMAKE_CURRENT_SOURCE_DIR}/vectors/public/scripts/check_secure_core.py" selftest)
+  set_tests_properties(vectors_secure_selftest PROPERTIES LABELS "vectors;checks" TIMEOUT 1800 SKIP_RETURN_CODE 77)
+endif()
+if(TARGET test_m2_sec_replay)
+  set_tests_properties(m2.sec.replay PROPERTIES TIMEOUT 1200 RUN_SERIAL TRUE)
+endif()
+# lab.secure (test_lab_secure.c of module secure-live, label lab, skips without WR_LAB_*): the live matrix restarts the monitor and the OSDs one at a
+# time and runs krbd comparisons, which takes much longer than lab.rbd. The test limits the script itself (WR_LAB_SECURE_DEADLINE, 5400 s by default:
+# the script is then told to restore the lab and finish); this timeout is only the backstop 30 minutes later, because ctest ends a test with SIGKILL and
+# a script killed that way cannot put the lab back.
+if(TARGET test_lab_secure)
+  set_tests_properties(lab.secure PROPERTIES TIMEOUT 7200)
+endif()
+# securelive.selftest: harness/lab/secure-live.sh --selftest, the whole script against stand-in cluster tools (no lab, no network): a full run, the
+# refusals, the wire and wrong-key checks, and a failure injected at every step, after which the restore must still run (about 3 minutes).
+find_program(WR_BASH_SECLIVE bash)
+if(WR_BASH_SECLIVE)
+  add_test(NAME securelive.selftest COMMAND "${WR_BASH_SECLIVE}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/secure-live.sh" --selftest)
+  set_tests_properties(securelive.selftest PROPERTIES LABELS "securelive;checks" TIMEOUT 900 SKIP_RETURN_CODE 77)
+endif()
+# ---- module vectors-sec (end) ------------------------------------------------------------------------
+
+# ---- module exit-run (begin) -------------------------------------------------------------------------
+# The Phase 1 exit run (docs/design/core-architecture.md 40): harness/lab/exit-run.sh (the long randomized comparison with krbd, five runs, the lab
+# restored in an EXIT trap) and harness/tools/fault_inject.sh (the fault injector that runs beside it). Tests:
+#   faultinject.selftest  fault_inject.sh --selftest: the injector against stand-in ceph / systemctl / pkill commands: the plan (a pure function of the seed,
+#                         the deck's counts, the ranges), the dry run, a full run, a failure injected at every step (the restore must still put every daemon,
+#                         every OSD and the upmap table back), a cluster that does not heal, a SIGTERM in the middle of a fault, a lab that is not whole at the
+#                         start (refused, nothing changed), the argument checks. No lab, no network; needs bash and python3 (about 6 minutes).
+#   exitrun.selftest      exit-run.sh --selftest: the whole script against stand-ins, with the cluster forced to secure and a failure injected at every step of
+#                         the run: no image, no mapping, the config database as it was, every daemon back under the original mode (about 10 minutes).
+#   lab.exit.selftest     the same executable with WR_LAB_EXIT_SELFTEST=1 (no cluster): the test's own verdict on synthetic reports (every way a report can fail
+#                         to show a pass), the child's status, stdout and stderr, a command that cannot be run, a child killed by a signal, and the two ways the test
+#                         stops the script (the deadline, a signal that reaches the test: SIGTERM passed on, the restore waited for).
+#   lab.exit              test_lab_exit.c (created by the test glob, label lab, skipped without WR_LAB_*): exit-run.sh --quick on the real lab cluster, or the
+#                         full run with WR_LAB_EXIT_FULL=1. The test limits the script itself (WR_LAB_EXIT_DEADLINE, 3600 s for the quick form: the script is then
+#                         told to restore the lab and finish); this timeout is only the backstop, because ctest ends a test with SIGKILL and a script killed
+#                         that way cannot put the lab back. A full run is hours: configure with -DWR_LAB_EXIT_TIMEOUT=<seconds> (a day or more) for it.
+set(WR_LAB_EXIT_TIMEOUT "7200" CACHE STRING "ctest timeout of lab.exit in seconds (the quick form needs one hour; a full run needs a day or more)")
+if(TARGET test_lab_exit)
+  set_tests_properties(lab.exit PROPERTIES TIMEOUT ${WR_LAB_EXIT_TIMEOUT})
+  add_test(NAME lab.exit.selftest COMMAND test_lab_exit)
+  set_tests_properties(lab.exit.selftest PROPERTIES LABELS "exitrun;checks" TIMEOUT 300 SKIP_RETURN_CODE 77
+                       ENVIRONMENT "WRT_VECTOR_DIR=${WR_VECTOR_DIR};WR_LAB_EXIT_SELFTEST=1")
+  if(TARGET wr-krbdcmp AND TARGET wr-rbd)
+    add_dependencies(test_lab_exit wr-krbdcmp wr-rbd)
+    set_property(TEST lab.exit APPEND PROPERTY ENVIRONMENT "WR_KRBDCMP=$<TARGET_FILE:wr-krbdcmp>;WR_RBD=$<TARGET_FILE:wr-rbd>")
+  endif()
+endif()
+find_program(WR_BASH_EXITRUN bash)
+if(WR_BASH_EXITRUN)
+  add_test(NAME faultinject.selftest COMMAND "${WR_BASH_EXITRUN}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/fault_inject.sh" --selftest)
+  set_tests_properties(faultinject.selftest PROPERTIES LABELS "exitrun;checks" TIMEOUT 1800 SKIP_RETURN_CODE 77)
+  add_test(NAME exitrun.selftest COMMAND "${WR_BASH_EXITRUN}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/exit-run.sh" --selftest)
+  set_tests_properties(exitrun.selftest PROPERTIES LABELS "exitrun;checks" TIMEOUT 3600 SKIP_RETURN_CODE 77)
+endif()
+# ---- module exit-run (end) ---------------------------------------------------------------------------
 
 message(STATUS "winrbd harness: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, core sources: ${WR_CORE_SOURCES}")

@@ -317,6 +317,7 @@ typedef struct so_parked {
 struct sim_osd {
 	sim_osd_cfg cfg;
 	uint32_t epoch;
+	sim_sec_log sec_log;         /* every connection secret this OSD issued (secure mode) */
 	wri_ctx *x;
 	uint64_t rng;
 	sim_osd_conn *conns[SIM_OSD_MAX_CONNS];

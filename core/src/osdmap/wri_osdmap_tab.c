@@ -13,22 +13,18 @@ WR_FILE_LICENCE_MIT
 
 #define WRI_PGVEC_LIMIT (WRI_MAP_PGVEC_MAX * 2u)
 
-wr_status wri_pgtab_push(wri_mapbuild *b, unsigned kind, uint64_t key, const int32_t *vals, uint32_t nvals)
+/* The refusals of a push, in a function of its own (a small frame for the sanitizer builds of clang, which lay a slot per temporary). */
+static wr_status push_check(wri_mapbuild *b, unsigned kind, uint64_t key, const int32_t *vals, uint32_t nvals)
 {
-	wri_pgtab *t;
-	uint64_t *keys;
-	uint32_t *offs;
-	int32_t *dst;
-	wr_status st = wri_mapbuild_status(b);
+	const wri_pgtab *t;
+	const uint64_t *keys;
 
-	if (st != WR_OK)
-		return st;
 	if (kind >= WRI_TAB_COUNT || (nvals != 0 && vals == NULL)) {
 		WRI_ERRINFO(b->why, WR_E_INVAL, WR_MOD_MAP, kind >= WRI_TAB_COUNT ? "unknown pg table kind" : "pg table values missing", kind, nvals, 0);
 		return WR_E_INVAL;
 	}
 	t = &b->m->tab[kind];
-	keys = (uint64_t *)(void *)(wri_map_base_rw(b->m) + t->key_off);
+	keys = (const uint64_t *)(const void *)(wri_map_base_rw(b->m) + t->key_off);
 	if (t->n > 0 && key <= keys[t->n - 1u]) {
 		WRI_ERRINFO(b->why, WR_E_MAP_CORRUPT, WR_MOD_MAP, "pg table keys are not strictly ascending", key, keys[t->n - 1u], kind);
 		return WR_E_MAP_CORRUPT;
@@ -45,6 +41,24 @@ wr_status wri_pgtab_push(wri_mapbuild *b, unsigned kind, uint64_t key, const int
 		WRI_ERRINFO(b->why, WR_E_MAP_BUDGET, WR_MOD_MAP, "pg table value room is full", (uint64_t)t->nv + nvals, t->cap_nv, kind);
 		return WR_E_MAP_BUDGET;
 	}
+	return WR_OK;
+}
+
+wr_status wri_pgtab_push(wri_mapbuild *b, unsigned kind, uint64_t key, const int32_t *vals, uint32_t nvals)
+{
+	wri_pgtab *t;
+	uint64_t *keys;
+	uint32_t *offs;
+	int32_t *dst;
+	wr_status st = wri_mapbuild_status(b);
+
+	if (st != WR_OK)
+		return st;
+	st = push_check(b, kind, key, vals, nvals);
+	if (st != WR_OK)
+		return st;
+	t = &b->m->tab[kind];
+	keys = (uint64_t *)(void *)(wri_map_base_rw(b->m) + t->key_off);
 	offs = (uint32_t *)(void *)(wri_map_base_rw(b->m) + t->off_off);
 	dst = (int32_t *)(void *)(wri_map_base_rw(b->m) + t->val_off);
 	if (nvals != 0)
