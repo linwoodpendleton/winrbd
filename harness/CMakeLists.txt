@@ -592,7 +592,9 @@ if(TARGET test_lab_secure)
   set_tests_properties(lab.secure PROPERTIES TIMEOUT 7200)
 endif()
 # securelive.selftest: harness/lab/secure-live.sh --selftest, the whole script against stand-in cluster tools (no lab, no network): a full run, the
-# refusals, the wire and wrong-key checks, and a failure injected at every step, after which the restore must still run (about 3 minutes).
+# refusals, the wire and wrong-key checks, and a failure injected at every step, after which the restore must still run (about 2 minutes: the failure
+# injections run four at a time, each in a stand-in cluster of its own). The script never gives its output to `grep -q` through a pipe (under pipefail a
+# grep that leaves early makes the writer die of SIGPIPE and a match reads as none: it failed at random on loaded CI runners), see expect_out.
 find_program(WR_BASH_SECLIVE bash)
 if(WR_BASH_SECLIVE)
   add_test(NAME securelive.selftest COMMAND "${WR_BASH_SECLIVE}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/secure-live.sh" --selftest)

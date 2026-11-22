@@ -788,7 +788,7 @@ selftest_live() {
         left=$(RBD ls "$POOL" 2>/dev/null | grep -c "^wrtest-kc-$tag-" || true)
         mapped=$(RBD showmapped 2>/dev/null | grep -c "wrtest-kc-$tag-" || true)
         rm -rf "$WORK.selftest-$tag"
-        if [ "$rc" -ne 0 ] && [ "$left" -eq 0 ] && [ "$mapped" -eq 0 ] && printf '%s\n' "$out" | grep -q 'state: the lab matches'; then
+        if [ "$rc" -ne 0 ] && [ "$left" -eq 0 ] && [ "$mapped" -eq 0 ] && grep -q 'state: the lab matches' <<<"$out"; then   # a here-string: `printf | grep -q` under pipefail reads a match as no match when grep leaves first
             echo "  ok   injected '$step': exit $rc, no wrtest-kc image or mapping left, the state matches"
         else
             echo "  FAIL injected '$step': exit $rc, images left $left, mappings left $mapped"; printf '%s\n' "$out" | tail -n 15 | sed 's/^/      | /'

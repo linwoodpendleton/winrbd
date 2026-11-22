@@ -53,7 +53,8 @@
 # WR_LAB_SUDO (sudo), SL_KRBD_COMPARE (the krbd comparison script), SL_HEALTH_IGNORE (health checks left out of the state comparison),
 # SL_STATE_WAIT (seconds to wait for the state to settle, default 180), SL_RESTART_WAIT (seconds each daemon gets to come back and the PGs to be
 # clean again, default 300), SL_WIRE_MIN_BYTES (the payload the wire check's secure capture must hold on the client's own connections to count as
-# seeing the data, default 4194304), SL_NAME_TAG, SL_INJECT_FAIL=<step> (as --inject-fail).
+# seeing the data, default 4194304), SL_CAPTURE_SETTLE (seconds tcpdump gets to settle before and after the traffic, default 1; the self test uses 0
+# because its stand-in announces when it is capturing), SL_NAME_TAG, SL_INJECT_FAIL=<step> (as --inject-fail).
 #
 # Exit status: 0 every check passed and the lab is as it was; 1 a check failed, the restore failed or the state differs; 2 setup problem (usage, a
 # missing tool or keyring, the lab unreachable). The last lines name the failed checks.
@@ -145,7 +146,8 @@ SYSCTL() { $SUDO systemctl "$@"; }
 TRACK="$WORK/track"
 FINAL_RC=0
 CHILD=""
-TCPDUMP_FILE=""
+TCPDUMP_FILE=""; TCPDUMP_PID=""
+CAP_SETTLE=${SL_CAPTURE_SETTLE:-1}   # seconds tcpdump gets to settle before and after the traffic (the self test sets 0)
 
 # SL_INJECT_FAIL is one step name or a comma separated list. An injected step fails ONCE (its first call): the selftest proves that the restore runs
 # after a failing step, so the restore's own calls of the same step must be able to work.
@@ -173,8 +175,11 @@ bad()  { FAIL=$((FAIL+1)); FAILED+=("$*"); echo "FAIL  $*"; if [ -n "$OUT" ]; th
 note() { echo "NOTE  $*"; }
 sect() { echo; echo "=== $* ==="; }
 expect_rc()  { if [ "$RC" -eq "$1" ]; then ok "$2"; else bad "$2 (exit $RC, wanted $1)"; fi; }
-expect_out() { if printf '%s\n' "$OUT" | grep -Eq -- "$1"; then ok "$2"; else bad "$2 (no match for: $1)"; fi; }
-expect_no()  { if printf '%s\n' "$OUT" | grep -Eq -- "$1"; then bad "$2 (found: $1)"; else ok "$2"; fi; }
+# The output is given to grep as a here-string, never through `printf | grep -q`: under `set -o pipefail` a grep that has matched and left at once
+# leaves the writer without a reader, the writer dies of SIGPIPE, and the pipeline reports failure for a match that was there (a "no match" verdict
+# that depends on how fast the machine is; expect_no would take the same race for "not found").
+expect_out() { if grep -Eq -- "$1" <<<"$OUT"; then ok "$2"; else bad "$2 (no match for: $1)"; fi; }
+expect_no()  { if grep -Eq -- "$1" <<<"$OUT"; then bad "$2 (found: $1)"; else ok "$2"; fi; }
 field() { printf '%s\n' "$OUT" | sed -n "s/.*[ @]$1=\([^ ]*\).*/\1/p" | tail -n 1; } # last value of key=value in the output
 
 # runc <command...>: run a command in the background and wait for it (a trapped signal ends the wait at once, so the EXIT trap is not held up by
@@ -581,18 +586,29 @@ client_bpf() { # <ports...> -> the capture filter
 # tcpdump_start <file>: the file must end in .pcap (the distribution's AppArmor profile of tcpdump only lets it write those). The lock descriptor is
 # closed for the background process: a capture that outlived the script must not hold the lock of the run.
 tcpdump_start() { # <file> [<ports...>]: without ports, the ports of the client's connections now
-    local f=$1; shift
+    local f=$1 w=0; shift
     command -v tcpdump >/dev/null 2>&1 || return 1
     [ $# -gt 0 ] || set -- $(client_ports)
     TCPDUMP_FILE=$f
     $SUDO tcpdump -i any -U -s 0 -w "$TCPDUMP_FILE" "$(client_bpf "$@")" >/dev/null 2>&1 9>&- &
-    sleep 1
+    TCPDUMP_PID=$!
+    # tcpdump creates its file when the capture is live: wait for that (up to 10 s) instead of guessing how long it takes to start on a busy machine,
+    # then give it CAP_SETTLE seconds more (the stand-ins of the self test need none)
+    # (a capture that already ended, e.g. tcpdump refused to start, is not waited for)
+    while [ ! -e "$TCPDUMP_FILE" ] && [ "$w" -lt 100 ] && { [ ! -d /proc/self ] || [ -d "/proc/$TCPDUMP_PID" ]; }; do sleep 0.1; w=$((w + 1)); done
+    sleep "$CAP_SETTLE"
 }
 tcpdump_stop() {
+    local w=0
     [ -n "$TCPDUMP_FILE" ] || return 0
-    sleep 1
+    sleep "$CAP_SETTLE"   # the last packets of the traffic reach the capture
     $SUDO pkill -TERM -f -- "tcpdump -i any -U -s 0 -w $TCPDUMP_FILE" 2>/dev/null
-    sleep 1
+    # wait for the capture to be written out and the process to end (up to 10 s: the pid is the job's own, /proc shows it until it has ended)
+    if [ -d /proc/self ]; then
+        while [ -d "/proc/$TCPDUMP_PID" ] && [ "$w" -lt 100 ]; do sleep 0.1; w=$((w + 1)); done
+    else
+        sleep 1
+    fi
     $SUDO chown "$(id -u):$(id -g)" "$TCPDUMP_FILE" 2>/dev/null
     chmod 600 "$TCPDUMP_FILE" 2>/dev/null
     TCPDUMP_FILE=""
@@ -626,7 +642,7 @@ refusal_check() {
     if [ -n "$lines" ]; then ok "$label: refused with WR_E_M2_BAD_METHOD"; else bad "$label: no M2_BAD_METHOD in the tool output"; fi
     if [ "$allowed" = "$want" ]; then ok "$label: allowed modes $allowed ($([ "$want" = 0x4 ] && echo '{secure}' || echo '{crc}'))"; else bad "$label: allowed modes '${allowed:-none}', wanted $want"; fi
     if [ "$pr" = -95 ]; then ok "$label: the server's result is -95 (EOPNOTSUPP)"; else bad "$label: the server's result is '${pr:-none}', wanted -95"; fi
-    if printf '%s\n' "$OUT" | grep -Eq "$side allows only $amode mode: set $setting to a policy"; then ok "$label: the tool says that the $side allows only $amode and names $setting"; else bad "$label: no '$side allows only $amode mode: set $setting' hint in the tool output"; fi
+    if grep -Eq "$side allows only $amode mode: set $setting to a policy" <<<"$OUT"; then ok "$label: the tool says that the $side allows only $amode and names $setting"; else bad "$label: no '$side allows only $amode mode: set $setting' hint in the tool output"; fi
     if [ "$RC" -ne 0 ]; then ok "$label: the run did not succeed (exit $RC)"; else bad "$label: the run exited 0 although the offer was refused"; fi
     # no connection fell back to the refused mode, and for an OSD refusal the monitor connection (offered the allowed mode) did come up: it is the OSD's
     ca=$(field "conns_$amode"); cr=$(field "conns_$rmode")
@@ -836,7 +852,7 @@ sec_one_key() {
     expect_out 'result active=1' "$L secure: the monitor session is ACTIVE with the maps"
 
     wr "$IMG_A" --mode secure --accel --require-mode secure verify 0 8M --pattern "rand:$SEED_A"
-    if [ "$RC" -eq 2 ] && printf '%s\n' "$OUT" | grep -q 'no AES-NI'; then
+    if [ "$RC" -eq 2 ] && grep -q 'no AES-NI' <<<"$OUT"; then
         note "$L secure: this CPU has no AES-NI / PCLMULQDQ hook: --accel refused, the portable GCM was used above"
     else
         expect_rc 0 "$L secure: the same read with the host's AES-NI hook (--accel)"
@@ -877,7 +893,7 @@ section_krbd() {
     printf '%s\n' "$OUT" | grep -E '^(CASE |state:|krbd-compare: finished)' | sed 's/^/      | /'
     if [ "$RC" -eq 0 ]; then ok "krbd mapped with ms_mode=secure and the core with --mode secure: every case passed, no new kernel error, the lab as before"; else bad "krbd-compare --mode secure failed (exit $RC)"; fi
     expect_no '^CASE .* FAIL ' "no krbd case failed"
-    if printf '%s\n' "$OUT" | grep -q '^CASE .* PASS '; then ok "at least one krbd case ran and passed ($(printf '%s\n' "$OUT" | grep -c '^CASE .* PASS ') cases)"; else bad "no krbd case passed"; fi
+    if grep -q '^CASE .* PASS ' <<<"$OUT"; then ok "at least one krbd case ran and passed ($(printf '%s\n' "$OUT" | grep -c '^CASE .* PASS ') cases)"; else bad "no krbd case passed"; fi
 }
 
 # ---- section policy ----------------------------------------------------------------------------------------------------------------------------
@@ -960,7 +976,7 @@ forced_one_key() { # every client that must work against a cluster that only all
     expect_out 'read_mismatches=0 final_diff_bytes=0 errors=0' "$L forced $m: no mismatch"
     if [ "$m" = secure ]; then
         wr "$IMG_A" --mode secure --accel --require-mode secure verify "$FORCED_REGION" 8M --pattern "rand:$seed"
-        if [ "$RC" -eq 2 ] && printf '%s\n' "$OUT" | grep -q 'no AES-NI'; then note "$L forced secure: no AES-NI hook on this CPU"; else expect_rc 0 "$L forced secure: the AES-NI hook against the forced cluster"; fi
+        if [ "$RC" -eq 2 ] && grep -q 'no AES-NI' <<<"$OUT"; then note "$L forced secure: no AES-NI hook on this CPU"; else expect_rc 0 "$L forced secure: the AES-NI hook against the forced cluster"; fi
     fi
     rm -f "$exp"
     if step "export-forced-$L" quiet RBD export --no-progress "$POOL/$IMG_A" "$exp"; then
@@ -1608,15 +1624,19 @@ STUB
     cat > "$d/bin/tcpdump" <<'STUB'
 #!/bin/bash
 # a capture of what the stand-in tools "sent": the recognisable pattern when a crc connection carried it, noise when only secure ones did
+# (like the real one it creates its file only when it is capturing: the script waits for the file, so the TERM handler is in place by then)
 f=""; while [ $# -gt 0 ]; do case "$1" in -w) f=$2; shift ;; esac; shift; done
-: > "$KC_STUB/wire.log"
-echo pcap > "$f"
+sp=""
 finish() {
+    [ -z "$sp" ] || kill "$sp" 2>/dev/null
     python3 -I -S "$KC_STUB/stub.py" tcpdump-write "$f"
     exit 0
 }
 trap finish TERM
-sleep 60 >/dev/null 2>&1 & wait
+sleep 60 >/dev/null 2>&1 & sp=$!
+: > "$KC_STUB/wire.log"
+echo pcap > "$f"
+wait
 STUB
     chmod +x "$d"/bin/*
     for t in "$USER_K2" "$USER_K1"; do   # a keyring of the real shape (a key of a made-up value: type, created time, length, secret)
@@ -1648,8 +1668,8 @@ st_expect() { # <what> <command...>
     local what=$1; shift
     if "$@"; then echo "  ok   $what"; else echo "  FAIL $what"; ST_FAILED=$((ST_FAILED + 1)); fi
 }
-st_has()   { printf '%s\n' "$ST_OUT" | grep -Eq -- "$1"; }
-st_hasnt() { ! printf '%s\n' "$ST_OUT" | grep -Eq -- "$1"; }
+st_has()   { grep -Eq -- "$1" <<<"$ST_OUT"; }   # a here-string, not `printf | grep -q`: see expect_out (pipefail + an early-leaving grep)
+st_hasnt() { ! grep -Eq -- "$1" <<<"$ST_OUT"; }
 st_restored() { # the stub cluster is as it started: no option set, every daemon running with the original options, no image or user left
     local d=$1 u
     [ "$(cat "$d/config.json")" = '[]' ] || return 1
@@ -1664,7 +1684,7 @@ st_restarts() { wc -l < "$1/restart.log" 2>/dev/null || echo 0; }
 st_env() {
     echo "KC_STUB=$1" "PATH=$1/bin:$PATH" "WR_BUILD_DIR=$1/bin" "WR_RBD=$1/bin/wr-rbd" "WR_MONPROBE=$1/bin/wr-monprobe" "SL_KRBD_COMPARE=$1/bin/krbd-compare.sh" \
          "WR_LAB_KEYRING_DIR=$1/keys" "WR_LAB_WORK=$1/$2" "WR_LAB_SUDO=sudo" "SL_STATE_WAIT=0" "SL_RESTART_WAIT=20" "SL_POLL=0.1" "SL_NO_MON_CHECK=1" \
-         "SL_WIRE_MIN_BYTES=131072"
+         "SL_WIRE_MIN_BYTES=131072" "SL_CAPTURE_SETTLE=0"
 }
 st_run() { # <dir> <args...>: a run in a work directory of its own; sets ST_OUT and ST_RC
     local d=$1; shift
@@ -1676,8 +1696,21 @@ st_run() { # <dir> <args...>: a run in a work directory of its own; sets ST_OUT 
     if [ "$ST_RC" -ne 0 ] && [ -n "${SL_SELFTEST_VERBOSE:-}" ]; then printf '%s\n' "$ST_OUT" | grep -E '^(FAIL|secure-live: error)' -A6 | head -n 40 | sed 's/^/    | /'; fi
 }
 
+ST_PARALLEL=4
+st_inject_one() { # <step:section> <dir>: one failure injected into a stand-in cluster of its own (run in a subshell by selftest_main)
+    local step=$1 sd=$2 name=${1%%:*}
+    write_stubs "$sd"
+    reset_stub_cluster "$sd"
+    st_run "$sd" --keys k2 --quick --only "${step#*:}" --inject-fail "$name"
+    st_expect "step '$name' injected: the run fails ($ST_RC)" test "$ST_RC" -ne 0
+    st_expect "step '$name' injected: the injection was reached" st_has "injected failure at step '$name'"
+    st_expect "step '$name' injected: the options and daemons are back, no image left" st_restored "$sd"
+    st_expect "step '$name' injected: the state matches the snapshot" st_has 'state: the lab matches'
+}
+
 selftest_main() {
-    local d step steps pid waited
+    local step steps pid waited n got
+    # d is not local: the EXIT trap below reads it after this function has returned (a local would be unset there: "d: unbound variable")
     if [ "${BASH_VERSINFO[0]}" -lt 4 ] || [ "$(uname -s)" != Linux ] || ! command -v python3 >/dev/null || ! command -v timeout >/dev/null || ! command -v mktemp >/dev/null; then
         echo "SKIP: the selftest needs bash 4+, Linux, python3, timeout and mktemp"; return 77
     fi
@@ -1759,17 +1792,26 @@ HOOK
     st_expect "a failing krbd comparison fails the run ($ST_RC)" test "$ST_RC" -ne 0
 
     # a failure injected at every step: the run fails, and the restore still ran (options back, daemons restarted under them, images gone). Each
-    # run is limited to the section the step belongs to, to keep the self test short.
+    # run is limited to the section the step belongs to, to keep the self test short, and has a stand-in cluster of its own (a directory next to the
+    # others) so that a few of them can run at the same time; their lines are printed in order afterwards.
     steps="create-a:client create-r:client create-c-k2:client export-k2:client import-k2:client krbd-compare:krbd
            set-mon-ms_mon_service_mode-secure:forced-secure set-osd-ms_service_mode-secure:forced-secure restart-mon:forced-secure restart-osd:forced-secure
            export-forced-k2:forced-secure set-mon-ms_mon_service_mode-crc:forced-crc set-osd-ms_service_mode-crc:forced-crc"
+    n=0
     for step in $steps; do
-        reset_stub_cluster "$d"
-        st_run "$d" --keys k2 --quick --only "${step#*:}" --inject-fail "${step%%:*}"
-        st_expect "step '${step%%:*}' injected: the run fails ($ST_RC)" test "$ST_RC" -ne 0
-        st_expect "step '${step%%:*}' injected: the injection was reached" st_has "injected failure at step '${step%%:*}'"
-        st_expect "step '${step%%:*}' injected: the options and daemons are back, no image left" st_restored "$d"
-        st_expect "step '${step%%:*}' injected: the state matches the snapshot" st_has 'state: the lab matches'
+        ( st_inject_one "$step" "$d/step-${step%%:*}" ) > "$d/step-${step%%:*}.out" 2>&1 &
+        n=$((n + 1))
+        [ $((n % ST_PARALLEL)) -ne 0 ] || wait
+    done
+    wait
+    for step in $steps; do
+        cat "$d/step-${step%%:*}.out"
+        ST_FAILED=$((ST_FAILED + $(grep -c '^  FAIL ' "$d/step-${step%%:*}.out")))
+        # st_inject_one reports 4 checks: a subshell that died before it got that far (its own error, e.g. an unbound variable) must fail the self test,
+        # not pass by saying nothing
+        got=$(grep -c -E '^  (ok  |FAIL) ' "$d/step-${step%%:*}.out")
+        if [ "$got" -ne 4 ]; then echo "  FAIL step '${step%%:*}' injected: the run reported $got of its 4 checks"; ST_FAILED=$((ST_FAILED + 1)); fi
+        rm -rf -- "$d/step-${step%%:*}" "$d/step-${step%%:*}.out"
     done
     # the second set failing leaves the monitor on the forced option: the restore restarts the daemons (the forced round's own restarts are skipped)
     reset_stub_cluster "$d"
