@@ -18,6 +18,18 @@
 # recovery that DID complete within the three times is a WARN, not a failure: the summary line carries late=<count> and late_max_over_s=<seconds past the
 # limit of the slowest> and the exit run's report shows them as a WARN. A fault that failed (failed=<count>, its step did not work) is a failure.
 #
+# The ceph CLI is not reliable while the lab is being hurt (a monitor that was just restarted, a VM whose disks stall for 20 s), so no injection is failed
+# for a command that merely could not reach the cluster. Every ceph call goes through one wrapper (CEPH): a TRANSIENT failure (the rc of `timeout`, "RADOS
+# timed out", "error connecting to the cluster", monclient, "no quorum", connection refused / reset, EAGAIN / ETIMEDOUT and the like) is retried with a pause that
+# doubles (FI_CLI_BACKOFF 2 s up to FI_CLI_BACKOFF_MAX 15 s) for up to FI_CLI_RETRY_S seconds (default 120) and only then fails the call; an error that waiting does
+# not cure (EINVAL, ENOENT, EPERM / EACCES, an unknown command, any text the injector does not know) fails at once. After a monitor restart, and before an
+# `osd out` or an upmap, the injector waits (up to FI_QUORUM_WAIT seconds, default 120) until `ceph quorum_status` answers. Every failed attempt is a line in the
+# log and in the events file (cli attempt=N rc=R class=... during=<fault number> cmd="ceph ..." stderr: ...), every poll of the wait too; the note of a fault that
+# failed carries the last rc, the number of attempts and the stderr. The summary line gains cli_retries (re-runs in all), cli_retry_max_s (the most seconds one call
+# spent retrying), cli_recovered (calls that worked after a retry), cli_gave_up (calls that failed after the window or at once), quorum_waits (waits that needed
+# more than one poll), quorum_wait_max_s and quorum_gave_up. The polling loops (fi_wait_clean) and the messages of a diagnostic make ONE attempt per call (they are
+# their own retry), logged all the same.
+#
 # NEVER done here: removing or destroying an OSD or the monitor, touching keys or caps, any image, the pool, more than one daemon down at once,
 # anything outside the lab VM this script runs in. The only commands that change the cluster are: kill / stop / start / restart of the ceph-<fsid>@mon.*
 # and @osd.* units, `ceph osd out|in N`, `ceph osd pg-upmap PG ...` and `ceph osd rm-pg-upmap PG` (only for a PG this script gave an entry).
@@ -46,7 +58,8 @@
 #
 # Environment: WR_LAB_POOL (winrbd), WR_LAB_WORK (~/w/exit-run-work), WR_LAB_SUDO (sudo), FI_HEALTH_IGNORE (health checks left out of the state
 # comparison: slow-op alerts come and go with the load), FI_STATE_WAIT (seconds to wait for the final state to settle, default 180), FI_POLL (3),
-# FI_MON_WAIT (seconds systemd gets to start a SIGKILLed monitor again before this script does, default 60).
+# FI_MON_WAIT (seconds systemd gets to start a SIGKILLed monitor again before this script does, default 60), FI_CLI_RETRY_S (120), FI_CLI_BACKOFF (2),
+# FI_CLI_BACKOFF_MAX (15), FI_QUORUM_WAIT (120): the retry window of a ceph call, its first and its longest pause, the wait for the monitor (whole seconds).
 #
 # Exit status: 0 the injector ran and the lab is as it was; 2 usage or setup problem (nothing was changed); 3 the restore is incomplete, the state
 # differs from the snapshot, or the cluster would not recover.
@@ -73,14 +86,118 @@ fi_info() { echo "fault_inject: $*" >&2; }
 
 # ---- the commands, as the rest of the script calls them (the selftest puts stand-ins first in PATH) -------------------------------------------
 RBD()    { $SUDO rbd "$@"; }
-CEPH()   { $SUDO timeout 60 ceph --connect-timeout 10 "$@"; }
 SYSCTL() { $SUDO systemctl "$@"; }
+
+# ---- the ONE way the injector (and exit-run.sh, which sources this file) runs the ceph CLI --------------------------------------------------------
+# CEPH1 is one attempt. CEPH is the wrapper everything calls: a transient failure (the CLI cannot reach a monitor or has no quorum: a monitor that was
+# just restarted, or a lab VM whose disks stalled for 20 s) is retried with a growing pause for up to CLI_RETRY_S seconds (default 120), and only then is
+# the call a failure; an error that will not go away by waiting (EINVAL, ENOENT, a permission error, an unknown command, any text this file does not know)
+# fails at once. Every failed attempt is logged with its rc and stderr (injector.log and the events file); a call that was retried is counted in the
+# stats file, which the summary line reads (cli_retries=, cli_retry_max_s=, ...). A polling loop that is its own retry (fi_wait_clean) and the
+# diagnostics (CEPHQ) run with CLI_CAP=0: one attempt, still logged.
+CLI_TIMEOUT_S=60                                  # one attempt, `timeout`
+fi_uint() { case "$1" in ''|*[!0-9]*) echo "$2" ;; *) echo $((10#${1:0:9})) ;; esac; }   # a whole number from the environment, or the default
+CLI_RETRY_S=$(fi_uint "${FI_CLI_RETRY_S:-}" 120)  # the window in which a transient failure is retried (a new attempt starts only inside it)
+CLI_BACKOFF_S=$(fi_uint "${FI_CLI_BACKOFF:-}" 2)  # the first pause; doubled after every failed attempt
+CLI_BACKOFF_MAX_S=$(fi_uint "${FI_CLI_BACKOFF_MAX:-}" 15)
+QUORUM_WAIT_S=$(fi_uint "${FI_QUORUM_WAIT:-}" 120)   # how long to wait for the monitor to answer again after it was restarted
+CLI_STATS=""        # file of one line per retried (or finally failed) call and per quorum wait; set by fi_main; the summary line adds it up
+CLI_LAST_ERR=""; CLI_LAST_RC=0; CLI_LAST_TRIES=0   # of the last call that failed (main shell only: the faults put it into their note)
+FI_CUR=""           # the number of the fault in progress (for the log lines)
+
+# one text per class, case-insensitive extended regexes. The fatal list is read first: "Error EINVAL: ... timed out" is a wrong command, not a slow cluster.
+FI_CLI_FATAL_RE='Error E(INVAL|NOENT|PERM|ACCES|EXIST|NOTSUP|OPNOTSUPP|RANGE|NODEV|NOSYS|DOM|NOTEMPTY|NOSPC)|permission denied|access denied|unrecognized (command|option|arguments)|unknown command|command not found|permission error|\[errno (1|2|13|22)\]|no such file or directory|^usage:'
+FI_CLI_TRANSIENT_RE='timed out|timeout|no quorum|quorum|error connecting to the cluster|monclient|connection (refused|reset|closed|lost|aborted)|connect(ion)? (failed|error)|(unable|could not|cannot|can.t) (to )?(get|connect|reach)|broken pipe|temporarily unavailable|try again|try later|hunting|service unavailable|ECONN(REFUSED|RESET|ABORTED)|ETIMEDOUT|EAGAIN|EINTR|ENOTCONN|EHOSTUNREACH|ENETUNREACH|Error E(AGAIN|TIMEDOUT|NOTCONN|CONNREFUSED|CONNRESET|HOSTUNREACH|INTR)|\[errno (4|11|32|104|110|111|113)\]'
+
+# fi_cli_class <rc> <stderr file>: "transient" or "non-transient". The rc of `timeout` (124) is always transient; an error text that is in neither list is non-transient
+# (it fails at once with its text in the log, so the list can learn it; a silent retry loop on a real bug would hide it for two minutes per call).
+fi_cli_class() {
+    local rc=$1 f=$2
+    if grep -Eiq "$FI_CLI_FATAL_RE" "$f" 2>/dev/null; then echo non-transient; return 0; fi
+    if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then echo transient; return 0; fi
+    if grep -Eiq "$FI_CLI_TRANSIENT_RE" "$f" 2>/dev/null; then echo transient; return 0; fi
+    echo non-transient
+}
+
+# fi_cli_log <text>: one line to the injector's stderr (fd 8 is the stderr of fi_main: a caller's 2>/dev/null on the ceph call must not swallow it) and to
+# the events file. No ' fault n=' in it: exit-run.sh counts those lines as faults.
+fi_cli_log() {
+    local line
+    line="$(date +%s) +$((SECONDS - T0))s $*"
+    { echo "fault_inject: $*" >&8; } 2>/dev/null || echo "fault_inject: $*" >&2
+    [ -z "$EVENTS" ] || echo "$line" >> "$EVENTS"
+}
+
+# fi_oneline <file> [max chars]: the first 300 characters of a file as one line of printable text
+fi_redact() { sed -E 's/AQ[A-Za-z0-9+\/]{30,}={0,2}/<key removed>/g'; }   # a cephx key (base64, starts with AQ) must never reach a log, whatever the CLI printed
+fi_oneline() { head -c 4096 "$1" 2>/dev/null | fi_redact | head -c "${2:-300}" | tr '\n\t' '  ' | tr -cd '[:print:]'; }   # redact first: a cut key would be a partial key
+
+fi_cli_stat() { [ -z "$CLI_STATS" ] || echo "$*" >> "$CLI_STATS" 2>/dev/null; return 0; }   # a line of the stats file; a failing write is no reason to stop
+
+CEPH1() { $SUDO timeout -k 10 "$CLI_TIMEOUT_S" ceph --connect-timeout 10 "$@"; }   # one attempt
+
+CEPH() {
+    local d="$WORK"
+    [ -d "$d" ] || d=${TMPDIR:-/tmp}
+    local out="$d/.fi-cli.${BASHPID:-$$}.out" err="$d/.fi-cli.${BASHPID:-$$}.err"
+    local win=${CLI_CAP:-$CLI_RETRY_S} back=$CLI_BACKOFF_S start=$SECONDS tries=0 rc cls el sl last_err
+    local cmd="ceph $*"
+    cmd=${cmd:0:160}
+    : > "$out"; : > "$err"
+    while :; do
+        tries=$((tries + 1))
+        CEPH1 "$@" > "$out" 2> "$err" < /dev/null; rc=$?
+        [ "$rc" -ne 0 ] || break
+        cls=$(fi_cli_class "$rc" "$err")
+        fi_cli_log "cli attempt=$tries rc=$rc class=$cls${FI_CUR:+ during=$FI_CUR} cmd=\"$cmd\" stderr: $(fi_oneline "$err")"
+        [ "$cls" = transient ] || break
+        el=$((SECONDS - start))
+        [ "$el" -lt "$win" ] || break
+        sl=$back
+        [ $((el + sl)) -le "$win" ] || sl=$((win - el))
+        [ "$sl" -ge 1 ] || sl=1
+        sleep "$sl"
+        back=$((back * 2))
+        [ "$back" -le "$CLI_BACKOFF_MAX_S" ] || back=$CLI_BACKOFF_MAX_S
+        [ "$back" -ge 1 ] || back=1
+    done
+    el=$((SECONDS - start))
+    cat "$out"
+    cat "$err" >&2
+    last_err=$(cat "$err" 2>/dev/null)
+    rm -f "$out" "$err"
+    if [ "$rc" -eq 0 ]; then
+        if [ "$tries" -gt 1 ]; then
+            fi_cli_log "cli recovered after $((tries - 1)) retries in ${el}s${FI_CUR:+ during=$FI_CUR} cmd=\"$cmd\""
+            fi_cli_stat "cli $((tries - 1)) $el ok"
+        fi
+    else
+        if [ "$tries" -gt 1 ] || [ "$win" -gt 0 ]; then
+            fi_cli_log "cli gave up after $tries attempts in ${el}s rc=$rc${FI_CUR:+ during=$FI_CUR} cmd=\"$cmd\""
+            fi_cli_stat "cli $((tries - 1)) $el fail"
+        fi
+        CLI_LAST_RC=$rc; CLI_LAST_TRIES=$tries; CLI_LAST_ERR=$last_err
+    fi
+    return "$rc"
+}
+CEPHQ() { local CLI_CAP=0; CEPH "$@"; }   # one attempt: for the diagnostics of a message and for the polls
+
+# fi_cli_note <text>: text plus what the last failed ceph call said (rc, attempts, stderr), one line, for the note of a failed fault
+fi_cli_note() {
+    local t=$1 e
+    if [ -n "$CLI_LAST_ERR" ] || [ "$CLI_LAST_RC" -ne 0 ]; then
+        e=$(printf '%s' "$CLI_LAST_ERR" | head -c 4096 | fi_redact | head -c 160 | tr '\n\t' '  ' | tr -cd '[:print:]')
+        t="$t (rc=$CLI_LAST_RC after $CLI_LAST_TRIES attempts: ${e:-no stderr})"
+    fi
+    printf '%s' "$t"
+}
 
 fi_inject() { case ",$INJECT," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }   # INJECT is one step name or a comma separated list
 
 # fi_step <name> <command...>: run a command of a fault; a step named by --inject-fail fails without running (what the selftest uses).
 fi_step() {
     local name=$1; shift
+    CLI_LAST_ERR=""; CLI_LAST_RC=0; CLI_LAST_TRIES=0
     if fi_inject "$name"; then
         echo "fault_inject: injected failure at step '$name'" >&2
         return 99
@@ -292,7 +409,7 @@ fi_osd_unit() { echo "ceph-$FSID@osd.$1.service"; }
 # wait_clean <seconds>: every OSD up and in, every PG active+clean, on two polls in a row (the manager's PG statistics lag the monitor's OSD map by a
 # few seconds: one clean report right after a restart can still be the one from before it)
 fi_wait_clean() { # <seconds> [stoppable]: with a second argument a stop request ends the wait early (status 2); the restore never passes it
-    local t=${1:-300} stoppable=${2:-} end good=0
+    local t=${1:-300} stoppable=${2:-} end good=0 CLI_CAP=0   # CLI_CAP=0: this loop is its own retry, one attempt per poll
     if fi_inject wait-clean; then echo "fault_inject: injected failure at step 'wait-clean'" >&2; return 99; fi
     end=$((SECONDS + t))
     while :; do
@@ -390,18 +507,23 @@ fi_remove_upmaps() {
 # restore_cluster: every daemon unit running, every OSD in, our upmap entries gone. 0 when all of that is true afterwards (the state comparison is the
 # caller's: it takes longer). Idempotent; the trap calls it after an interrupted fault as well.
 fi_restore_cluster() {
-    local u n rc=0
+    local u n rc=0 dump
     for u in "${MON_UNITS[@]+"${MON_UNITS[@]}"}" "${OSD_UNITS[@]+"${OSD_UNITS[@]}"}"; do
         if ! fi_unit_active "$u"; then
             echo "fault_inject: restore: $u is not running: starting it" >&2
             fi_unit_start "$u" || rc=1
         fi
     done
+    # one read of the OSD map for all OSDs (a monitor that does not answer would otherwise cost one whole retry window per OSD)
+    if [ "${#OSD_IDS[@]}" -gt 0 ]; then
+        dump=$(CEPH osd dump 2>/dev/null) || { echo "fault_inject: restore: cannot read the OSD map (no OSD checked; the cli lines above have rc and stderr)" >&2; rc=1; dump=""; }
+    fi
     for n in "${OSD_IDS[@]+"${OSD_IDS[@]}"}"; do
+        [ -n "$dump" ] || break
         # grep -c, not -q: under pipefail a -q that stops reading early can make the writer die of SIGPIPE and the whole test read as "not out"
-        if [ "$(CEPH osd dump 2>/dev/null | grep -Ec "^osd\.$n (up|down) +out ")" -gt 0 ]; then
+        if [ "$(printf '%s\n' "$dump" | grep -Ec "^osd\.$n (up|down) +out ")" -gt 0 ]; then
             echo "fault_inject: restore: osd.$n is out: marking it in" >&2
-            CEPH osd in "$n" >/dev/null 2>&1 || rc=1
+            CEPH osd in "$n" >/dev/null 2>&1 || { echo "fault_inject: restore: osd in $n failed" >&2; rc=1; }
         fi
     done
     fi_remove_upmaps || rc=1
@@ -431,8 +553,40 @@ fi_event() { # <text>: one line of the events file and of the log
     [ -z "$EVENTS" ] || echo "$line" >> "$EVENTS"
 }
 
-# 0 when `ceph` answers and the monitor has a quorum
-fi_mon_answers() { CEPH quorum_status -f json >/dev/null 2>&1; }
+# fi_wait_quorum [seconds]: until `ceph quorum_status` answers (the monitor is back and has a quorum), at most QUORUM_WAIT_S seconds. A restarted monitor needs
+# some seconds to be back (SIGKILLed: its store is replayed), and a command fired at it in that time fails for nothing the injector did. Every failed poll is a
+# line in the log (rc, stderr); the first answer after one is a line too; the stats file gets "quorum <polls> <seconds> ok|fail". 0 = answers, 1 = still not.
+fi_wait_quorum() {
+    local t=${1:-$QUORUM_WAIT_S} start=$SECONDS end n=0 rc cls o e el pause=$POLL
+    o="$WORK/.fi-q.${BASHPID:-$$}.out"; e="$WORK/.fi-q.${BASHPID:-$$}.err"
+    [ "$pause" -ge 1 ] || pause=1
+    end=$((SECONDS + t))
+    while :; do
+        n=$((n + 1))
+        CEPH1 quorum_status -f json > "$o" 2> "$e" < /dev/null; rc=$?
+        if [ "$rc" -eq 0 ]; then
+            el=$((SECONDS - start))
+            if [ "$n" -gt 1 ]; then
+                fi_cli_log "quorum: the monitor answers again after $n polls in ${el}s${FI_CUR:+ during=$FI_CUR}"
+                fi_cli_stat "quorum $n $el ok"
+            fi
+            rm -f "$o" "$e"
+            return 0
+        fi
+        cls=$(fi_cli_class "$rc" "$e")
+        fi_cli_log "quorum: poll=$n rc=$rc class=$cls${FI_CUR:+ during=$FI_CUR} stderr: $(fi_oneline "$e")"
+        CLI_LAST_RC=$rc; CLI_LAST_TRIES=$n; CLI_LAST_ERR=$(cat "$e" 2>/dev/null)
+        # an error that waiting does not cure (a permission error, a wrong command) ends the wait at once
+        if [ "$cls" != transient ]; then break; fi
+        [ "$SECONDS" -lt "$end" ] || break
+        sleep "$pause"
+    done
+    el=$((SECONDS - start))
+    fi_cli_log "quorum: no answer after $n polls in ${el}s${FI_CUR:+ during=$FI_CUR}"
+    fi_cli_stat "quorum $n $el fail"
+    rm -f "$o" "$e"
+    return 1
+}
 
 fault_osdkill() { # <pause> <arg>
     local pause=$1 arg=$2 n unit pid_n
@@ -468,6 +622,9 @@ fault_mon() { # <kill|clean> <arg>
         SYSCTL reset-failed "$mu" >/dev/null 2>&1
         fi_step restart-mon SYSCTL restart "$mu" || { FAULT_NOTE="restart failed"; return 1; }
     fi
+    # the monitor is a process again; it is a monitor with a quorum when `ceph` answers. The next thing that needs it (the recovery wait, an `osd out`)
+    # starts only then
+    fi_wait_quorum || { FAULT_NOTE=$(fi_cli_note "the monitor did not answer within $QUORUM_WAIT_S s after its restart"); return 1; }
     return 0
 }
 
@@ -475,23 +632,26 @@ fault_outin() { # <pause> <arg>
     local pause=$1 arg=$2 n
     n=${OSD_IDS[$((arg % BASE_OSDS))]}
     FAULT_TARGET="osd.$n"
-    fi_step osd-out CEPH osd out "$n" >/dev/null 2>&1 || { FAULT_NOTE="osd out failed"; return 1; }
+    fi_wait_quorum || { FAULT_NOTE=$(fi_cli_note "no monitor answer within $QUORUM_WAIT_S s before osd out"); return 1; }
+    fi_step osd-out CEPH osd out "$n" >/dev/null 2>&1 || { FAULT_NOTE=$(fi_cli_note "osd out failed"); return 1; }
     fi_sleep "$pause" || true
-    fi_step osd-in CEPH osd in "$n" >/dev/null 2>&1 || { FAULT_NOTE="osd in failed"; return 1; }
+    fi_step osd-in CEPH osd in "$n" >/dev/null 2>&1 || { FAULT_NOTE=$(fi_cli_note "osd in failed"); return 1; }
     return 0
 }
 
 fault_upmap() { # <pause> <arg>
     local pause=$1 arg=$2 line pg rot
-    line=$(CEPH pg ls-by-pool "$POOL" -f json 2>/dev/null | py pgrot "$arg") || { FAULT_NOTE="no PG with more than one OSD in its up set"; return 1; }
+    FAULT_TARGET="-"
+    fi_wait_quorum || { FAULT_NOTE=$(fi_cli_note "no monitor answer within $QUORUM_WAIT_S s before the upmap"); return 1; }
+    line=$(CEPH pg ls-by-pool "$POOL" -f json 2>/dev/null | py pgrot "$arg") || { FAULT_NOTE="no PG with more than one OSD in its up set (or ceph pg ls-by-pool failed: the cli lines have rc and stderr)"; return 1; }
     pg=${line%% *}; rot=${line#* }
     FAULT_TARGET="pg.$pg"
     case "$PRE_UPMAP" in *" $pg "*) FAULT_NOTE="pg $pg has an upmap entry that is not ours"; return 1 ;; esac
     echo "$pg" >> "$MY_UPMAPS"   # first: the restore must know of it even if the command is cut half way
     # shellcheck disable=SC2086
-    fi_step upmap-set CEPH osd pg-upmap "$pg" $rot </dev/null >/dev/null 2>&1 || { FAULT_NOTE="pg-upmap failed"; return 1; }
+    fi_step upmap-set CEPH osd pg-upmap "$pg" $rot </dev/null >/dev/null 2>&1 || { FAULT_NOTE=$(fi_cli_note "pg-upmap failed"); return 1; }
     fi_sleep "$pause" || true
-    fi_step upmap-rm CEPH osd rm-pg-upmap "$pg" >/dev/null 2>&1 || { FAULT_NOTE="rm-pg-upmap failed"; return 1; }
+    fi_step upmap-rm CEPH osd rm-pg-upmap "$pg" >/dev/null 2>&1 || { FAULT_NOTE=$(fi_cli_note "rm-pg-upmap failed"); return 1; }
     sed -i "\\|^$pg\$|d" "$MY_UPMAPS" 2>/dev/null
     return 0
 }
@@ -500,7 +660,7 @@ fault_upmap() { # <pause> <arg>
 FAULT_TARGET=""; FAULT_NOTE=""
 fi_run_fault() { # <idx> <kind> <pause> <arg>
     local idx=$1 kind=$2 pause=$3 arg=$4 t1 rc=0 rec
-    FAULT_TARGET="-"; FAULT_NOTE=""
+    FAULT_TARGET="-"; FAULT_NOTE=""; FI_CUR=$idx
     t1=$SECONDS
     case "$kind" in
         osdkill) fault_osdkill "$pause" "$arg" || rc=1 ;;
@@ -522,7 +682,7 @@ fi_run_fault() { # <idx> <kind> <pause> <arg>
         :   # a stop was asked for: the recovery is finished by the restore at the end, which waits for it
     elif [ "$wrc" -ne 0 ]; then
         late=1; CNT_late=$((CNT_late + 1))
-        fi_event "fault n=$idx kind=$kind target=$FAULT_TARGET: the recovery is late (more than $RECOVERY_MAX s): $(CEPH pg stat 2>&1 | head -n 1)"
+        fi_event "fault n=$idx kind=$kind target=$FAULT_TARGET: the recovery is late (more than $RECOVERY_MAX s): $(CEPHQ pg stat 2>&1 | head -n 1)"
         fi_restore_cluster || true
         fi_wait_clean $((RECOVERY_MAX * 2)) stoppable; wrc=$?
         [ "$wrc" -eq 0 ] || [ "$wrc" -eq 2 ] || waited_rc=3
@@ -541,13 +701,24 @@ fi_run_fault() { # <idx> <kind> <pause> <arg>
         CNT_failed=$((CNT_failed + 1))
     fi
     fi_event "fault n=$idx kind=$kind target=$FAULT_TARGET pause=$pause acted=${t_acted}s recovery=${rec}s late=$late rc=$rc${FAULT_NOTE:+ note=$FAULT_NOTE}"
+    FI_CUR=""
     return "$rc"
 }
 
 # ---- the trap and the main loop ----------------------------------------------------------------------------------------------------------------
 FI_FINAL_RC=0
+# the totals of the stats file (one line per retried or finally failed ceph call: "cli <retries> <seconds> ok|fail"; per quorum wait: "quorum <polls> <seconds> ok|fail")
+fi_cli_totals() {
+    if [ -n "$CLI_STATS" ] && [ -s "$CLI_STATS" ]; then
+        awk '$1 == "cli" { r += $2; if ($3 + 0 > m) m = $3 + 0; if ($4 == "ok") k++; else g++ }
+             $1 == "quorum" { q++; if ($3 + 0 > qm) qm = $3 + 0; if ($4 != "ok") qf++ }
+             END { printf "cli_retries=%d cli_retry_max_s=%d cli_recovered=%d cli_gave_up=%d quorum_waits=%d quorum_wait_max_s=%d quorum_gave_up=%d", r, m, k, g, q, qm, qf }' "$CLI_STATS"
+    else
+        printf 'cli_retries=0 cli_retry_max_s=0 cli_recovered=0 cli_gave_up=0 quorum_waits=0 quorum_wait_max_s=0 quorum_gave_up=0'
+    fi
+}
 fi_summary_line() {
-    echo "summary seed=$SEED osdkill=$CNT_osdkill monkill=$CNT_monkill monclean=$CNT_monclean mon_restarts=$((CNT_monkill + CNT_monclean)) outin=$CNT_outin upmap=$CNT_upmap failed=$CNT_failed late=$CNT_late max_recovery_s=$MAX_RECOVERY late_max_over_s=$MAX_LATE_OVER recovery_limit_s=$RECOVERY_MAX"
+    echo "summary seed=$SEED osdkill=$CNT_osdkill monkill=$CNT_monkill monclean=$CNT_monclean mon_restarts=$((CNT_monkill + CNT_monclean)) outin=$CNT_outin upmap=$CNT_upmap failed=$CNT_failed late=$CNT_late max_recovery_s=$MAX_RECOVERY late_max_over_s=$MAX_LATE_OVER recovery_limit_s=$RECOVERY_MAX $(fi_cli_totals)"
 }
 
 fi_on_exit() {
@@ -560,7 +731,7 @@ fi_on_exit() {
     if [ -s "$WORK/fi.state.before" ] || [ "${#OSD_IDS[@]}" -gt 0 ]; then
         fi_restore_cluster || crc=1
         if ! fi_wait_clean $((RECOVERY_MAX * 2 > 300 ? RECOVERY_MAX * 2 : 300)); then
-            echo "FAIL  the cluster is not clean again after the restore: $(CEPH pg stat 2>&1 | head -n 1)" >&2
+            echo "FAIL  the cluster is not clean again after the restore: $(CEPHQ pg stat 2>&1 | head -n 1)" >&2
             crc=1
         fi
         if [ -s "$WORK/fi.state.before" ]; then fi_state_compare "$WORK/fi.state.before" fi-after || sc=1; fi
@@ -576,6 +747,7 @@ SEED=""
 fi_main() {
     local min_gap=90 max_gap=300 ko=20 km=10 kio=10 ku=5 initial="" cap=0 only="" runfor=0 dry=0 selftest=0 plan i n=0 v val
     local idx kind gap pause arg next_start prev_start
+    exec 8>&2   # the log of the ceph wrapper goes here, whatever a caller does with the stderr of one call (fi_cli_log)
     while [ $# -gt 0 ]; do
         case "$1" in
             --seed) SEED=${2:-}; shift ;;
@@ -609,6 +781,11 @@ fi_main() {
         case "$val" in ''|*[!0-9]*) fi_die "the numeric options take whole numbers (got '$val' for $v)" ;; esac
         [ "${#val}" -le 9 ] || fi_die "the numeric options take at most nine digits (got '$val' for $v)"
         eval "$v=\$((10#$val))"
+    done
+    # the retry window of the ceph calls and the quorum wait: the environment is read by fi_uint with a default; a mistyped value is refused here
+    for v in FI_CLI_RETRY_S FI_CLI_BACKOFF FI_CLI_BACKOFF_MAX FI_QUORUM_WAIT; do
+        eval "val=\${$v:-0}"
+        case "$val" in *[!0-9]*) fi_die "$v takes whole seconds (got '$val')" ;; esac
     done
     [ "$min_gap" -ge 1 ] && [ "$max_gap" -ge "$min_gap" ] || fi_die "--min-gap / --max-gap: 1 <= min <= max"
     [ "$RECOVERY_MAX" -ge 1 ] || fi_die "--recovery-max takes seconds"
@@ -655,6 +832,7 @@ fi_main() {
     $SUDO -n true 2>/dev/null || fi_die "passwordless sudo is needed (the stock CLI, systemctl, pkill)"
     mkdir -p "$WORK" || fi_die "cannot create $WORK"
     : > "$MY_UPMAPS"
+    CLI_STATS="$WORK/fi.cli.stats"; : > "$CLI_STATS"
     fi_discover || fi_die "cannot read the cluster (ceph fsid, the mon and OSD units; need one monitor and at least 3 OSDs)"
     # the faults only make sense on a cluster that starts whole; the restore puts every OSD back up and in, which on a cluster where an operator
     # had stopped or marked one out on purpose would be a change, not a restore
@@ -767,10 +945,34 @@ if prog == "ceph":
     if a[:1] == ["--connect-timeout"]:
         a = a[2:]
     cmd = " ".join(a)
+    # FI_STUB_QUORUM_DOWN=N: after the monitor was started or restarted, the next N invocations of ceph (any command) fail the way the CLI does while the
+    # monitor is not back (N < 0: always). FI_STUB_CLI_FAIL="osd out" makes the commands that start with that text fail FI_STUB_CLI_N times (< 0: always)
+    # with FI_STUB_CLI_ERR on stderr and FI_STUB_CLI_RC as the status (FI_STUB_CLI_AFTER_SET=1: only after the first `config set`; FI_STUB_CLI_AFTER_APPLY=1: the command is carried out first and then reported as failed, as when the answer of the monitor is lost).
+    qd = int(rd("quorum.down", "0") or 0)
+    if qd != 0:
+        if qd > 0:
+            wr("quorum.down", qd - 1)
+        sys.stderr.write("monclient(hunting): authenticate timed out after 10\n[errno 110] RADOS timed out (error connecting to the cluster)\n")
+        sys.exit(1)
+    fspec = os.environ.get("FI_STUB_CLI_FAIL", "")
+    late_fail = False
+    if fspec and cmd.startswith(fspec) and (os.environ.get("FI_STUB_CLI_AFTER_SET", "") != "1" or rd("cfgset.seen", "0") == "1"):
+        fn = int(os.environ.get("FI_STUB_CLI_N", "1"))
+        done = int(rd("clifail.count", "0") or 0)
+        if fn < 0 or done < fn:
+            wr("clifail.count", done + 1)
+            if os.environ.get("FI_STUB_CLI_AFTER_APPLY", "") == "1":
+                late_fail = True    # the monitor does what was asked and the CLI still times out (the answer is lost): the command ran, the caller is told it failed
+            else:
+                sys.stderr.write(os.environ.get("FI_STUB_CLI_ERR", "[errno 110] RADOS timed out (error connecting to the cluster)") + "\n")
+                sys.exit(int(os.environ.get("FI_STUB_CLI_RC", "1")))
     if cmd == "fsid":
         print(FSID)
     elif cmd.startswith("quorum_status"):
-        sys.exit(0 if rd("mon.state", "active") == "active" else 1)
+        if rd("mon.state", "active") != "active":
+            sys.stderr.write("[errno 111] error connecting to the cluster: Connection refused\n")
+            sys.exit(1)
+        sys.exit(0)
     elif cmd.startswith("osd stat"):
         up = sum(1 for i in range(3) if osd_state(i) == "active")
         inn = sum(1 for i in range(3) if osd_in(i))
@@ -811,6 +1013,7 @@ if prog == "ceph":
     elif cmd.startswith("config get "):
         print(eff(a[2], a[3]))
     elif cmd.startswith("config set "):
+        wr("cfgset.seen", "1")    # FI_STUB_CLI_AFTER_SET=1: the failures of FI_STUB_CLI_FAIL start after the first `config set`
         c = [x for x in cfg() if not (x["section"] == a[2] and x["name"] == a[3])]
         c.append({"section": a[2], "name": a[3], "value": " ".join(a[4:]), "mask": "", "level": "advanced"})
         wr("config.json", json.dumps(c))
@@ -827,6 +1030,9 @@ if prog == "ceph":
     else:
         sys.stderr.write("stub ceph: unsupported: %s\n" % cmd)
         sys.exit(1)
+    if late_fail:
+        sys.stderr.write(os.environ.get("FI_STUB_CLI_ERR", "[errno 110] RADOS timed out (error connecting to the cluster)") + "\n")
+        sys.exit(int(os.environ.get("FI_STUB_CLI_RC", "1")))
 elif prog == "systemctl":
     cmd = args[0]
     if cmd == "list-units":
@@ -845,6 +1051,8 @@ elif prog == "systemctl":
             wr(key, "inactive")
     elif cmd in ("start", "restart"):
         wr(key, "active"); started(kind, name); unclean()
+        if kind == "mon":
+            wr("quorum.down", os.environ.get("FI_STUB_QUORUM_DOWN", "0"))
     elif cmd == "stop":
         wr(key, "inactive"); unclean()
 elif prog == "pkill" or prog == "pgrep":
@@ -919,11 +1127,16 @@ st_go() {
     shift
     local sd="$d/sc-$name"
     mkdir -p "$sd/st" "$sd/work"
-    ( env "${envs[@]+"${envs[@]}"}" PATH="$d/bin:$PATH" FI_STUB="$sd/st" WR_LAB_WORK="$sd/work" FI_POLL=0 FI_STATE_WAIT=0 FI_MON_WAIT=3 WR_LAB_SUDO=sudo bash "$SELF" "$@" > "$sd/out" 2>&1
+    ( env FI_CLI_RETRY_S=6 FI_CLI_BACKOFF=1 FI_CLI_BACKOFF_MAX=1 FI_QUORUM_WAIT=20 "${envs[@]+"${envs[@]}"}" PATH="$d/bin:$PATH" FI_STUB="$sd/st" WR_LAB_WORK="$sd/work" FI_POLL=0 FI_STATE_WAIT=0 FI_MON_WAIT=3 WR_LAB_SUDO=sudo bash "$SELF" "$@" > "$sd/out" 2>&1
       echo $? > "$sd/rc" ) &
     st_throttle
 }
 st_wait() { wait; }   # every launched scenario is done
+st_num() { sed -n "s/.* $2=\([0-9]*\).*/\1/p" "$1/sc-$3/out" 2>/dev/null | tail -n 1; }   # st_num <dir> <key> <scenario>: a number of the summary line (empty when none)
+st_cmp() { # <dir> <scenario> <key> <op> <n> <label>: PASS when the summary number of <key> satisfies <op> <n> (-eq, -ge)
+    local v; v=$(st_num "$1" "$3" "$2")
+    if [ -n "$v" ] && [ "$v" "$4" "$5" ]; then st_ok "$6: $3=$v"; else st_bad "$6: $3='${v:-none}', expected $4 $5"; sed 's/^/      | /' "$1/sc-$2/out" | grep -E "summary|cli |quorum" | tail -n 6; fi
+}
 
 # st_judge <dir> <name> <label> <expected status: a number or any>: PASS / FAIL for the status and for the lab being whole again
 ST_RC=0
@@ -961,6 +1174,23 @@ fi_selftest() {
     st_go "$d" mclockother FI_STUB_MCLOCK=other -- --seed 3 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only osdkill --osd-kills 2 --recovery-max 5 --run-for 6
     # a recovery that takes longer than --recovery-max but heals within three times it: late=1, a WARN number in the summary, the injector still exits 0
     st_go "$d" late FI_STUB_UNCLEAN_SECS=7 -- --seed 3 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only osdkill --osd-kills 1 --recovery-max 5 --run-for 4
+    # the ceph CLI that fails for a while (docs 40.3): the injector retries it and the injection counts as done; fails beyond the window; fails at once on a
+    # wrong command; a monitor that is not back yet is waited for. Short windows (st_go sets 6 s and a 1 s pause): the stand-ins answer in no time
+    local clic="--seed 3 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only outin --outins 1 --recovery-max 5 --run-for 4"
+    local quor="--seed 3 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only monclean --mon-restarts 2 --recovery-max 5 --run-for 8"
+    st_go "$d" cliretry "FI_STUB_CLI_FAIL=osd out" FI_STUB_CLI_N=3 -- $clic
+    st_go "$d" clirc124 "FI_STUB_CLI_FAIL=osd out" FI_STUB_CLI_N=2 FI_STUB_CLI_RC=124 FI_STUB_CLI_ERR= -- $clic
+    st_go "$d" clibeyond "FI_STUB_CLI_FAIL=osd out" FI_STUB_CLI_N=-1 FI_CLI_RETRY_S=3 -- $clic
+    st_go "$d" clieinval "FI_STUB_CLI_FAIL=osd out" FI_STUB_CLI_N=-1 "FI_STUB_CLI_ERR=Error EINVAL: invalid osd id" -- $clic
+    local upm="--seed 3 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only upmap --upmaps 1 --recovery-max 5 --run-for 4"
+    st_go "$d" cliapply "FI_STUB_CLI_FAIL=osd out" FI_STUB_CLI_N=2 FI_STUB_CLI_AFTER_APPLY=1 -- $clic
+    st_go "$d" cliapplyin "FI_STUB_CLI_FAIL=osd in" FI_STUB_CLI_N=1 FI_STUB_CLI_AFTER_APPLY=1 -- $clic
+    st_go "$d" cliapplyup "FI_STUB_CLI_FAIL=osd pg-upmap" FI_STUB_CLI_N=1 FI_STUB_CLI_AFTER_APPLY=1 -- $upm
+    st_go "$d" cliapplyrm "FI_STUB_CLI_FAIL=osd rm-pg-upmap" FI_STUB_CLI_N=2 FI_STUB_CLI_AFTER_APPLY=1 -- $upm
+    st_go "$d" clikey "FI_STUB_CLI_FAIL=osd out" FI_STUB_CLI_N=-1 FI_CLI_RETRY_S=2 "FI_STUB_CLI_ERR=[errno 110] RADOS timed out; key = AQBhZ2xhbmQgaXMgbm90IGEga2V5IGF0IGFsbCE9PQ==" -- $clic
+    st_go "$d" cliquorum FI_STUB_QUORUM_DOWN=4 -- $quor
+    st_go "$d" cliquorumout FI_STUB_QUORUM_DOWN=12 FI_QUORUM_WAIT=3 -- $quor
+    st_go "$d" cliquorum2 FI_STUB_QUORUM_DOWN=3 -- --seed 5 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only monclean,outin --mon-restarts 2 --outins 2 --recovery-max 5 --run-for 14
     # a cluster that does not recover: exit 3, and what could be restored is
     st_go "$d" nowait -- --seed 3 --min-gap 1 --max-gap 1 --initial-delay 1 --pause-cap 1 --only outin --outins 1 --recovery-max 3 --run-for 5 --inject-fail wait-clean
     # a stop request in the middle of a fault
@@ -1065,6 +1295,92 @@ fi_selftest() {
     if grep -q " late=1 " "$d/sc-late/out" && grep -qE "late_max_over_s=[1-9][0-9]* recovery_limit_s=5" "$d/sc-late/out" && ! grep -q "^FAIL" "$d/sc-late/out"; then
         st_ok "late recovery: counted (late=1, seconds past the limit in the summary), exit 0, no FAIL"
     else st_bad "late recovery: the summary does not show it"; sed 's/^/      | /' "$d/sc-late/out" | tail -n 8; fi
+    # the ceph CLI retry (the selftest of 40.3): the classifier first, then the scenarios above
+    fi_cli_class_check() { # <expected> <rc> <stderr text> <label>
+        local f="$d/class.err" got; printf '%s\n' "$3" > "$f"; got=$(fi_cli_class "$2" "$f")
+        [ "$got" = "$1" ] && st_ok "cli class: $4 is $1" || st_bad "cli class: $4 is $got, expected $1"
+    }
+    fi_cli_class_check transient 124 "" "rc 124 (the timeout of one attempt)"
+    fi_cli_class_check transient 1 "[errno 110] RADOS timed out (error connecting to the cluster)" "RADOS timed out"
+    fi_cli_class_check transient 1 "2026-01-01 monclient(hunting): authenticate timed out after 300" "monclient hunting"
+    fi_cli_class_check transient 1 "Error ETIMEDOUT: no quorum" "no quorum"
+    fi_cli_class_check transient 1 "unable to get monitor info from DNS SRV" "no monitor info"
+    fi_cli_class_check transient 1 "[errno 111] error connecting to the cluster: Connection refused" "connection refused"
+    fi_cli_class_check transient 1 "read error: Connection reset by peer" "connection reset"
+    fi_cli_class_check transient 11 "Error EAGAIN: try again" "EAGAIN"
+    fi_cli_class_check non-transient 1 "[errno 2] RADOS object not found (error connecting to the cluster)" "errno 2 (no ceph.conf or keyring: waiting does not create one)"
+    fi_cli_class_check non-transient 1 "[errno 1] RADOS permission error (error connecting to the cluster)" "errno 1"
+    fi_cli_class_check non-transient 22 "Error EINVAL: invalid command" "EINVAL"
+    fi_cli_class_check non-transient 2 "Error ENOENT: osd.9 does not exist" "ENOENT"
+    fi_cli_class_check non-transient 1 "Error EPERM: access denied" "EPERM"
+    fi_cli_class_check non-transient 13 "Error EACCES: permission denied" "EACCES"
+    fi_cli_class_check non-transient 22 "Error EINVAL: bad pg id (the operation timed out in the parser)" "EINVAL that mentions a timeout (the fatal text is read first)"
+    fi_cli_class_check non-transient 124 "Error EINVAL: invalid osd id" "EINVAL even with rc 124"
+    fi_cli_class_check non-transient 1 "something nobody has seen" "an unknown text"
+    fi_cli_class_check non-transient 1 "" "rc 1 with no text"
+    st_judge "$d" cliretry "ceph osd out fails 3 times with a connect timeout, then works" 0
+    st_cmp "$d" cliretry failed -eq 0 "cli retry: the injection is not failed"
+    st_cmp "$d" cliretry outin -ge 1 "cli retry: the out/in fault completed"
+    st_cmp "$d" cliretry cli_retries -eq 3 "cli retry: the three retries are counted"
+    st_cmp "$d" cliretry cli_recovered -eq 1 "cli retry: one call recovered"
+    st_cmp "$d" cliretry cli_gave_up -eq 0 "cli retry: no call gave up"
+    st_cmp "$d" cliretry cli_retry_max_s -ge 2 "cli retry: the retry time is measured"
+    if [ "$(grep -c "cli attempt=[123] rc=1 class=transient during=1 cmd=\"ceph osd out" "$d/sc-cliretry/work/fault-events.log" 2>/dev/null)" = 3 ] \
+       && grep -q "RADOS timed out" "$d/sc-cliretry/work/fault-events.log" && grep -q "cli recovered after 3 retries" "$d/sc-cliretry/work/fault-events.log" \
+       && grep -q "cli attempt=3 rc=1" "$d/sc-cliretry/out"; then
+        st_ok "cli retry: every attempt is in the events file and in the log with its rc, class, fault number and stderr"
+    else st_bad "cli retry: the attempts are not logged as expected"; grep "cli " "$d/sc-cliretry/work/fault-events.log" | tail -n 6 | sed 's/^/      | /'; fi
+    st_judge "$d" clirc124 "ceph osd out hit by the timeout of its attempt (rc 124, no text) twice" 0
+    st_cmp "$d" clirc124 failed -eq 0 "rc 124: the injection is not failed"
+    st_cmp "$d" clirc124 cli_retries -eq 2 "rc 124: two retries"
+    grep -q "rc=124 class=transient" "$d/sc-clirc124/out" && st_ok "rc 124: logged as a transient attempt" || st_bad "rc 124: no transient line"
+    st_judge "$d" clibeyond "ceph osd out fails for longer than the retry window" any
+    st_cmp "$d" clibeyond failed -ge 1 "beyond the window: the injection is counted as failed"
+    st_cmp "$d" clibeyond cli_gave_up -ge 1 "beyond the window: the call gave up"
+    st_cmp "$d" clibeyond cli_retries -ge 2 "beyond the window: it was retried first"
+    if grep -q "cli gave up after [0-9]* attempts" "$d/sc-clibeyond/out" && grep -qE "note=osd out failed \(rc=1 after [0-9]+ attempts: .*RADOS timed out" "$d/sc-clibeyond/out" \
+       && grep -q "RADOS timed out" "$d/sc-clibeyond/work/fault-events.log"; then
+        st_ok "beyond the window: the failure note of the fault carries rc, attempts and stderr; the events file has the attempts"
+    else st_bad "beyond the window: no stderr in the failure note"; grep -E "note=|cli " "$d/sc-clibeyond/out" | tail -n 5 | sed 's/^/      | /'; fi
+    st_judge "$d" clieinval "ceph osd out answers EINVAL" any
+    st_cmp "$d" clieinval failed -ge 1 "EINVAL: the injection is failed at once"
+    st_cmp "$d" clieinval cli_retries -eq 0 "EINVAL: no retry"
+    if grep -q "class=non-transient" "$d/sc-clieinval/out" && ! grep -q "class=transient" "$d/sc-clieinval/out" && grep -q "Error EINVAL: invalid osd id" "$d/sc-clieinval/work/fault-events.log"; then
+        st_ok "EINVAL: one attempt per call, classed non-transient, stderr in the events file"
+    else st_bad "EINVAL: the log does not show a single non-transient attempt"; grep -E "cli " "$d/sc-clieinval/out" | tail -n 4 | sed 's/^/      | /'; fi
+    # a command that was carried out but whose answer was lost is run again: out, in, pg-upmap and rm-pg-upmap give the same result twice (the lab says "already out" with status 0)
+    st_judge "$d" cliapply "ceph osd out carried out, its answer lost, twice" 0
+    st_cmp "$d" cliapply failed -eq 0 "answer lost (osd out): the injection is not failed"
+    st_cmp "$d" cliapply outin -eq 1 "answer lost (osd out): counted once, not twice"
+    st_cmp "$d" cliapply cli_retries -eq 2 "answer lost (osd out): two re-runs"
+    st_judge "$d" cliapplyin "ceph osd in carried out, its answer lost" 0
+    st_cmp "$d" cliapplyin failed -eq 0 "answer lost (osd in): the injection is not failed"
+    st_judge "$d" cliapplyup "ceph osd pg-upmap carried out, its answer lost" 0
+    st_cmp "$d" cliapplyup failed -eq 0 "answer lost (pg-upmap): the injection is not failed"
+    st_cmp "$d" cliapplyup upmap -eq 1 "answer lost (pg-upmap): counted once"
+    st_judge "$d" cliapplyrm "ceph osd rm-pg-upmap carried out, its answer lost, twice" 0
+    st_cmp "$d" cliapplyrm failed -eq 0 "answer lost (rm-pg-upmap): the injection is not failed"
+    st_cmp "$d" cliapplyrm upmap -eq 1 "answer lost (rm-pg-upmap): counted once"
+    st_judge "$d" clikey "a CLI that prints something shaped like a cephx key" any
+    if ! grep -rq "AQBhZ2xhbmQgaXMgbm90" "$d/sc-clikey/out" "$d/sc-clikey/work" 2>/dev/null && grep -q "<key removed>" "$d/sc-clikey/work/fault-events.log"; then
+        st_ok "key-shaped text: removed from the log, the events file and the note"
+    else st_bad "key-shaped text: it is in a log, or was not removed"; grep -rl "AQBhZ2xhbmQgaXMgbm90" "$d/sc-clikey" | head -n 3 | sed 's/^/      | /'; fi
+    st_judge "$d" cliquorum "the monitor restarted, ceph silent for 4 invocations" 0
+    st_cmp "$d" cliquorum failed -eq 0 "quorum wait: no failed injection"
+    st_cmp "$d" cliquorum mon_restarts -ge 1 "quorum wait: the monitor was restarted"
+    st_cmp "$d" cliquorum quorum_waits -ge 1 "quorum wait: a wait was needed and counted"
+    st_cmp "$d" cliquorum quorum_wait_max_s -ge 3 "quorum wait: its length is measured"
+    grep -q "quorum: the monitor answers again after 5 polls" "$d/sc-cliquorum/out" && grep -q "quorum: poll=1 rc=1 class=transient" "$d/sc-cliquorum/out" && grep -q "RADOS timed out" "$d/sc-cliquorum/work/fault-events.log" \
+        && st_ok "quorum wait: every poll is logged with rc and stderr, then the first answer" || st_bad "quorum wait: the polls are not logged as expected"
+    st_judge "$d" cliquorumout "the monitor does not answer within the quorum wait" any
+    st_cmp "$d" cliquorumout failed -ge 1 "no quorum in time: the fault is counted as failed"
+    st_cmp "$d" cliquorumout quorum_gave_up -ge 1 "no quorum in time: the wait is counted as given up"
+    grep -qE "note=the monitor did not answer within 3 s after its restart \(rc=1 after [0-9]+ attempts: .*RADOS timed out" "$d/sc-cliquorumout/out" \
+        && st_ok "no quorum in time: the note names the wait and the last stderr" || { st_bad "no quorum in time: no note"; grep -E "note=|quorum" "$d/sc-cliquorumout/out" | tail -n 4 | sed 's/^/      | /'; }
+    st_judge "$d" cliquorum2 "a monitor restart and out/in faults mixed" 0
+    st_cmp "$d" cliquorum2 failed -eq 0 "mixed: no failed injection"
+    st_cmp "$d" cliquorum2 cli_retries -eq 0 "mixed: the commands after a restart needed no retry (the wait came first)"
+    st_cmp "$d" cliquorum2 quorum_waits -ge 1 "mixed: the quorum wait ran"
     st_judge "$d" nowait "recovery never completes" 3
     if why=$(st_lab_whole "$d/sc-term"); then st_ok "SIGTERM mid-run: the lab is whole again"; else st_bad "SIGTERM mid-run: $why"; fi
     [ "$(cat "$d/sc-term/rc" 2>/dev/null)" = 0 ] && st_ok "SIGTERM mid-run: exit 0 after the restore" || st_bad "SIGTERM mid-run: exit $(cat "$d/sc-term/rc" 2>/dev/null)"

@@ -22,7 +22,7 @@ Contents:
 | `krbd-compare.sh` | inside the VM | milestone 9: the core and the kernel client (krbd) write and read the same images, compared byte for byte with a model and with `rbd export` (`--mode secure` maps krbd with `ms_mode=secure`) |
 | `secure-live.sh` | inside the VM | milestone 11: the live matrix of secure mode (the five offer policies, the cluster forced to secure and to crc, refusals, the wire, krbd in secure mode) and the restore of every option it touched |
 | `secure-tamper.sh`, `secure_tamper_proxy.py` | inside the VM | milestone 11: the core in a network namespace behind a relay that flips one bit of one frame (OSD reply, OSD request, monitor stream, handshake) in secure and in crc mode; the core must refuse the frame and recover |
-| `live-rbd.sh`, `exit-run.sh` | inside the VM | the milestone 8 matrix and the long exit run of Phase 1 (with `harness/tools/fault_inject.sh`); late recoveries are a WARN and Ceph's own `osd_mclock_max_capacity_iops_hdd` / `_ssd` config lines are a NOTE in its state comparison, everything else still fails (design 40.3) |
+| `live-rbd.sh`, `exit-run.sh` | inside the VM | the milestone 8 matrix and the long exit run of Phase 1 (with `harness/tools/fault_inject.sh`); every `ceph` call of the injector retries a transient failure (a monitor not back yet, a stalled lab disk) for up to 120 s with its rc and stderr in the logs, and the injector waits for the monitor's quorum after a restart (design 40.3); late recoveries are a WARN and Ceph's own `osd_mclock_max_capacity_iops_hdd` / `_ssd` config lines are a NOTE in its state comparison, everything else still fails (design 40.3) |
 
 ## Design
 

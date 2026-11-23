@@ -479,7 +479,7 @@ restart_all() {
             continue
         fi
         if ! fi_wait_clean "$RESTART_WAIT"; then
-            echo "FAIL  after restarting $u the cluster did not become clean within $RESTART_WAIT s: $(CEPH pg stat 2>&1 | head -n 1)" >&2
+            echo "FAIL  after restarting $u the cluster did not become clean within $RESTART_WAIT s: $(CEPHQ pg stat 2>&1 | head -n 1)" >&2
             rc=1
         fi
     done
@@ -748,7 +748,7 @@ ATT_OPS_MIN=0; ATT_FAULTS_OK=1; ATT_STATUS=""; ATT_NOTE=""; ATT_FAULTS_TEXT=""; 
 # limit the slowest one went, the report shows it, and the run is not failed by it. No summary (an injector that was killed writes none) judges nothing here:
 # its exit status already did.
 inj_judge() {
-    local rdir=$1 sm=$2 f l o m lim
+    local rdir=$1 sm=$2 f l o m lim cr cm
     ATT_WARN=""
     f=$(echo "$sm" | sed -n 's/.* failed=\([0-9]*\).*/\1/p'); l=$(echo "$sm" | sed -n 's/.* late=\([0-9]*\).*/\1/p')
     o=$(echo "$sm" | sed -n 's/.* late_max_over_s=\([0-9]*\).*/\1/p'); m=$(echo "$sm" | sed -n 's/.* max_recovery_s=\([0-9]*\).*/\1/p')
@@ -761,6 +761,12 @@ inj_judge() {
     if [ "${f:-0}" -gt 0 ]; then
         echo "FAIL  the injector counted $f failed fault(s): a step of a fault did not work (see $rdir/injector.log and $rdir/fault-events.log)" >&2
         return 1
+    fi
+    # transient failures of the ceph CLI that the injector retried (a monitor not back yet, a stalled lab disk): information, never a failure by itself; a call that
+    # gave up is a failed fault above (its note and every attempt, with rc and stderr, are in injector.log and fault-events.log)
+    cr=$(echo "$sm" | sed -n 's/.* cli_retries=\([0-9]*\).*/\1/p'); cm=$(echo "$sm" | sed -n 's/.* cli_retry_max_s=\([0-9]*\).*/\1/p')
+    if [ "${cr:-0}" -gt 0 ]; then
+        echo "exit-run: NOTE: the injector retried $cr transient ceph CLI failure(s), the longest retry took ${cm:-?} s (see $rdir/injector.log)" >&2
     fi
     if [ "${l:-0}" -gt 0 ]; then
         ATT_WARN="$l late recoveries (each took longer than the ${lim:-${EX_RECOVERY_MAX:-600}} s limit but the cluster healed), the slowest ${o:-?} s past the limit (longest recovery ${m:-?} s)"
@@ -777,7 +783,7 @@ run_attempt() { # <run> <rdir> <time s> <attempt> <seed base>
     # a failed start gives its images back at once: with EX_STOP_ON_FAIL=0 the next run must not find three more mapped images (the lab rule is
     # eight at a time)
     make_images "$n" || { ATT_STATUS="could not create or map an image"; drop_images "$n" || true; return 3; }
-    if ! fi_wait_clean "$RESTART_WAIT"; then ATT_STATUS="the cluster is not clean before the start: $(CEPH pg stat 2>&1 | head -n 1)"; drop_images "$n" || true; return 3; fi
+    if ! fi_wait_clean "$RESTART_WAIT"; then ATT_STATUS="the cluster is not clean before the start: $(CEPHQ pg stat 2>&1 | head -n 1)"; drop_images "$n" || true; return 3; fi
     t0=$SECONDS
     if [ "$nofaults" -eq 0 ]; then
         start_injector "$rdir" "$((aseed + 7777))"
@@ -795,7 +801,7 @@ run_attempt() { # <run> <rdir> <time s> <attempt> <seed base>
         [ "${INJ_RC:-0}" -eq 0 ] || { rc=1; [ "${INJ_RC:-0}" -ne 3 ] || worst=3; }
         inj_judge "$rdir" "$INJ_SUMMARY" || { rc=1; [ "$worst" -ne 0 ] || worst=1; }
     fi
-    if ! fi_wait_clean "$RESTART_WAIT"; then echo "FAIL  the cluster is not clean after the injector stopped: $(CEPH pg stat 2>&1 | head -n 1)" >&2; rc=1; fi
+    if ! fi_wait_clean "$RESTART_WAIT"; then echo "FAIL  the cluster is not clean after the injector stopped: $(CEPHQ pg stat 2>&1 | head -n 1)" >&2; rc=1; fi
     i=0
     for o in $ORDERS; do
         rcs=$(cat "$rdir/$tag-o$o.rc" 2>/dev/null || echo 255)
@@ -1086,6 +1092,9 @@ main() {
     write_pyx
     report_file=${EX_REPORT:-}
     rm -rf "$RESULTS"; rm -f "$STOPFILE"
+    # the log lines of a retried ceph call (CEPH, fault_inject.sh) go to this descriptor, not to the stderr of the call: a caller that captures a ceph
+    # command with 2>&1 (the check after forcing secure mode) must read the answer of the command, never the injector's log
+    exec 8>&2
     fi_discover || die "cannot read the cluster (ceph fsid, the mon and OSD units; need one monitor and at least 3 OSDs)"
     CEPH osd stat -f json 2>/dev/null | py osdup "$BASE_OSDS" || die "not every OSD is up and in at the start: nothing is changed"
     CEPH pg stat -f json 2>/dev/null | py pgclean >/dev/null || die "the placement groups are not all active+clean at the start: nothing is changed"
@@ -1261,6 +1270,8 @@ exit_selftest() {
     # launch every scenario that needs the stand-in cluster; the checks that need none are made while they run
     er_go "$d" good ER_STUB_SLEEP=24 -- $good --runs 1,3,5
     er_go "$d" k1 ER_STUB_SLEEP=14 -- $good --time-sec 14 --mon-restarts 0 --upmaps 0 --runs 5 --forced-key k1
+    # the ceph CLI fails twice right after the options were set (the check of the forced mode reads `config get` with 2>&1): the retry log must not be in the answer
+    er_go "$d" cliforce FI_STUB_CLI_FAIL="config get" FI_STUB_CLI_N=2 FI_STUB_CLI_AFTER_SET=1 FI_CLI_BACKOFF=1 FI_CLI_BACKOFF_MAX=1 ER_STUB_SLEEP=14 -- $good --time-sec 14 --mon-restarts 0 --upmaps 0 --runs 5
     for step in set-mon set-osd restart-mon restart-osd create-o18 map-o22 tool export compare unmap rm; do
         er_go "$d" "step-$step" -- $fast --runs 5 --inject-fail "$step" --attempts 1
     done
@@ -1346,6 +1357,9 @@ exit_selftest() {
     case "$out" in *"RUN 5  secure"*) st_ok "--report: renders the kept results" ;; *) st_bad "--report: $out" ;; esac
     er_judge "$d" k1 "run 5 with --forced-key k1" 0
     er_has "$d" k1 "RUN 5  secure  core key k1" "run 5 --forced-key k1: the report says core key k1"
+    er_judge "$d" cliforce "run 5 with the ceph CLI failing twice after the options were set" 0
+    er_has "$d" cliforce "cli recovered after 2 retries" "forced mode: the CLI was retried and the retry is in the log"
+    if grep -q "the config database does not say secure" "$d/sc-cliforce/out"; then st_bad "forced mode: the retry log leaked into the answer of config get"; else st_ok "forced mode: the answer of config get is the answer (no retry log in it)"; fi
     for step in set-mon set-osd restart-mon restart-osd create-o18 map-o22 tool export compare unmap rm; do er_judge "$d" "step-$step" "failing step $step (run 5)" nonzero; done
     er_judge "$d" waitclean "failing step wait-clean (the lab does not heal)" nonzero
     er_judge "$d" diff "a difference in the order 18 tool" 1
