@@ -1,0 +1,2 @@
+errno=ETIMEDOUT ENETUNREACH
+console=rbd: .*failed: .*\(WR_E_(MON_UNREACHABLE|TIMEOUT|NET_CONNECT)\)

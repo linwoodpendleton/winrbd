@@ -1,0 +1,32 @@
+# mapped winrbd/wrtest-p2-ms-read as /dev/rbd0 with the user's own key; kernel 6.8.0-147-generic; read_ahead_kb at start 128
+# mode direct: readahead 256 sectors
+KRBD mode=direct bs=65536 run=1 bytes=134217728 secs=28.0763 mibs=4.56
+KRBD mode=direct bs=65536 run=2 bytes=134217728 secs=16.3144 mibs=7.85
+KRBD mode=direct bs=65536 run=3 bytes=134217728 secs=16.7420 mibs=7.65
+KRBD mode=direct bs=1048576 run=1 bytes=134217728 secs=2.5871 mibs=49.48
+KRBD mode=direct bs=1048576 run=2 bytes=134217728 secs=2.1726 mibs=58.92
+KRBD mode=direct bs=1048576 run=3 bytes=134217728 secs=2.3450 mibs=54.58
+KRBD mode=direct bs=4194304 run=1 bytes=134217728 secs=1.2853 mibs=99.59
+KRBD mode=direct bs=4194304 run=2 bytes=134217728 secs=2.5000 mibs=51.20
+KRBD mode=direct bs=4194304 run=3 bytes=134217728 secs=1.3290 mibs=96.32
+# mode ra128k: readahead 256 sectors
+KRBD mode=ra128k bs=65536 run=1 bytes=134217728 secs=5.9036 mibs=21.68
+KRBD mode=ra128k bs=65536 run=2 bytes=134217728 secs=5.6824 mibs=22.53
+KRBD mode=ra128k bs=65536 run=3 bytes=134217728 secs=5.4290 mibs=23.58
+KRBD mode=ra128k bs=1048576 run=1 bytes=134217728 secs=1.1241 mibs=113.87
+KRBD mode=ra128k bs=1048576 run=2 bytes=134217728 secs=1.4800 mibs=86.49
+KRBD mode=ra128k bs=1048576 run=3 bytes=134217728 secs=1.2537 mibs=102.10
+KRBD mode=ra128k bs=4194304 run=1 bytes=134217728 secs=1.0848 mibs=117.99
+KRBD mode=ra128k bs=4194304 run=2 bytes=134217728 secs=1.4639 mibs=87.44
+KRBD mode=ra128k bs=4194304 run=3 bytes=134217728 secs=1.0595 mibs=120.82
+# mode ra2048k: readahead 4096 sectors
+KRBD mode=ra2048k bs=65536 run=1 bytes=134217728 secs=2.1303 mibs=60.09
+KRBD mode=ra2048k bs=65536 run=2 bytes=134217728 secs=1.7437 mibs=73.41
+KRBD mode=ra2048k bs=65536 run=3 bytes=134217728 secs=1.1505 mibs=111.25
+KRBD mode=ra2048k bs=1048576 run=1 bytes=134217728 secs=0.9700 mibs=131.96
+KRBD mode=ra2048k bs=1048576 run=2 bytes=134217728 secs=1.1086 mibs=115.46
+KRBD mode=ra2048k bs=1048576 run=3 bytes=134217728 secs=1.2379 mibs=103.40
+KRBD mode=ra2048k bs=4194304 run=1 bytes=134217728 secs=1.0571 mibs=121.08
+KRBD mode=ra2048k bs=4194304 run=2 bytes=134217728 secs=1.0466 mibs=122.30
+KRBD mode=ra2048k bs=4194304 run=3 bytes=134217728 secs=0.8942 mibs=143.15
+# unmapped

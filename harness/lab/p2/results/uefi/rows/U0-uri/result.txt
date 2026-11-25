@@ -1,0 +1,2 @@
+RESULT row=U0 run=U0-20261123T200339Z-2075058 expect=shell met=0 ipxe=13 net=13 san=failed@14 end=14 os=- stop=guest-exited secs=14 console=/box/work/logs/U0-20261123T200339Z-2075058.console
+exit=1 wall=15s retries=0

@@ -1,0 +1,3 @@
+PASS
+ok   the loop ran to its end (WRLOOP-END)
+ok   every hook succeeded ({'n': 1, 'ok': 1, 'fail': 0, 'hooks': 1, 'failed': []})

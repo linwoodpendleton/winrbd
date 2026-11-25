@@ -1,0 +1,99 @@
+[=3hBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00011 " from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x5,0xFFFF,0x0)
+BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00011 " from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x5,0xFFFF,0x0)
+iiPPXXEE  iinniittiiaalliissiinngg  ddeevviicceess......
+
+ffiillee::aauuttooeexxeecc..iippxxee......  NNoott  ffoouunndd  ((hhttttppss::////iippxxee..oorrgg//77ff44ddee1188ee))
+
+ffiillee:://aauuttooeexxeecc..iippxxee......  ookk
+
+
+
+
+
+
+
+[1miiPPXXEE  22..00..00++[0m  ----  OOppeenn  SSoouurrccee  NNeettwwoorrkk  BBoooott  FFiirrmmwwaarree  ----  [36mhhttttppss::////iippxxee..oorrgg[0m
+
+FFeeaattuurreess::  DDNNSS  HHTTTTPP  HHTTTTPPSS  iiSSCCSSII  TTFFTTPP  VVLLAANN  SSRRPP  AAooEE  EEFFII  MMeennuu
+
+WWRRRRUUNN--BBEEGGIINN  rrooww==UU33
+
+WWaaiittiinngg  ffoorr  lliinnkk--uupp  oonn  nneett11......  ookk
+
+WWRRRRUUNN--NNEETT--OOKK
+
+WWRRRRUUNN--SSAANN--SSTTAARRTT  ssaannbboooott
+
+RReeggiisstteerreedd  SSAANN  ddeevviiccee  00xx8800
+
+BBoooottiinngg  ffrroomm  SSAANN  ddeevviiccee  00xx8800
+
+GNU GRUB  version 2.14
+
++----------------------------------------------------------------------------+||||||||||||||||||||||||+----------------------------------------------------------------------------+     Use the ^ and v keys to select which entry is highlighted.          
+      Press enter to boot the selected OS, `e' to edit the commands       
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿³³³³³³³³³³³³³³³³³³³³³³³³³³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ     Use the ^ and v keys to select which entry is highlighted.          
+      Press enter to boot the selected OS, `e' to edit the commands       
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+Loading, please wait...
+Starting systemd-udevd version 255.4-1ubuntu8.19
+Begin: Loading essential drivers ... done.
+Begin: Running /scripts/init-premount ... done.
+Begin: Mounting root file system ... Begin: Running /scripts/local-top ... 
+RBFT-HOOK start: map=1 src=auto rootpart=2 require=1
+RBFT-HOOK table found by source sysfs
+RBFT-HOOK nic: eth1 has MAC 52:54:00:77:12:c1
+RBFT-HOOK nic: eth1 address 10.77.0.65/24
+RBFT-HOOK table check (source sysfs):
+RBFT INFO source: sysfs /sys/firmware/acpi/tables/rBFT (237 bytes read)
+RBFT PASS signature: rBFT
+RBFT PASS length: 237 bytes
+RBFT PASS acpi_revision: 1
+RBFT PASS checksum: all 237 bytes sum to 0
+RBFT INFO oem: not interpreted (iPXE writes its own): id 'FENSYS' table id 'iPXE' creator ''
+RBFT PASS magic: WRBT
+RBFT PASS version: 1
+RBFT PASS header_len: 116
+RBFT PASS reserved: all reserved bytes are zero
+RBFT PASS flags_reserved: only bits 0..5 are set (0x4)
+[... full console on the build machine ...]
+RBFT-RESULT PASS pass=40 fail=0 skip=0
+WRBOOT-TABLE PASS
+WRBOOT-HOOK-DONE root=/dev/rbd0p2 table=PASS
+WRBOOT-NET eth0 mac=52:54:00:77:11:41 
+WRBOOT-NET eth1 mac=52:54:00:77:12:c1 10.77.0.65/24 fe80::5054:ff:fe77:12c1/64 
+WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-ms-lin-uefi kernel=6.8.0-151-generic
+winrbd-guest login: 
+[... end of the console ...]
+[  OK  ] Reached target basic.target - Basic System.
+         Starting e2scrub_reap.service - Reâ€¦ne ext4 Metadata Check Snapshots...
+         Starting getty-static.service - geâ€¦bus and logind are not available...
+         Starting systemd-user-sessions.service - Permit User Sessions...
+         Starting wrboot-marker.service - Pâ€¦inrbd boot marker on the console...
+[  OK  ] Finished systemd-user-sessions.service - Permit User Sessions.
+[  OK  ] Started getty@tty1.service - Getty on tty1.
+[  OK  ] Started getty@tty2.service - Getty on tty2.
+[  OK  ] Started getty@tty3.service - Getty on tty3.
+[  OK  ] Started getty@tty4.service - Getty on tty4.
+[  OK  ] Started getty@tty5.service - Getty on tty5.
+[  OK  ] Finished getty-static.service - geâ€¦ dbus and logind are not available.
+WRBOOT-NET eth0 mac=52:54:00:77:11:41 
+WRBOOT-NET eth1 mac=52:54:00:77:12:c1 10.77.0.65/24 fe80::5054:ff:fe77:12c1/64 
+WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-ms-lin-uefi kernel=6.8.0-151-generic
+[  OK  ] Finished wrboot-marker.service - Pâ€¦ winrbd boot marker on the console.
+[  OK  ] Found device dev-ttyS0.device - /dev/ttyS0.
+[  OK  ] Started getty@tty6.service - Getty on tty6.
+[  OK  ] Started serial-getty@ttyS0.service - Serial Getty on ttyS0.
+[  OK  ] Reached target getty.target - Login Prompts.
+[  OK  ] Finished e2scrub_reap.service - Reâ€¦line ext4 Metadata Check Snapshots.
+[  OK  ] Reached target multi-user.target - Multi-User System.
+[  OK  ] Reached target graphical.target - Graphical Interface.
+         Starting systemd-update-utmp-runleâ€¦- Record Runlevel Change in UTMP...
+[  OK  ] Finished systemd-update-utmp-runleâ€¦e - Record Runlevel Change in UTMP.
+[  OK  ] Listening on systemd-rfkill.socketâ€¦ll Switch Status /dev/rfkill Watch.
+
+Ubuntu 24.04 LTS winrbd-guest ttyS0
+
+winrbd-guest login: 

@@ -1,0 +1,5 @@
+   12.5 ipxe-script       WRRUN-BEGIN row=N
+   12.5 net-ok            WRRUN-NET-OK
+   12.5 san-start         WRRUN-SAN-START sanhook
+   12.5 san-failed        WRRUN-SAN-FAILED 0x2d76608e
+   12.5 script-end        WRRUN-END

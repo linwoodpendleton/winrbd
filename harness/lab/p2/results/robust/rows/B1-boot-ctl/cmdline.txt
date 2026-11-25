@@ -1,0 +1,4 @@
+# 2026-11-24T03:55:03Z row B1-boot-ctl (bios, boot, fault none), profile boot; control
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family bios --fault none --on before\ booting\ or --press ret --press-delay 1 --capture --bin <work>/ipxe/ipxe-stub.pxe --row B1 --ip 10.77.0.22 --user wrtest-p2-rb-lin-bios --pool winrbd --image wrtest-p2-rb-lin-bios --key-file <lab dir>/keys/client.wrtest-p2-rb-lin-bios.secret --timeout 600 --action sanboot --expect os --opt devpath=vendor --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=<out>/rows/.tmp.4194166/params.txt --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/key\,file=<lab dir>/keys/client.wrtest-p2-rb-lin-bios.secret --delivery stub

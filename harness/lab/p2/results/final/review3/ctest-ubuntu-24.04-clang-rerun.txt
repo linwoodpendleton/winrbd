@@ -1,0 +1,33 @@
+ci26_vm: copying <box>/builder26/stage/repo into the guest (work/p2rev2/src)
+ci26_vm log 20261124-215759 label=p2rev2 tree=<box>/builder26/stage/repo
+guest limits: 8 cores, 8192 MiB
+== toolchain
+os      Ubuntu 24.04.5 LTS kernel 6.8.0-147-generic
+gcc     13.3.0
+clang   18.1.3
+cmake   3.28.3   ninja 1.11.1
+openssl 3.0.13   python3 3.12.3
+cores   8, build jobs 8, ctest -j 4   mem 7939 MiB   mmap_rnd_bits 28
+tree    91bc2c20524ab1a9 (17411 files)
+== matrix clang/san
+== matrix clang/release
+== gates clang
+  (clang compile-matrix: 6s)
+
+== result (3322s)
+PASS   clang/san                    build 33s, ctest 246 tests, 0 failed, 2 skipped, 2290s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind winpe.selftest
+PASS   clang/release                build 43s, ctest 248 tests, 0 failed, 1 skipped, 825s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+PASS   clang/wr_core_m32            built, no libc, no globals (113 objects)
+SKIP   clang/wr_core_ipxe_flags     gcc only, as in CI
+PASS   clang/wr_header_check        built
+PASS   clang/gates-Release          7 core_ checks
+PASS   clang/gates-MinSizeRel       7 core_ checks
+ALL PASSED
+full logs on the guest: <guest>/work/p2rev2/logs (reach them with: ci26_vm.sh ssh 'ls <guest>/work/p2rev2/logs')
+ci26_vm exit status 0
+CI26_LOG=<box>/ci24/logs/p2rev2-20261124-215759.log
+C24B-EXIT 0

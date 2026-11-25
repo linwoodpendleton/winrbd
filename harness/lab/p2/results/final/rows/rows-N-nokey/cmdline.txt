@@ -1,0 +1,4 @@
+# 2026-11-24T12:46:14Z row N-nokey (uefi-pxe), profile negative
+# run from <box>/p2r/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/p2r/work/q P2_LAB_DIR=<box>/lab-p2
+bash <box>/p2r/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row N --ip 10.77.0.31 --action sanhook --expect marker --marker WRRUN-SAN-FAILED\ 0x\[0-9a-f\]+ --timeout 300 --user wrtest-p2-bytes --pool winrbd --image wrtest-p2-bytes --no-key --opt timeout=15

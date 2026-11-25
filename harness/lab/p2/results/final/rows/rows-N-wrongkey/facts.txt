@@ -1,0 +1,20 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (1):
+  rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD; the cluster answered -13): check the key (rbd-key), the user and its capabilities
+run script lines (6):
+  WRRUN-BEGIN row=N
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-FAILED 0x0276608f
+  WRRUN-FAIL
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     11.1 ipxe-script       WRRUN-BEGIN row=N
+     11.1 net-ok            WRRUN-NET-OK
+     11.1 san-start         WRRUN-SAN-START sanhook
+  # host: load average at start 29.79, at end 31.20
+  # guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 6 s)
+  # lab VM (cluster) threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 13 s)
+rbd-info (0 lines):

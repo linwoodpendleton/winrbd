@@ -1,0 +1,16 @@
+# Disk images, their manifests, caches and anything that can hold a key are never committed
+# (build-*.sh write below IMG_WORK, which is outside the tree; this is the second fence).
+*.raw
+*.raw.manifest
+*.img
+*.qcow2
+*.vhd
+*.fd
+*.iso
+out/
+cache/
+tmp/
+*.key
+*.keyring
+*.secret
+*.b64

@@ -1,0 +1,17 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:42)...... ok
+tftp://10.0.2.2/autoexec.ipxe...[31mHEAP attempting to grow for 0x4e4 (aligned 0x1000+ffc), used 0kB
+[0m ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-LEAVE exit
+WRRUN-END
+[32mHEAP maximum usage 128kB
+[0m

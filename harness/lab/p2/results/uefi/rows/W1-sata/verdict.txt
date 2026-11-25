@@ -1,0 +1,8 @@
+FAIL
+INFO run: stop=timeout secs=402 ipxe=12 net=12 san=none@- os=-
+PASS S1 sanboot started: yes
+PASS S1 iPXE registered the SAN device and booted from it: Registered / Booting from SAN device lines
+PASS S1 the SAN opened and the boot manager was started: no WRRUN-SAN-FAILED, no WRRUN-BOOT-RETURNED
+FAIL S4 the WinPE desktop is on the screen (heuristic, see the screenshots): no screenshot has the WinPE colour in two corners (6 screenshots)
+FAIL S4 the colour is stable (last screenshot, at least two screenshots): colour counts per screenshot: [0, 0, 0, 0, 0, 0]
+INFO serial: WinPE prints nothing on the serial line with these images (startnet.cmd's COM1 echo does not reach it): the screenshots are the evidence

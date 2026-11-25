@@ -1,0 +1,3 @@
+devpath=vendor
+devpath_image=winrbd/wrtest-p2-lin-uefi
+devpath_image=winrbd/wrtest-p2-bytes

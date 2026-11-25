@@ -1,0 +1,22 @@
+== build.sh licence, x86_64 undionly.kpxe
+The overall licence for this file is:
+  GPL version 2 (or, at your option, any later version)
+rm bin/version.undionly.kpxe.o
+ipxe/tools/build.sh: licence: bin/undionly.kpxe: GPL version 2 (or, at your option, any later version)
+== build.sh licence, i386 undionly.kpxe + ipxe.iso
+make: *** [Makefile.housekeeping:1265: bin-i386-pcbios/ipxe.iso.tmp] Error 1
+rm bin-i386-pcbios/version.ipxe.iso.o
+licence: iPXE's licence check of bin-i386-pcbios/ipxe.iso failed (exit 2)
+ipxe/tools/build.sh: licence: FAILED
+== build.sh verify
+ipxe/tools/build.sh: verify: bin/ipxe.usb: driver linked (121 driver objects in 4 link map(s)), no self-test
+ipxe/tools/build.sh: verify: bin/ipxe.iso: driver linked (121 driver objects in 4 link map(s)), no self-test
+ipxe/tools/build.sh: verify: bin-i386-pcbios/undionly.kpxe: driver linked (121 driver objects in 1 link map(s)), no self-test
+ipxe/tools/build.sh: verify: bin-i386-pcbios/ipxe.pxe: driver linked (121 driver objects in 1 link map(s)), no self-test
+ipxe/tools/build.sh: verify: bin-i386-pcbios/ipxe.usb: driver linked (121 driver objects in 5 link map(s)), no self-test
+ipxe/tools/build.sh: verify: bin-i386-pcbios/ipxe.iso: driver linked (121 driver objects in 1 link map(s)), no self-test
+== build.sh licence, i386 ipxe.pxe: iPXE own check refuses the build with the full NIC driver set (files of iPXE with no FILE_LICENCE: drivers/net/ath, bnxt, tg3, mlx...); CI checks undionly.kpxe and snponly.efi, so does this run
+== build.sh licence, i386 undionly.kpxe
+The overall licence for this file is:
+  GPL version 2 (or, at your option, any later version)
+ipxe/tools/build.sh: licence: bin-i386-pcbios/undionly.kpxe: GPL version 2 (or, at your option, any later version)

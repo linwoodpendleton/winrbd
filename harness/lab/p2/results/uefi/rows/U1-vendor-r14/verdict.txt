@@ -1,0 +1,12 @@
+FAIL
+INFO run: stop=fail-marker secs=153 ipxe=14 net=15 san=none@- os=-
+FAIL run met its expectation: RESULT met=0 stop=fail-marker
+PASS script used sanboot: yes
+FAIL table: RBFT-RESULT PASS: no RBFT-RESULT line
+PASS table: no FAIL line: 0 FAIL, 0 PASS
+PASS table: no SKIP line (every field has an expectation): 0 SKIP
+FAIL table: fields checked: only 0 distinct fields PASS (expected at least 40; 0 PASS lines)
+FAIL table: RBFT-RESULT counts agree with the lines: RBFT-RESULT says (no counts), the lines say pass=0 fail=0 skip=0
+FAIL no driver or GRUB trouble on the way to the login prompt: seen: rbd: open failed: out of memory
+FAIL marker WRBOOT-ROOT-OK: no WRBOOT-ROOT-OK (no WRBOOT-ROOT-* line)
+FAIL login prompt: no login prompt

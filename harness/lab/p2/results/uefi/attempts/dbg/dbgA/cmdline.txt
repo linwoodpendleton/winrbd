@@ -1,0 +1,4 @@
+# 2026-11-23T19:52:13Z row dbgA (uefi-pxe), profile smoke
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row U0 --ip 10.77.0.21 --user wrtest-p2-lin-uefi --pool winrbd --image wrtest-p2-lin-uefi --key-file /box/lab/keys/client.wrtest-p2-lin-uefi.secret --action sanhook --leave none --expect marker --marker iPXE\>\  --timeout 90

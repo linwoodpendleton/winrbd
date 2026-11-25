@@ -1,0 +1,13 @@
+guest_started_epoch: 1795526681.022
+stall_close_lines: 0
+trouble_lines: 0
+san_failure_line: Could not open SAN device: Permission denied (https://ipxe.org/0276603c)
+errno: EACCES 0x0276603c
+driver_lines: 1
+driver_line: rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD; the cluster answered -13): check the key (rbd-key), the user and its capabilities
+seconds_to_fail: 20.1
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.03 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 6

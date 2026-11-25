@@ -1,0 +1,102 @@
+{
+ "plan": "write",
+ "seed": "bench-1",
+ "data_first": 16,
+ "data_sectors": 131072,
+ "scratch_lba": 139264,
+ "scratch_sectors": 131072,
+ "image_sectors": 270336,
+ "image_sha256": "c3021233ab226048cedb558de9a31e10e7996bee817086962ddc06eac1cbbc52",
+ "records": [
+  {
+   "type": "Z",
+   "id": 1,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration before"
+  },
+  {
+   "type": "C",
+   "id": 2,
+   "cmd": 127,
+   "total": 16384,
+   "lba": 16,
+   "dst": 139264,
+   "gap": 0,
+   "note": "copy with 127-sector commands"
+  },
+  {
+   "type": "C",
+   "id": 3,
+   "cmd": 2048,
+   "total": 16384,
+   "lba": 16,
+   "dst": 155648,
+   "gap": 0,
+   "note": "copy with 1 MiB commands"
+  },
+  {
+   "type": "C",
+   "id": 4,
+   "cmd": 8192,
+   "total": 16384,
+   "lba": 16,
+   "dst": 172032,
+   "gap": 0,
+   "note": "copy with 4 MiB commands"
+  },
+  {
+   "type": "Z",
+   "id": 5,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration after"
+  }
+ ],
+ "expected": {
+  "2": {
+   "sumA": "8cc76e36",
+   "sumB": "8cc76e36",
+   "lastcnt": 1
+  },
+  "3": {
+   "sumA": "3c9e5848",
+   "sumB": "1b7de8ed",
+   "lastcnt": 2048
+  },
+  "4": {
+   "sumA": "3f54c076",
+   "sumB": "1b7de8ed",
+   "lastcnt": 8192
+  }
+ },
+ "verify": [
+  {
+   "id": 2,
+   "dst": 139264,
+   "src": 16,
+   "sectors": 16384,
+   "sha256": "8b6306f04df1b01385b55ff678fc6f44d11ad46d74c9247e5a08ab594b65d7c6"
+  },
+  {
+   "id": 3,
+   "dst": 155648,
+   "src": 16,
+   "sectors": 16384,
+   "sha256": "8b6306f04df1b01385b55ff678fc6f44d11ad46d74c9247e5a08ab594b65d7c6"
+  },
+  {
+   "id": 4,
+   "dst": 172032,
+   "src": 16,
+   "sectors": 16384,
+   "sha256": "8b6306f04df1b01385b55ff678fc6f44d11ad46d74c9247e5a08ab594b65d7c6"
+  }
+ ]
+}

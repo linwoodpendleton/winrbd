@@ -1,0 +1,28 @@
+guest_started_epoch: 1795488637.287
+fault_begin: +16.8 s
+fault_end: +16.8 s (lasted 0.0 s)
+fault_event: +0.0 s guest started (pid 3869796); fault mon-kill on '^WRBYTES-FILE z-fill' #1 + 1 s, down 20 s
+fault_event: +18.0 s monitor killed (rc 0)
+fault_event: +25.1 s monitor is back in quorum (poll 1)
+workload_start: +10.8 s
+workload_end: +22.2 s (took 11.4 s)
+stall_close_lines: 0
+trouble_lines: 0
+rbd_info_pumps: 14581
+rbd_info_cancels: 0
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (3, 4)
+rbd_info_ops_done: 589
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 0
+rbd_info_ra_reads: 2692
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=15; ops_failed=0; ops_resent=0; pumps=247; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation

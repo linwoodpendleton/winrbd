@@ -1,0 +1,2 @@
+RESULT row=U3 run=U3-20261124T095500Z-1285258 expect=marker met=1 ipxe=- net=- san=none@- end=- os=57 stop=expectation secs=64 console=<box>/measure/work/q/logs/U3-20261124T095500Z-1285258.console
+exit=0

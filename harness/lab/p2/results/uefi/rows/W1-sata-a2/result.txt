@@ -1,0 +1,2 @@
+RESULT row=W1 run=W1-20261123T221438Z-2432644 expect=none met=0 ipxe=36 net=37 san=none@- end=- os=- stop=timeout secs=401 console=/box/work/logs/W1-20261123T221438Z-2432644.console
+exit=1 wall=403s retries=0

@@ -1,0 +1,8 @@
+ipxe_variant   i386-rel
+5906f9ee2d77684e6902d79acbf9dab02d390d84d68f3b4b640f7dd561d15749  undionly.kpxe
+winpe image (raw, sha256 of the file imported; the image is the owner's, not kept here):
+  a16e83467494e4843838ea389b3a3419c843cbe854f0f1e73c79583437740de5
+7defd5419b1f442efbd996cf72a52754d3e2b63b78d9763c3ad7c8589d97eae5  runwinpe.sh
+77d5c068c418fc2b74cc18702acd88f2b738d1f941ee22f45b8a1bd95b66f4ff  run-undi.sh
+80557b78b8420f5c03e5a3f2a596411f8f8a685370fe438914f4f8bbb5ff0403  run-media.sh
+6989b13b301ed8c565d5a9d0429abf668f2f1d9b3a61f2743a5dc3774790caf6  lib.sh

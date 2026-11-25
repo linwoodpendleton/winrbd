@@ -1,0 +1,33 @@
+{
+ "rbft": {
+  "edd": [
+   "WRBOOT-EDD int13_dev80 mbr_signature=0x7d1f0002"
+  ],
+  "fail": 0,
+  "fail_lines": [],
+  "length": 234,
+  "marker": "WRBOOT-ROOT-OK fw=bios root=/dev/rbd0p1 fstype=ext4 mapped=rbd0 table=PASS src=scan image=wrtest-p2-b1 kernel=6.8.0-151-generic",
+  "pass": 40,
+  "result": "PASS",
+  "skip": 0,
+  "source": "scan: found at physical address 0x9a840 (1 valid copy/copies)",
+  "table": "WRBOOT-TABLE PASS"
+ },
+ "stages": {
+  "booting": 12.176,
+  "grub": 16.57,
+  "grub_countdown_end": 18.979,
+  "grub_loading": 49.513,
+  "hook": 50.422,
+  "hook_done": 51.765,
+  "ipxe": 8.351,
+  "net": 11.865,
+  "registered": 12.155,
+  "root_ok": 98.926,
+  "san_start": 11.885,
+  "script": 11.761,
+  "stub": 8.538,
+  "table_found": 50.936,
+  "table_result": 51.433
+ }
+}

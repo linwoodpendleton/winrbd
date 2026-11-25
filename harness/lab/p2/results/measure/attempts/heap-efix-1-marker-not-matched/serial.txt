@@ -1,0 +1,73 @@
+[2J[01;01H[=3h[2J[01;01H
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1434112 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771143)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771143,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771143)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771143,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iiPPXXEE  iinniittiiaalliissiinngg  ddeevviicceess......
+
+aauuttooeexxeecc..iippxxee......  ookk
+
+[0m
+
+
+
+
+
+[1[1m[37m[40mmiiPPXXEE  22..00..00++[0[0m[37m[40mm  ----  OOppeenn  SSoouurrccee  NNeettwwoorrkk  BBoooott  FFiirrmmwwaarree  ----  [36[0m[36m[40mmhhttttppss::////iippxxee..oorrgg[0[0m[37m[40mm
+
+FFeeaattuurreess::  DDNNSS  HHTTTTPP  HHTTTTPPSS  iiSSCCSSII  TTFFTTPP  VVLLAANN  SSRRPP  AAooEE  EEFFII  MMeennuu
+
+WWRRRRUUNN--BBEEGGIINN  rrooww==UU11
+
+WWaaiittiinngg  ffoorr  lliinnkk--uupp  oonn  nneett11......  ookk
+
+WWRRRRUUNN--NNEETT--OOKK
+
+WWRRRRUUNN--SSAANN--SSTTAARRTT  ssaannhhooookk
+
+RReeggiisstteerreedd  SSAANN  ddeevviiccee  00xx8800
+
+WWRRRRUUNN--SSAANN--OOKK
+
+WWRRMMSS--IINNFFOO--BBEEGGIINN
+
+rrbbdd::  iimmaaggee  wwiinnrrbbdd//wwrrtteesstt--pp22--mmss--lliinn--uueeffii::  ooppeenn,,  11  ddeevviiccee((ss)),,  44119944330044  bblloocckkss  ooff  551122  bbyytteess
+
+rrbbdd::      sseessssiioonn::  226611  ppuummppss,,  00  ccaanncceellss  ((mmoosstt  rroouunnddss  00)),,  00  rreeooppeennss,,  00  ssttaallll  cclloosseess
+
+rrbbdd::      ccoorree::  ccoonnnneeccttiioonnss  33  ((mmoosstt  33)),,  aarreennaa  226633339922  bbyytteess,,  bbuullkk  22662277558844  bbyytteess;;  mmooddeess::  33  ccrrcc,,  00  sseeccuurree,,  00  sseeccuurree  ffaaiilluurreess
+
+rrbbdd::      oossdd::  1199  ooppss  ddoonnee,,  00  rreesseenntt,,  00  ffaaiilleedd;;  iinn  fflliigghhtt  11  ((mmoosstt  88)),,  rreeqquueessttss  11  ((mmoosstt  88));;  00  sseessssiioonn  rreesseettss,,  zzoommbbiieess  00  ooff  00  bbyytteess
+
+rrbbdd::      rreeaaddaahheeaadd::  2244  rreeaaddss::  88  hhiittss,,  55  wwaaiittss,,  1111  mmiisssseess;;  11  wwiinnddoowwss,,  77  pprreeffeettcchheess  ((66  llaannddeedd,,  00  ffaaiilleedd,,  00  ddrrooppppeedd)),,  66  lliinneess  vvaalliidd
+
+WWRRMMSS--IINNFFOO--EENNDD
+
+ffiillee::////WWRRBBEESSPP//EEFFII//BBOOOOTT//BBOOOOTTXX6644..EEFFII......  ookk
+
+wwrrgg  ::  772244999922  bbyytteess  [[EEFFII]]
+
+WWRRMMSS--IINNFFOO--BBEEGGIINN
+
+rrbbdd::  iimmaaggee  wwiinnrrbbdd//wwrrtteesstt--pp22--mmss--lliinn--uueeffii::  ooppeenn,,  11  ddeevviiccee((ss)),,  44119944330044  bblloocckkss  ooff  551122  bbyytteess
+
+rrbbdd::      sseessssiioonn::  338866  ppuummppss,,  00  ccaanncceellss  ((mmoosstt  rroouunnddss  00)),,  00  rreeooppeennss,,  00  ssttaallll  cclloosseess
+
+rrbbdd::      ccoorree::  ccoonnnneeccttiioonnss  33  ((mmoosstt  33)),,  aarreennaa  226633339922  bbyytteess,,  bbuullkk  22662277558844  bbyytteess;;  mmooddeess::  33  ccrrcc,,  00  sseeccuurree,,  00  sseeccuurree  ffaaiilluurreess
+
+rrbbdd::      oossdd::  3311  ooppss  ddoonnee,,  00  rreesseenntt,,  44  ffaaiilleedd;;  iinn  fflliigghhtt  22  ((mmoosstt  88)),,  rreeqquueessttss  22  ((mmoosstt  88));;  00  sseessssiioonn  rreesseettss,,  zzoommbbiieess  00  ooff  00  bbyytteess
+
+rrbbdd::      rreeaaddaahheeaadd::  4400  rreeaaddss::  1188  hhiittss,,  88  wwaaiittss,,  1144  mmiisssseess;;  22  wwiinnddoowwss,,  1177  pprreeffeettcchheess  ((1155  llaannddeedd,,  00  ffaaiilleedd,,  00  ddrrooppppeedd)),,  66  lliinneess  vvaalliidd
+
+WWRRMMSS--IINNFFOO--EENNDD
+
+[31[0m[31m[40mmHHEEAAPP  mmaaxxiimmuumm  uussaaggee  8855kkBB
+
+[0[0m[37m[40mm

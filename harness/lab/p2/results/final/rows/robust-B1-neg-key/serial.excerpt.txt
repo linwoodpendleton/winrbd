@@ -1,0 +1,46 @@
+iPXE initialising devices...
+
+
+
+iPXE 2.0.0+ -- Open Source Network Boot Firmware -- https://ipxe.org
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:16)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD; the cluster answered -13): check the key (rbd-key), the user and its capabilities
+Could not open SAN device: Permission denied (https://ipxe.org/0276603c)
+WRRUN-SAN-FAILED 0x0276603c
+WRRUN-FAIL
+WRRUN-END
+[... full console on the build machine ...]
+WRRUN-STUB
+WRRUN-BEGIN row=B1
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD; the cluster answered -13): check the key (rbd-key), the user and its capabilities
+WRRUN-SAN-FAILED 0x0276603c
+WRRUN-FAIL
+WRRUN-END
+[... end of the console ...]
+iPXE initialising devices...
+
+
+
+iPXE 2.0.0+ -- Open Source Network Boot Firmware -- https://ipxe.org
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:16)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD; the cluster answered -13): check the key (rbd-key), the user and its capabilities
+Could not open SAN device: Permission denied (https://ipxe.org/0276603c)
+WRRUN-SAN-FAILED 0x0276603c
+WRRUN-FAIL
+WRRUN-END

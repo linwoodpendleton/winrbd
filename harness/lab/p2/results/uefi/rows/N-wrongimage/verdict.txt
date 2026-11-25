@@ -1,0 +1,9 @@
+PASS
+INFO run: stop=guest-exited secs=12 ipxe=12 net=12 san=failed@12 os=-
+PASS console line /rbd: .*failed: image not found .*\(WR_E_RBD_NOT_FOUND\)/: seen
+PASS the row says what it expects: errno and console line given
+PASS the SAN open failed: WRRUN-SAN-FAILED 0x2d76608e
+PASS no SAN device was made: no WRRUN-SAN-OK
+INFO errno: 0x2d76608e = ENOENT
+PASS errno is ENOENT: ENOENT
+PASS nothing booted: yes

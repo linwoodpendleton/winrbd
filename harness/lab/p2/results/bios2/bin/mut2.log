@@ -1,0 +1,8 @@
+MUT scan-nocap: caught by the tests (12 failure lines)
+MUT window-edge: caught by the tests (6 failure lines)
+MUT warn-booting: build broke:   [DEPS] hci/wireless_errors.c
+MUT warn-drives: build broke:   [DEPS] hci/wireless_errors.c
+MUT window-lo: caught by the tests (10 failure lines)
+MUT fit-pos: caught by the tests (7310 failure lines)
+MUT scan-kind: NOT CAUGHT (tests passed)
+MUT2-DONE

@@ -1,0 +1,32 @@
+guest_started_epoch: 1795498596.676
+fault_begin: +14.0 s
+fault_end: +54.2 s (lasted 40.1 s)
+fault_event: +14.1 s lab NIC link set down (rc 0)
+fault_event: +54.1 s lab NIC link set up (rc 0)
+workload_start: +12.8 s
+workload_end: +66.6 s (took 53.8 s)
+stall_close_lines: 1
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+trouble_lines: 0
+rbd_info_pumps: 14920
+rbd_info_cancels: 3
+rbd_info_reopens: 0
+rbd_info_stall_closes: 1
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 603
+rbd_info_ops_resent: 1
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 7
+rbd_info_ra_reads: 2703
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=13; ops_failed=0; ops_resent=0; pumps=276; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 2, osd 6
+connections_started_after_the_fault_began: +55.6 s osd:6810, +56.0 s osd:6802, +56.2 s monitor:3300, +56.4 s osd:6818
+monitor_to_guest_bytes: 4937 before the fault (15 packets), 0 while it lasted (0), 1293 after it ended (12)

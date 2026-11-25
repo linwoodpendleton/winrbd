@@ -1,0 +1,10 @@
+1795491946.840 T+0 guest started (pid 4135614); fault outage on '^WRRB-START' #1 + 1 s, down 420 s
+1795491947.123 T+1 lab-clock 1795491947.174014836
+1795491958.186 T+12 trigger seen (^WRRB-START, #1)
+1795491958.190 T+12 fault outage after 1 s
+1795491959.200 T+13 fault outage: begins (down 420 s)
+1795491959.205 T+13 all ceph-osd processes: SIGSTOP sent now
+1795491959.629 T+13 all ceph-osd processes stopped (SIGSTOP) (rc 0)
+1795492380.885 T+434 all ceph-osd processes continued (SIGCONT) (rc 0)
+1795492382.207 T+436 all OSDs up and in again: 3 3 3 (poll 1)
+1795492382.214 T+436 fault outage: ends (rc 0)

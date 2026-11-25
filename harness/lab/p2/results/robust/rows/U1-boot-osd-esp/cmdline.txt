@@ -1,0 +1,4 @@
+# 2026-11-24T04:02:56Z row U1-boot-osd-esp (uefi, boot, fault osd-kill), profile boot; b: osd.1 killed while the firmware reads the ESP and GRUB
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault osd-kill --on \^Booting\ from\ SAN\ device --delay 0.3 --down 45 --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-lin-uefi --pool winrbd --image wrtest-p2-rb-lin-uefi --key-file <lab dir>/keys/client.wrtest-p2-rb-lin-uefi.secret --timeout 600 --action sanboot --expect os --opt devpath=vendor --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=<out>/rows/.tmp.32036/params.txt --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/key\,file=<lab dir>/keys/client.wrtest-p2-rb-lin-uefi.secret

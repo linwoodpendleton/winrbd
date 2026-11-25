@@ -1,0 +1,110 @@
+{
+ "plan": "idle",
+ "seed": "bench-1",
+ "data_first": 16,
+ "data_sectors": 524288,
+ "scratch_lba": 532480,
+ "scratch_sectors": 8192,
+ "image_sectors": 540672,
+ "image_sha256": "50619dab72eb824b37dddbe587950453b0cd35933c25617e65f3eae1ffd3dd58",
+ "records": [
+  {
+   "type": "Z",
+   "id": 1,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration before"
+  },
+  {
+   "type": "R",
+   "id": 2,
+   "cmd": 2048,
+   "total": 131072,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "warm pass: 64 MiB, so that every OSD has been talked to"
+  },
+  {
+   "type": "L",
+   "id": 3,
+   "cmd": 127,
+   "total": 8,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 0,
+   "note": "control: reads far apart, no gap"
+  },
+  {
+   "type": "L",
+   "id": 4,
+   "cmd": 127,
+   "total": 6,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 5,
+   "note": "after 5 s of idle"
+  },
+  {
+   "type": "L",
+   "id": 5,
+   "cmd": 127,
+   "total": 6,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 40,
+   "note": "after 40 s of idle"
+  },
+  {
+   "type": "L",
+   "id": 6,
+   "cmd": 127,
+   "total": 6,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 120,
+   "note": "after 120 s of idle"
+  },
+  {
+   "type": "L",
+   "id": 7,
+   "cmd": 127,
+   "total": 6,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 960,
+   "note": "after 960 s of idle"
+  },
+  {
+   "type": "L",
+   "id": 8,
+   "cmd": 127,
+   "total": 8,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 0,
+   "note": "control again, no gap"
+  },
+  {
+   "type": "Z",
+   "id": 9,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration after"
+  }
+ ],
+ "expected": {
+  "2": {
+   "sumA": "ccbee93f",
+   "sumB": "1e81ba32",
+   "lastcnt": 2048
+  }
+ },
+ "verify": []
+}

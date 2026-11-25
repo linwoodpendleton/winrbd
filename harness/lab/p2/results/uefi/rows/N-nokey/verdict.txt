@@ -1,0 +1,9 @@
+PASS
+INFO run: stop=guest-exited secs=68 ipxe=66 net=68 san=failed@68 os=-
+PASS console line /no cephx key: set rbd-key/: seen
+PASS the row says what it expects: errno and console line given
+PASS the SAN open failed: WRRUN-SAN-FAILED 0x1c706082
+PASS no SAN device was made: no WRRUN-SAN-OK
+INFO errno: 0x1c706082 = EINVAL
+PASS errno is EINVAL: EINVAL
+PASS nothing booted: yes

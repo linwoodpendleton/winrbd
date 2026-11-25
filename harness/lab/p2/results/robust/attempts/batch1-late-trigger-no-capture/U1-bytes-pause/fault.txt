@@ -1,0 +1,8 @@
+1795489211.751 T+0 guest started (pid 3894965); fault pause on '^WRBYTES-FILE z-fill' #1 + 1.5 s, down 60 s
+1795489212.049 T+1 lab-clock 1795489212.110466584
+1795489229.371 T+18 trigger seen (^WRBYTES-FILE z-fill, #1)
+1795489229.376 T+18 fault pause after 1.5 s
+1795489230.883 T+19 fault pause: begins (down 60 s)
+1795489230.969 T+19 guest stopped (rc 0)
+1795489291.015 T+80 guest continued (rc 0)
+1795489291.019 T+80 fault pause: ends (rc 0)

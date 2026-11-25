@@ -1,0 +1,22 @@
+{
+ "cal_spread_pct": null,
+ "core_stack": [],
+ "done": false,
+ "errors": [],
+ "heap_grow_requests": [],
+ "heap_kb": [],
+ "heap_trouble": [],
+ "info": null,
+ "info_all": [],
+ "lat": {},
+ "load": {
+  "host_load1_end": 24.03,
+  "host_load1_max": 24.03,
+  "host_load1_start": 24.03
+ },
+ "stack": [],
+ "stalls": 0,
+ "started": false,
+ "steps": {},
+ "tsc_hz": null
+}

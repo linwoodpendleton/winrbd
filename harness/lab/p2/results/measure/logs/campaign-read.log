@@ -1,0 +1,6 @@
+mrun.sh: rd-def-1: PASS  (RESULT row=B1 run=B1-20261124T062322Z-504729 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=134 os=- stop=expectation secs=135 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: rd-ra0-1: PASS  (RESULT row=B1 run=B1-20261124T062605Z-508546 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=74 os=- stop=expectation secs=74 console=<box>/measure/work/q/logs/B1-20261124T062)
+mrun.sh: rd-def-2: PASS  (RESULT row=B1 run=B1-20261124T062747Z-512169 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=218 os=- stop=expectation secs=218 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: rd-ra0-2: PASS  (RESULT row=B1 run=B1-20261124T063159Z-568061 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=75 os=- stop=expectation secs=75 console=<box>/measure/work/q/logs/B1-20261124T063)
+mrun.sh: rd-def-3: PASS  (RESULT row=B1 run=B1-20261124T063337Z-571632 expect=marker met=1 ipxe=8 net=12 san=ok@13 end=157 os=- stop=expectation secs=158 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: rd-ra0-3: PASS  (RESULT row=B1 run=B1-20261124T063642Z-576412 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=77 os=- stop=expectation secs=77 console=<box>/measure/work/q/logs/B1-20261124T063)

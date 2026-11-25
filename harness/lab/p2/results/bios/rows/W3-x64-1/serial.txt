@@ -1,0 +1,17 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:12:cc)...... ok
+tftp://10.77.0.10/autoexec.ipxe... ok
+WRRUN-BEGIN row=W3
+Waiting for link-up on net0... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+Registered SAN device 0x80
+Booting from SAN device 0x80
+rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)

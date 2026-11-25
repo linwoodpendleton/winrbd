@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: MIT
+#
+# Phase 2 lab cluster: configuration template (sourced by up.sh, down.sh, users.sh, probe.sh and,
+# through LAB_CONF, by harness/lab/make-vm.sh and the other lab scripts).
+#
+# Which file is used: $LAB_CONF if set, else lab.conf next to this file if it exists, else this
+# template as it is. Every LAB_* / P2_* value can also be given as an environment variable; the
+# environment wins over the file. Keep a private copy OUTSIDE the git tree when you change anything
+# (the repository's .gitignore only covers harness/lab/lab.conf).
+#
+# These values are chosen so that this lab cannot meet any other lab on the same machine: its own
+# directory, its own SSH port, its own QEMU multicast group and its own MAC addresses. The Ceph
+# addresses inside the private layer 2 (10.77.0.0/24, monitor 10.77.0.10) are the same as in the
+# main lab on purpose: they are not routable and not shared, because the multicast group differs.
+
+# --- where things live (host side) ---------------------------------------
+# Everything the lab creates goes below LAB_DIR, which must not exist yet (or be empty): up.sh
+# marks it, down.sh deletes only what up.sh made. On a shared build machine set it in the
+# environment to a directory below your own work directory.
+: "${LAB_DIR:=$HOME/winrbd-p2-lab}"
+LAB_MIN_FREE_GB=40
+
+# --- guest identity -------------------------------------------------------
+LAB_HOSTNAME=winrbd-p2-ceph
+LAB_SSH_USER=lab
+# up.sh creates this key pair (no passphrase, mode 600, inside LAB_DIR) when it is missing.
+LAB_SSH_PUBKEY_FILE="$LAB_DIR/ssh/id_ed25519.pub"
+
+# --- VM size: 4 vCPU, 8 GiB, three sparse OSD disks -----------------------
+LAB_VCPUS=4
+LAB_MEM_MB=8192
+LAB_ROOT_GB=30
+LAB_OSD_COUNT=3
+LAB_OSD_GB=12            # sparse qcow2: a maximum, not a reservation
+LAB_DISK_CACHE=none
+LAB_NICE=19              # every process the lab starts runs as: nice -n LAB_NICE choom -n 600 --
+LAB_RUNNER=daemon        # no root, no systemd: a plain background qemu with a pidfile
+
+# --- networking (nothing on the host is touched) --------------------------
+# NIC1: user-mode (slirp) NAT for the guest's own downloads; SSH forwarded on 127.0.0.1 only.
+# NIC2: the lab's private layer 2, a QEMU multicast socket on the loopback address.
+LAB_SSH_PORT=22232
+LAB_MCAST=230.77.12.1:7712
+LAB_MCAST_LOCALADDR=127.0.0.1
+LAB_PRIV_CIDR=10.77.0.10/24
+LAB_MAC_INET=52:54:00:77:12:01
+LAB_MAC_PRIV=52:54:00:77:12:10
+
+# --- Ceph (used inside the guest by the repository's own scripts) ---------
+LAB_CEPH_VERSION=20.2.5
+LAB_POOL=winrbd
+LAB_CEPHX_ID=winrbd
+# Optional nearer mirrors, see harness/lab/lab.conf.example:
+#LAB_APT_MIRROR=
+#LAB_CEPH_IMAGE=quay.io/ceph/ceph:v20.2.5
+#LAB_CEPH_APT_URL=https://download.ceph.com/debian-tentacle
+
+# --- budget and tuning (P2_*) ---------------------------------------------
+# The whole Phase 2 workflow may use at most this much of the shared machine at any time; up.sh and
+# probe.sh refuse to start a VM that would exceed it (they add up the -smp / -m of every qemu
+# process whose command line is below the parent directory of LAB_DIR).
+: "${P2_BUDGET_CORES:=24}"
+: "${P2_BUDGET_MEM_MB:=32768}"
+# osd_memory_target for the three OSDs (bytes): the default of 4 GiB each does not fit in 8 GiB.
+: "${P2_OSD_MEMORY_TARGET:=1288490188}"
+# Waits (seconds).
+: "${P2_WAIT_SSH_S:=900}"
+: "${P2_WAIT_STAGE_S:=3600}"
+: "${P2_WAIT_HEALTH_S:=900}"
+# The probe guest (probe.sh): one core, 768 MiB, a static address and two MACs of its own.
+: "${P2_PROBE_IP:=10.77.0.50}"
+: "${P2_PROBE_CPUS:=1}"
+: "${P2_PROBE_MEM_MB:=768}"
+: "${P2_PROBE_MAC_INET:=52:54:00:77:12:51}"
+: "${P2_PROBE_MAC_PRIV:=52:54:00:77:12:50}"
+: "${P2_PROBE_TIMEOUT_S:=420}"

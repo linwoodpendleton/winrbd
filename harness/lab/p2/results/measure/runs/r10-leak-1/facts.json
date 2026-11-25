@@ -1,0 +1,342 @@
+{
+ "cal_spread_pct": null,
+ "core_stack": [
+  [
+   512,
+   16384
+  ],
+  [
+   760,
+   16384
+  ],
+  [
+   1304,
+   16384
+  ],
+  [
+   1588,
+   16384
+  ],
+  [
+   512,
+   16384
+  ],
+  [
+   760,
+   16384
+  ],
+  [
+   1304,
+   16384
+  ],
+  [
+   1588,
+   16384
+  ],
+  [
+   512,
+   16384
+  ],
+  [
+   760,
+   16384
+  ],
+  [
+   1304,
+   16384
+  ],
+  [
+   1588,
+   16384
+  ],
+  [
+   512,
+   16384
+  ],
+  [
+   788,
+   16384
+  ],
+  [
+   1304,
+   16384
+  ],
+  [
+   1588,
+   16384
+  ],
+  [
+   512,
+   16384
+  ],
+  [
+   760,
+   16384
+  ],
+  [
+   1304,
+   16384
+  ],
+  [
+   1588,
+   16384
+  ]
+ ],
+ "done": false,
+ "errors": [],
+ "heap_grow_requests": [
+  [
+   2403,
+   0
+  ],
+  [
+   5013508,
+   8
+  ],
+  [
+   5013508,
+   8
+  ],
+  [
+   5013508,
+   8
+  ],
+  [
+   5013508,
+   8
+  ],
+  [
+   5013508,
+   8
+  ]
+ ],
+ "heap_kb": [
+  120
+ ],
+ "heap_trouble": [],
+ "info": {
+  "arena_used": 260128,
+  "bulk_used": 2627584,
+  "cancels": 0,
+  "conns": 3,
+  "conns_most": 3,
+  "core_stack_total": 16384,
+  "core_stack_used": 1696,
+  "ops_done": 4,
+  "ops_failed": 0,
+  "ops_inflight_most": 1,
+  "ops_resent": 0,
+  "pumps": 45,
+  "ra": {
+   "dropped": 0,
+   "failed": 0,
+   "hits": 0,
+   "landed": 0,
+   "misses": 2,
+   "prefetches": 0,
+   "reads": 2,
+   "valid": 0,
+   "waits": 0,
+   "windows": 0
+  },
+  "reopens": 0,
+  "reqs_most": 1,
+  "session_resets": 0,
+  "stall_closes": 0,
+  "zombie_max": 0,
+  "zombie_used": 0
+ },
+ "info_all": [
+  {
+   "arena_used": 260128,
+   "bulk_used": 2627584,
+   "cancels": 0,
+   "conns": 3,
+   "conns_most": 3,
+   "core_stack_total": 16384,
+   "core_stack_used": 1696,
+   "ops_done": 4,
+   "ops_failed": 0,
+   "ops_inflight_most": 1,
+   "ops_resent": 0,
+   "pumps": 45,
+   "ra": {
+    "dropped": 0,
+    "failed": 0,
+    "hits": 0,
+    "landed": 0,
+    "misses": 2,
+    "prefetches": 0,
+    "reads": 2,
+    "valid": 0,
+    "waits": 0,
+    "windows": 0
+   },
+   "reopens": 0,
+   "reqs_most": 1,
+   "session_resets": 0,
+   "stall_closes": 0,
+   "zombie_max": 0,
+   "zombie_used": 0
+  },
+  {
+   "arena_used": 260128,
+   "bulk_used": 2627584,
+   "cancels": 0,
+   "conns": 3,
+   "conns_most": 3,
+   "core_stack_total": 16384,
+   "core_stack_used": 1696,
+   "ops_done": 4,
+   "ops_failed": 0,
+   "ops_inflight_most": 1,
+   "ops_resent": 0,
+   "pumps": 45,
+   "ra": {
+    "dropped": 0,
+    "failed": 0,
+    "hits": 0,
+    "landed": 0,
+    "misses": 2,
+    "prefetches": 0,
+    "reads": 2,
+    "valid": 0,
+    "waits": 0,
+    "windows": 0
+   },
+   "reopens": 0,
+   "reqs_most": 1,
+   "session_resets": 0,
+   "stall_closes": 0,
+   "zombie_max": 0,
+   "zombie_used": 0
+  }
+ ],
+ "lat": {},
+ "load": {
+  "guest_cpu_wait_pct": 0.0006741207982207644,
+  "guest_cpu_wait_s": 0.0035876,
+  "host_load1_end": 21.79,
+  "host_load1_max": 29.29,
+  "host_load1_start": 23.72,
+  "lab_cpu_wait_pct": -0.04492010966516216,
+  "sample_seconds": 532.1894843578339
+ },
+ "loop": {
+  "fail": 0,
+  "failed": [],
+  "hooks": 24,
+  "n": 24,
+  "ok": 24
+ },
+ "stack": [
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ],
+  [
+   2120,
+   4096
+  ]
+ ],
+ "stalls": 0,
+ "started": false,
+ "steps": {},
+ "tsc_hz": null
+}

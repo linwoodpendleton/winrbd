@@ -1,0 +1,10 @@
+1795491100.036 T+1 guest started (pid 4028593); fault mon-kill on '^WRBYTES-FILE f-17m' #1 + 0 s, down 2 s
+1795491100.543 T+1 lab-clock 1795491100.597123553
+1795491112.214 T+13 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795491112.220 T+13 fault mon-kill after 0 s
+1795491112.228 T+13 fault mon-kill: begins (down 2 s)
+1795491112.233 T+13 monitor: SIGKILL sent now
+1795491113.105 T+14 monitor killed (rc 0)
+1795491116.678 T+17 monitor started (rc 0)
+1795491118.538 T+19 monitor is back in quorum (poll 1)
+1795491118.543 T+19 fault mon-kill: ends (rc 0)

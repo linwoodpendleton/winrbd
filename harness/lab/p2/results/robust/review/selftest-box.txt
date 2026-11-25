@@ -1,0 +1,169 @@
+# robust.selftest on the box (Ubuntu 22.04, bash 5.1, python 3.10, GNU as/ld 2.38, shellcheck 0.8.0), 2026-11-24, after the review of README section 7
+SHELLCHECK-CLEAN
+== the test's own helper
+  ok   check: a failing later command of the list fails the check
+  ok   check: a list in which every command succeeds passes
+  ok   check: a failing first command fails the check
+== the scripts parse
+  ok   bash -n qemu/robust.sh
+  ok   bash -n results/robust/tools/rr.sh
+  ok   bash -n results/robust/tools/matrix.sh
+  ok   bash -n results/robust/tools/labstate.sh
+  ok   bash -n results/robust/tools/selftest.sh
+  ok   analyze.py compiles
+  ok   mkreader.py compiles
+  ok   summarize.py compiles
+  ok   shellcheck is clean on robust.sh rr.sh matrix.sh labstate.sh
+  ok   every script has its SPDX line
+== matrix.sh
+  ok   the matrix lists rows of both families and all workloads
+  ok   U1 and B1 both have a mon row
+  ok   U1 and B1 both have a mon-short row
+  ok   U1 and B1 both have a mon-osd row
+  ok   U1 and B1 both have a osd-short row
+  ok   U1 and B1 both have a osd-long row
+  ok   U1 and B1 both have a pause row
+  ok   U1 and B1 both have a link row
+  ok   U1 and B1 both have a stall20 row
+  ok   U1 and B1 both have a stall40 row
+  ok   U1 and B1 both have a outage row
+  ok   the four negative rows exist in both families
+  ok   every row name is unique
+  ok   an unknown row is refused
+== robust.sh: options and dry runs
+  ok   a bad --family is refused
+  ok   a bad --fault is refused
+  ok   --down must be a number
+  ok   --delay must not be negative
+  ok   --osd must be a number
+  ok   shell operators in --lab-ssh are refused
+  ok   --press takes key names only
+  ok   --link-name must be a QEMU id
+  ok   --on-nth starts at 1
+  ok   --on must be a regular expression (a bad one would never fire and the guest would run to the timeout)
+  ok   --idle-timeout must be 5 or more
+  ok   --idle-timeout must be a number
+  ok   --help works
+  ok   --help names every fault
+  ok   dry run, fault none: exit 0 and the plan says none
+  ok   dry run, fault mon-kill: exit 0 and the plan says mon-kill
+  ok   dry run, fault mon-osd: exit 0 and the plan says mon-osd
+  ok   dry run, fault osd-kill: exit 0 and the plan says osd-kill
+  ok   dry run, fault pause: exit 0 and the plan says pause
+  ok   dry run, fault link-down: exit 0 and the plan says link-down
+  ok   dry run, fault stall: exit 0 and the plan says stall
+  ok   dry run, fault outage: exit 0 and the plan says outage
+  ok   the dry run shows the timing and the QMP command
+  ok   the stock refusals of --qemu-arg still hold
+  ok   the dry run starts nothing and creates nothing
+  ok   the QEMU command line has the lab NIC under the id the fault driver uses (lab)
+== mkreader.py and reader.S
+  ok   the hash of four dwords is the pinned value
+  ok   the progress points of a 128 MiB disk: 63 of them, the first at lba 4157
+  ok   a disk of 100 sectors has no progress point
+  ok   the reader assembles into 8 sectors + data and the count is patched
+  ok   the disk is 2 MiB
+  ok   the boot signature is there
+  ok   the second stage has its header
+  ok   --prefix ends with the same hash as --hash
+== analyze.py
+  ok   bytes: good evidence passes
+  ok   bytes: a wrong digest fails
+  ok   bytes: a file that failed to read fails
+  ok   bytes: no WRBYTES-DONE fails
+  ok   bytes: a fault that began after the workload ended fails
+  ok   bytes: a fault with no end line fails
+  ok   bytes: UNDO FAILED in fault.txt fails
+  ok   bytes: a changed lab fails
+  ok   bytes: an OSD down afterwards fails
+  ok   bytes: a non-zero exit fails
+  ok   bytes: a key-shaped string fails
+  ok   bytes: the control (no fault) passes
+  ok   bytes: facts.txt has the counters
+  ok   the start of the guest is the 'guest started' line, not the first line of fault.txt
+  ok   bytes: no md5 list is a FAIL, not a pass
+  ok   bytes, outage: a read that failed is what the row wants
+  ok   bytes, outage: no failed read at all fails (the SAN layer never gave up)
+  ok   bytes, outage: a wrong digest still fails
+  ok   reader, outage: a read error that reached the loader is what the row wants
+  ok   reader, outage: no read error at all fails
+  ok   reader: good evidence passes
+  ok   reader: a wrong prefix hash fails
+  ok   reader: a wrong final hash fails
+  ok   reader: a canary violation fails
+  ok   reader: a read error that reached the loader fails
+  ok   boot: good evidence passes
+  ok   boot: no WRBOOT-ROOT-OK fails
+  ok   boot: a failed table check fails
+  ok   boot: a kernel panic fails
+  ok   boot-outage: it booted after the cluster came back: pass
+  ok   boot-outage: a loader read error and a stop is a pass
+  ok   boot-outage: no outcome at all fails
+  ok   boot-outage: a kernel panic fails
+  ok   boot-outage: a booted system with a failed table check fails
+  ok   negative neg-key: good evidence passes
+  ok   negative neg-key: the wrong errno fails
+  ok   negative neg-pool: good evidence passes
+  ok   negative neg-pool: the wrong errno fails
+  ok   negative neg-image: good evidence passes
+  ok   negative neg-image: the wrong errno fails
+  ok   negative neg-mon: good evidence passes
+  ok   negative neg-mon: the wrong errno fails
+  ok   negative: two driver lines fail
+  ok   no console log is BLOCKED, not a pass
+== matrix.sh rejudge
+  ok   rejudge: good evidence is judged again and passes
+  ok   rejudge: a row that failed the secret scan still fails (its files are gone, the analysis cannot see the key)
+  ok   rejudge: a row with no evidence directory is refused
+== labstate.sh
+  ok   labstate diff: the blocklist count alone is not a difference
+  ok   labstate diff: an OSD that is down is a difference
+  ok   labstate snapshot without a lab is refused
+== whole runs against a QEMU stand-in and a lab stub
+  ok   no fault: exit 0, the marker was seen
+  ok   no fault: the lab was not asked for anything
+  ok   no fault: fault.txt says so
+  ok   the time-stamped console is written and every line has an epoch
+  ok   the time-stamped console has the end marker
+  ok   mon-kill: exit 0
+  ok   mon-kill: kill + stop, then start, then waits for quorum
+  ok   mon-kill: the begin, the kill, the start and the return are in fault.txt in that order
+  ok   mon-kill: after the restart it asks cephadm for a refresh and waits for its health checks to go
+  ok   mon-kill: the guest was not touched
+  ok   a fault still waiting when the run ends is undone at once
+  ok   ...and fault.txt says that the run ended first
+  ok   ...and the monitor was started again
+  ok   ...within seconds, not after the 30 s
+  ok   mon-osd: the monitor is killed first, then the OSD, with the monitor down
+  ok   mon-osd: starts the monitor, waits for quorum, starts the OSD
+  ok   osd-kill: kill + stop, start, wait for all OSDs up and in
+  ok   stall: STOP, then CONT, then waits for the OSDs
+  ok   stall: STOP comes before CONT
+  ok   pause: QMP stop, then cont
+  ok   --idle-timeout: set for the monitor and the OSDs before the guest runs, removed afterwards
+  ok   --idle-timeout: the setting comes first and the removal last
+  ok   --idle-timeout: fault.txt says both
+  ok   link-down: set_link false, then true, on the netdev named lab
+  ok   --press: one send-key of Enter
+  ok   a trigger that never appears: exit 3 and the fault log says nothing was injected
+  ok   a fault that cannot be prepared stops the run before the guest starts
+  ok   --capture: a tcpdump is started in the lab VM, limited to the guest and the monitor ports
+  ok   --capture: its output is kept next to the other logs
+  ok   --capture: a lab without tcpdump stops the run before the guest starts
+  ok   --idle-timeout: a lab that already has the setting is refused, and nothing is set or removed
+  ok   --idle-timeout: a lab whose configuration cannot be read is refused too (the undo could not be trusted)
+  ok   a cluster with fewer health checks than at the start is not a failure (and the wait does not run out)
+  ok   a fault whose undo fails: exit 3 and fault.txt says UNDO FAILED
+  ok   a last console line without its newline is in the time-stamped console too
+  ok   no link on the lab NIC: the run ends at once, not at the timeout (net-failed)
+  ok   signal: the monitor was killed and the run is still going
+  ok   signal: SIGTERM ends the script with 143
+  ok   signal: the monitor was started again before the script exited
+  ok   signal: no guest and no run directory left
+  ok   the key in the console: exit 4, and the console, the time-stamped console and the QEMU output of that run are discarded
+  ok   nothing of any run is left behind
+  ok   no QEMU stand-in is left
+  ok   the key is nowhere under the work directory except where the stock library keeps it
+
+robust.selftest: 155 passed, 0 failed, 0 skipped
+rc=0

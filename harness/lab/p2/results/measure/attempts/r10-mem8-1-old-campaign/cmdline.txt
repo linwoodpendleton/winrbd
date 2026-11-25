@@ -1,0 +1,43 @@
+# 2026-11-24T09:27:03Z run r10-mem8-1, image wrtest-p2-ms-probe; one hook in a guest with 8 MiB
+# the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/measure/work/q P2_LAB_DIR=<box>/lab-p2 P2Q_BUDGET_ROOT=<box>
+bash <box>/measure/repo/harness/lab/p2/qemu/run-bios-pxe.sh --row B1 --ip 10.77.0.62 --user wrtest-p2-ms-probe --pool winrbd --image wrtest-p2-ms-probe --key-file <box>/lab-p2/keys/client.wrtest-p2-ms-probe.secret --timeout 240 --cpus 2 --mem 8 --action sanhook --drive 0x80 --leave none --append <box>/measure/out/runs/.tmp.1226328/append.ipxe --expect marker --marker HEAP\ maximum\ usage --bin <box>/measure/work/bin/inst/ipxe-stub.pxe --delivery stub
+# the iPXE script after sanhook:
+#   echo WRMS-INFO-BEGIN
+#   rbd-info
+#   echo WRMS-INFO-END
+#   sanunhook --drive 0x80 || goto fail
+#   set n:int32 0
+#   :loop
+#   isset ${n} || goto fail
+#   iseq ${n} 1 && goto grace || goto hook
+#   :hook
+#   sanhook --drive 0x80 rbd://wrtest-p2-ms-probe@10.77.0.10:3300/winrbd/wrtest-p2-ms-probe || goto fail
+#   echo WRLOOP-HOOK ${n} ok
+#   sanunhook --drive 0x80 || goto fail
+#   inc n
+#   goto loop
+#   :grace
+#   set g:int32 0
+#   :graceloop
+#   iseq ${g} 0 && goto end || goto graceround
+#   :graceround
+#   sleep 125
+#   sanhook --drive 0x80 rbd://wrtest-p2-ms-probe@10.77.0.10:3300/winrbd/wrtest-p2-ms-probe || goto fail
+#   echo WRLOOP-HOOK ${n} ok after-grace
+#   sanunhook --drive 0x80 || goto fail
+#   inc n
+#   inc g
+#   goto graceloop
+#   :end
+#   echo WRLOOP-END n=${n} ok=${n} fail=0
+#   goto info
+#   :fail
+#   echo WRLOOP-HOOK ${n} fail 0x${errno:hexraw}
+#   echo WRLOOP-END n=${n} ok=${n} fail=1
+#   :info
+#   echo WRMS-INFO-BEGIN
+#   rbd-info
+#   echo WRMS-INFO-END
+#   echo WRMS-END
+#   exit

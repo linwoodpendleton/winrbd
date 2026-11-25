@@ -1,0 +1,26 @@
+1795494990.538 iPXE initialising devices...
+1795494990.849 [0m
+1795494990.849 
+1795494990.849 
+1795494990.849 [1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+1795494990.849 Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+1795494990.849 WRRUN-STUB
+1795494993.968 Configuring (net0 52:54:00:77:11:16)...... ok
+1795494993.968 tftp://10.0.2.2/autoexec.ipxe... ok
+1795494993.968 WRRUN-BEGIN row=B1
+1795494993.968 Waiting for link-up on net1... ok
+1795494993.968 WRRUN-NET-OK
+1795494994.282 WRRUN-SAN-START sanhook
+1795494994.282 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494994.282 rbd: core stack high-water 512 of 16384 bytes
+1795494994.282 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494994.282 rbd: core stack high-water 788 of 16384 bytes
+1795494994.282 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494994.282 rbd: core stack high-water 1304 of 16384 bytes
+1795494994.282 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494994.282 rbd: core stack high-water 1588 of 16384 bytes
+1795494994.596 rbd: open failed: image not found (no id object; a format 1 image is not supported) (WR_E_RBD_NOT_FOUND)
+1795494994.596 Could not open SAN device: No such file or directory (https://ipxe.org/2d76603b)
+1795494994.596 WRRUN-SAN-FAILED 0x2d76603b
+1795494994.596 WRRUN-FAIL
+1795494994.596 WRRUN-END

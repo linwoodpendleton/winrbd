@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT
+[Unit]
+Description=Print the winrbd boot marker on the console
+After=local-fs.target systemd-udev-settle.service
+ConditionPathExists=/usr/local/sbin/wrboot-marker
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/wrboot-marker
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

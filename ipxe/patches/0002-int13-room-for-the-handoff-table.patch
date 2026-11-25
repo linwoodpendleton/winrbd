@@ -1,0 +1,23 @@
+Subject: [PATCH 2/4] int13: room for the winrbd handoff table in the BIOS boot firmware tables
+
+On BIOS the boot firmware tables (iBFT, aBFT, sBFT and the winrbd "rBFT" handoff table)
+are copied into one fixed area, XBFTAB_SIZE bytes of data16 (src/arch/x86/interface/
+pcbios/int13.c: int13_install() refuses a table that does not fit). 768 bytes
+is enough for an iBFT alone; the handoff table is 152 bytes of fixed fields (36-byte ACPI header, 116-byte fixed part) plus
+monitor addresses, names and, when asked for, the cephx key. 2048 bytes holds
+a typical iBFT and a typical handoff table with room to spare (the largest of both together fill it exactly: see patch 0004). The cost is 1280 bytes of data16 BSS.
+
+Licence: GPL2_OR_LATER_OR_UBDL, like the file it touches.
+
+---
+--- a/src/arch/x86/interface/pcbios/int13.c
++++ b/src/arch/x86/interface/pcbios/int13.c
+@@ -1550,7 +1550,7 @@
+ }
+ 
+ /** Maximum size of boot firmware table(s) */
+-#define XBFTAB_SIZE 768
++#define XBFTAB_SIZE 2048
+ 
+ /** Alignment of boot firmware table entries */
+ #define XBFTAB_ALIGN 16

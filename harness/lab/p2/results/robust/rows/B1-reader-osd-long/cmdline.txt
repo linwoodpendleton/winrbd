@@ -1,0 +1,4 @@
+# 2026-11-24T03:23:33Z row B1-reader-osd-long (bios, reader, fault osd-kill), profile reader; b
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family bios --fault osd-kill --on \^WRRB-START --delay 1 --down 45 --capture --bin <work>/ipxe/ipxe-stub.pxe --row B1 --ip 10.77.0.22 --user wrtest-p2-rb-reader --pool winrbd --image wrtest-p2-rb-reader --key-file <lab dir>/keys/client.wrtest-p2-rb-reader.secret --timeout 420 --action sanhook --drive 0x80 --leave none --append <out>/rows/.tmp.4004820/append.ipxe --expect marker --marker \^WRRUN-END --delivery stub

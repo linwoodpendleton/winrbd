@@ -1,0 +1,4 @@
+# 2026-11-24T03:26:34Z row B1-reader-link (bios, reader, fault link-down), profile reader; d
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family bios --fault link-down --on \^WRRB-START --delay 1 --down 40 --capture --bin <work>/ipxe/ipxe-stub.pxe --row B1 --ip 10.77.0.22 --user wrtest-p2-rb-reader --pool winrbd --image wrtest-p2-rb-reader --key-file <lab dir>/keys/client.wrtest-p2-rb-reader.secret --timeout 420 --action sanhook --drive 0x80 --leave none --append <out>/rows/.tmp.4013505/append.ipxe --expect marker --marker \^WRRUN-END --delivery stub

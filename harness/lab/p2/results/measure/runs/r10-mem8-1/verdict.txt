@@ -1,0 +1,3 @@
+FAIL
+ok   the loop ran to its end (WRLOOP-END)
+FAIL every hook succeeded ({'n': 0, 'ok': 0, 'fail': 1, 'hooks': 1, 'failed': ['WRLOOP-HOOK  fail 0x31716006']})

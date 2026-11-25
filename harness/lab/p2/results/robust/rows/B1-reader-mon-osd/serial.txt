@@ -1,0 +1,119 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:16)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 760 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRROB-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-rb-reader: open, 1 device(s), 262144 blocks of 512 bytes
+rbd:   session: 44 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+WRROB-INFO-END
+WRROB-BOOT
+Booting from SAN device 0x80
+rbd: stack high-water 2692 of 4096 bytes (1404 left)
+rbd: core stack high-water 1696 of 16384 bytes
+WRRB-START drive=80 first=8 sectors=262136 rtc=032125
+WRRB-PROG lba=4157 h=7615B83D maxticks=1@485 rtc=032125 errs=0 stale=0
+WRRB-PROG lba=8244 h=DB820E02 maxticks=3@7640 rtc=032125 errs=0 stale=0
+WRRB-PROG lba=12410 h=5C2C254C maxticks=4@10735 rtc=032125 errs=0 stale=0
+WRRB-PROG lba=16417 h=13D424B7 maxticks=4@10735 rtc=032125 errs=0 stale=0
+WRRB-PROG lba=20519 h=3D9201F3 maxticks=4@10735 rtc=032126 errs=0 stale=0
+WRRB-PROG lba=24668 h=1225BDB8 maxticks=4@10735 rtc=032126 errs=0 stale=0
+WRRB-PROG lba=28755 h=7A5A761F maxticks=4@10735 rtc=032126 errs=0 stale=0
+WRRB-PROG lba=32777 h=65E414F6 maxticks=4@10735 rtc=032126 errs=0 stale=0
+WRRB-PROG lba=36928 h=89C7D6D1 maxticks=4@10735 rtc=032126 errs=0 stale=0
+WRRB-PROG lba=41030 h=06E544C3 maxticks=4@10735 rtc=032126 errs=0 stale=0
+WRRB-PROG lba=45070 h=B8AF3EDE maxticks=4@10735 rtc=032127 errs=0 stale=0
+WRRB-PROG lba=49266 h=E35B7682 maxticks=4@10735 rtc=032127 errs=0 stale=0
+rbd: stack high-water 2920 of 4096 bytes (1176 left)
+rbd: core stack high-water 1696 of 16384 bytes
+WRRB-PROG lba=53288 h=564A7EC9 maxticks=5@49616 rtc=032127 errs=0 stale=0
+WRRB-PROG lba=57375 h=69260694 maxticks=5@49616 rtc=032127 errs=0 stale=0
+WRRB-PROG lba=61541 h=0F16B8A7 maxticks=5@49616 rtc=032128 errs=0 stale=0
+WRRB-PROG lba=65548 h=F71EE19D maxticks=5@49616 rtc=032128 errs=0 stale=0
+WRRB-PROG lba=69650 h=D83CF052 maxticks=5@49616 rtc=032128 errs=0 stale=0
+rbd: stack high-water 2920 of 4096 bytes (1176 left)
+rbd: core stack high-water 1888 of 16384 bytes
+WRRB-PROG lba=73799 h=17B08297 maxticks=504@73699 rtc=032156 errs=0 stale=0
+WRRB-PROG lba=77886 h=B47329A8 maxticks=504@73699 rtc=032157 errs=0 stale=0
+WRRB-PROG lba=82052 h=878F481A maxticks=504@73699 rtc=032157 errs=0 stale=0
+WRRB-PROG lba=86059 h=8B394670 maxticks=504@73699 rtc=032157 errs=0 stale=0
+WRRB-PROG lba=90161 h=D60702D4 maxticks=504@73699 rtc=032157 errs=0 stale=0
+WRRB-PROG lba=94310 h=098B8C07 maxticks=504@73699 rtc=032158 errs=0 stale=0
+WRRB-PROG lba=98397 h=E5CC3032 maxticks=504@73699 rtc=032158 errs=0 stale=0
+WRRB-PROG lba=102419 h=9E4C9C6D maxticks=504@73699 rtc=032158 errs=0 stale=0
+WRRB-PROG lba=106506 h=83991D35 maxticks=504@73699 rtc=032158 errs=0 stale=0
+WRRB-PROG lba=110672 h=36B3B56F maxticks=504@73699 rtc=032158 errs=0 stale=0
+WRRB-PROG lba=114712 h=6506C0A6 maxticks=504@73699 rtc=032159 errs=0 stale=0
+WRRB-PROG lba=118908 h=34705B46 maxticks=504@73699 rtc=032159 errs=0 stale=0
+WRRB-PROG lba=122930 h=2E87AFB5 maxticks=504@73699 rtc=032159 errs=0 stale=0
+WRRB-PROG lba=127017 h=0A6FBCD0 maxticks=504@73699 rtc=032159 errs=0 stale=0
+WRRB-PROG lba=131183 h=43A1FFE2 maxticks=504@73699 rtc=032159 errs=0 stale=0
+WRRB-PROG lba=135190 h=E57A5306 maxticks=504@73699 rtc=032200 errs=0 stale=0
+WRRB-PROG lba=139292 h=4E5D0630 maxticks=504@73699 rtc=032200 errs=0 stale=0
+WRRB-PROG lba=143441 h=FCABEDDC maxticks=504@73699 rtc=032200 errs=0 stale=0
+WRRB-PROG lba=147528 h=E384EAA8 maxticks=504@73699 rtc=032200 errs=0 stale=0
+WRRB-PROG lba=151567 h=14E5D01A maxticks=504@73699 rtc=032200 errs=0 stale=0
+WRRB-PROG lba=155701 h=3775E9E0 maxticks=504@73699 rtc=032200 errs=0 stale=0
+WRRB-PROG lba=159803 h=4FA8184D maxticks=504@73699 rtc=032201 errs=0 stale=0
+WRRB-PROG lba=163851 h=7B4D452B maxticks=504@73699 rtc=032201 errs=0 stale=0
+WRRB-PROG lba=168039 h=859BED25 maxticks=504@73699 rtc=032201 errs=0 stale=0
+WRRB-PROG lba=172061 h=DACE1200 maxticks=504@73699 rtc=032201 errs=0 stale=0
+WRRB-PROG lba=176148 h=CCBE0743 maxticks=504@73699 rtc=032201 errs=0 stale=0
+WRRB-PROG lba=180314 h=090A9247 maxticks=504@73699 rtc=032201 errs=0 stale=0
+WRRB-PROG lba=184354 h=748DEA32 maxticks=504@73699 rtc=032202 errs=0 stale=0
+WRRB-PROG lba=188550 h=FE11F5F6 maxticks=504@73699 rtc=032202 errs=0 stale=0
+WRRB-PROG lba=192572 h=EB960910 maxticks=504@73699 rtc=032202 errs=0 stale=0
+WRRB-PROG lba=196659 h=0972E4FD maxticks=504@73699 rtc=032202 errs=0 stale=0
+WRRB-PROG lba=200825 h=880D96EF maxticks=504@73699 rtc=032202 errs=0 stale=0
+WRRB-PROG lba=204832 h=AD2B7CA3 maxticks=504@73699 rtc=032203 errs=0 stale=0
+WRRB-PROG lba=208934 h=6926EB38 maxticks=504@73699 rtc=032203 errs=0 stale=0
+WRRB-PROG lba=213083 h=D806BC08 maxticks=504@73699 rtc=032203 errs=0 stale=0
+WRRB-PROG lba=217170 h=18730CEC maxticks=504@73699 rtc=032203 errs=0 stale=0
+WRRB-PROG lba=221192 h=3CF0558C maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=225343 h=18D91A84 maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=229445 h=6804119E maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=233485 h=D8CE6DC2 maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=237681 h=F55C4D1C maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=241703 h=017C0327 maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=245790 h=EBC0E1A9 maxticks=504@73699 rtc=032204 errs=0 stale=0
+WRRB-PROG lba=249956 h=65AD7B0F maxticks=504@73699 rtc=032205 errs=0 stale=0
+WRRB-PROG lba=253963 h=FEE3D182 maxticks=504@73699 rtc=032205 errs=0 stale=0
+WRRB-PROG lba=258065 h=38EF7766 maxticks=504@73699 rtc=032205 errs=0 stale=0
+WRRB-DONE sectors=262136 h=08FF74C1 errs=0 stale=0 maxticks=504@73699 rtc=032206 end=ok
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRROB-BOOT-RETURNED 0xb8080a0
+WRROB-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-rb-reader: open, 1 device(s), 262144 blocks of 512 bytes
+rbd:   session: 44800 pumps, 1 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1888 of 16384 bytes used
+rbd:   core: connections 3 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 6 crc, 0 secure, 0 secure failures
+rbd:   osd: 591 ops done, 1 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 6 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 4891 reads: 4329 hits, 488 waits, 74 misses; 1 windows, 512 prefetches (504 landed, 8 failed, 0 dropped), 8 lines valid
+rbd: stack high-water 2920 of 4096 bytes (1176 left)
+WRROB-INFO-END
+WRROB-END
+WRRUN-LEAVE none
+WRRUN-END

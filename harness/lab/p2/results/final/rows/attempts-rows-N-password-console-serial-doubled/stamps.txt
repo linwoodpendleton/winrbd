@@ -1,0 +1,3 @@
+# host: load average at start 33.83, at end 28.36
+# guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 6 s)
+# lab VM (cluster) threads waited for a host CPU: 0.1 s in total; the worst 0.5 s polling interval 0.0 s (at 207 s)

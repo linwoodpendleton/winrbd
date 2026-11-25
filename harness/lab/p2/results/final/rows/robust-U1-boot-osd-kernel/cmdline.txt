@@ -1,0 +1,4 @@
+# 2026-11-24T13:05:15Z row U1-boot-osd-kernel (uefi, boot, fault osd-kill), profile boot; b: osd.1 killed during the kernel load
+# run from <box>/p2r/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/p2r/work/q P2_LAB_DIR=<box>/lab-p2
+bash <box>/p2r/repo/harness/lab/p2/qemu/robust.sh --family uefi --fault osd-kill --on before\ booting\ or --delay 1.2 --down 45 --press ret --press-delay 1 --capture --bin <box>/p2r/work/q/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-lin-uefi --pool winrbd --image wrtest-p2-rb-lin-uefi --key-file <box>/lab-p2/keys/client.wrtest-p2-rb-lin-uefi.secret --timeout 600 --expect os --action sanboot --opt devpath=vendor --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=<box>/p2r/out/robust/.tmp.1598180/params.txt --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/key\,file=<box>/lab-p2/keys/client.wrtest-p2-rb-lin-uefi.secret

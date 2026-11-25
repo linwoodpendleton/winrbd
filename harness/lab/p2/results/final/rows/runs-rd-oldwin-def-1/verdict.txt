@@ -1,0 +1,27 @@
+FAIL
+ok   the bench program started (WRMS-START)
+ok   the bench program finished (WRMS-DONE)
+ok   no WRMS-ERR line (0 seen)
+ok   iPXE's heap never failed an allocation (0 lines)
+ok   the two TSC calibrations agree within 2 % (0.260 %)
+ok   a TSC calibration was printed
+ok   every calibration step of the plan printed its line (2 of 2)
+ok   step 2: the data check (sumA 1291e5e6 / sumB 87a12a4f against the plan's 1291e5e6 / 87a12a4f)
+ok   step 4: the data check (sumA 04776fa4 / sumB 04776fa4 against the plan's 04776fa4 / 04776fa4)
+ok   step 5: the data check (sumA 1291e5e6 / sumB 87a12a4f against the plan's 1291e5e6 / 87a12a4f)
+ok   step 6: the data check (sumA 6fffd7c3 / sumB 87a12a4f against the plan's 6fffd7c3 / 87a12a4f)
+ok   step 7: the data check (sumA 04776fa4 / sumB 04776fa4 against the plan's 04776fa4 / 04776fa4)
+ok   step 8: the data check (sumA 1291e5e6 / sumB 87a12a4f against the plan's 1291e5e6 / 87a12a4f)
+ok   step 9: the data check (sumA 6fffd7c3 / sumB 87a12a4f against the plan's 6fffd7c3 / 87a12a4f)
+ok   step 2: R of 262144 sectors in 128 commands of 2048, as planned (console: R of 262144 sectors, 128 reads, 0 writes, command 2048)
+ok   latency series 3: 8 reads after a gap of 0 s, as planned (console: 8 reads, gap 0)
+ok   step 4: R of 262144 sectors in 2065 commands of 127, as planned (console: R of 262144 sectors, 2065 reads, 0 writes, command 127)
+ok   step 5: R of 262144 sectors in 128 commands of 2048, as planned (console: R of 262144 sectors, 128 reads, 0 writes, command 2048)
+ok   step 6: R of 262144 sectors in 32 commands of 8192, as planned (console: R of 262144 sectors, 32 reads, 0 writes, command 8192)
+ok   step 7: R of 262144 sectors in 2065 commands of 127, as planned (console: R of 262144 sectors, 2065 reads, 0 writes, command 127)
+ok   step 8: R of 262144 sectors in 128 commands of 2048, as planned (console: R of 262144 sectors, 128 reads, 0 writes, command 2048)
+ok   step 9: R of 262144 sectors in 32 commands of 8192, as planned (console: R of 262144 sectors, 32 reads, 0 writes, command 8192)
+ok   latency series 10: 8 reads after a gap of 0 s, as planned (console: 8 reads, gap 0)
+ok   latency series 3: every read succeeded
+ok   latency series 10: every read succeeded
+FAIL the cluster did not disturb the run (resent 0, session resets 3, cancels 1, stall closes 0, failed 0)

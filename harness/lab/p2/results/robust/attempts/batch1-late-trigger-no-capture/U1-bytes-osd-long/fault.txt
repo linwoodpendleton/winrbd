@@ -1,0 +1,8 @@
+1795489155.190 T+1 guest started (pid 3887053); fault osd-kill on '^WRBYTES-FILE z-fill' #1 + 1 s, down 45 s
+1795489155.497 T+1 lab-clock 1795489155.557632539
+1795489172.406 T+18 trigger seen (^WRBYTES-FILE z-fill, #1)
+1795489172.411 T+18 fault osd-kill after 1 s
+1795489173.418 T+19 fault osd-kill: begins (down 45 s)
+1795489175.659 T+21 osd.1 killed (rc 0)
+1795489181.105 T+27 the run ended before the fault did: undoing it now
+1795489191.076 T+37 all OSDs up and in again: 3 3 3 (poll 3)

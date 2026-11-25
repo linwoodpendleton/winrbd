@@ -1,0 +1,2 @@
+RESULT row=N run=N-20261124T124023Z-1540307 expect=marker met=0 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=11 console=<box>/p2r/work/q/logs/N-20261124T124023Z-1540307.console
+exit=1 wall=12s retries=0

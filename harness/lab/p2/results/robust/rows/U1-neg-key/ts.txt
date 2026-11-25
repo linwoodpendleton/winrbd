@@ -1,0 +1,28 @@
+1795494731.609 [2J[01;01H[=3h[2J[01;01H
+1795494735.047 >>Start PXE over IPv4.
+1795494735.047   Station IP address is 10.0.2.15
+1795494735.047 
+1795494735.047   Server IP address is 10.0.2.2
+1795494735.047   NBP filename is ipxe.efi
+1795494735.047   NBP filesize is 1423360 Bytes
+1795494735.047  Downloading NBP file...
+1795494735.368 
+1795494735.368   NBP file downloaded successfully.
+1795494735.368 BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795494735.368 BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795494735.368 iPXE initialising devices...
+1795494735.368 autoexec.ipxe... ok
+1795494735.680 
+1795494735.680 
+1795494735.680 
+1795494735.680 [1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+1795494735.680 Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+1795494735.680 WRRUN-BEGIN row=U1
+1795494735.680 Waiting for link-up on net1... ok
+1795494735.680 WRRUN-NET-OK
+1795494735.680 WRRUN-SAN-START sanhook
+1795494755.645 rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD)
+1795494755.645 Could not open SAN device: Error 0x43766098 (https://ipxe.org/43766098)
+1795494755.645 WRRUN-SAN-FAILED 0x43766098
+1795494755.645 WRRUN-FAIL
+1795494755.645 WRRUN-END

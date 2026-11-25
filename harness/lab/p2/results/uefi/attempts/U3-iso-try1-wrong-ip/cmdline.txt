@@ -1,0 +1,4 @@
+# 2026-11-23T21:30:46Z row U3-iso (uefi-iso), profile boot
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-iso.sh --row U3 --ip 10.77.0.31 --media /box/work/ipxe/efi-ipxe-embed.iso --delivery embed --user wrtest-p2-lin-uefi --pool winrbd --image wrtest-p2-lin-uefi --no-key --expect marker --marker login:\ \?\$ --fail-marker WRBOOT-ROOT-\(NOT-RBD\|TABLE-FAIL\|WRONG\)\|Kernel\ panic\|WRBOOT-HOOK-POWEROFF\|error:\ failure\ reading\ sector\|Failed\ to\ boot\ both\ default\|rbd:\ .\*\(out\ of\ memory\|closing\ the\ path\) --timeout 900 --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=/box/rows/.expect/U3-iso.params --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/key\,file=/box/lab/keys/client.wrtest-p2-lin-uefi.secret

@@ -1,0 +1,11 @@
+1795493484.871 T+1 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795493485.235 T+1 guest started (pid 59836); fault link-down on 'before booting or' #1 + 1.2 s, down 40 s
+1795493485.510 T+1 lab-clock 1795493485.555188200
+1795493497.828 T+13 trigger seen (before booting or, #1)
+1795493497.832 T+13 keys 'ret' will be pressed after 1 s
+1795493497.840 T+13 fault link-down after 1.2 s
+1795493499.047 T+15 fault link-down: begins (down 40 s)
+1795493499.489 T+15 keys 'ret' pressed
+1795493499.494 T+15 lab NIC link set down (rc 0)
+1795493539.550 T+55 lab NIC link set up (rc 0)
+1795493539.557 T+55 fault link-down: ends (rc 0)

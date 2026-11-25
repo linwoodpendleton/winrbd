@@ -1,0 +1,28 @@
+1795494848.051 [2J[01;01H[=3h[2J[01;01H
+1795494851.602 >>Start PXE over IPv4.
+1795494851.602   Station IP address is 10.0.2.15
+1795494851.602 
+1795494851.602   Server IP address is 10.0.2.2
+1795494851.602   NBP filename is ipxe.efi
+1795494851.602   NBP filesize is 1423360 Bytes
+1795494851.602  Downloading NBP file...
+1795494851.602 
+1795494851.602   NBP file downloaded successfully.
+1795494851.602 BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795494851.602 BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795494851.602 iPXE initialising devices...
+1795494851.602 autoexec.ipxe... ok
+1795494851.931 
+1795494851.931 
+1795494851.931 
+1795494851.931 [1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+1795494851.931 Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+1795494851.931 WRRUN-BEGIN row=U1
+1795494851.931 Waiting for link-up on net1... ok
+1795494851.931 WRRUN-NET-OK
+1795494851.931 WRRUN-SAN-START sanhook
+1795494872.066 rbd: open failed: no monitor could be reached (WR_E_MON_UNREACHABLE)
+1795494872.066 Could not open SAN device: Network unreachable (https://ipxe.org/28766090)
+1795494872.066 WRRUN-SAN-FAILED 0x28766090
+1795494872.066 WRRUN-FAIL
+1795494872.066 WRRUN-END

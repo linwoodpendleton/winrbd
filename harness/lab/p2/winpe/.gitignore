@@ -1,0 +1,36 @@
+# WinPE and Windows media are the owner's property: never committed (the licences do not allow redistribution).
+# This directory holds only scripts and notes; every kind of file the scripts read or write is ignored here, in any sub-directory.
+# (The repository .gitignore covers some of these too; this file is meant to be enough on its own.)
+*.iso
+*.raw
+*.img
+*.efi
+*.hd
+*.wim
+*.esd
+*.swm
+*.sdi
+*.vhd
+*.vhdx
+*.qcow2
+*.dd
+*.ppm
+*.png
+*.dump
+*.mem
+BCD
+BCD.*
+bootmgr
+bootmgr.*
+bootx64.efi
+bootia32.efi
+bootaa64.efi
+boot.sdi
+winload.*
+# the work directories of import-winpe.sh (WINPE_WORK pointed into the tree) and a media tree copied next to the scripts
+work/
+out/
+media/
+stage.*/
+shots/
+dumps/

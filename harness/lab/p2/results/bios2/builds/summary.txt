@@ -1,0 +1,18 @@
+build logs (iPXE's own -Werror; 'warning lines' counts the word in the whole log; every build exited 0)
+build-rel.log (gcc 15.2, Ubuntu 26.04 guest): lines 7150 warning lines 0
+build-sm.log (gcc 15.2, Ubuntu 26.04 guest): lines 7150 warning lines 0
+build-nt.log (gcc 15.2, Ubuntu 26.04 guest): lines 3582 warning lines 0
+build-if.log (gcc 15.2, Ubuntu 26.04 guest): lines 3581 warning lines 0
+build-if2.log (gcc 15.2, Ubuntu 26.04 guest): lines 3583 warning lines 0
+build-lkrn-rel.log (gcc 15.2, Ubuntu 26.04 guest): lines 21 warning lines 0
+build-lkrn-sm.log (gcc 15.2, Ubuntu 26.04 guest): lines 7 warning lines 0
+build-lkrn-nt.log (gcc 15.2, Ubuntu 26.04 guest): lines 6 warning lines 0
+build-x64.log (gcc 15.2, Ubuntu 26.04 guest): lines 3576 warning lines 0
+build-g11.log (gcc 11.4, build box, no ISO): lines 7144 warning lines 0
+gcc gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+rc=0 lines=7144 warnings=0
+--- the ISO (needs xorriso/genisoimage and syslinux's isolinux: not on this box)
+  [GENFSIMG] bin/ipxe.iso
+util/genfsimg: could not find isolinux.bin
+make: *** [arch/x86/Makefile.pcbios:68: bin/ipxe.iso] Error 1
+G11-DONE

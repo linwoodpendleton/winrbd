@@ -1,0 +1,22 @@
+--- /dev/fd/63	2026-11-24 04:29:13.121245675 -0500
++++ /dev/fd/62	2026-11-24 04:29:13.121245675 -0500
+@@ -13,6 +13,8 @@
+ auth client.wrtest-p2-ms-lin-uefi mon=profile rbd;osd=profile rbd pool=winrbd
+ auth client.wrtest-p2-ms-probe mon=profile rbd;osd=profile rbd pool=winrbd
+ auth client.wrtest-p2-ms-read mon=profile rbd;osd=profile rbd pool=winrbd
++auth client.wrtest-p2-ms-winpe-gpt mon=profile rbd;osd=profile rbd pool=winrbd
++auth client.wrtest-p2-ms-winpe-mbr mon=profile rbd;osd=profile rbd pool=winrbd
+ auth client.wrtest-p2-ms-write mon=profile rbd;osd=profile rbd pool=winrbd
+ auth mgr.winrbd-p2-ceph.kzhhkv mds=allow *;mon=profile mgr;osd=allow *
+ auth osd.0 mgr=allow profile osd;mon=allow profile osd;osd=allow *
+@@ -27,7 +29,9 @@
+ image winrbd/wrtest-p2-ms-lin-uefi size=2147483648
+ image winrbd/wrtest-p2-ms-probe size=44040192
+ image winrbd/wrtest-p2-ms-read size=276824064
+-image winrbd/wrtest-p2-ms-winpe-gpt size=536870912
++image winrbd/wrtest-p2-ms-winpe-gpt size=1073741824
++image winrbd/wrtest-p2-ms-winpe-gpt@pristine size=1073741824
++image winrbd/wrtest-p2-ms-winpe-mbr size=1073741824
+ image winrbd/wrtest-p2-ms-write size=138412032
+ osd osd.0 status=up reweight=1
+ osd osd.1 status=up reweight=1

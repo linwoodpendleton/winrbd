@@ -1,0 +1,10 @@
+A local diagnostic build (NOT in the repository): the stack monitor's failure message of ipxe/src/rbd_stack.c with more numbers
+(rbd_stack_paint() printing virt_to_phys() of the frame and of the linker symbols _stack and _estack), x86_64 BIOS (bin/undionly.kpxe), run as
+row neg (rows/DIAG-x64-1; its verdict FAIL is only the extra console lines). Seconds are since the start of the guest.
+
+13.239 rbd: stack monitor: the stack is not iPXE's own (frame 0x7fe8edd8, internal stack 0xffffffffeb464660 to 0xffffffffeb466660): not painted
+14.019 rbd: DIAG esp 7fe8edd0 frame 7fe8edd8 _stack ffffffffeb464660 _estack ffffffffeb466660 phys(frame) 7fe8edd8 phys(_stack) 7fe8d660 phys(_estack) 7fe8f660 virt_offset 0
+
+phys(frame) 7fe8edd8 lies between phys(_stack) 7fe8d660 and phys(_estack) 7fe8f660: the running frame is on iPXE's 8 KiB stack (2,184 bytes below its
+top at that moment), and the monitor's comparison of the frame with the virtual symbol addresses (0xffffffffeb464660 ...) can never be true.
+builds/stack-phys.diff compares physical addresses; with it rows/B1-fix-1 and rows/B3-fix-1 report the high-water mark.

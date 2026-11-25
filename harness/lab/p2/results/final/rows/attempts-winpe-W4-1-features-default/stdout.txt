@@ -1,0 +1,4 @@
+[qemu] budget: 3 other VM(s) under <box> use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 40 cores / 60000 MiB
+make-usb.sh: wrote <box>/p2r/work/q/runs/B2-20261124T120112Z-1417151/medium.usb (bios-usb, 2097152 bytes)
+[qemu] starting wrp2q-B2-20261124T120112Z-1417151 (bios, usb, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+RESULT row=B2 run=B2-20261124T120112Z-1417151 expect=marker met=0 ipxe=1 net=1 san=failed@2 end=2 os=- stop=guest-exited secs=3 console=<box>/p2r/work/q/logs/B2-20261124T120112Z-1417151.console

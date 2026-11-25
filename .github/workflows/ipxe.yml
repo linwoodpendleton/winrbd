@@ -1,0 +1,281 @@
+# SPDX-License-Identifier: MIT
+#
+# The iPXE rbd:// driver, built from a clean copy of the pinned submodule plus ipxe/patches. No cluster, no secret, no network except the
+# package mirror and the submodule: the live tests (QEMU against a Ceph lab) are not part of CI.
+#
+# ipxe/tools/build.sh is the only interface. Every step below is one call of it (plus the installation of packages and the checkout), so
+# the same commands, run by hand in a clone, give the same result; a step does not know anything build.sh does not. Never run make
+# in the copy by hand and expect CI to agree: build.sh also checks that this file only calls subcommands that exist ("build.sh check").
+#
+# Jobs:
+#   static       build.sh check; build.sh check -n (the negative controls: a core file without its WR_FILE_LICENCE_ placeholder, a glue
+#                file marked PERMITTED in any spelling, a test that is not wired in, a patch with wrong hunk counts, a workflow that
+#                dropped a gate, ... each seeded into a scratch copy, each must be refused with its own message; and the checks that
+#                only run after a long build (licence verdict, verify, the test-log check) judged on stand-in inputs, good and bad)
+#   build        one runner per iPXE target of the roadmap (bin-x86_64-efi/ipxe.efi, bin/undionly.kpxe, bin/ipxe.pxe, bin/ipxe.usb,
+#                bin/ipxe.iso) and per 32-bit BIOS image (bin-i386-pcbios/: the stack trampoline of the core is built only there), built with iPXE's own -Werror and no warning line at all; then build.sh verify: the driver is linked into
+#                the image (link map) and no self-test is; for the EFI image also the rbd scheme string and the console line in its bytes
+#   licence      iPXE's own licence check on the two real builds without NIC drivers; build.sh licence fails unless the overall licence
+#                is exactly "GPL version 2 (or, at your option, any later version)", so that a change is a visible event
+#   secureboot   the Secure Boot build (bin-x86_64-efi-sb/snponly.efi) must be refused with "not permitted to be signed for UEFI Secure
+#                Boot" and every driver object must carry __secboot__forbidden__; two controls: the pristine pinned tree builds the same
+#                target (the refusal is the driver's), and a PERMITTED glue file is flagged by the object scan
+#   self-tests   iPXE's test runner linked with the driver's tests (ipxe/tests, wired in by patch 0003), as a Linux program: 64 and 32
+#                bit (the word size of the BIOS images), plain and with UBSan in trap mode (all checks but alignment: iPXE's inline
+#                memset stores through a wider type, build.sh UBSAN_FLAGS says why); no QEMU, no cluster. build.sh test fails
+#                unless every set passed and every driver test set ran. Then the negative control: a copy with a deliberate failure
+#                must make the same check fail, with exactly that failure
+name: ipxe
+
+on:
+  push:
+    paths:
+      - "ipxe/**"
+      - "core/**"
+      - "docs/design/ipxe-driver.md"
+      - ".github/workflows/ipxe.yml"
+      - "third_party/ipxe"
+      - ".gitmodules"
+  pull_request:
+    paths:
+      - "ipxe/**"
+      - "core/**"
+      - "docs/design/ipxe-driver.md"
+      - ".github/workflows/ipxe.yml"
+      - "third_party/ipxe"
+      - ".gitmodules"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ipxe-${{ github.ref }}
+  cancel-in-progress: true
+
+# "shell: bash" is bash -eo pipefail. Without it a step's shell is "bash -e": a "build.sh ... | tee build.log" step would take the exit
+# status of tee, and a failed build of the last target would pass.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  static:
+    name: static checks and their negative controls
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # no iPXE tree and no compiler needed: licence and Secure Boot declarations of the glue, licence placeholders and include guards of
+      # the core, the tests wired in by patch 0003, the hunk counts of the patches, the subcommands this workflow calls
+      - name: Static checks of ipxe/ and core/
+        run: ipxe/tools/build.sh check
+
+      # each seeded mistake must be refused, with the message that names it; the unmodified scratch copy must pass first
+      - name: Negative controls of the static checks
+        run: ipxe/tools/build.sh check -n
+
+  build:
+    name: build ${{ matrix.target }}
+    needs: static
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - bin-x86_64-efi/ipxe.efi
+          - bin/undionly.kpxe
+          - bin/ipxe.pxe
+          - bin/ipxe.usb
+          - bin/ipxe.iso
+          # "bin/" is iPXE's DEFAULT_ARCH, x86_64: those BIOS images are 64-bit, with an 8 KiB stack and no private stack for the core.
+          # The 32-bit BIOS images (4 KiB stack, the core on its own 16 KiB stack: the path most BIOS machines take) are bin-i386-pcbios/
+          - bin-i386-pcbios/undionly.kpxe
+          - bin-i386-pcbios/ipxe.pxe
+          - bin-i386-pcbios/ipxe.usb
+          - bin-i386-pcbios/ipxe.iso
+    steps:
+      - uses: actions/checkout@v4
+
+      # The clone of iPXE is the one big download. Its git directory is cached under the pinned revision (a new pin restores the last
+      # one and only fetches the difference); "git submodule update" below reuses it. The working tree is not cached: the build
+      # never touches it (build.sh exports the pinned revision with git archive into build/ipxe).
+      - name: Cache the iPXE clone
+        uses: actions/cache@v4
+        with:
+          path: .git/modules/third_party/ipxe
+          key: ipxe-clone-${{ hashFiles('ipxe/PINNED') }}
+          restore-keys: |
+            ipxe-clone-
+
+      # Only the iPXE submodule (the other one is not needed here); full history, because the pinned revision is not a branch tip.
+      - name: Fetch the pinned iPXE
+        run: git submodule update --init third_party/ipxe
+
+      # liblzma-dev: iPXE's zbin host tool. gcc-multilib: the BIOS targets are 32-bit. mtools, xorriso, syslinux, isolinux:
+      # bin/ipxe.iso and bin/ipxe.usb (util/genfsimg). perl: iPXE's build scripts.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential gcc-multilib perl liblzma-dev mtools xorriso syslinux syslinux-common isolinux
+
+      - name: Build ${{ matrix.target }}
+        run: |
+          ipxe/tools/build.sh build -j "$(nproc)" ${{ matrix.target }} 2>&1 | tee build.log
+          # iPXE builds with -Werror, so a warning already failed the build; this is the belt to that brace
+          if grep -n -i "warning" build.log; then echo "warnings in the iPXE build"; exit 1; fi
+
+      # The driver is in the image and no self-test is. Link maps (the BIOS images are compressed, their bytes cannot be searched) and,
+      # for the EFI image, which is not, its bytes: the scheme string "rbd" and the driver's console line, each with its positive control.
+      - name: The driver is linked, the self-tests are not
+        run: ipxe/tools/build.sh verify ${{ matrix.target }}
+
+  licence:
+    name: licence of the result
+    needs: static
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache the iPXE clone
+        uses: actions/cache@v4
+        with:
+          path: .git/modules/third_party/ipxe
+          key: ipxe-clone-${{ hashFiles('ipxe/PINNED') }}
+          restore-keys: |
+            ipxe-clone-
+
+      - name: Fetch the pinned iPXE
+        run: git submodule update --init third_party/ipxe
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential gcc-multilib perl liblzma-dev
+
+      # the all-driver images (ipxe.efi, ipxe.pxe) fail iPXE's own licence check on the pristine tree (InfiniBand NIC headers without a
+      # FILE_LICENCE); the two targets without those drivers are the check
+      - name: Build the two targets without NIC drivers
+        run: ipxe/tools/build.sh build -j "$(nproc)" bin-x86_64-efi/snponly.efi bin/undionly.kpxe bin-i386-pcbios/undionly.kpxe
+
+      # build.sh licence runs "make <target>.licence" and fails unless the verdict line is exactly
+      # "GPL version 2 (or, at your option, any later version)": the binary links the CRUSH log tables, see docs/design/ipxe-driver.md
+      # section 13. Any other result (a new file under another licence, a changed tag) is a visible failure.
+      - name: Licence check, the verdict must be GPL version 2 or later
+        run: ipxe/tools/build.sh licence bin-x86_64-efi/snponly.efi bin/undionly.kpxe bin-i386-pcbios/undionly.kpxe | tee licence.log
+
+  secureboot:
+    name: Secure Boot refusal and its controls
+    needs: static
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache the iPXE clone
+        uses: actions/cache@v4
+        with:
+          path: .git/modules/third_party/ipxe
+          key: ipxe-clone-${{ hashFiles('ipxe/PINNED') }}
+          restore-keys: |
+            ipxe-clone-
+
+      - name: Fetch the pinned iPXE
+        run: git submodule update --init third_party/ipxe
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential perl liblzma-dev binutils
+
+      # The verdict of iPXE's Secure Boot build is one for the whole image: it is refused as soon as ONE object is FORBIDDEN, so the
+      # refusal alone does not show that every file of the driver is (one file marked PERMITTED would not change it). build.sh secboot
+      # therefore also looks at every glue and core object: each must carry the symbol __secboot__forbidden__<object>.
+      - name: A Secure Boot build must be refused, and every file of the driver is FORBIDDEN
+        run: ipxe/tools/build.sh secboot -j "$(nproc)"
+
+      # control 1: the pinned tree with no patch and no driver builds the same target, so the refusal above is the driver's and not
+      # some other property of the target or the runner
+      - name: Control, the pristine iPXE tree builds the Secure Boot target
+        run: ipxe/tools/build.sh secboot -p -j "$(nproc)"
+
+      # control 2: a copy in which one glue file is PERMITTED instead of FORBIDDEN; the object scan must flag exactly that file
+      - name: Control, a glue file that is not FORBIDDEN is seen
+        run: ipxe/tools/build.sh secboot -n -j "$(nproc)"
+
+  # The driver's tests that need no network. The BIOS images are 32-bit, so the self-test program is built and run for both word sizes: a
+  # size_t or pointer-width mistake in the glue shows up here, not only in a QEMU run. UBSan runs in trap mode (no runtime library: the
+  # iPXE link has no room for one) on every glue, core and test object, in a copy of its own. Only the compiler and perl are needed
+  # (no ISO tools: nothing is packed into an image).
+  self-tests:
+    name: self-tests ${{ matrix.program }} ${{ matrix.flags }}
+    needs: static
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - program: bin-x86_64-linux/tests.linux
+            flags: ""
+          - program: bin-i386-linux/tests.linux
+            flags: ""
+          - program: bin-x86_64-linux/tests.linux
+            flags: "-u"
+          - program: bin-i386-linux/tests.linux
+            flags: "-u"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache the iPXE clone
+        uses: actions/cache@v4
+        with:
+          path: .git/modules/third_party/ipxe
+          key: ipxe-clone-${{ hashFiles('ipxe/PINNED') }}
+          restore-keys: |
+            ipxe-clone-
+
+      - name: Fetch the pinned iPXE
+        run: git submodule update --init third_party/ipxe
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential gcc-multilib perl liblzma-dev binutils
+
+      # exit status 0, "OK: all N tests passed", no FAILURE line, and an "OK" line for every ipxe/tests file (a file that is not wired
+      # in would pass by not running); with -u also: the UBSan flags really reached the compiler (traps in the objects)
+      - name: Self-tests ${{ matrix.program }} ${{ matrix.flags }}
+        run: ipxe/tools/build.sh test -j "$(nproc)" ${{ matrix.flags }} ${{ matrix.program }}
+
+  # a copy with a deliberate failing assertion in rbd_selftest.c: the same check must FAIL on it, and with exactly that failure
+  # (this job fails if the check passes it, or fails for another reason)
+  negative-control:
+    name: negative control, a failing self-test must be seen
+    needs: static
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache the iPXE clone
+        uses: actions/cache@v4
+        with:
+          path: .git/modules/third_party/ipxe
+          key: ipxe-clone-${{ hashFiles('ipxe/PINNED') }}
+          restore-keys: |
+            ipxe-clone-
+
+      - name: Fetch the pinned iPXE
+        run: git submodule update --init third_party/ipxe
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential gcc-multilib perl liblzma-dev binutils
+
+      - name: Negative control of the self-test check
+        run: ipxe/tools/build.sh test -n -j "$(nproc)"

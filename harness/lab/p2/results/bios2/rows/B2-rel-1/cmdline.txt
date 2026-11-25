@@ -1,0 +1,6 @@
+# B2-rel-1: row b2 (B2), variant rel, started 2026-11-24T00:51:59Z
+# the run script's own plan, key hidden:
+[qemu] dry run: nothing is started, nothing is created
+[qemu] row B2 (bios-usb): bios firmware, boot from usb, iPXE binary $P2B_WORK/out/rel/ipxe.lkrn, delivery embed, expect os
+[qemu] lab NIC: 52:54:00:77:12:c9, address 10.77.0.73/24 on 230.77.12.1:7712; user NIC: 52:54:00:77:11:49
+would run: nice -n 19 choom -n 600 -- qemu-system-x86_64 -name wrp2q-B2-DRYRUN -machine q35\,accel=kvm -cpu host -smp 2 -m 2048 -display none -vga std -no-reboot -serial file:$P2B_WORK/work/runs/B2-DRYRUN/console.log -chardev socket\,id=qmp0\,path=$P2B_WORK/work/s/DRYRUN.sock\,server=on\,wait=off -mon chardev=qmp0\,mode=control -pidfile $P2B_WORK/work/runs/B2-DRYRUN/qemu.pid -boot menu=off -netdev user\,id=net0\,restrict=on\,tftp=$P2B_WORK/work/runs/B2-DRYRUN/tftp\,hostname=wrp2q -device virtio-net-pci\,netdev=net0\,mac=52:54:00:77:11:49\,romfile= -netdev socket\,id=lab\,mcast=230.77.12.1:7712\,localaddr=127.0.0.1 -device virtio-net-pci\,netdev=lab\,mac=52:54:00:77:12:c9\,romfile= -drive if=none\,id=usb0\,file=$P2B_WORK/out/rel/ipxe.usb\,format=raw\,readonly=on -device qemu-xhci\,id=xhci -device usb-storage\,bus=xhci.0\,drive=usb0\,bootindex=1 -fw_cfg name=opt/winrbd/params\,file=$P2B_WORK/params/wrtest-p2-b2-73.txt

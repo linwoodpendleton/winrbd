@@ -1,0 +1,7 @@
+   12.5 ipxe-script       WRRUN-BEGIN row=U1
+   12.5 net-ok            WRRUN-NET-OK
+   12.5 san-start         WRRUN-SAN-START sanboot
+   15.0 grub              [H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+   23.5 table-check-done  RBFT-RESULT PASS pass=40 fail=0 skip=0
+   60.2 root-ok           WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-lin-uefi kernel=6.8.0-151-generic
+   66.2 login             winrbd-guest login:

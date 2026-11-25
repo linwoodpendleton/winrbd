@@ -1,0 +1,10 @@
+   12.0 ipxe-script       WRRUN-BEGIN row=U1
+   12.0 net-ok            WRRUN-NET-OK
+   12.0 san-start         WRRUN-SAN-START sanboot
+   14.0 grub              [H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+   24.1 kernel-up         Begin: Loading essential drivers ... done.
+   24.1 table-check-done  RBFT-RESULT PASS pass=40 fail=0 skip=0
+   57.7 root-ok           WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-lin-uefi kernel=6.8.0-151-generic
+   63.2 login             winrbd-guest login:
+# host: load average at start 43.67, at end 35.03
+# guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 8 s)

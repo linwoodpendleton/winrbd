@@ -1,0 +1,38 @@
+{
+ "core_stack": [],
+ "heap_kb": [],
+ "kind": "boot",
+ "load": {
+  "host_load1_end": 23.67,
+  "host_load1_max": 23.88,
+  "host_load1_start": 23.88
+ },
+ "marker_stage": "login",
+ "notes": [
+  "# host: load average at start 23.88, at end 23.67",
+  "# guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 4 s)",
+  "# lab VM (cluster) threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 51 s)"
+ ],
+ "result": {
+  "console": "<box>/measure/work/q/logs/U1-20261124T094941Z-1278129.console",
+  "end": "-",
+  "expect": "marker",
+  "ipxe": "-",
+  "met": "1",
+  "net": "-",
+  "os": "54",
+  "row": "U1",
+  "run": "U1-20261124T094941Z-1278129",
+  "san": "none@-",
+  "secs": "61",
+  "stop": "expectation"
+ },
+ "stack": [],
+ "stages": {
+  "grub": 13.6,
+  "kernel-up": 20.2,
+  "login": 59.5,
+  "root-ok": 53.4,
+  "table-check-done": 20.2
+ }
+}

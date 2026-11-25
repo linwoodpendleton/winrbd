@@ -1,0 +1,4 @@
+# 2026-11-23T21:41:34Z row HTTP-r12 (uefi-pxe), profile smoke
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row U1 --ip 10.77.0.31 --script /box/rows/.expect/http-control.ipxe --expect marker --marker WRBOOT-TABLE --fail-marker error:\ failure\ reading\ sector\|Failed\ to\ boot\ both\ default\|Kernel\ panic --timeout 300

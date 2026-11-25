@@ -1,0 +1,5 @@
+mboot.sh: winpe-W1-4: PASS  (RESULT row=U1 run=U1-20261124T103256Z-1354793 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=84 console=<box>/measure/work/q/logs/U1-20261124T103)
+mboot.sh: winpe-W2-4: PASS  (RESULT row=U2 run=U2-20261124T103438Z-1357172 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=87 console=<box>/measure/work/q/logs/U2-20261124T103)
+mboot.sh: winpe-W3-4: PASS  (RESULT row=B1 run=B1-20261124T103623Z-1359700 expect=marker met=1 ipxe=8 net=11 san=none@- end=- os=- stop=expectation secs=61 console=<box>/measure/work/q/logs/B1-20261124T10)
+mboot.sh: winpe-W4-4: PASS  (RESULT row=B2 run=B2-20261124T103742Z-1361399 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=- stop=expectation secs=66 console=<box>/measure/work/q/logs/B2-20261124T103)
+chain7: done

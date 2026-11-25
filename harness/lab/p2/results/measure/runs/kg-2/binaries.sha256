@@ -1,0 +1,7 @@
+41ba36d860aa0b0cd995f4ca8856d80249b244577e704929b55be13fbd1ebd2f  <box>/measure/work/guest/vmlinuz
+c5703af2c68961a9a8d0046e6a1277e215551e63cc25d9698c8978b34fbfcbbc  <box>/measure/work/guest/initrd.img
+8dd71f264c52a99922a798cc3e457129d74cd76440b8724e4fba0bec16dcc844  <box>/measure/repo/harness/lab/p2/results/measure/tools/../guest/init
+760dcf6563f8dd0a57eeccf376e64d57d64df9b5b7014b0cd7a3bce7797d7225  <box>/measure/repo/harness/lab/p2/results/measure/tools/../guest/rdbench.c
+72d505ae06ed09d5ab699f16b36ab8afff8a4db450aada38287b3374e5e7c5a5  <box>/measure/repo/harness/lab/p2/results/measure/tools/../guest/mkguest.sh
+f6a12d9846438136ea7874ada32e870c12b6351a6bb6adb184e8d989c67ad8b8  <box>/measure/repo/harness/lab/p2/results/measure/tools/mguest.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)

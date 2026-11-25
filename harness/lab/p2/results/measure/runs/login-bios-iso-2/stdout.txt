@@ -1,0 +1,4 @@
+[qemu] budget: 2 other VM(s) under <box> use 12 cores / 20480 MiB; adding 2 cores / 2048 MiB; limit 24 cores / 32768 MiB
+make-usb.sh: wrote <box>/measure/work/q/runs/B3-20261124T095633Z-1287641/medium.iso (iso, 17831936 bytes)
+[qemu] starting wrp2q-B3-20261124T095633Z-1287641 (bios, iso, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+RESULT row=B3 run=B3-20261124T095633Z-1287641 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=47 stop=expectation secs=48 console=<box>/measure/work/q/logs/B3-20261124T095633Z-1287641.console

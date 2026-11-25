@@ -1,0 +1,14 @@
+chain5: 10:05:16 campaign.sh winpe 3
+mboot.sh: winpe-W1-1: FAIL  (RESULT row=U1 run=U1-20261124T100530Z-1300515 expect=marker met=0 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=12 console=<box>/measure/work/q/logs/U1-20261124T10)
+mboot.sh: winpe-W2-1: FAIL  (RESULT row=U2 run=U2-20261124T100602Z-1301320 expect=marker met=0 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=8 console=<box>/measure/work/q/logs/U2-20261124T100)
+mboot.sh: winpe-W3-1: FAIL  (RESULT row=B1 run=B1-20261124T100630Z-1301878 expect=marker met=0 ipxe=8 net=11 san=failed@12 end=12 os=- stop=guest-exited secs=12 console=<box>/measure/work/q/logs/B1-202611)
+mboot.sh: winpe-W4-1: PASS  (RESULT row=B2 run=B2-20261124T100703Z-1302634 expect=marker met=1 ipxe=2 net=2 san=none@- end=- os=- stop=expectation secs=69 console=<box>/measure/work/q/logs/B2-20261124T100)
+mboot.sh: winpe-W1-2: PASS  (RESULT row=U1 run=U1-20261124T100834Z-1304767 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=84 console=<box>/measure/work/q/logs/U1-20261124T100)
+mboot.sh: winpe-W2-2: PASS  (RESULT row=U2 run=U2-20261124T101020Z-1307333 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=86 console=<box>/measure/work/q/logs/U2-20261124T101)
+mboot.sh: winpe-W3-2: PASS  (RESULT row=B1 run=B1-20261124T101207Z-1309912 expect=marker met=1 ipxe=8 net=11 san=none@- end=- os=- stop=expectation secs=60 console=<box>/measure/work/q/logs/B1-20261124T10)
+mboot.sh: winpe-W4-2: PASS  (RESULT row=B2 run=B2-20261124T101329Z-1311882 expect=marker met=1 ipxe=2 net=2 san=none@- end=- os=- stop=expectation secs=67 console=<box>/measure/work/q/logs/B2-20261124T101)
+mboot.sh: winpe-W1-3: PASS  (RESULT row=U1 run=U1-20261124T101457Z-1313929 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=83 console=<box>/measure/work/q/logs/U1-20261124T101)
+mboot.sh: winpe-W2-3: PASS  (RESULT row=U2 run=U2-20261124T101642Z-1316366 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=93 console=<box>/measure/work/q/logs/U2-20261124T101)
+mboot.sh: winpe-W3-3: PASS  (RESULT row=B1 run=B1-20261124T101836Z-1319037 expect=marker met=1 ipxe=8 net=11 san=none@- end=- os=- stop=expectation secs=61 console=<box>/measure/work/q/logs/B1-20261124T10)
+mboot.sh: winpe-W4-3: PASS  (RESULT row=B2 run=B2-20261124T101958Z-1320748 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=- stop=expectation secs=70 console=<box>/measure/work/q/logs/B2-20261124T101)
+chain5: 10:21:16 done

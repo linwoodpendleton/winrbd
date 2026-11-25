@@ -1,0 +1,42 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (10):
+  rbd: image winrbd/wrtest-p2-bytes: open, 1 device(s), 393216 blocks of 512 bytes
+  rbd:   session: 77 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 3 (most 3), arena 263392 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+  rbd:   osd: 16 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: off
+  rbd: image winrbd/wrtest-p2-bytes: open, 1 device(s), 393216 blocks of 512 bytes
+  rbd:   session: 16937 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+  rbd:   osd: 2265 ops done, 0 resent, 0 failed; in flight 0 (most 2), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: off
+run script lines (6):
+  WRRUN-BEGIN row=UB
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-OK
+  WRRUN-LEAVE poweroff
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     28.6 ipxe-script       WRRUN-BEGIN row=UB
+     28.6 net-ok            WRRUN-NET-OK
+     28.6 san-start         WRRUN-SAN-START sanhook
+     28.6 san-ok            WRRUN-SAN-OK
+     82.3 script-end        WRRUN-END
+rbd-info (14 lines):
+  WRINFO-BEGIN
+  rbd: image winrbd/wrtest-p2-bytes: open, 1 device(s), 393216 blocks of 512 bytes
+  rbd:   session: 77 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 3 (most 3), arena 263392 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+  rbd:   osd: 16 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: off
+  WRINFO-END
+  WRINFO-BEGIN
+  rbd: image winrbd/wrtest-p2-bytes: open, 1 device(s), 393216 blocks of 512 bytes
+  rbd:   session: 16937 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+  rbd:   osd: 2265 ops done, 0 resent, 0 failed; in flight 0 (most 2), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: off
+  WRINFO-END

@@ -1,0 +1,4 @@
+# 2026-11-24T03:15:37Z row U1-bytes-stall20 (uefi, bytes, fault stall), profile bytes; f: every OSD stopped for 20 s: the SAN layer's 15 s command timeout fires, the driver's 30 s watchdog does not
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault stall --on \^WRBYTES-FILE\ f-17m --delay 0.5 --down 20 --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-bytes --pool winrbd --image wrtest-p2-rb-bytes --key-file <lab dir>/keys/client.wrtest-p2-rb-bytes.secret --timeout 420 --action sanhook --leave none --append <out>/rows/.tmp.3968866/append.ipxe --expect marker --marker \^WRRUN-END

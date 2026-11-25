@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: MIT
+# Kernel modules of the winrbd Linux test guests, one per line (dependencies are added by initramfs-tools).
+# "required" lines must be in the finished initramfs (build-*.sh checks); the others are included when the kernel has them as modules.
+#
+# the kernel client: libceph needs a cipher and a hash for the cephx handshake and the v2 protocol
+required libceph
+required rbd
+required libcrc32c
+required cbc
+required aes_generic
+required hmac
+optional aesni_intel
+optional crc32c_generic
+optional crc32c_intel
+optional sha256_generic
+optional sha256_ssse3
+optional sha512_generic
+optional ecb
+optional ctr
+optional gcm
+optional ghash_generic
+optional ghash_clmulni_intel
+optional md5
+optional sha1_generic
+# NICs of a QEMU guest (the live matrix uses virtio-net; e1000 / e1000e for the ones that need an Intel model) and VLANs
+required virtio_net
+optional net_failover
+optional failover
+optional e1000
+optional e1000e
+optional 8021q
+# disks a QEMU guest boots from when the image is used on its own (plain QEMU runs)
+required virtio_pci
+required virtio_blk
+optional virtio_scsi
+optional ahci
+optional libahci
+optional ata_piix
+optional ata_generic
+optional sd_mod
+optional sr_mod
+optional nvme
+# QEMU fw_cfg (expected values and the key from outside the guest), BIOS drive information
+optional qemu_fw_cfg
+optional edd

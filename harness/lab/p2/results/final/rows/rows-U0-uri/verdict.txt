@@ -1,0 +1,11 @@
+PASS
+INFO run: stop=expectation secs=38 ipxe=11 net=11 san=ok@12 os=-
+PASS reached the UEFI shell: RESULT met=1
+PASS sanhook of the image: WRRUN-SAN-OK
+PASS the shell was started from iPXE: WRU0-SHELL-START
+PASS map -r lists the block devices and file systems: 6 FS and 12 BLK lines
+PASS device path flavour uri: 10 map entries carry the node, e.g. PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)/HD(...
+PASS partitions are published (HD nodes): 6 partition entries
+PASS ls of a file system root lists EFI (the ESP of the Linux image): the ESP is FS2
+PASS ls of FS2:\EFI\BOOT reads a directory two levels down: BOOTX64.EFI listed
+PASS no path closure during the row: 0 reopens, 0 stall closes

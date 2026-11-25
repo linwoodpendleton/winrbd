@@ -1,0 +1,14 @@
+1795525971.240 T+4 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795525971.624 T+0 guest started (pid 1623274); fault mon-kill on 'before booting or' #1 + 1.2 s, down 20 s
+1795525972.135 T+1 lab-clock 1795525972.168511898
+1795525985.324 T+14 trigger seen (before booting or, #1)
+1795525985.329 T+14 keys 'ret' will be pressed after 1 s
+1795525985.336 T+14 fault mon-kill after 1.2 s
+1795525986.545 T+15 fault mon-kill: begins (down 20 s)
+1795525986.551 T+15 monitor: SIGKILL sent now
+1795525986.985 T+15 keys 'ret' pressed
+1795525988.028 T+17 monitor killed (rc 0)
+1795526010.490 T+39 monitor started (rc 0)
+1795526012.321 T+41 monitor is back in quorum (poll 1)
+1795526012.325 T+41 fault mon-kill: ends (rc 0)
+1795526048.323 T+77 the health checks are the ones the run started with again (poll 1)

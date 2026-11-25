@@ -1,0 +1,65 @@
+{
+ "plan": "probe",
+ "seed": "bench-1",
+ "data_first": 16,
+ "data_sectors": 65536,
+ "scratch_lba": 73728,
+ "scratch_sectors": 12288,
+ "image_sectors": 86016,
+ "image_sha256": "33d74250523b147ec1ca53d06b3d2e0cd662b985feb43f45e35fece12e306067",
+ "records": [
+  {
+   "type": "Z",
+   "id": 1,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration"
+  },
+  {
+   "type": "R",
+   "id": 2,
+   "cmd": 127,
+   "total": 2032,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "64K style, 1 MiB"
+  },
+  {
+   "type": "R",
+   "id": 3,
+   "cmd": 2048,
+   "total": 4096,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "1 MiB commands, 2 MiB"
+  },
+  {
+   "type": "L",
+   "id": 4,
+   "cmd": 127,
+   "total": 4,
+   "lba": 8208,
+   "dst": 8192,
+   "gap": 0,
+   "note": "latency series"
+  }
+ ],
+ "expected": {
+  "2": {
+   "sumA": "ad575dde",
+   "sumB": "ad575dde",
+   "lastcnt": 127
+  },
+  "3": {
+   "sumA": "8618a5b5",
+   "sumB": "15570c0a",
+   "lastcnt": 2048
+  }
+ },
+ "verify": []
+}

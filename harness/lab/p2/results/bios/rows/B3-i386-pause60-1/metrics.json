@@ -1,0 +1,169 @@
+{
+ "heap": {
+  "session_needs": [
+   262144,
+   2629632,
+   2101248,
+   16384
+  ]
+ },
+ "int13": {
+  "capacity": 1,
+  "commands": 1638,
+  "first_t": 4.716,
+  "histogram": {
+   "1": 33,
+   "10": 26,
+   "11": 30,
+   "12": 25,
+   "127": 4,
+   "13": 26,
+   "14": 26,
+   "15": 26,
+   "16": 27,
+   "17": 26,
+   "18": 26,
+   "19": 26,
+   "2": 25,
+   "20": 27,
+   "21": 25,
+   "22": 29,
+   "23": 24,
+   "24": 27,
+   "25": 24,
+   "26": 24,
+   "27": 24,
+   "28": 24,
+   "29": 25,
+   "3": 25,
+   "30": 24,
+   "31": 28,
+   "32": 24,
+   "33": 28,
+   "34": 24,
+   "35": 25,
+   "36": 24,
+   "37": 24,
+   "38": 24,
+   "39": 24,
+   "4": 25,
+   "40": 27,
+   "41": 24,
+   "42": 29,
+   "43": 25,
+   "44": 27,
+   "45": 26,
+   "46": 26,
+   "47": 26,
+   "48": 27,
+   "49": 26,
+   "5": 25,
+   "50": 26,
+   "51": 26,
+   "52": 25,
+   "53": 30,
+   "54": 26,
+   "55": 27,
+   "56": 25,
+   "57": 25,
+   "58": 28,
+   "59": 25,
+   "6": 28,
+   "60": 24,
+   "61": 25,
+   "62": 25,
+   "63": 28,
+   "7": 25,
+   "8": 25,
+   "9": 27,
+   "99": 1
+  },
+  "largest": 127,
+  "last_t": 354.722,
+  "latency_ms": {
+   "max": 60429,
+   "median": 67,
+   "n": 1637,
+   "p90": 273
+  },
+  "mib": 25.71,
+  "reads": 1637,
+  "retries": 0,
+  "sectors": 52648,
+  "sectors_127": 4,
+  "sequential": 1596,
+  "unfinished": 0,
+  "writes": 0
+ },
+ "pause": {
+  "complaints": "none",
+  "first_command_after": {
+   "cmd": "0x137e34",
+   "count": 44,
+   "kind": 0,
+   "lba": 272916,
+   "t": 74.98
+  },
+  "first_command_after_latency_ms": 357,
+  "first_command_after_result": "Operation completed successfully (https://ipxe.org/00000000)",
+  "first_output_after_cont_ms": 359,
+  "in_flight_done_after_cont_ms": 359,
+  "in_flight_result": "Operation completed successfully (https://ipxe.org/00000000)",
+  "last_command_before": {
+   "cmd": "0x137e34",
+   "count": 20,
+   "kind": 0,
+   "lba": 272896,
+   "t": 14.53
+  },
+  "markers": [
+   {
+    "t": 14.536,
+    "what": "# PAUSE stop {\"return\": {}}"
+   },
+   {
+    "t": 74.6,
+    "what": "# PAUSE cont {\"return\": {}}"
+   }
+  ],
+  "pause_s": 60.064
+ },
+ "rbft": {
+  "edd": [
+   "WRBOOT-EDD int13_dev80 mbr_signature=0x7d1f0002"
+  ],
+  "fail": 0,
+  "fail_lines": [],
+  "length": 234,
+  "marker": "WRBOOT-ROOT-OK fw=bios root=/dev/rbd0p1 fstype=ext4 mapped=rbd0 table=PASS src=scan image=wrtest-p2-b3 kernel=6.8.0-151-generic",
+  "pass": 40,
+  "result": "PASS",
+  "skip": 0,
+  "source": "scan: found at physical address 0x9e120 (1 valid copy/copies)",
+  "table": "WRBOOT-TABLE PASS"
+ },
+ "stack": {
+  "core_total": 16384,
+  "core_used": 1696,
+  "ipxe_left": 1272,
+  "ipxe_total": 4096,
+  "ipxe_used": 2824
+ },
+ "stages": {
+  "booting": 5.133,
+  "grub": 85.89,
+  "grub_countdown_end": 88.175,
+  "grub_loading": 372.36,
+  "hook": 373.336,
+  "hook_done": 374.532,
+  "ipxe": 0.169,
+  "net": 3.872,
+  "registered": 5.112,
+  "root_ok": 467.513,
+  "san_start": 3.936,
+  "script": 3.807,
+  "stub": 0.678,
+  "table_found": 373.654,
+  "table_result": 374.267
+ }
+}

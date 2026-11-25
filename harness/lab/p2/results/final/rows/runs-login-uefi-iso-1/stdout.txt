@@ -1,0 +1,4 @@
+[qemu] budget: 3 other VM(s) under <box> use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 40 cores / 60000 MiB
+make-usb.sh: wrote <box>/p2r/work/q/runs/U3-20261124T122056Z-1503833/medium.iso (iso, 17831936 bytes)
+[qemu] starting wrp2q-U3-20261124T122056Z-1503833 (uefi, iso, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+RESULT row=U3 run=U3-20261124T122056Z-1503833 expect=marker met=1 ipxe=- net=- san=none@- end=- os=52 stop=expectation secs=57 console=<box>/p2r/work/q/logs/U3-20261124T122056Z-1503833.console

@@ -1,0 +1,38 @@
+ci26_vm: copying <box>/builder26/stage/repo into the guest (work/p2rev3/src)
+ci26_vm log 20261124-225541 label=p2rev3 tree=<box>/builder26/stage/repo
+guest limits: 8 cores, 8192 MiB
+== toolchain
+os      Ubuntu 24.04.5 LTS kernel 6.8.0-147-generic
+gcc     13.3.0
+clang   18.1.3
+cmake   3.28.3   ninja 1.11.1
+openssl 3.0.13   python3 3.12.3
+cores   8, build jobs 8, ctest -j 4   mem 7939 MiB   mmap_rnd_bits 28
+tree    1442991aec8450b7 (17417 files)
+== matrix gcc/release
+== matrix gcc/san
+  --- failed tests:
+  | The following tests FAILED:
+  | 	238 - exitrun.selftest (Failed)
+  | Errors while running CTest
+  | 244/246 Test #238: exitrun.selftest .................***Failed  163.06 sec
+== gates gcc
+  (gcc compile-matrix: 15s)
+
+== result (3057s)
+PASS   gcc/release                  build 51s, ctest 253 tests, 0 failed, 1 skipped, 943s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+FAIL   gcc/san                      ctest exit 8: 1 failed of 246, 2 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind winpe.selftest
+PASS   gcc/wr_core_m32              built, no libc, no globals (113 objects)
+PASS   gcc/wr_core_ipxe_flags       built, no libc, no globals (113 objects)
+PASS   gcc/wr_header_check          built
+PASS   gcc/gates-Release            11 core_ checks
+PASS   gcc/gates-MinSizeRel         11 core_ checks
+FAILED: 1
+full logs on the guest: <guest>/work/p2rev3/logs (reach them with: ci26_vm.sh ssh 'ls <guest>/work/p2rev3/logs')
+ci26_vm exit status 1
+CI26_LOG=<box>/ci24/logs/p2rev3-20261124-225541.log
+C24C-EXIT 1

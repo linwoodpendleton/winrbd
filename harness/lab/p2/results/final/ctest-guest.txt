@@ -1,0 +1,69 @@
+# harness ctest matrix in the Ubuntu 26.04 builder guest (gcc 15.2, clang 21.1.8), 2026-11-24: build-harness.sh -j 4
+# the box carried the QEMU matrix and builds of this review at the same time (load average 37.6 mean, 59.7 max)
+ci26_vm: another run holds the lock, waiting
+ci26_vm: copying <box>/builder26/stage/repo into the guest (work/harness/src)
+ci26_vm log 20261124-072445 label=harness tree=<box>/builder26/stage/repo
+guest limits: 8 cores, 12288 MiB
+== toolchain
+os      Ubuntu 26.04.1 LTS kernel 7.0.0-43-generic
+gcc     15.2.0
+clang   21.1.8
+cmake   4.2.3   ninja 1.13.2
+openssl 3.5.5   python3 3.14.4
+cores   8, build jobs 8, ctest -j 4   mem 11954 MiB   mmap_rnd_bits 28
+tree    c66121884502c6ad (16556 files)
+== matrix gcc/debug
+  --- failed tests:
+FAIL   gcc/debug                    ctest exit 8: 1 failed of 253, 0 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   gcc/san                      build 35s, ctest 246 tests, 0 failed, 1 skipped, 1784s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind
+FAIL   gcc/release                  ctest exit 8: 1 failed of 253, 0 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+FAIL   gcc/minsizerel               ctest exit 8: 2 failed of 253, 0 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+FAIL   clang/debug                  ctest exit 8: 1 failed of 248, 0 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   clang/san                    build 35s, ctest 246 tests, 0 failed, 1 skipped, 2708s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind
+PASS   clang/release                build 42s, ctest 248 tests, 0 failed, 0 skipped, 735s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+FAIL   clang/minsizerel             ctest exit 8: 2 failed of 248, 0 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   gcc/wr_core_m32              built, no libc, no globals (113 objects)
+PASS   gcc/wr_core_ipxe_flags       built, no libc, no globals (113 objects)
+PASS   gcc/wr_header_check          built
+PASS   gcc/gates-Release            11 core_ checks
+PASS   gcc/gates-MinSizeRel         11 core_ checks
+PASS   clang/wr_core_m32            built, no libc, no globals (113 objects)
+SKIP   clang/wr_core_ipxe_flags     gcc only, as in CI
+PASS   clang/wr_header_check        built
+PASS   clang/gates-Release          7 core_ checks
+PASS   clang/gates-MinSizeRel       7 core_ checks
+FAILED: 5
+full logs on the guest: <guest>/work/harness/logs (reach them with: ci26_vm.sh ssh 'ls <guest>/work/harness/logs')
+ci26_vm exit status 1
+CI26_LOG=<box>/builder26/ci26/logs/harness-20261124-072445.log
+builder: box load (1 min) over the run: avg 37.6, max 59.7, 402 samples (<box>/builder26/logs/harness-harness-20261124-071550.log.load)
+builder: toolchain gcc 15.2.0 clang 21.1.8 (CI runner: gcc 15.2, clang 21.1.8)
+builder: ci26_vm.sh run exit status 1
+
+# the failed tests again, alone, on the idle guest (each in the build directory that failed):
+== gcc-debug faultinject
+1/1 Test #239: faultinject.selftest .............   Passed   64.95 sec
+100% tests passed, 0 tests failed out of 1
+== gcc-release faultinject
+1/1 Test #239: faultinject.selftest .............   Passed   67.09 sec
+100% tests passed, 0 tests failed out of 1
+== clang-minsizerel faultinject
+1/1 Test #239: faultinject.selftest .............   Passed   66.27 sec
+100% tests passed, 0 tests failed out of 1
+== clang-debug winpe
+1/1 Test #244: winpe.selftest ...................   Passed   83.17 sec
+100% tests passed, 0 tests failed out of 1
+== clang-minsizerel exitrun
+1/1 Test #240: exitrun.selftest .................   Passed  169.07 sec
+100% tests passed, 0 tests failed out of 1
+RERUN-DONE

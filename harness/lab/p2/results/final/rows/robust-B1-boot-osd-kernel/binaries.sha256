@@ -1,0 +1,6 @@
+58c2ef91899ddb958b2319ab53c633502480a043f61c66f74174320c3ef60b7d  <box>/p2r/work/q/ipxe/ipxe-stub.pxe
+e2bedc65b59ec85be5418de1e1a8d192c954b8c3e1dea00807d51e9d32005c0f  <box>/p2r/out/images/bytes/bytes.manifest
+MISSING  <box>/p2r/out/images/reader.raw.sha256
+7b5ee1006be10776bef53778da48bd92b65402a1c3585f4504ef2fcc7a95dee5  <box>/p2r/repo/harness/lab/p2/qemu/robust.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# the image wrtest-p2-rb-lin-bios on the cluster: id 386e97db27a7b

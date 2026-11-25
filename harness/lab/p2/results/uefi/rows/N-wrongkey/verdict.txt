@@ -1,0 +1,9 @@
+FAIL
+INFO run: stop=guest-exited secs=35 ipxe=19 net=19 san=failed@35 os=-
+FAIL console line /rbd: .*failed: .*\(WR_E_AUTH_[A-Z_]+\)/: not in the log
+PASS the row says what it expects: errno and console line given
+PASS the SAN open failed: WRRUN-SAN-FAILED 0x43766098
+PASS no SAN device was made: no WRRUN-SAN-OK
+INFO errno: 0x43766098 = EPROTO
+FAIL errno is EACCES: got EPROTO
+PASS nothing booted: yes

@@ -1,0 +1,4 @@
+[qemu] budget: 3 other VM(s) under /box/vm use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-U0-20261123T194610Z-2032067 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 420 s)
+[qemu] OVMF is in its setup menu: keys to the EFI Internal Shell: down down ret down down down down ret
+RESULT row=U0 run=U0-20261123T194610Z-2032067 expect=shell met=0 ipxe=12 net=12 san=ok@13 end=13 os=- stop=guest-exited secs=312 console=/box/work/logs/U0-20261123T194610Z-2032067.console

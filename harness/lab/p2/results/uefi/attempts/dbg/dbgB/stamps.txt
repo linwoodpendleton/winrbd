@@ -1,0 +1,3 @@
+   12.5 ipxe-script       WRRUN-BEGIN row=U0
+   12.5 net-ok            WRRUN-NET-OK
+   12.5 script-end        WRRUN-END

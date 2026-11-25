@@ -1,0 +1,24 @@
+guest_started_epoch: 1795492673.828
+fault_begin: +16.9 s
+fault_end: +41.1 s (lasted 24.3 s)
+fault_event: +17.7 s monitor killed (rc 0)
+fault_event: +39.6 s monitor started (rc 0)
+fault_event: +41.1 s monitor is back in quorum (poll 1)
+fault_event: +79.7 s the health checks are the ones the run started with again (poll 1)
+keys_pressed: +17.3 s
+workload_start: +12.7 s
+workload_end: +22.0 s (took 9.4 s)
+stall_close_lines: 0
+trouble_lines: 0
+root_ok_line: WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-rb-lin-uefi kernel=6.8.0-151-generic
+boot_phase_seconds: 9.4 (SAN start to the first line of the Linux initramfs: the firmware's part)
+kernel_client_seconds: 18.6 (first initramfs line to the end of the image mapping by the guest's own kernel client)
+root_ok_at: +75.3 s
+grub_menu_at: +15.6 s
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 28, osd 6
+connections_started_after_the_fault_began: +18.0 s monitor:3300, +19.3 s monitor:3300, +22.9 s monitor:3300, +23.2 s monitor:3300, +23.7 s monitor:3300, +25.3 s monitor:3300, +26.2 s monitor:3300, +26.5 s monitor:3300, +27.0 s monitor:3300, +28.2 s monitor:3300, +29.3 s monitor:3300, +29.5 s monitor:3300, +30.0 s monitor:3300, +31.2 s monitor:3300, +32.3 s monitor:3300, +32.5 s monitor:3300
+monitor_to_guest_bytes: 4940 before the fault (15 packets), 4962 while it lasted (43), 132 after it ended (5)

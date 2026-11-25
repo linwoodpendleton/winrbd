@@ -1,0 +1,8 @@
+700330e79305f4f277ca2d43888658f48daf00ebde1017a7849c319496f27ee4  <work>/ipxe/ipxe.efi
+9be5f162354721899002f2d4ae8417809e509fe7477f8c9f02d2acf7e3e37af3  /usr/share/OVMF/OVMF_CODE_4M.fd
+5d2ac383371b408398accee7ec27c8c09ea5b74a0de0ceea6513388b15be5d1e  /usr/share/OVMF/OVMF_VARS_4M.fd
+02cb5b7e53415dfdee07ecfbe18b28e5ba714d568ad6d94bd3c14f70a441f662  <images>/bytes/bytes.manifest
+ec9df4319c20ff605d89a4f5f66bbd10e9ad14187918eba2c7d4dbc8d28ce915  <images>/reader.raw.sha256
+cafc6271280c8dfe3c8caa6356676781c94535fec9f5914e5ea4ff75e4016463  <repo>/harness/lab/p2/qemu/robust.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# the image wrtest-p2-rb-bytes on the cluster: id 4256f5de4d17

@@ -1,0 +1,22 @@
+guest_started_epoch: 1795493203.304
+fault_begin: +16.4 s
+fault_end: +76.9 s (lasted 60.6 s)
+fault_event: +16.8 s guest stopped (rc 0)
+fault_event: +76.9 s guest continued (rc 0)
+keys_pressed: +16.8 s
+workload_start: +12.5 s
+workload_end: +81.8 s (took 69.4 s)
+stall_close_lines: 0
+trouble_lines: 0
+root_ok_line: WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-rb-lin-uefi kernel=6.8.0-151-generic
+boot_phase_seconds: 69.4 (SAN start to the first line of the Linux initramfs: the firmware's part)
+kernel_client_seconds: 1.1 (first initramfs line to the end of the image mapping by the guest's own kernel client)
+root_ok_at: +116.4 s
+grub_menu_at: +15.5 s
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 2, osd 6
+connections_started_after_the_fault_began: +82.7 s monitor:3300, +82.7 s osd:6802, +82.8 s osd:6810, +112.8 s osd:6818
+monitor_to_guest_bytes: 6029 before the fault (16 packets), 2178 while it lasted (2), 5094 after it ended (26)

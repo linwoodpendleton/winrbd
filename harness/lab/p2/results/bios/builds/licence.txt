@@ -1,0 +1,29 @@
+== ipxe/tools/build.sh licence -o b-rel bin/undionly.kpxe
+  GPL version 2 (or, at your option, any later version)
+  BSD Licence (without advertising or endorsement clauses, with patent clause)
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes Public Domain
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes MIT/X11/Xorg Licence
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes BSD Licence (without advertising clause)
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes BSD Licence (without advertising or endorsement clauses)
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes BSD Licence (without advertising or endorsement clauses, with patent clause)
+GPL version 2 (or, at your option, any later version) subsumes GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence
+The overall licence for this file is:
+  GPL version 2 (or, at your option, any later version)
+rm bin/version.undionly.kpxe.o
+ipxe/tools/build.sh: licence: bin/undionly.kpxe: GPL version 2 (or, at your option, any later version)
+exit status: 0
+== ipxe/tools/build.sh licence -o b32-rel bin-i386-pcbios/undionly.kpxe
+  GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence
+  GPL version 2 (or, at your option, any later version)
+BSD Licence (without advertising clause) subsumes MIT/X11/Xorg Licence
+BSD Licence (without advertising clause) subsumes BSD Licence (without advertising or endorsement clauses)
+BSD Licence (without advertising clause) subsumes Public Domain
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes BSD Licence (without advertising clause)
+GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence subsumes BSD Licence (without advertising or endorsement clauses, with patent clause)
+GPL version 2 (or, at your option, any later version) subsumes GPL version 2 (or, at your option, any later version) or Unmodified Binary Distribution Licence
+The overall licence for this file is:
+  GPL version 2 (or, at your option, any later version)
+rm bin-i386-pcbios/version.undionly.kpxe.o
+ipxe/tools/build.sh: licence: bin-i386-pcbios/undionly.kpxe: GPL version 2 (or, at your option, any later version)
+exit status: 0
+LIC-DONE

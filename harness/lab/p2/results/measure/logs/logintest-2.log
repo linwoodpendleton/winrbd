@@ -1,0 +1,2 @@
+mboot.sh: logintest-u1-1: PASS  (RESULT row=U1 run=U1-20261124T085126Z-955237 expect=marker met=1 ipxe=- net=- san=none@- end=- os=55 stop=expectation secs=61 console=<box>/measure/work/q/logs/U1-20261124T085)
+mboot.sh: logintest-b2-1: PASS  (RESULT row=B2 run=B2-20261124T085246Z-967600 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=51 stop=expectation secs=54 console=<box>/measure/work/q/logs/B2-20261124T085)

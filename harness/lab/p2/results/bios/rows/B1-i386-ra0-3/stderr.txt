@@ -1,0 +1,3 @@
+[qemu] warning: undionly.kpxe drives only the NIC that PXE booted from (UNDI): the lab NIC (NIC 2) is invisible to it and every row that needs the cluster will report WRRUN-NO-LAB-NIC. Use ipxe.pxe (native drivers) for those; undionly.kpxe is fine for 'reaches iPXE' checks.
+[qemu] budget: 5 other VM(s) under $BOX_ROOT use 24 cores / 36864 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-B1-20261123T202110Z-2129934 (bios, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 420 s)

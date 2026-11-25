@@ -1,0 +1,68 @@
+[=3hBdsDxe: loading Boot0001 "UEFI QEMU QEMU USB HARDDRIVE 1-0000:00:04.0-1" from PciRoot(0x0)/Pci(0x4,0x0)/USB(0x0,0x0)
+BdsDxe: starting Boot0001 "UEFI QEMU QEMU USB HARDDRIVE 1-0000:00:04.0-1" from PciRoot(0x0)/Pci(0x4,0x0)/USB(0x0,0x0)
+iiPPXXEE  iinniittiiaalliissiinngg  ddeevviicceess......
+
+ffiillee::aauuttooeexxeecc..iippxxee......  NNoott  ffoouunndd  ((hhttttppss::////iippxxee..oorrgg//77ff44ddee1188ee))
+
+ffiillee:://aauuttooeexxeecc..iippxxee......  ookk
+
+
+
+
+
+
+
+[1miiPPXXEE  22..00..00++[0m  ----  OOppeenn  SSoouurrccee  NNeettwwoorrkk  BBoooott  FFiirrmmwwaarree  ----  [36mhhttttppss::////iippxxee..oorrgg[0m
+
+FFeeaattuurreess::  DDNNSS  HHTTTTPP  HHTTTTPPSS  iiSSCCSSII  TTFFTTPP  VVLLAANN  SSRRPP  AAooEE  EEFFII  MMeennuu
+
+WWRRRRUUNN--BBEEGGIINN  rrooww==UU22
+
+WWaaiittiinngg  ffoorr  lliinnkk--uupp  oonn  nneett11......  ookk
+
+WWRRRRUUNN--NNEETT--OOKK
+
+WWRRRRUUNN--SSAANN--SSTTAARRTT  ssaannbboooott
+
+rrbbdd::  ooppeenn  ffaaiilleedd::  iimmaaggee  uusseess  ffeeaattuurreess  tthhiiss  cclliieenntt  ddooeess  nnoott  ssuuppppoorrtt  ((mmaasskk  iinn  aa00))  ((WWRR__EE__RRBBDD__FFEEAATTUURREESS))
+
+CCoouulldd  nnoott  ooppeenn  SSAANN  ddeevviiccee::  OOppeerraattiioonn  nnoott  ssuuppppoorrtteedd  ((hhttttppss::////iippxxee..oorrgg//33cc776666008833))
+
+WWRRRRUUNN--SSAANN--FFAAIILLEEDD  00xx33cc776666008833
+
+WWRRRRUUNN--FFAAIILL
+
+WWRRRRUUNN--EENNDD
+
+[... full console on the build machine ...]
+[... end of the console ...]
+ffiillee:://aauuttooeexxeecc..iippxxee......  ookk
+
+
+
+
+
+
+
+[1miiPPXXEE  22..00..00++[0m  ----  OOppeenn  SSoouurrccee  NNeettwwoorrkk  BBoooott  FFiirrmmwwaarree  ----  [36mhhttttppss::////iippxxee..oorrgg[0m
+
+FFeeaattuurreess::  DDNNSS  HHTTTTPP  HHTTTTPPSS  iiSSCCSSII  TTFFTTPP  VVLLAANN  SSRRPP  AAooEE  EEFFII  MMeennuu
+
+WWRRRRUUNN--BBEEGGIINN  rrooww==UU22
+
+WWaaiittiinngg  ffoorr  lliinnkk--uupp  oonn  nneett11......  ookk
+
+WWRRRRUUNN--NNEETT--OOKK
+
+WWRRRRUUNN--SSAANN--SSTTAARRTT  ssaannbboooott
+
+rrbbdd::  ooppeenn  ffaaiilleedd::  iimmaaggee  uusseess  ffeeaattuurreess  tthhiiss  cclliieenntt  ddooeess  nnoott  ssuuppppoorrtt  ((mmaasskk  iinn  aa00))  ((WWRR__EE__RRBBDD__FFEEAATTUURREESS))
+
+CCoouulldd  nnoott  ooppeenn  SSAANN  ddeevviiccee::  OOppeerraattiioonn  nnoott  ssuuppppoorrtteedd  ((hhttttppss::////iippxxee..oorrgg//33cc776666008833))
+
+WWRRRRUUNN--SSAANN--FFAAIILLEEDD  00xx33cc776666008833
+
+WWRRRRUUNN--FFAAIILL
+
+WWRRRRUUNN--EENNDD
+

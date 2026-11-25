@@ -1,0 +1,160 @@
+{
+ "plan": "read",
+ "seed": "bench-1",
+ "data_first": 16,
+ "data_sectors": 524288,
+ "scratch_lba": 532480,
+ "scratch_sectors": 8192,
+ "image_sectors": 540672,
+ "image_sha256": "3b88b3e57ce6d3b712c4bb0f7c4494b35b783fcda1987b1cc99fb19f624cab97",
+ "records": [
+  {
+   "type": "Z",
+   "id": 1,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration before"
+  },
+  {
+   "type": "R",
+   "id": 2,
+   "cmd": 2048,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "warm pass (1 MiB commands), not a result"
+  },
+  {
+   "type": "L",
+   "id": 3,
+   "cmd": 127,
+   "total": 8,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 0,
+   "note": "single 127-sector reads far apart: the latency of one command, no readahead window"
+  },
+  {
+   "type": "R",
+   "id": 4,
+   "cmd": 127,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "sequential read, 127 sectors per command, pass 1"
+  },
+  {
+   "type": "R",
+   "id": 5,
+   "cmd": 2048,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "sequential read, 2048 sectors per command, pass 1"
+  },
+  {
+   "type": "R",
+   "id": 6,
+   "cmd": 8192,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "sequential read, 8192 sectors per command, pass 1"
+  },
+  {
+   "type": "R",
+   "id": 7,
+   "cmd": 127,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "sequential read, 127 sectors per command, pass 2"
+  },
+  {
+   "type": "R",
+   "id": 8,
+   "cmd": 2048,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "sequential read, 2048 sectors per command, pass 2"
+  },
+  {
+   "type": "R",
+   "id": 9,
+   "cmd": 8192,
+   "total": 262144,
+   "lba": 16,
+   "dst": 0,
+   "gap": 0,
+   "note": "sequential read, 8192 sectors per command, pass 2"
+  },
+  {
+   "type": "L",
+   "id": 10,
+   "cmd": 127,
+   "total": 8,
+   "lba": 4112,
+   "dst": 49152,
+   "gap": 0,
+   "note": "single reads again"
+  },
+  {
+   "type": "Z",
+   "id": 11,
+   "cmd": 0,
+   "total": 0,
+   "lba": 0,
+   "dst": 0,
+   "gap": 0,
+   "note": "calibration after"
+  }
+ ],
+ "expected": {
+  "2": {
+   "sumA": "1291e5e6",
+   "sumB": "87a12a4f",
+   "lastcnt": 2048
+  },
+  "4": {
+   "sumA": "04776fa4",
+   "sumB": "04776fa4",
+   "lastcnt": 16
+  },
+  "5": {
+   "sumA": "1291e5e6",
+   "sumB": "87a12a4f",
+   "lastcnt": 2048
+  },
+  "6": {
+   "sumA": "6fffd7c3",
+   "sumB": "87a12a4f",
+   "lastcnt": 8192
+  },
+  "7": {
+   "sumA": "04776fa4",
+   "sumB": "04776fa4",
+   "lastcnt": 16
+  },
+  "8": {
+   "sumA": "1291e5e6",
+   "sumB": "87a12a4f",
+   "lastcnt": 2048
+  },
+  "9": {
+   "sumA": "6fffd7c3",
+   "sumB": "87a12a4f",
+   "lastcnt": 8192
+  }
+ },
+ "verify": []
+}

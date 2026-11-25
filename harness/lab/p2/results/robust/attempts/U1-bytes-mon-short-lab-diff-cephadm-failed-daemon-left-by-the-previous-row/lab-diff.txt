@@ -1,0 +1,9 @@
+--- /dev/fd/63	2026-11-23 22:32:19.871550004 -0500
++++ /dev/fd/62	2026-11-23 22:32:19.871550004 -0500
+@@ -49,5 +49,6 @@
+ health AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE muted=False
+ health AUTH_INSECURE_SERVICE_TICKETS muted=True
+ health BLUESTORE_SLOW_OP_ALERT muted=True
++health CEPHADM_FAILED_DAEMON muted=False
+ health RECENT_CRASH muted=False
+ quorum winrbd-p2-ceph

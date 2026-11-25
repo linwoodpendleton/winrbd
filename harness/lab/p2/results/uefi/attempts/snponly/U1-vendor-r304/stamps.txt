@@ -1,0 +1,4 @@
+   15.1 ipxe-script       WRRUN-BEGIN row=U1
+   15.1 script-end        WRRUN-END
+# host: load average at start 27.50, at end 32.26
+# guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 11 s)

@@ -1,0 +1,4 @@
+# 2026-11-23T20:03:54Z row U0-sata (uefi-pxe), profile shell
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row U0 --ip 10.77.0.21 --user wrtest-p2-lin-uefi --pool winrbd --image wrtest-p2-lin-uefi --key-file /box/lab/keys/client.wrtest-p2-lin-uefi.secret --opt devpath=sata --action sanhook --expect shell --timeout 420 --append /box/rows/.expect/u0-sata.ipxe --menu-keys '' --shell-cmds map\ -r\;fs1:\;ls\;fs2:\;ls\;ls\ EFI\\BOOT

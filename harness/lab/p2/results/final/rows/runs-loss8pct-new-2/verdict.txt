@@ -1,0 +1,5 @@
+FAIL
+FAIL the run script reached its expectation (met=0, stop=timeout)
+FAIL the stage 'login' was seen (None)
+ok   no kernel panic
+ok   the booted system's root marker (WRBOOT-ROOT-OK) was seen

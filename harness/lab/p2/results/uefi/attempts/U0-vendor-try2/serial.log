@@ -1,0 +1,34 @@
+[2J[01;01H[=3h[2J[01;01H
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1423360 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iPXE initialising devices...
+autoexec.ipxe... ok
+
+
+
+[1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+WRRUN-BEGIN row=U0
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRINFO-BEGIN
+rbd: image winrbd/wrtest-p2-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+rbd:   session: 286 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+rbd:   osd: 20 ops done, 0 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 19 reads: 8 hits, 0 waits, 11 misses; 1 windows, 7 prefetches (7 landed, 0 failed, 0 dropped), 7 lines valid
+WRINFO-END
+WRRUN-LEAVE exit
+WRRUN-END

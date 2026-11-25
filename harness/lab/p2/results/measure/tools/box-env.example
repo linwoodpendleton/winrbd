@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT
+# The environment of the measure scripts on the build machine (source it). Nothing here is secret.
+#   BOX         the directory that holds every VM of the workflow (the budget root of the QEMU scripts)
+#   P2_LAB_DIR  the lab directory of harness/lab/p2/cluster (ssh/, keys/)
+#   P2M_REPO    a copy of the repository (the scripts of harness/lab/p2 are run from it)
+#   P2M_WORK    img/ (the bench disks), bin/ (the iPXE builds of build-variants.sh, copied back from the builder), q/ (the QEMU work directory)
+#   P2M_OUT     the evidence: one directory per run
+BOX=${BOX:-$HOME/winrbd}
+export P2_LAB_DIR=$BOX/lab-p2
+export P2M_REPO=$BOX/measure/repo
+export P2M_WORK=$BOX/measure/work
+export P2Q_WORK=$P2M_WORK/q
+export P2M_OUT=$BOX/measure/out/runs
+export P2Q_BUDGET_ROOT=$BOX
+# the media rows (USB stick, CD) need mtools, xorriso and syslinux's files: unpacked .deb files, no root (dpkg -x), under $P2Q_WORK/tools
+export P2Q_TOOLS=$P2Q_WORK/tools/usr
+export PATH=$P2Q_TOOLS/bin:$PATH
+export LD_LIBRARY_PATH=$P2Q_TOOLS/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+export PATH=$P2M_REPO/harness/lab/p2/results/measure/tools:$PATH

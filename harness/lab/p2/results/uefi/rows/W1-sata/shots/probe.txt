@@ -1,0 +1,6 @@
+60 winpe-blue-corners=0
+120 winpe-blue-corners=0
+180 winpe-blue-corners=0
+240 winpe-blue-corners=0
+300 winpe-blue-corners=0
+360 winpe-blue-corners=0

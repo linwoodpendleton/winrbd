@@ -1,0 +1,7 @@
+aefab7609470858778ed7ab048bcdf4a5e29fb1acb5f63b7d5bfc958d9869bfe  <box>/p2r/work/bin/oldwin/ipxe-stub.pxe
+19d7d072ee30c70c6f11d5df43b53824fc540f254606985e6fe5be8edab924b7  <box>/p2r/repo/harness/lab/p2/qemu/run-bios-pxe.sh
+1058d49d00bd910ddf739a6bfc676abb2e2694b6e981f83cd00a76014ebe0625  <box>/p2r/repo/harness/lab/p2/results/measure/tools/bench.S
+686d4fba31542b2c97cca011de6fe98254e732450a4de406592c1c44e9287b52  <box>/p2r/work/img/wrtest-p2-ms-read.json
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# AMD EPYC 7601 32-Core Processor, 100 CPUs
+# image wrtest-p2-ms-read: id 380e0341f3d53 size 276824064 order 22 features ['layering']

@@ -1,0 +1,101 @@
+[=3h
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1423872 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:52540077111F)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(52540077111F,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:52540077111F)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(52540077111F,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iPXE initialising devices...
+autoexec.ipxe... ok
+
+
+
+iPXE 2.0.0+ -- Open Source Network Boot Firmware -- https://ipxe.org
+Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+WRRUN-BEGIN row=U0
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRINFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+rbd:   session: 257 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core: connections 3 (most 3), arena 263392 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 19 ops done, 0 resent, 0 failed; in flight 1 (most 8), requests 1 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 24 reads: 8 hits, 5 waits, 11 misses; 1 windows, 7 prefetches (6 landed, 0 failed, 0 dropped), 6 lines valid
+WRINFO-END
+WRU0-HELPER-HOOK
+Registered SAN device 0x81
+file://WRBYTES/Shell.efi... ok
+WRU0-SHELL-START
+UEFI Interactive Shell v2.2
+EDK II
+UEFI v2.70 (EDK II, 0x00010000)
+Mapping table
+      FS1: Alias(s):HD062663eevk0b:;BLK3:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)/HD(1,GPT,5B5E248B-2E72-4FCD-A4DA-1B82E3C5091B,0x800,0x40000)
+      FS0: Alias(s):HD011110eevk0b:;BLK1:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0x2B66,0xFFFF,0x0)/HD(1,GPT,17AB8B72-7FF8-2A49-A831-D8411DD0E880,0x800,0x5F000)
+      FS2: Alias(s):F0:;BLK5:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(file://WRBYTES/Shell.efi)
+     BLK2: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)
+     BLK4: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)/HD(2,GPT,F13BE907-DBE0-4E79-9E42-5D3CD1E851CB,0x40800,0x3BF7DF)
+     BLK0: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0x2B66,0xFFFF,0x0)
+Shell> map -r
+Mapping table
+      FS1: Alias(s):HD062663eevk0b:;BLK3:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)/HD(1,GPT,5B5E248B-2E72-4FCD-A4DA-1B82E3C5091B,0x800,0x40000)
+      FS0: Alias(s):HD011110eevk0b:;BLK1:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0x2B66,0xFFFF,0x0)/HD(1,GPT,17AB8B72-7FF8-2A49-A831-D8411DD0E880,0x800,0x5F000)
+      FS2: Alias(s):F0:;BLK5:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(file://WRBYTES/Shell.efi)
+[... full console on the build machine ...]
+WRRUN-BEGIN row=U0
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+WRRUN-SAN-OK
+rbd: image winrbd/wrtest-p2-ms-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+rbd:   session: 257 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core: connections 3 (most 3), arena 263392 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 19 ops done, 0 resent, 0 failed; in flight 1 (most 8), requests 1 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 24 reads: 8 hits, 5 waits, 11 misses; 1 windows, 7 prefetches (6 landed, 0 failed, 0 dropped), 6 lines valid
+[... end of the console ...]
+     BLK0: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0x2B66,0xFFFF,0x0)
+Shell> map -r
+Mapping table
+      FS1: Alias(s):HD062663eevk0b:;BLK3:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)/HD(1,GPT,5B5E248B-2E72-4FCD-A4DA-1B82E3C5091B,0x800,0x40000)
+      FS0: Alias(s):HD011110eevk0b:;BLK1:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0x2B66,0xFFFF,0x0)/HD(1,GPT,17AB8B72-7FF8-2A49-A831-D8411DD0E880,0x800,0x5F000)
+      FS2: Alias(s):F0:;BLK5:
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(file://WRBYTES/Shell.efi)
+     BLK2: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)
+     BLK4: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)/HD(2,GPT,F13BE907-DBE0-4E79-9E42-5D3CD1E851CB,0x40800,0x3BF7DF)
+     BLK0: Alias(s):
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0x2B66,0xFFFF,0x0)
+Shell> fs1:
+FS1:\> ls
+Directory of: FS1:\
+11/24/2026  06:16 <DIR>           512  EFI
+          0 File(s)           0 bytes
+          1 Dir(s)
+FS1:\> fs2:
+FS2:\> ls
+Directory of: FS2:\
+          0 File(s)           0 bytes
+          0 Dir(s)
+FS2:\> ls EFI\BOOT
+ls: File Not Found - 'FS2:\EFI\'
+FS2:\> 

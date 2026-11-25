@@ -1,0 +1,2 @@
+PASS
+krbd passes: 27 (want 27), run exit 0, key found in the evidence: 0

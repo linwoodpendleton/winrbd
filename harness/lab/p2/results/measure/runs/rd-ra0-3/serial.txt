@@ -1,0 +1,67 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3d)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-read: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 50 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: off
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+WRMS-START drive=80 steps=11
+WRMS-CAL id=1 tsc0=000000061cd5d963 tsc1=00000008ab54e81e ticks=91
+WRMS-STEP id=2 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=0000000304f04ea9 wrn=0 wrtsc=0000000000000000 walltsc=0000000304f17bdf ticks=108 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-LAT id=3 gap=0 cmd=127 n=8
+WRMS-LATR id=3 k=0 lba=4112 tsc=0000000000a7d902 ah=00
+WRMS-LATR id=3 k=1 lba=53264 tsc=00000000009c6c0a ah=00
+WRMS-LATR id=3 k=2 lba=102416 tsc=000000000144b4da ah=00
+WRMS-LATR id=3 k=3 lba=151568 tsc=00000000008971f3 ah=00
+WRMS-LATR id=3 k=4 lba=200720 tsc=000000000076259e ah=00
+WRMS-LATR id=3 k=5 lba=249872 tsc=000000000088d6f6 ah=00
+WRMS-LATR id=3 k=6 lba=299024 tsc=0000000000c0e896 ah=00
+WRMS-LATR id=3 k=7 lba=348176 tsc=0000000000d478c4 ah=00
+WRMS-STEP id=4 type=R cmd=127 sectors=262144 errs=0 rdn=2065 rdtsc=000000077cfdd96a wrn=0 wrtsc=0000000000000000 walltsc=000000077d100d34 ticks=267 sumA=04776fa4 sumB=04776fa4 lastcnt=16
+WRMS-STEP id=5 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=000000029d06d1d1 wrn=0 wrtsc=0000000000000000 walltsc=000000029d080521 ticks=93 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-STEP id=6 type=R cmd=8192 sectors=262144 errs=0 rdn=32 rdtsc=00000002a6491a0b wrn=0 wrtsc=0000000000000000 walltsc=00000002a6496527 ticks=95 sumA=6fffd7c3 sumB=87a12a4f lastcnt=8192
+WRMS-STEP id=7 type=R cmd=127 sectors=262144 errs=0 rdn=2065 rdtsc=00000007846455d2 wrn=0 wrtsc=0000000000000000 walltsc=000000078476d736 ticks=268 sumA=04776fa4 sumB=04776fa4 lastcnt=16
+WRMS-STEP id=8 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=000000025612aadd wrn=0 wrtsc=0000000000000000 walltsc=000000025613d70b ticks=83 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-STEP id=9 type=R cmd=8192 sectors=262144 errs=0 rdn=32 rdtsc=00000001f7d6a079 wrn=0 wrtsc=0000000000000000 walltsc=00000001f7d6ee55 ticks=70 sumA=6fffd7c3 sumB=87a12a4f lastcnt=8192
+WRMS-LAT id=10 gap=0 cmd=127 n=8
+WRMS-LATR id=10 k=0 lba=4112 tsc=0000000000a2f948 ah=00
+WRMS-LATR id=10 k=1 lba=53264 tsc=00000000007bdcca ah=00
+WRMS-LATR id=10 k=2 lba=102416 tsc=00000000008924bc ah=00
+WRMS-LATR id=10 k=3 lba=151568 tsc=00000000007dd7a6 ah=00
+WRMS-LATR id=10 k=4 lba=200720 tsc=00000000008637b4 ah=00
+WRMS-LATR id=10 k=5 lba=249872 tsc=00000000008f0420 ah=00
+WRMS-LATR id=10 k=6 lba=299024 tsc=0000000000c6ef56 ah=00
+WRMS-LATR id=10 k=7 lba=348176 tsc=0000000000e6c7a0 ah=00
+WRMS-CAL id=11 tsc0=00000024626dcda1 tsc1=00000026f09dbd43 ticks=91
+WRMS-DONE errs=0
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-read: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 316445 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 4 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+rbd:   osd: 5015 ops done, 0 resent, 0 failed; in flight 0 (most 5), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: off
+WRMS-INFO-END
+WRMS-END
+WRRUN-LEAVE none
+WRRUN-END

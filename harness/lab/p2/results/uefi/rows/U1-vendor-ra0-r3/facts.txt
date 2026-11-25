@@ -1,0 +1,29 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (0):
+run script lines (3):
+  WRRUN-BEGIN row=U1
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanboot
+table check: 40 PASS, 0 FAIL, 0 SKIP; RBFT-RESULT PASS pass=40 fail=0 skip=0
+  RBFT INFO source: sysfs /sys/firmware/acpi/tables/rBFT (230 bytes read)
+  RBFT INFO oem: not interpreted (iPXE writes its own): id 'FENSYS' table id 'iPXE' creator ''
+  RBFT INFO key: not in the table
+  RBFT INFO key_value: the table carries no key: the supplied one (aes, 16 bytes) will be used
+guest markers (5):
+  WRBOOT-TABLE PASS
+  WRBOOT-HOOK-DONE root=/dev/rbd0p2 table=PASS
+  WRBOOT-NET eth0 mac=52:54:00:77:11:1f
+  WRBOOT-NET eth1 mac=52:54:00:77:12:9f 10.77.0.31/24 fe80::5054:ff:fe77:129f/64
+  WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-lin-uefi kernel=6.8.0-151-generic
+stages (seconds since the run script started):
+     11.0 ipxe-script       WRRUN-BEGIN row=U1
+     11.0 net-ok            WRRUN-NET-OK
+     11.0 san-start         WRRUN-SAN-START sanboot
+     12.5 grub              [H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+     21.1 kernel-up         Begin: Loading essential drivers ... done.
+     21.6 table-check-done  RBFT-RESULT PASS pass=40 fail=0 skip=0
+     54.2 root-ok           WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-lin-uefi kernel=6.8.0-151-generic
+     60.2 login             winrbd-guest login:
+  # host: load average at start 20.97, at end 21.46
+  # guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 21 s)
+rbd-info (0 lines):

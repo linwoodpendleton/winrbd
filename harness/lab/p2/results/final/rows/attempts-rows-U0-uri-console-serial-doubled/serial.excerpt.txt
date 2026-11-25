@@ -1,0 +1,102 @@
+[=3h
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1425920 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:52540077111F)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(52540077111F,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:52540077111F)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(52540077111F,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iiPPXXEE  iinniittiiaalliissiinngg  ddeevviicceess......
+
+aauuttooeexxeecc..iippxxee......  ookk
+
+
+
+
+
+
+
+[1miiPPXXEE  22..00..00++[0m  ----  OOppeenn  SSoouurrccee  NNeettwwoorrkk  BBoooott  FFiirrmmwwaarree  ----  [36mhhttttppss::////iippxxee..oorrgg[0m
+
+FFeeaattuurreess::  DDNNSS  HHTTTTPP  HHTTTTPPSS  iiSSCCSSII  TTFFTTPP  VVLLAANN  SSRRPP  AAooEE  EEFFII  MMeennuu
+
+WWRRRRUUNN--BBEEGGIINN  rrooww==UU00
+
+WWaaiittiinngg  ffoorr  lliinnkk--uupp  oonn  nneett11......  ookk
+
+WWRRRRUUNN--NNEETT--OOKK
+
+WWRRRRUUNN--SSAANN--SSTTAARRTT  ssaannhhooookk
+
+RReeggiisstteerreedd  SSAANN  ddeevviiccee  00xx8800
+
+WWRRRRUUNN--SSAANN--OOKK
+
+WWRRIINNFFOO--BBEEGGIINN
+
+rrbbdd::  iimmaaggee  wwiinnrrbbdd//wwrrtteesstt--pp22--mmss--lliinn--uueeffii::  ooppeenn,,  11  ddeevviiccee((ss)),,  44119944330044  bblloocckkss  ooff  551122  bbyytteess
+
+rrbbdd::      sseessssiioonn::  330044  ppuummppss,,  00  ccaanncceellss  ((mmoosstt  rroouunnddss  00)),,  00  rreeooppeennss,,  00  ssttaallll  cclloosseess
+
+rrbbdd::      ccoorree::  ccoonnnneeccttiioonnss  33  ((mmoosstt  33)),,  aarreennaa  226633339922  bbyytteess,,  bbuullkk  22662277558844  bbyytteess;;  mmooddeess::  33  ccrrcc,,  00  sseeccuurree,,  00  sseeccuurree  ffaaiilluurreess
+
+rrbbdd::      oossdd::  1199  ooppss  ddoonnee,,  00  rreesseenntt,,  00  ffaaiilleedd;;  iinn  fflliigghhtt  11  ((mmoosstt  88)),,  rreeqquueessttss  11  ((mmoosstt  88));;  00  sseessssiioonn  rreesseettss,,  zzoommbbiieess  00  ooff  00  bbyytteess
+
+rrbbdd::      rreeaaddaahheeaadd::  2244  rreeaaddss::  88  hhiittss,,  55  wwaaiittss,,  1111  mmiisssseess;;  11  wwiinnddoowwss,,  77  pprreeffeettcchheess  ((66  llaannddeedd,,  00  ffaaiilleedd,,  00  ddrrooppppeedd)),,  66  lliinneess  vvaalliidd
+
+WWRRIINNFFOO--EENNDD
+
+WWRRUU00--HHEELLPPEERR--HHOOOOKK
+
+RReeggiisstteerreedd  SSAANN  ddeevviiccee  00xx8811
+
+ffiillee::////WWRRBBYYTTEESS//SShheellll..eeffii......  ookk
+
+WWRRUU00--SSHHEELLLL--SSTTAARRTT
+
+[... full console on the build machine ...]
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)/HD(1,GPT,5B5E248B-2E72-4FCD-A4DA-1B82E3C5091B,0x800,0x40000)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-bytes?devpath=uri)/HD(1,GPT,17AB8B72-7FF8-2A49-A831-D8411DD0E880,0x800,0x5F000)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)/HD(2,GPT,F13BE907-DBE0-4E79-9E42-5D3CD1E851CB,0x40800,0x3BF7DF)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-bytes?devpath=uri)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)/HD(1,GPT,5B5E248B-2E72-4FCD-A4DA-1B82E3C5091B,0x800,0x40000)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-bytes?devpath=uri)/HD(1,GPT,17AB8B72-7FF8-2A49-A831-D8411DD0E880,0x800,0x5F000)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-ms-lin-uefi?devpath=uri)/HD(2,GPT,F13BE907-DBE0-4E79-9E42-5D3CD1E851CB,0x40800,0x3BF7DF)
+          PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Uri(rbd://wrtest-p2-ms-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-bytes?devpath=uri)
+[... end of the console ...]
+11/24/2026  06:55          17,825,793  f-17m
+11/24/2026  06:55           1,048,576  f-1m
+11/24/2026  06:55           1,048,577  f-1m+1
+11/24/2026  06:55           1,048,575  f-1m-1
+11/24/2026  06:55          34,603,009  f-33m
+11/24/2026  06:55           3,000,001  f-3m
+11/24/2026  06:55               4,095  f-4095
+11/24/2026  06:55               4,096  f-4096
+11/24/2026  06:55               4,097  f-4097
+11/24/2026  06:55              65,535  f-65535
+11/24/2026  06:55              65,536  f-65536
+11/24/2026  06:55              65,537  f-65537
+11/24/2026  06:55             879,488  Shell.efi
+11/24/2026  06:55          83,886,081  z-fill-80m
+         18 File(s)  143,550,533 bytes
+          0 Dir(s)
+FS1:\> fs2:
+FS2:\> ls
+Directory of: FS2:\
+11/24/2026  06:16 <DIR>           512  EFI
+          0 File(s)           0 bytes
+          1 Dir(s)
+FS2:\> ls EFI\BOOT
+Directory of: FS2:\EFI\BOOT\
+11/24/2026  06:16 <DIR>           512  .
+11/24/2026  06:16 <DIR>           512  ..
+11/24/2026  06:16             724,992  BOOTX64.EFI
+          1 File(s)     724,992 bytes
+          2 Dir(s)
+FS2:\> 

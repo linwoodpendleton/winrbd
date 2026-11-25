@@ -1,0 +1,6 @@
+# B3-i386-rel-1: row b3 (B3), variant i386-rel, started 2026-11-24T00:49:12Z
+# the run script's own plan, key hidden:
+[qemu] dry run: nothing is started, nothing is created
+[qemu] row B3 (bios-iso): bios firmware, boot from iso, iPXE binary $P2B_WORK/out/i386-rel/ipxe.lkrn, delivery embed, expect os
+[qemu] lab NIC: 52:54:00:77:12:ca, address 10.77.0.74/24 on 230.77.12.1:7712; user NIC: 52:54:00:77:11:4a
+would run: nice -n 19 choom -n 600 -- qemu-system-x86_64 -name wrp2q-B3-DRYRUN -machine q35\,accel=kvm -cpu host -smp 2 -m 2048 -display none -vga std -no-reboot -serial file:$P2B_WORK/work/runs/B3-DRYRUN/console.log -chardev socket\,id=qmp0\,path=$P2B_WORK/work/s/DRYRUN.sock\,server=on\,wait=off -mon chardev=qmp0\,mode=control -pidfile $P2B_WORK/work/runs/B3-DRYRUN/qemu.pid -boot menu=off -netdev user\,id=net0\,restrict=on\,tftp=$P2B_WORK/work/runs/B3-DRYRUN/tftp\,hostname=wrp2q -device virtio-net-pci\,netdev=net0\,mac=52:54:00:77:11:4a\,romfile= -netdev socket\,id=lab\,mcast=230.77.12.1:7712\,localaddr=127.0.0.1 -device virtio-net-pci\,netdev=lab\,mac=52:54:00:77:12:ca\,romfile= -drive if=none\,id=cd0\,file=$P2B_WORK/out/i386-rel/ipxe.iso\,media=cdrom\,readonly=on\,format=raw -device ide-cd\,drive=cd0\,bootindex=1 -fw_cfg name=opt/winrbd/params\,file=$P2B_WORK/params/wrtest-p2-b3-74.txt

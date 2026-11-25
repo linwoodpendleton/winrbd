@@ -1,0 +1,4 @@
+# 2026-11-24T14:03:24Z row W1-sata (uefi-pxe), profile winpe
+# run from <box>/p2r/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/p2r/work/q P2_LAB_DIR=<box>/lab-p2
+bash <box>/p2r/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row W1 --ip 10.77.0.31 --user wrtest-p2-ms-winpe-gpt --pool winrbd --image wrtest-p2-ms-winpe-gpt --key-file <box>/lab-p2/keys/client.wrtest-p2-ms-winpe-gpt.secret --opt devpath=sata --action sanboot --expect none --stay --mem 2048 --timeout 400

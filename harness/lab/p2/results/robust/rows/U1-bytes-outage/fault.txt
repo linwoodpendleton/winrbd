@@ -1,0 +1,11 @@
+1795495067.545 T+1 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795495067.916 T+0 guest started (pid 215814); fault outage on '^WRBYTES-FILE f-17m' #1 + 0.5 s, down 420 s
+1795495068.213 T+1 lab-clock 1795495068.254444071
+1795495079.786 T+12 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795495079.793 T+12 fault outage after 0.5 s
+1795495080.303 T+13 fault outage: begins (down 420 s)
+1795495080.310 T+13 all ceph-osd processes: SIGSTOP sent now
+1795495080.734 T+13 all ceph-osd processes stopped (SIGSTOP) (rc 0)
+1795495236.371 T+169 the run ended before the fault did: undoing it now
+1795495238.477 T+171 all OSDs up and in again: 3 3 3 (poll 1)
+1795495240.786 T+173 the health checks are the ones the run started with again (poll 1)

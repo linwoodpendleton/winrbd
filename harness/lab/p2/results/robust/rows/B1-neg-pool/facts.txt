@@ -1,0 +1,13 @@
+guest_started_epoch: 1795494948.237
+stall_close_lines: 0
+trouble_lines: 0
+san_failure_line: Could not open SAN device: No such file or directory (https://ipxe.org/2d76603b)
+errno: ENOENT 0x2d76603b
+driver_lines: 1
+driver_line: rbd: open failed: pool not found in the OSD map (WR_E_POOL_NOT_FOUND)
+seconds_to_fail: 0.0
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1

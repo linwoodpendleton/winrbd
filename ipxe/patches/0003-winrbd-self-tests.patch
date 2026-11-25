@@ -1,0 +1,36 @@
+Subject: [PATCH 3/4] tests: require the winrbd self-test objects
+
+iPXE's self-tests are not found by a directory scan: src/tests/tests.c lists the test objects with REQUIRE_OBJECT, and
+an object that is not listed is not linked into bin-x86_64-linux/tests.linux (the self-test program that runs as a
+Linux process, no QEMU needed). The winrbd tests live in ipxe/tests/ of the winrbd tree; ipxe/tools/build.sh imports
+them flat into src/tests/ of the prepared copy (the same way it imports the glue into src/winrbd/), and this patch
+makes the runner pick them up, one line per test object (ipxe/tests/<object>.c).
+
+ - src/tests/tests.c: REQUIRE_OBJECT ( rbd_selftest ); ... one line for every rbd_*.c file of ipxe/tests. "build.sh check"
+   compares this list with the files in ipxe/tests/ in both directions (a test file that is not listed would never
+   run, a listed object without a file would not link), and "build.sh test" insists on seeing every test set's
+   "OK: <name>" line in the run. To add a test file, add its line below and add one to the second number of the
+   hunk header (the "+97,N" count) so that the patch still applies.
+
+Nothing else of iPXE changes: the test objects are inert unless a self-test program is built (they are not part of
+any bootable image: the REQUIRE_OBJECT lines are in tests.c, which only the test programs link).
+
+Licence: GPL2_OR_LATER_OR_UBDL, like the file it touches.
+
+---
+--- a/src/tests/tests.c
++++ b/src/tests/tests.c
+@@ -97,3 +97,13 @@
+ REQUIRE_OBJECT ( datauri_test );
+ REQUIRE_OBJECT ( tlskey_test );
+ REQUIRE_OBJECT ( tlsfmt_test );
++
++/* The winrbd driver's self-tests (the .c files of ipxe/tests in the winrbd tree, imported by ipxe/tools/build.sh) */
++REQUIRE_OBJECT ( rbd_selftest );
++REQUIRE_OBJECT ( rbd_efi_test );
++REQUIRE_OBJECT ( rbd_acpi_test );
++REQUIRE_OBJECT ( rbd_uri_test );
++REQUIRE_OBJECT ( rbd_conn_test );
++REQUIRE_OBJECT ( rbd_session_test );
++REQUIRE_OBJECT ( rbd_block_test );
++REQUIRE_OBJECT ( rbd_bios_test );

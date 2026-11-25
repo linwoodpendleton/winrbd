@@ -1,0 +1,10 @@
+FAIL
+INFO run: stop=guest-exited secs=15 ipxe=15 net=- san=none@- os=-
+FAIL run met its expectation: RESULT met=0 stop=guest-exited
+FAIL script used sanboot: no WRRUN-SAN-START sanboot
+FAIL table: RBFT-RESULT PASS: no RBFT-RESULT line
+PASS table: no FAIL line: 0 FAIL, 0 PASS
+PASS table: no SKIP line (every field has an expectation): 0 SKIP
+FAIL table: fields checked: only 0 PASS lines (expected at least 40)
+FAIL marker WRBOOT-ROOT-OK: no WRBOOT-ROOT-OK (no WRBOOT-ROOT-* line)
+FAIL login prompt: no login prompt

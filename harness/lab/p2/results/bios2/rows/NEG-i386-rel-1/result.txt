@@ -1,0 +1,11 @@
+RESULT row=B1-NEG run=B1-NEG-20261124T005412Z-3206233 expect=marker met=1 ipxe=10 net=13 san=failed@33 end=33 os=- stop=expectation secs=33 console=$P2B_WORK/work/logs/B1-NEG-20261124T005412Z-3206233.console
+run_script_exit 0
+lab_health_before HEALTH_WARN 3 3 3 
+lab_health_after  HEALTH_WARN 3 3 3 
+CRITERION PASS run script reached the expected stage: met=1 stop=expectation
+CRITERION PASS run script exit status 0 (no leftover, no key in a log): exit 0
+CRITERION PASS SAN open failed (WRRUN-SAN-FAILED)
+CRITERION PASS exactly one driver console line: rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD)
+CRITERION PASS iPXE's own line follows (Could not open SAN device)
+CRITERION PASS nothing booted (no GRUB, no kernel, no table)
+VERDICT PASS

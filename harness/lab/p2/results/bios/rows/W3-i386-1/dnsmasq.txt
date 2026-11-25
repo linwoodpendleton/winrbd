@@ -1,0 +1,146 @@
+Nov 23 20:42:26 dnsmasq[129263]: started, version 2.91 DNS disabled
+Nov 23 20:42:26 dnsmasq[129263]: compile time options: IPv6 GNU-getopt DBus no-UBus i18n IDN2 DHCP DHCPv6 no-Lua TFTP conntrack ipset nftset auth DNSSEC loop-detect inotify dumpfile
+Nov 23 20:42:26 dnsmasq-dhcp[129263]: DHCP, static leases only on 10.77.0.76, lease time 1h
+Nov 23 20:42:26 dnsmasq-dhcp[129263]: DHCP, sockets bound exclusively to interface lab0
+Nov 23 20:42:26 dnsmasq-tftp[129263]: TFTP root is /home/lab/wrp2-tftp  
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 available DHCP subnet: 10.77.0.76/255.255.255.0
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 vendor class: PXEClient:Arch:00000:UNDI:002001
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 user class: iPXE
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 DHCPDISCOVER(lab0) 52:54:00:77:12:cc 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 tags: known, lab0
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 DHCPOFFER(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 requested options: 1:netmask, 3:router, 6:dns-server, 7:log-server, 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 requested options: 12:hostname, 15:domain-name, 17:root-path, 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 requested options: 26:mtu, 43:vendor-encap, 60:vendor-class, 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 requested options: 66:tftp-server, 67:bootfile-name, 119:domain-search, 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 requested options: 128, 129, 130, 131, 132, 133, 134, 135, 175, 
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 requested options: 203
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 next server: 10.77.0.10
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 broadcast response
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  1 option: 53 message-type  2
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 54 server-identifier  10.77.0.10
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 51 lease-time  1h
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size: 15 option: 66 tftp-server  winrbd-p2-ceph
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size: 14 option: 67 bootfile-name  undionly.kpxe
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 58 T1  30m
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 59 T2  52m30s
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option:  1 netmask  255.255.255.0
+Nov 23 20:42:31 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 28 broadcast  10.77.0.255
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 available DHCP subnet: 10.77.0.76/255.255.255.0
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 vendor class: PXEClient:Arch:00000:UNDI:002001
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 user class: iPXE
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 DHCPDISCOVER(lab0) 52:54:00:77:12:cc 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 tags: known, lab0
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 DHCPOFFER(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 requested options: 1:netmask, 3:router, 6:dns-server, 7:log-server, 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 requested options: 12:hostname, 15:domain-name, 17:root-path, 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 requested options: 26:mtu, 43:vendor-encap, 60:vendor-class, 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 requested options: 66:tftp-server, 67:bootfile-name, 119:domain-search, 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 requested options: 128, 129, 130, 131, 132, 133, 134, 135, 175, 
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 requested options: 203
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 next server: 10.77.0.10
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 broadcast response
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  1 option: 53 message-type  2
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 54 server-identifier  10.77.0.10
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 51 lease-time  1h
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size: 15 option: 66 tftp-server  winrbd-p2-ceph
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size: 14 option: 67 bootfile-name  undionly.kpxe
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 58 T1  30m
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 59 T2  52m30s
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option:  1 netmask  255.255.255.0
+Nov 23 20:42:32 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 28 broadcast  10.77.0.255
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 available DHCP subnet: 10.77.0.76/255.255.255.0
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 vendor class: PXEClient:Arch:00000:UNDI:002001
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 user class: iPXE
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 DHCPREQUEST(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 tags: known, lab0
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 DHCPACK(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 requested options: 1:netmask, 3:router, 6:dns-server, 7:log-server, 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 requested options: 12:hostname, 15:domain-name, 17:root-path, 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 requested options: 26:mtu, 43:vendor-encap, 60:vendor-class, 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 requested options: 66:tftp-server, 67:bootfile-name, 119:domain-search, 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 requested options: 128, 129, 130, 131, 132, 133, 134, 135, 175, 
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 requested options: 203
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 next server: 10.77.0.10
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 broadcast response
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  1 option: 53 message-type  5
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 54 server-identifier  10.77.0.10
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 51 lease-time  1h
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size: 15 option: 66 tftp-server  winrbd-p2-ceph
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size: 14 option: 67 bootfile-name  undionly.kpxe
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 58 T1  30m
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 59 T2  52m30s
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option:  1 netmask  255.255.255.0
+Nov 23 20:42:34 dnsmasq-dhcp[129263]: 1434384465 sent size:  4 option: 28 broadcast  10.77.0.255
+Nov 23 20:42:35 dnsmasq-tftp[129263]: sent /home/lab/wrp2-tftp/undionly.kpxe to 10.77.0.76
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 available DHCP subnet: 10.77.0.76/255.255.255.0
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 vendor class: PXEClient:Arch:00000:UNDI:002001
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 user class: iPXE
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 DHCPDISCOVER(lab0) 52:54:00:77:12:cc 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 tags: known, lab0
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 DHCPOFFER(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 requested options: 1:netmask, 3:router, 6:dns-server, 7:log-server, 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 requested options: 12:hostname, 15:domain-name, 17:root-path, 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 requested options: 26:mtu, 42:ntp-server, 43:vendor-encap, 60:vendor-class, 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 requested options: 66:tftp-server, 67:bootfile-name, 119:domain-search, 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 requested options: 121:classless-static-route, 128, 129, 130, 
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 requested options: 131, 132, 133, 134, 135, 175, 203
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 next server: 10.77.0.10
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 broadcast response
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  1 option: 53 message-type  2
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 54 server-identifier  10.77.0.10
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 51 lease-time  1h
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size: 15 option: 66 tftp-server  winrbd-p2-ceph
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size: 14 option: 67 bootfile-name  undionly.kpxe
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 58 T1  30m
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 59 T2  52m30s
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option:  1 netmask  255.255.255.0
+Nov 23 20:42:35 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 28 broadcast  10.77.0.255
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 available DHCP subnet: 10.77.0.76/255.255.255.0
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 vendor class: PXEClient:Arch:00000:UNDI:002001
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 user class: iPXE
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 DHCPDISCOVER(lab0) 52:54:00:77:12:cc 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 tags: known, lab0
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 DHCPOFFER(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 requested options: 1:netmask, 3:router, 6:dns-server, 7:log-server, 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 requested options: 12:hostname, 15:domain-name, 17:root-path, 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 requested options: 26:mtu, 42:ntp-server, 43:vendor-encap, 60:vendor-class, 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 requested options: 66:tftp-server, 67:bootfile-name, 119:domain-search, 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 requested options: 121:classless-static-route, 128, 129, 130, 
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 requested options: 131, 132, 133, 134, 135, 175, 203
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 next server: 10.77.0.10
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 broadcast response
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  1 option: 53 message-type  2
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 54 server-identifier  10.77.0.10
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 51 lease-time  1h
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size: 15 option: 66 tftp-server  winrbd-p2-ceph
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size: 14 option: 67 bootfile-name  undionly.kpxe
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 58 T1  30m
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 59 T2  52m30s
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option:  1 netmask  255.255.255.0
+Nov 23 20:42:36 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 28 broadcast  10.77.0.255
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 available DHCP subnet: 10.77.0.76/255.255.255.0
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 vendor class: PXEClient:Arch:00000:UNDI:002001
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 user class: iPXE
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 DHCPREQUEST(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 tags: known, lab0
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 DHCPACK(lab0) 10.77.0.76 52:54:00:77:12:cc 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 requested options: 1:netmask, 3:router, 6:dns-server, 7:log-server, 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 requested options: 12:hostname, 15:domain-name, 17:root-path, 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 requested options: 26:mtu, 42:ntp-server, 43:vendor-encap, 60:vendor-class, 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 requested options: 66:tftp-server, 67:bootfile-name, 119:domain-search, 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 requested options: 121:classless-static-route, 128, 129, 130, 
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 requested options: 131, 132, 133, 134, 135, 175, 203
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 next server: 10.77.0.10
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 broadcast response
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  1 option: 53 message-type  5
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 54 server-identifier  10.77.0.10
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 51 lease-time  1h
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size: 15 option: 66 tftp-server  winrbd-p2-ceph
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size: 14 option: 67 bootfile-name  undionly.kpxe
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 58 T1  30m
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 59 T2  52m30s
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option:  1 netmask  255.255.255.0
+Nov 23 20:42:38 dnsmasq-dhcp[129263]: 3046882666 sent size:  4 option: 28 broadcast  10.77.0.255
+Nov 23 20:42:38 dnsmasq-tftp[129263]: sent /home/lab/wrp2-tftp/autoexec.ipxe to 10.77.0.76
+Nov 23 20:47:15 dnsmasq[129263]: exiting on receipt of SIGTERM

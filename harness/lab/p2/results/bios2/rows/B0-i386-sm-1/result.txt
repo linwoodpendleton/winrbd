@@ -1,0 +1,14 @@
+RESULT row=B0 run=B0-20261124T004144Z-3122900 expect=os met=1 ipxe=9 net=12 san=ok@13 end=13 os=132 stop=guest-exited secs=132 console=$P2B_WORK/work/logs/B0-20261124T004144Z-3122900.console
+run_script_exit 0
+lab_health_before HEALTH_WARN 3 3 3 
+lab_health_after  HEALTH_WARN 3 3 3 
+CRITERION PASS run script reached the expected stage: met=1 stop=guest-exited
+CRITERION PASS run script exit status 0 (no leftover, no key in a log): exit 0
+CRITERION PASS hooked drive visible to the BIOS (int13_dev81): WRBOOT-EDD int13_dev80 mbr_signature=0x7d1f0001; WRBOOT-EDD int13_dev81 mbr_signature=-
+CRITERION PASS table found by the low-memory scan: scan: found at physical address 0x9a880 (1 valid copy/copies)
+CRITERION PASS every field of the table matches (RBFT-RESULT PASS, all 40 fields, no FAIL, no SKIP): PASS pass=40 fail=0 skip=0 (expected pass=40) []
+CRITERION PASS local disk booted (the tiny system printed WRBOOT-ROOT-OK): WRBOOT-ROOT-OK fw=bios root=initramfs fstype=rootfs mapped=none table=PASS src=scan image=wrtest-p2-b0 kernel=6.8.0-151-
+CRITERION PASS SAN hook reported OK: WRRUN-SAN-OK
+NOTE hooked drive readable by the guest's EDD probe (MBR signature of 0x81): NO (the first sector could not be read)
+NOTE driver stall lines while the local disk booted (each is a 30 s wait of one INT 13h command): 6
+VERDICT PASS

@@ -1,0 +1,2 @@
+RESULT row=U1 run=U1-20261123T212516Z-2322324 expect=marker met=0 ipxe=12 net=- san=none@- end=12 os=- stop=guest-exited secs=12 console=/box/work/logs/U1-20261123T212516Z-2322324.console
+exit=1 wall=12s retries=0

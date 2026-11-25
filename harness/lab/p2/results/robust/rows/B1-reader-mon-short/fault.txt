@@ -1,0 +1,10 @@
+1795490411.175 T+1 guest started (pid 3995511); fault mon-kill on '^WRRB-START' #1 + 1 s, down 2 s
+1795490411.486 T+1 lab-clock 1795490411.544305433
+1795490423.071 T+13 trigger seen (^WRRB-START, #1)
+1795490423.077 T+13 fault mon-kill after 1 s
+1795490424.087 T+14 fault mon-kill: begins (down 2 s)
+1795490424.091 T+14 monitor: SIGKILL sent now
+1795490425.204 T+15 monitor killed (rc 0)
+1795490428.503 T+18 monitor started (rc 0)
+1795490430.491 T+20 monitor is back in quorum (poll 1)
+1795490430.496 T+20 fault mon-kill: ends (rc 0)

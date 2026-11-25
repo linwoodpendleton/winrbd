@@ -1,0 +1,2 @@
+RESULT row=B1 run=B1-20261124T150025Z-1852595 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=69 os=- stop=expectation secs=69 console=<box>/p2r/work/q/logs/B1-20261124T150025Z-1852595.console
+exit=0

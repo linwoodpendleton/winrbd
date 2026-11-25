@@ -1,0 +1,10 @@
+chain6: 10:21:29 campaign.sh r10mem
+mrun.sh: r10-mem8-1: FAIL  (RESULT row=B1 run=B1-20261124T102142Z-1322846 expect=marker met=1 ipxe=8 net=11 san=failed@11 end=- os=- stop=expectation secs=12 console=<box>/measure/work/q/logs/B1-20261124)
+mrun.sh: r10-mem6-1: FAIL  (RESULT row=B1 run=B1-20261124T102216Z-1323974 expect=marker met=0 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=10 console=<box>/measure/work/q/logs/B1-20261124T10)
+chain6: 10:22:35 campaign.sh r10leak 20
+mrun.sh: r10-leak-1: PASS  (RESULT row=B1 run=B1-20261124T102247Z-1324963 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=540 console=<box>/measure/work/q/logs/B1-20261124T10)
+chain6: 10:31:57 campaign.sh efiheap 3
+mheapefi.sh: heap-efix-1: PASS ()
+mheapefi.sh: heap-efix-2: PASS ()
+mheapefi.sh: heap-efix-3: PASS ()
+chain6: 10:32:45 done

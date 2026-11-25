@@ -1,0 +1,4 @@
+[qemu] warning: a target without --key-file: the script sets no rbd-key, and the cluster will refuse the session (use --fake-key for a negative control on purpose)
+[qemu] budget: 3 other VM(s) under <box> use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 40 cores / 60000 MiB
+[qemu] starting wrp2q-N-20261124T123944Z-1538922 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 300 s)
+RESULT row=N run=N-20261124T123944Z-1538922 expect=marker met=0 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=11 console=<box>/p2r/work/q/logs/N-20261124T123944Z-1538922.console

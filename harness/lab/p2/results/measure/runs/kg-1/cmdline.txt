@@ -1,0 +1,4 @@
+# 2026-11-24T06:54:22Z kernel-client guest kg-1, image wrtest-p2-ms-read, 128 MiB from byte 8192, 3 runs per figure
+# the cephx key is only ever a file name (the key disk is made in the run directory)
+bash <box>/measure/repo/harness/lab/p2/results/measure/tools/mguest.sh row kg-1 --image wrtest-p2-ms-read --oct 64 --mib 128 --runs 3 --skip-bytes 8192
+# kernel command line: console=ttyS0,115200n8 net.ifnames=0 panic=-1 quiet loglevel=3 wrkg.mac=52:54:00:77:12:c0 wrkg.ip=10.77.0.64 wrkg.user=wrtest-p2-ms-read wrkg.image=wrtest-p2-ms-read wrkg.mib=128 wrkg.skip=8192 wrkg.runs=3

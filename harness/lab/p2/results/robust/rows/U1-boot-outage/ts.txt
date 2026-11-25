@@ -1,0 +1,49 @@
+1795495273.129 [2J[01;01H[=3h[2J[01;01H
+1795495276.640 >>Start PXE over IPv4.
+1795495276.640   Station IP address is 10.0.2.15
+1795495276.640 
+1795495276.640   Server IP address is 10.0.2.2
+1795495276.640   NBP filename is ipxe.efi
+1795495276.640   NBP filesize is 1423360 Bytes
+1795495276.640  Downloading NBP file...
+1795495276.967 
+1795495276.967   NBP file downloaded successfully.
+1795495276.967 BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795495276.967 BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795495276.967 iPXE initialising devices...
+1795495276.967 autoexec.ipxe... ok
+1795495277.291 
+1795495277.291 
+1795495277.291 
+1795495277.291 [1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+1795495277.291 Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+1795495277.291 WRRUN-BEGIN row=U1
+1795495277.291 Waiting for link-up on net1... ok
+1795495277.291 WRRUN-NET-OK
+1795495277.291 WRRUN-SAN-START sanboot
+1795495277.611 Registered SAN device 0x80
+1795495277.611 Booting from SAN device 0x80
+1795495279.188 [H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+1795495279.188 
+1795495279.188 [m[4;2H+----------------------------------------------------------------------------+[5;2H|[5;79H|[6;2H|[6;79H|[7;2H|[7;79H|[8;2H|[8;79H|[9;2H|[9;79H|[10;2H|[10;79H|[11;2H|[11;79H|[12;2H|[12;79H|[13;2H|[13;79H|[14;2H|[14;79H|[15;2H|[15;79H|[16;2H|[16;79H|[17;2H+----------------------------------------------------------------------------+[m[18;2H[19;2H[m     Use the ^ and v keys to select which entry is highlighted.          
+1795495279.188       Press enter to boot the selected OS, `e' to edit the commands       
+1795495279.188       before booting or `c' for a command-line.                           [5;80H [7m[5;3H*winrbd Linux: check the table, root from the image if there is one         [m[5;78H[m[m[6;3H winrbd Linux: local root only (no hook)                                    [m[6;78H[m[m[7;3H                                                                            [m[7;78H[m[m[8;3H                                                                            [m[8;78H[m[m[9;3H                                                                            [m[9;78H[m[m[10;3H                                                                            [m[10;78H[m[m[11;3H                                                                            [m[11;78H[m[m[12;3H                                                                            [m[12;78H[m[m[13;3H                                                                            [m[13;78H[m[m[14;3H                                                                            [m[14;78H[m[m[15;3H                                                                            [m[15;78H[m[m[16;3H                                                                            [m[16;78H[m[16;80H [5;78H[0m[30m[40m[2J[01;01H[0m[37m[40m[02;30HGNU GRUB  version 2.14
+1795495279.188 
+1795495279.537 [04;02HÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿[05;02H³[05;79H³[06;02H³[06;79H³[07;02H³[07;79H³[08;02H³[08;79H³[09;02H³[09;79H³[10;02H³[10;79H³[11;02H³[11;79H³[12;02H³[12;79H³[13;02H³[13;79H³[14;02H³[14;79H³[15;02H³[15;79H³[16;02H³[16;79H³[17;02H³[17;79H³[18;02HÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ[19;02H[20;02H     Use the ^ and v keys to select which entry is highlighted.          
+1795495279.537       Press enter to boot the selected OS, `e' to edit the commands       
+1795495322.799       before booting or `c' for a command-line.                           [05;80H [0m[30m[47m[05;03H*winrbd Linux: check the table, root from the image if there is one         [0m[37m[40m[05;78H[06;03H winrbd Linux: local root only (no hook)                                    [06;78H[07;03H                                                                            [07;78H[08;03H                                                                            [08;78H[09;03H                                                                            [09;78H[10;03H                                                                            [10;78H[11;03H                                                                            [11;78H[12;03H                                                                            [12;78H[13;03H                                                                            [13;78H[14;03H                                                                            [14;78H[15;03H                                                                            [15;78H[16;03H                                                                            [16;78H[17;03H                                                                            [17;78H[17;80H [05;78H[23;01H   The highlighted entry will be executed automatically in 2s.                 [05;78H[22;1H   The highlighted entry will be executed automatically in 2s.                 [5;78H[23;01H                                                                               [24;01H                                                                               [05;78H[22;1H                                                                               [23;1H                                                                               [5;78H[0m[30m[40m[2J[01;01H[0m[37m[40m[?25h[H[J[1;1H[H[J[1;1H[0m[30m[40m[2J[01;01H[0m[37m[40mrbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495352.773 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495382.996 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495412.973 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495442.699 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495472.968 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495503.829 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495534.920 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495566.607 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495598.448 rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+1795495614.681 error: failure reading sector 0xfce00 from `hd0'.
+1795495614.681 error: failure reading sector 0xfce00 from `hd0'.
+1795495614.681 error: you need to load the kernel first.
+1795495614.681 error: you need to load the kernel first.
+1795495614.681 
+1795495614.681 

@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: MIT
+# The builds the exit measurements ran with (module measure), made on 2026-11-24 in the builder guest (Ubuntu 26.04, gcc 15.2.0) with
+# tools/build-variants.sh and ipxe/tools/build.sh, from a copy of the repository and a clean clone of the pinned iPXE revision.
+ipxe_pinned_revision 9261ebe38af0c0b38ac332adeec125a518845013
+source_tree_digest   5b8c14632092c5df  (sha256 over "sha256sum" lines of every file of ipxe/ and core/, sorted by name; the same digest in the builder guest and on the box)
+patches              ipxe/patches/*.patch (0001 to 0004), applied by ipxe/tools/build.sh as for every build
+builder              gcc 15.2.0 (Ubuntu 15.2.0-16ubuntu1), iPXE's own -Werror; warning lines in each build log: 0 (grep -ci warning), logs: work/bin/*/build-*.log on the box
+
+flavour   what                                                                                   files and sha256
+rel       32-bit BIOS ipxe.pxe with the constant PXE stub (gen-script.sh --stub) and -DCONSOLE_SERIAL;   ipxe-stub.pxe 2629bc9390ca155b797caeabc53253ddc8d1c415e54ecd00af7975ed25ed4142 (513,815 bytes)
+          bin-x86_64-efi/ipxe.efi, no embedded script                                                    ipxe.efi      3eb7de2a5e58ea25d2ecfaed035b71ea35f47830ba453f249fdc5826f3e4fb85 (1,424,384 bytes)
+inst      the same with -DRBD_STACK_MONITOR (stack high-water mark) and DEBUG=malloc ("HEAP maximum     ipxe-stub.pxe ddd8c53990de5fa68e2d87b57e7097e2420b99ffdc34eedfb7a9ed9245da4d2a (515,684 bytes)
+          usage NkB" at shutdown), and the serial console taking debug output (-DCONSOLE_SERIAL=)       ipxe.efi      333cd69f22d151a66915bc380ba485134ef595b2d15832c72372fb5fd72cc298 (1,434,112 bytes)
+media     bin-i386-pcbios/ipxe.lkrn (-DCONSOLE_SERIAL, no script: isolinux starts it with the run        ipxe.lkrn     1e7b8b9f343549d21d48a46000eab7c08a6dff6a1dac1cd63eb201343cf4da77 (512,403 bytes)
+          script as its initrd) and bin-x86_64-efi/ipxe.efi (-DCONSOLE_SERIAL)                           ipxe.efi      d94b813d536359b1430ff7f603d6cb265342653882f1b591496df6a2912c382a (1,424,384 bytes)
+sizes     the nine documented targets with and without the driver, default configuration: see builds/sizes/{drv,pristine}/sizes.txt (name, bytes, sha256 of each file)
+
+Commands:  build-variants.sh REPO OUT sizes | rel | media | inst
+           (rel:   ipxe/tools/build.sh build -o T -j 8 -e stub.ipxe bin-i386-pcbios/ipxe.pxe -- EXTRA_CFLAGS=-DCONSOLE_SERIAL)
+           (inst:  ... -d malloc ... -- EXTRA_CFLAGS="-DCONSOLE_SERIAL= -DRBD_STACK_MONITOR")
+
+The kernel-client guest (never committed): vmlinuz 41ba36d860aa0b0cd995f4ca8856d80249b244577e704929b55be13fbd1ebd2f (the lab VM's own 6.8.0-147-generic), initrd.img (static busybox, rdbench, modules rbd libceph libcrc32c)
+           made by guest/mkguest.sh in the lab VM; the initrd's hash is in each kg-N/binaries.sha256.
+The bench disks (never committed): tools/mkbench.py, seed bench-1; the image sha256 of each is in its plan.json (runs/NAME/plan.json: image_sha256).
+The WinPE images: the owner's winpe-gpt.vhd and winpe-mbr.vhd (never committed or published), imported with harness/lab/p2/winpe/import-winpe.sh; the features it leaves on the image (exclusive-lock, object-map, fast-diff, deep-flatten) were switched off with rbd feature disable (finding F8).
+The Linux guests of rows U1 to U3 and B1 to B3: harness/lab/p2/images/build-uefi.sh and build-bios.sh in the builder guest (Ubuntu 24.04 noble); the image's id and size are in runs/login-*/binaries.sha256.
+QEMU 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31), SeaBIOS 1.15.0, OVMF 4M (Secure Boot off).

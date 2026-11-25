@@ -1,0 +1,4 @@
+[qemu] warning: a target without --key-file: the script sets no rbd-key, and the cluster will refuse the session (use --fake-key for a negative control on purpose)
+[qemu] budget: 3 other VM(s) under /box/vm use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-U3-20261123T213046Z-2331856 (uefi, iso, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+RESULT row=U3 run=U3-20261123T213046Z-2331856 expect=marker met=0 ipxe=8 net=- san=none@- end=8 os=- stop=guest-exited secs=8 console=/box/work/logs/U3-20261123T213046Z-2331856.console

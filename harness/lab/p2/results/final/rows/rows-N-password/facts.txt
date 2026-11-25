@@ -1,0 +1,19 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (1):
+  rbd: key material must not be part of the URI (use the rbd-key setting)
+run script lines (4):
+  WRRUN-BEGIN row=N
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-FAILED 0x1c706082
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     11.1 ipxe-script       WRRUN-BEGIN row=N
+     11.1 san-start         WRRUN-SAN-START sanhook
+     11.1 san-failed        WRRUN-SAN-FAILED 0x1c706082
+     11.1 script-end        WRRUN-END
+  # host: load average at start 29.21, at end 29.31
+  # guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 5 s)
+  # lab VM (cluster) threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 6 s)
+rbd-info (0 lines):

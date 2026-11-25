@@ -1,0 +1,28 @@
+guest_started_epoch: 1795495266.341
+fault_begin: +14.1 s
+fault_end: +347.2 s (lasted 333.1 s)
+fault_event: +14.1 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +14.5 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +346.0 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +347.2 s all OSDs up and in again: 3 3 3 (poll 1)
+fault_event: +352.3 s the health checks are the ones the run started with again (poll 1)
+keys_pressed: +14.5 s
+stall_close_lines: 10
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+trouble_lines: 0
+outcome: loader error: error: failure reading sector 0xfce00 from `hd0'.
+loader_error_line: error: failure reading sector 0xfce00 from `hd0'.
+loader_error_line: error: failure reading sector 0xfce00 from `hd0'.
+loader_error_at: +348.3 s
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 22
+connections_started_after_the_fault_began: +18.3 s osd:6802, +28.3 s osd:6802, +40.3 s osd:6802, +56.3 s osd:6802, +74.3 s osd:6802, +92.3 s osd:6802, +110.3 s osd:6802, +128.3 s osd:6802, +146.3 s osd:6802, +164.3 s osd:6802, +182.3 s osd:6802, +200.3 s osd:6802, +218.3 s osd:6802, +237.2 s osd:6802, +255.9 s osd:6802, +274.9 s osd:6802
+monitor_to_guest_bytes: 4940 before the fault (15 packets), 1408 while it lasted (32), 44 after it ended (1)

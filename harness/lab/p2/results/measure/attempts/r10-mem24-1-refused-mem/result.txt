@@ -1,0 +1,2 @@
+error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB
+exit=2

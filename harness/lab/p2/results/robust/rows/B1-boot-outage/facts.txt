@@ -1,0 +1,26 @@
+guest_started_epoch: 1795495649.616
+fault_begin: +14.0 s
+fault_end: +346.9 s (lasted 332.8 s)
+fault_event: +14.0 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +14.5 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +345.7 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +346.9 s all OSDs up and in again: 3 3 3 (poll 1)
+fault_event: +390.2 s the health checks are the ones the run started with again (poll 1)
+keys_pressed: +14.5 s
+stall_close_lines: 10
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+trouble_lines: 0
+booted_at: +386.7 s
+outcome: booted after the outage
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 2, osd 44
+connections_started_after_the_fault_began: +18.3 s osd:6810, +28.4 s osd:6810, +40.6 s osd:6810, +48.2 s osd:6802, +56.7 s osd:6810, +60.4 s osd:6802, +74.8 s osd:6810, +76.5 s osd:6802, +93.0 s osd:6810, +94.7 s osd:6802, +111.1 s osd:6810, +112.8 s osd:6802, +129.2 s osd:6810, +130.9 s osd:6802, +147.4 s osd:6810, +149.0 s osd:6802
+monitor_to_guest_bytes: 5008 before the fault (14 packets), 1452 while it lasted (33), 5094 after it ended (19)

@@ -1,0 +1,41 @@
+chain4: 09:31:58 campaign.sh r10 150
+mrun.sh: r10-loop-1: PASS  (RESULT row=B1 run=B1-20261124T093211Z-1234102 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=415 console=<box>/measure/work/q/logs/B1-20261124T09)
+mrun.sh: r10-mem24-1: PASS  (RESULT row=B1 run=B1-20261124T093928Z-1261473 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=13 console=<box>/measure/work/q/logs/B1-20261124T093)
+mrun.sh: r10-mem16-1: PASS  (RESULT row=B1 run=B1-20261124T094003Z-1262809 expect=marker met=1 ipxe=7 net=10 san=ok@11 end=- os=- stop=expectation secs=13 console=<box>/measure/work/q/logs/B1-20261124T094)
+mrun.sh: r10-mem12-1: PASS  (RESULT row=B1 run=B1-20261124T094039Z-1264205 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=14 console=<box>/measure/work/q/logs/B1-20261124T094)
+Traceback (most recent call last):
+  File "<box>/measure/repo/harness/lab/p2/results/measure/tools/analyze.py", line 487, in <module>
+    sys.exit(main(sys.argv))
+  File "<box>/measure/repo/harness/lab/p2/results/measure/tools/analyze.py", line 479, in main
+    v = run(argv[2], plan)
+  File "<box>/measure/repo/harness/lab/p2/results/measure/tools/analyze.py", line 357, in run
+    facts, checks = analyse(text, plan)
+  File "<box>/measure/repo/harness/lab/p2/results/measure/tools/analyze.py", line 180, in analyse
+    facts["loop"] = dict(n=int(kvs.get("n", 0)), ok=int(kvs.get("ok", 0)), fail=int(kvs.get("fail", 0)), hooks=len(hooks),
+ValueError: invalid literal for int() with base 10: ''
+head: cannot open '<box>/measure/out/runs/r10-mem10-1/verdict.txt' for reading: No such file or directory
+mrun.sh: r10-mem10-1:   (RESULT row=B1 run=B1-20261124T094114Z-1265461 expect=marker met=1 ipxe=8 net=12 san=failed@12 end=- os=- stop=expectation secs=13 console=<box>/measure/work/q/logs/B1-20261124)
+mrun.sh: row: <box>/measure/out/runs/r10-mem8-1 exists (runs are never overwritten; move it away first)
+campaign: 09:41:40 row r10-mem8-1 returned 2
+mrun.sh: row: <box>/measure/out/runs/r10-mem6-1 exists (runs are never overwritten; move it away first)
+campaign: 09:41:43 row r10-mem6-1 returned 2
+chain4: 09:41:43 campaign.sh login 3
+mboot.sh: login-uefi-pxe-1: PASS  (RESULT row=U1 run=U1-20261124T094156Z-1266938 expect=marker met=1 ipxe=- net=- san=none@- end=- os=54 stop=expectation secs=60 console=<box>/measure/work/q/logs/U1-20261124T09)
+mboot.sh: login-bios-pxe-1: PASS  (RESULT row=B1 run=B1-20261124T094320Z-1269261 expect=marker met=1 ipxe=8 net=11 san=none@- end=- os=54 stop=expectation secs=57 console=<box>/measure/work/q/logs/B1-20261124T0)
+mboot.sh: login-uefi-usb-1: PASS  (RESULT row=U2 run=U2-20261124T094439Z-1271062 expect=marker met=1 ipxe=- net=- san=none@- end=- os=59 stop=expectation secs=66 console=<box>/measure/work/q/logs/U2-20261124T09)
+mboot.sh: login-bios-usb-1: PASS  (RESULT row=B2 run=B2-20261124T094606Z-1273327 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=51 stop=expectation secs=52 console=<box>/measure/work/q/logs/B2-20261124T09)
+mboot.sh: login-uefi-iso-1: PASS  (RESULT row=U3 run=U3-20261124T094720Z-1274936 expect=marker met=1 ipxe=- net=- san=none@- end=- os=49 stop=expectation secs=56 console=<box>/measure/work/q/logs/U3-20261124T09)
+mboot.sh: login-bios-iso-1: PASS  (RESULT row=B3 run=B3-20261124T094836Z-1276722 expect=marker met=1 ipxe=1 net=2 san=none@- end=- os=44 stop=expectation secs=45 console=<box>/measure/work/q/logs/B3-20261124T09)
+mboot.sh: login-uefi-pxe-2: PASS  (RESULT row=U1 run=U1-20261124T094941Z-1278129 expect=marker met=1 ipxe=- net=- san=none@- end=- os=54 stop=expectation secs=61 console=<box>/measure/work/q/logs/U1-20261124T09)
+mboot.sh: login-bios-pxe-2: PASS  (RESULT row=B1 run=B1-20261124T095102Z-1280108 expect=marker met=1 ipxe=8 net=11 san=none@- end=- os=55 stop=expectation secs=56 console=<box>/measure/work/q/logs/B1-20261124T0)
+mboot.sh: login-uefi-usb-2: PASS  (RESULT row=U2 run=U2-20261124T095218Z-1281732 expect=marker met=1 ipxe=- net=- san=none@- end=- os=51 stop=expectation secs=57 console=<box>/measure/work/q/logs/U2-20261124T09)
+mboot.sh: login-bios-usb-2: PASS  (RESULT row=B2 run=B2-20261124T095342Z-1283605 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=50 stop=expectation secs=51 console=<box>/measure/work/q/logs/B2-20261124T09)
+mboot.sh: login-uefi-iso-2: PASS  (RESULT row=U3 run=U3-20261124T095500Z-1285258 expect=marker met=1 ipxe=- net=- san=none@- end=- os=57 stop=expectation secs=64 console=<box>/measure/work/q/logs/U3-20261124T09)
+mboot.sh: login-bios-iso-2: PASS  (RESULT row=B3 run=B3-20261124T095633Z-1287641 expect=marker met=1 ipxe=1 net=1 san=none@- end=- os=47 stop=expectation secs=48 console=<box>/measure/work/q/logs/B3-20261124T09)
+mboot.sh: login-uefi-pxe-3: PASS  (RESULT row=U1 run=U1-20261124T095748Z-1289318 expect=marker met=1 ipxe=- net=- san=none@- end=- os=57 stop=expectation secs=64 console=<box>/measure/work/q/logs/U1-20261124T09)
+mboot.sh: login-bios-pxe-3: PASS  (RESULT row=B1 run=B1-20261124T095913Z-1291417 expect=marker met=1 ipxe=7 net=11 san=none@- end=- os=54 stop=expectation secs=55 console=<box>/measure/work/q/logs/B1-20261124T0)
+mboot.sh: login-uefi-usb-3: PASS  (RESULT row=U2 run=U2-20261124T100028Z-1293313 expect=marker met=1 ipxe=- net=- san=none@- end=- os=50 stop=expectation secs=56 console=<box>/measure/work/q/logs/U2-20261124T10)
+mboot.sh: login-bios-usb-3: PASS  (RESULT row=B2 run=B2-20261124T100145Z-1295190 expect=marker met=1 ipxe=2 net=2 san=none@- end=- os=49 stop=expectation secs=51 console=<box>/measure/work/q/logs/B2-20261124T10)
+mboot.sh: login-uefi-iso-3: PASS  (RESULT row=U3 run=U3-20261124T100256Z-1296925 expect=marker met=1 ipxe=- net=- san=none@- end=- os=50 stop=expectation secs=56 console=<box>/measure/work/q/logs/U3-20261124T10)
+mboot.sh: login-bios-iso-3: PASS  (RESULT row=B3 run=B3-20261124T100412Z-1298876 expect=marker met=1 ipxe=0 net=1 san=none@- end=- os=44 stop=expectation secs=46 console=<box>/measure/work/q/logs/B3-20261124T10)
+chain4: 10:05:06 done

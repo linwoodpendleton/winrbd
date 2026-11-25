@@ -1,0 +1,4 @@
+[qemu] budget: 2 other VM(s) under <box> use 12 cores / 20480 MiB; adding 2 cores / 2048 MiB; limit 24 cores / 32768 MiB
+make-usb.sh: wrote <box>/measure/work/q/runs/U2-20261124T101642Z-1316366/medium.img (uefi-usb, 18874368 bytes)
+[qemu] starting wrp2q-U2-20261124T101642Z-1316366 (uefi, usb, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+RESULT row=U2 run=U2-20261124T101642Z-1316366 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=93 console=<box>/measure/work/q/logs/U2-20261124T101642Z-1316366.console

@@ -1,0 +1,10 @@
+ipxe banner: (none seen)
+rbd console lines (0):
+run script lines (0):
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+  # host: load average at start 32.91, at end 33.83
+  # guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 8 s)
+  # lab VM (cluster) threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 18 s)
+rbd-info (0 lines):

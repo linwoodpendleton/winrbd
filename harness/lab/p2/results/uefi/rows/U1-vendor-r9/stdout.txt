@@ -1,0 +1,3 @@
+[qemu] budget: 5 other VM(s) under /box/vm use 24 cores / 36864 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-U1-20261123T205227Z-2204288 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+RESULT row=U1 run=U1-20261123T205227Z-2204288 expect=marker met=1 ipxe=21 net=23 san=none@- end=- os=78 stop=expectation secs=84 console=/box/work/logs/U1-20261123T205227Z-2204288.console

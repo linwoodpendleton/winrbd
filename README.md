@@ -10,7 +10,7 @@
 
 **winrbd** is an open research project to boot and run Windows directly from a Ceph RBD image, with no iSCSI and no gateway in between. The client speaks Ceph's native protocol end to end.
 
-**Status: Phase 1 (the portable core and its Linux harness) works against a live Ceph v20.2.5 cluster; Windows cannot boot from it yet.** The core logs in over msgr2 (crc and secure mode, AES-GCM) with cephx, follows the OSDMap, maps objects with CRUSH and reads and writes RBD format-2 images, byte for byte identical to the Linux kernel client (krbd) in the lab. The iPXE driver (Phase 2) and the Windows driver (later phases) are not written yet, so there is nothing to deploy. If you like hard systems problems and want to help build it in spare time, read on.
+**Status: Phase 2 works in QEMU, against a real Ceph v20.2.5; Windows cannot boot from it yet.** The core logs in over msgr2 (crc and secure mode, AES-GCM) with cephx, follows the OSDMap, maps objects with CRUSH and reads and writes RBD format-2 images, byte for byte identical to the Linux kernel client (krbd) in the lab (Phase 1). The iPXE driver (Phase 2) boots a Linux image (and the owner's WinPE image, to the point where WinPE has started) straight from RBD, with no gateway, under UEFI (OVMF) and legacy BIOS (SeaBIOS), from PXE, an iPXE USB stick image and an iPXE CD, and publishes the handoff table that a Linux guest reads and checks field by field. It has not run on real hardware. The Windows driver (later phases) is not written yet, so there is nothing to deploy. If you like hard systems problems and want to help build it in spare time, read on.
 
 ### Why
 
@@ -71,7 +71,7 @@ The same core is hosted three ways: in the Linux harness, in iPXE, and in the Wi
 
 ### Status
 
-Phase 1 works in the Linux harness: msgr2 (crc and secure mode), cephx, OSDMap and CRUSH, OSD object I/O and RBD format-2 image I/O, compared byte for byte with krbd on a lab cluster; the long exit run of Phase 1 is still being reported (see the roadmap). Booting is not possible yet: the iPXE `rbd://` driver and the Windows driver are later phases. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan, the per-milestone state and the evidence and [docs/design/handoff-table.md](docs/design/handoff-table.md) for the draft handoff table.
+Phase 1 works in the Linux harness: msgr2 (crc and secure mode), cephx, OSDMap and CRUSH, OSD object I/O and RBD format-2 image I/O, compared byte for byte with krbd on a lab cluster; the long exit run of Phase 1 is still being reported (see the roadmap). Phase 2 works in QEMU: the iPXE `rbd://` driver (`ipxe/`) boots Linux (and the owner's WinPE image, to the point where WinPE has started) from RBD under OVMF and SeaBIOS, and its review, measurements and open issues are in [docs/design/ipxe-driver.md](docs/design/ipxe-driver.md) (section 18). The Windows driver is a later phase: nothing boots Windows from RBD yet. See [docs/ROADMAP.md](docs/ROADMAP.md) for the phased plan, the per-milestone state and the evidence and [docs/design/handoff-table.md](docs/design/handoff-table.md) for the handoff table (version 1).
 
 What we have checked so far, against the pinned source trees:
 
@@ -93,7 +93,7 @@ It downloads the few Ceph files the checkers need at run time (from the pinned C
 
 - Test networks and research. This is not a product.
 - Spare-time project, best effort, **no timelines promised**.
-- UEFI only. Legacy BIOS boot is out of scope for now.
+- The iPXE driver covers UEFI and legacy BIOS (INT 13h). The Windows boot-start driver (Phases 3 and 4) is UEFI first; Windows on a legacy BIOS machine is not planned yet.
 - First target is a narrow, simple image profile (no clones, default striping, object-map / fast-diff / journaling off); the exact list is in the roadmap.
 
 ### Signing policy
@@ -105,7 +105,7 @@ It downloads the few Ceph files the checkers need at run time (from the pinned C
 
 - Portable core and Linux harness: **MIT**, so the same code can be linked into iPXE (GPL-2.0-or-later or UBDL), into the LGPL Windows driver, and into anything else without licence conversion.
 - Windows driver: LGPL-2.1-or-later for new files. Most WNBD files say "Licensed under LGPL-2.1 (see LICENSE)", which does not say "or later"; `wnbd.rc` says `LGPL-2.1-only`. We treat WNBD-derived files as LGPL-2.1-only unless the copyright holders confirm otherwise.
-- iPXE driver: the glue files in `ipxe/` are GPL-2.0-or-later or UBDL (`GPL2_OR_LATER_OR_UBDL`), like iPXE's own SAN code. The MIT core can be tagged `MIT` inside an iPXE build, so the UBDL option is kept.
+- iPXE driver: the glue files in `ipxe/` are GPL-2.0-or-later or UBDL (`GPL2_OR_LATER_OR_UBDL`), like iPXE's own SAN code, and the MIT core is tagged `MIT` inside an iPXE build. **A binary that contains the driver can only be distributed under GPL-2.0-or-later, not under the UBDL**: the core links the CRUSH log tables (`core/crush_ln/`, taken from Ceph under LGPL-2.1, tagged `GPL2_OR_LATER` for iPXE because iPXE has no LGPL tag), and the UBDL needs every linked file to allow it. iPXE's own licence check on a real build (`ipxe/tools/build.sh licence`, run by CI) reports "GPL version 2 (or, at your option, any later version)".
 - Independent implementation: the core is written from Ceph's public protocol documentation, with Ceph's user-space source as a reading reference. Code from the Linux kernel's libceph / rbd.c (GPL) is **not** copied.
 
 Details and open licensing questions: [LICENSE](LICENSE).
@@ -135,10 +135,11 @@ winrbd/
   docs/
     ROADMAP.md          phased plan, test environment
     design/
-      handoff-table.md  DRAFT: ACPI handoff table
-  core/                 planned: portable C core
-  harness/              planned: Linux test harness
-  ipxe/                 planned: iPXE rbd:// SAN driver
+      ipxe-driver.md    the iPXE driver: design, notes, review
+      handoff-table.md  v1: ACPI handoff table
+  core/                 portable C core (MIT)
+  harness/              Linux test harness, lab scripts, the Phase 2 QEMU matrix
+  ipxe/                 iPXE rbd:// SAN driver (patches, glue, tests, build script)
   windows/              planned: Windows boot-start driver
   third_party/
     ipxe/               git submodule, pinned reference
@@ -168,7 +169,7 @@ or, in an existing clone, `git submodule update --init --recursive`.
 
 **winrbd** 是一个开源研究项目:让 Windows 直接从 Ceph RBD 镜像启动并运行,中间**没有 iSCSI、没有网关**,客户端从头到尾说 Ceph 原生协议。
 
-**当前状态:第一阶段(可移植的 C 核心与 Linux 测试宿主)已能对接真实的 Ceph v20.2.5 集群;Windows 还不能从它启动。** 核心用 cephx 通过 msgr2(crc 与 secure 模式,AES-GCM)登录,跟随 OSDMap,用 CRUSH 定位对象,读写 RBD format 2 镜像,在实验集群上与 Linux 内核客户端(krbd)逐字节一致。iPXE 驱动(第二阶段)和 Windows 驱动(后续阶段)还没写,所以还没有能部署的东西。如果你喜欢啃硬骨头,愿意利用业余时间一起做,欢迎继续看。
+**当前状态:第二阶段已能在 QEMU 里对真实的 Ceph v20.2.5 工作;Windows 还不能从它启动。** 核心用 cephx 通过 msgr2(crc 与 secure 模式,AES-GCM)登录,跟随 OSDMap,用 CRUSH 定位对象,读写 RBD format 2 镜像,在实验集群上与 Linux 内核客户端(krbd)逐字节一致(第一阶段)。iPXE 驱动(第二阶段)不经任何网关,直接从 RBD 启动 Linux 镜像 (以及业主的 WinPE 镜像,到 WinPE 启动完成为止),UEFI(OVMF)与传统 BIOS(SeaBIOS)都行,可经 PXE、iPXE U 盘镜像和 iPXE 光盘,并发布交接表,Linux 客户机能读到并逐字段核对。还没有在真机上跑过。Windows 驱动(后续阶段)还没写,所以还没有能部署的东西。如果你喜欢啃硬骨头,愿意利用业余时间一起把它做出来,请接着往下读。
 
 ### 为什么做
 
@@ -232,7 +233,7 @@ UEFI 固件不做任何修改。`ExitBootServices` 之后 iPXE 的块设备和�
 
 ### 状态
 
-第一阶段在 Linux 测试宿主里已经能用:msgr2(crc 与 secure 模式)、cephx、OSDMap 与 CRUSH、OSD 对象读写、RBD format 2 镜像读写,在实验集群上与 krbd 逐字节对比;第一阶段的长时间退出测试结果还在出(见路线图)。目前还不能启动:iPXE `rbd://` 驱动和 Windows 驱动在后续阶段。分阶段计划、各里程碑状态和证据见 [docs/ROADMAP.md](docs/ROADMAP.md),交接表草案见 [docs/design/handoff-table.md](docs/design/handoff-table.md)。
+第一阶段在 Linux 测试宿主里已经能用:msgr2(crc 与 secure 模式)、cephx、OSDMap 与 CRUSH、OSD 对象读写、RBD format 2 镜像读写,在实验集群上与 krbd 逐字节对比;第一阶段的长时间退出测试结果还在出(见路线图)。第二阶段在 QEMU 里已经能用:iPXE `rbd://` 驱动(`ipxe/`)在 OVMF 与 SeaBIOS 下从 RBD 启动 Linux (以及业主的 WinPE 镜像,到 WinPE 启动完成为止),复核、测量和未决问题见 [docs/design/ipxe-driver.md](docs/design/ipxe-driver.md)(第 18 节)。Windows 驱动是后续阶段:现在还没有任何东西能从 RBD 启动 Windows。分阶段计划、各里程碑状态和证据见 [docs/ROADMAP.md](docs/ROADMAP.md),交接表(第 1 版)见 [docs/design/handoff-table.md](docs/design/handoff-table.md)。
 
 目前对照固定版本的源码已经核实的内容:
 
@@ -254,7 +255,7 @@ harness/tools/run-all.sh
 
 - 仅面向测试网络和研究,不是产品。
 - 业余时间项目,尽力而为,**不承诺任何时间表**。
-- 仅 UEFI;传统 BIOS 启动暂不考虑。
+- iPXE 驱动同时支持 UEFI 和传统 BIOS(INT 13h)。Windows 启动期驱动(第 3、4 阶段)先做 UEFI;传统 BIOS 机器上的 Windows 暂无计划。
 - 第一个目标是一个狭窄、简单的镜像配置(无克隆、默认条带、关闭 object-map / fast-diff / journaling);具体清单见路线图。
 
 ### 签名策略
@@ -266,7 +267,7 @@ harness/tools/run-all.sh
 
 - 可移植核心与 Linux 测试台:**MIT**。这样同一份代码可以直接链接进 iPXE(GPL-2.0-or-later 或 UBDL)、LGPL 的 Windows 驱动,以及其他任何项目,不需要转换许可。
 - Windows 驱动:新文件使用 LGPL-2.1-or-later。WNBD 的大多数文件写的是 "Licensed under LGPL-2.1 (see LICENSE)",没有写 "or later";`wnbd.rc` 写的是 `LGPL-2.1-only`。除非版权持有人另行确认,我们把派生自 WNBD 的文件按 LGPL-2.1-only 处理。
-- iPXE 驱动:`ipxe/` 里的粘合文件为 GPL-2.0-or-later 或 UBDL(`GPL2_OR_LATER_OR_UBDL`),与 iPXE 自己的 SAN 代码一致。MIT 的核心在 iPXE 构建里可以标成 `MIT`,所以 UBDL 选项得以保留。
+- iPXE 驱动:`ipxe/` 里的粘合文件为 GPL-2.0-or-later 或 UBDL(`GPL2_OR_LATER_OR_UBDL`),与 iPXE 自己的 SAN 代码一致;MIT 的核心在 iPXE 构建里标成 `MIT`。**含有本驱动的二进制只能按 GPL-2.0-or-later 发布,不能按 UBDL**:核心链接了 CRUSH 对数表(`core/crush_ln/`,取自 Ceph,LGPL-2.1,因 iPXE 没有 LGPL 标记而对 iPXE 标成 `GPL2_OR_LATER`),而 UBDL 要求每个被链接的文件都允许它。iPXE 自己对真实构建的许可检查(`ipxe/tools/build.sh licence`,CI 会跑)报告"GPL version 2 (or, at your option, any later version)"。
 - 独立实现:核心依据 Ceph 公开的协议文档编写,Ceph 用户态源码仅作阅读参考。Linux 内核 libceph / rbd.c(GPL)的代码**不会**被复制。
 
 详情和尚未确认的许可问题见 [LICENSE](LICENSE)。
@@ -296,10 +297,11 @@ winrbd/
   docs/
     ROADMAP.md          分阶段计划、测试环境
     design/
-      handoff-table.md  草案:ACPI 交接表
-  core/                 计划中:可移植 C 核心
-  harness/              计划中:Linux 测试台
-  ipxe/                 计划中:iPXE rbd:// SAN 驱动
+      ipxe-driver.md    iPXE 驱动:设计、说明、复核
+      handoff-table.md  v1:ACPI 交接表
+  core/                 可移植 C 核心(MIT)
+  harness/              Linux 测试台、实验集群脚本、第 2 阶段 QEMU 矩阵
+  ipxe/                 iPXE rbd:// SAN 驱动(补丁、粘合层、测试、构建脚本)
   windows/              计划中:Windows 启动期驱动
   third_party/
     ipxe/               git 子模块,固定版本的参考

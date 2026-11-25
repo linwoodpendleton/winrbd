@@ -1,0 +1,10 @@
+1795490994.406 T+0 guest started (pid 4023298); fault stall on '^WRRB-START' #1 + 1 s, down 40 s
+1795490994.787 T+0 lab-clock 1795490994.841305484
+1795491006.578 T+12 trigger seen (^WRRB-START, #1)
+1795491006.585 T+12 fault stall after 1 s
+1795491007.595 T+13 fault stall: begins (down 40 s)
+1795491007.603 T+13 all ceph-osd processes: SIGSTOP sent now
+1795491008.380 T+14 all ceph-osd processes stopped (SIGSTOP) (rc 0)
+1795491048.754 T+54 all ceph-osd processes continued (SIGCONT) (rc 0)
+1795491049.924 T+55 all OSDs up and in again: 3 3 3 (poll 1)
+1795491049.928 T+55 fault stall: ends (rc 0)

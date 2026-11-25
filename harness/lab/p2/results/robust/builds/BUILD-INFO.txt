@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT
+# The two iPXE builds the robustness rows ran with (qemu-robust), made on 2026-11-23 in the builder guest (Ubuntu 26.04, gcc 15.2.0) with
+# harness/lab/p2/builder/up.sh put + ipxe/tools/build.sh build, from a copy of the repository and a clean clone of the pinned iPXE revision.
+ipxe_pinned_revision 9261ebe38af0c0b38ac332adeec125a518845013
+source_tree_digest   f4895c7c19c84c13  (sha256 over every file of ipxe/ and core/ (sorted by name, "sha256sum" lines) and ipxe/PINNED; the same digest was computed again on
+                                        the working tree when the rows were done: nothing in ipxe/ or core/ changed between the build and the end of the rows)
+patches              ipxe/patches/*.patch applied by ipxe/tools/build.sh (as the tool does for every build)
+builder              gcc 15.2.0 (Ubuntu 15.2.0-16ubuntu1), iPXE's own -Werror; warning lines in each build log: 0 (counted with grep -ci warning)
+
+UEFI (rows U1):  ipxe/tools/build.sh build -o <tree> -j 6 bin-x86_64-efi/ipxe.efi -- EXTRA_CFLAGS=-DRBD_STACK_MONITOR
+                 -> ipxe.efi   sha256 700330e79305f4f277ca2d43888658f48daf00ebde1017a7849c319496f27ee4  (1,423,360 bytes)
+                 delivery: OVMF's PXE client fetches it from QEMU's TFTP server; iPXE for EFI reads autoexec.ipxe next to it
+BIOS (rows B1):  ipxe/tools/build.sh build -o <tree> -e <stub.ipxe> -j 6 bin-i386-pcbios/ipxe.pxe -- EXTRA_CFLAGS="-DCONSOLE_SERIAL -DRBD_STACK_MONITOR"
+                 -> ipxe-stub.pxe   sha256 56df2ada761d692fd152634a92d4711fb434b15cdbac910bc8b207edf6dc40d8  (514,093 bytes)
+                 the 32-bit BIOS image with iPXE's own NIC drivers (not UNDI: the lab NIC is the second NIC), the constant stub of
+                 qemu/gen-script.sh --stub built in (it fetches autoexec.ipxe over TFTP), serial console on, stack monitor on (the "rbd: stack high-water" notes)
+
+The guest images (never committed):
+  wrtest-p2-rb-bytes     harness/lab/p2/results/uefi/tools/build-bytes-image.sh  (192 MiB, GPT + FAT32, 17 files, 143.5 MB; list in expect/bytes.md5)
+  wrtest-p2-rb-reader    tools/mkreader.py + tools/reader.S                      (128 MiB, `mkreader.py --size-mib 128`, seed reader-1; oracle in expect/reader.prefix)
+  wrtest-p2-rb-lin-uefi  harness/lab/p2/images/build-uefi.sh  (Ubuntu 24.04, kernel 6.8.0-151, GPT, 128 MiB ESP + ext4 root)
+  wrtest-p2-rb-lin-bios  harness/lab/p2/images/build-bios.sh  (the same system, MBR, grub-pc)
+  all four imported with images/import.sh (feature layering only), one throwaway cephx user (legacy aes key) per image, all deleted at the end (README, "Restoring the lab")

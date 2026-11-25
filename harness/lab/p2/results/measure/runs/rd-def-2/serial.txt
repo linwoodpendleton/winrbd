@@ -1,0 +1,67 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3d)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-read: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 48 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+WRMS-START drive=80 steps=11
+WRMS-CAL id=1 tsc0=0000000604616b73 tsc1=0000000892909781 ticks=91
+WRMS-STEP id=2 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=0000000f261c06a2 wrn=0 wrtsc=0000000000000000 walltsc=0000000f261e709c ticks=539 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-LAT id=3 gap=0 cmd=127 n=8
+WRMS-LATR id=3 k=0 lba=4112 tsc=00000000022d9d22 ah=00
+WRMS-LATR id=3 k=1 lba=53264 tsc=00000000012625b4 ah=00
+WRMS-LATR id=3 k=2 lba=102416 tsc=00000000013836c6 ah=00
+WRMS-LATR id=3 k=3 lba=151568 tsc=0000000000c6011e ah=00
+WRMS-LATR id=3 k=4 lba=200720 tsc=0000000000ec13bd ah=00
+WRMS-LATR id=3 k=5 lba=249872 tsc=00000000017e4f8e ah=00
+WRMS-LATR id=3 k=6 lba=299024 tsc=0000000002783f76 ah=00
+WRMS-LATR id=3 k=7 lba=348176 tsc=00000000015dcf84 ah=00
+WRMS-STEP id=4 type=R cmd=127 sectors=262144 errs=0 rdn=2065 rdtsc=0000000593740c1f wrn=0 wrtsc=0000000000000000 walltsc=0000000593847be1 ticks=199 sumA=04776fa4 sumB=04776fa4 lastcnt=16
+WRMS-STEP id=5 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=000000186738e62f wrn=0 wrtsc=0000000000000000 walltsc=00000018673e3181 ticks=869 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-STEP id=6 type=R cmd=8192 sectors=262144 errs=0 rdn=32 rdtsc=0000000efeb1d833 wrn=0 wrtsc=0000000000000000 walltsc=0000000efeb3233b ticks=534 sumA=6fffd7c3 sumB=87a12a4f lastcnt=8192
+WRMS-STEP id=7 type=R cmd=127 sectors=262144 errs=0 rdn=2065 rdtsc=0000000c59c7e1c7 wrn=0 wrtsc=0000000000000000 walltsc=0000000c59e3db1f ticks=440 sumA=04776fa4 sumB=04776fa4 lastcnt=16
+WRMS-STEP id=8 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=00000010f5f1f94b wrn=0 wrtsc=0000000000000000 walltsc=00000010f5f50c7b ticks=605 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-STEP id=9 type=R cmd=8192 sectors=262144 errs=0 rdn=32 rdtsc=00000009b7bcd221 wrn=0 wrtsc=0000000000000000 walltsc=00000009b7bd5e09 ticks=346 sumA=6fffd7c3 sumB=87a12a4f lastcnt=8192
+WRMS-LAT id=10 gap=0 cmd=127 n=8
+WRMS-LATR id=10 k=0 lba=4112 tsc=000000001ce22ce5 ah=00
+WRMS-LATR id=10 k=1 lba=53264 tsc=000000000095e370 ah=00
+WRMS-LATR id=10 k=2 lba=102416 tsc=0000000000cfb902 ah=00
+WRMS-LATR id=10 k=3 lba=151568 tsc=0000000000b2a2b2 ah=00
+WRMS-LATR id=10 k=4 lba=200720 tsc=0000000000dfac12 ah=00
+WRMS-LATR id=10 k=5 lba=249872 tsc=00000000014acc46 ah=00
+WRMS-LATR id=10 k=6 lba=299024 tsc=0000000001cd79ec ah=00
+WRMS-LATR id=10 k=7 lba=348176 tsc=0000000001e1ffa4 ah=00
+WRMS-CAL id=11 tsc0=0000006c17e669b9 tsc1=0000006ea61c073f ticks=91
+WRMS-DONE errs=0
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-read: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 367447 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 4 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+rbd:   osd: 3357 ops done, 0 resent, 0 failed; in flight 2 (most 9), requests 2 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 7108 reads: 4486 hits, 2510 waits, 112 misses; 7 windows, 2981 prefetches (2979 landed, 0 failed, 0 dropped), 6 lines valid
+WRMS-INFO-END
+WRMS-END
+WRRUN-LEAVE none
+WRRUN-END

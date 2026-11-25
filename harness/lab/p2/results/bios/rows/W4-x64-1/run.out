@@ -1,0 +1,1 @@
+RESULT row=W4 run=W4-20261123T210704Z-2270875 expect=none met=0 ipxe=2 net=5 san=none@- end=- os=- stop=guest-exited secs=150 console=$P2B_WORK/work/logs/W4-20261123T210704Z-2270875.console

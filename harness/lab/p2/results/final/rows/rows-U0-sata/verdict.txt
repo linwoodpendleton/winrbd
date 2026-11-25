@@ -1,0 +1,11 @@
+PASS
+INFO run: stop=expectation secs=39 ipxe=11 net=11 san=ok@12 os=-
+PASS reached the UEFI shell: RESULT met=1
+PASS sanhook of the image: WRRUN-SAN-OK
+PASS the shell was started from iPXE: WRU0-SHELL-START
+PASS map -r lists the block devices and file systems: 6 FS and 12 BLK lines
+PASS device path flavour sata: 10 map entries carry the node, e.g. PciRoot(0x0)/Pci(0x3,0x0)/MAC(52540077129F,0x1)/Sata(0xF4C7,0xFFFF,0x0)/HD(...
+PASS partitions are published (HD nodes): 6 partition entries
+PASS ls of a file system root lists EFI (the ESP of the Linux image): the ESP is FS1
+INFO ls EFI\BOOT: the run's shell commands did not list EFI\BOOT on FS1 (they list it on FS2 only): the ESP's second level was not read in this row
+PASS no path closure during the row: 0 reopens, 0 stall closes

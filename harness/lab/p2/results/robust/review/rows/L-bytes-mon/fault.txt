@@ -1,0 +1,11 @@
+1795498135.758 T+4 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795498136.130 T+1 guest started (pid 412039); fault mon-kill on '^WRBYTES-FILE f-17m' #1 + 0 s, down 20 s
+1795498136.738 T+1 lab-clock 1795498136.777745242
+1795498151.174 T+16 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795498151.180 T+16 fault mon-kill after 0 s
+1795498151.188 T+16 fault mon-kill: begins (down 20 s)
+1795498151.192 T+16 monitor: SIGKILL sent now
+1795498153.020 T+18 monitor killed (rc 0)
+1795498167.811 T+32 the run ended before the fault did: undoing it now
+1795498171.119 T+36 monitor is back in quorum (poll 1)
+1795498174.019 T+39 the health checks are the ones the run started with again (poll 1)

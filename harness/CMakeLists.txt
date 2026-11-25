@@ -635,7 +635,191 @@ if(WR_BASH_EXITRUN)
   set_tests_properties(faultinject.selftest PROPERTIES LABELS "exitrun;checks" TIMEOUT 1800 SKIP_RETURN_CODE 77)
   add_test(NAME exitrun.selftest COMMAND "${WR_BASH_EXITRUN}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/exit-run.sh" --selftest)
   set_tests_properties(exitrun.selftest PROPERTIES LABELS "exitrun;checks" TIMEOUT 3600 SKIP_RETURN_CODE 77)
+  # These two judge recovery times of a few seconds on stand-in daemons (a restore that must end inside a limit, a fault that must be reached inside a
+  # window, signals sent at fixed instants). Run beside other tests of `ctest -j N` on a loaded machine they failed one run in two, and each passed
+  # when run alone on the same machine: the contention is the tests' own. RUN_SERIAL runs them with nothing else running; no limit or assertion changes.
+  set_tests_properties(faultinject.selftest exitrun.selftest PROPERTIES RUN_SERIAL TRUE)
 endif()
 # ---- module exit-run (end) ---------------------------------------------------------------------------
+
+# ---- module core-handoff (begin) ---------------------------------------------------------------------
+# test_handoff.c (unit tests), test_handoff_vec.c (golden vectors, ctest "handoff.vec") and fuzz_handoff.c (seed replay
+# "fuzzseed.fuzz_handoff", seeds in fuzz/seeds/fuzz_handoff) are created by the globs above. The one thing they do not know: the vector
+# file is written by a script that must stay in step with it.
+find_program(WR_PYTHON3_HANDOFF python3)
+if(WR_PYTHON3_HANDOFF)
+  add_test(NAME handoff.vectors_in_sync COMMAND "${WR_PYTHON3_HANDOFF}" -I
+           "${CMAKE_CURRENT_SOURCE_DIR}/vectors/handoff/gen_handoff_vectors.py" --check)
+  set_tests_properties(handoff.vectors_in_sync PROPERTIES LABELS "handoff;checks" SKIP_RETURN_CODE 77)
+endif()
+# ---- module core-handoff (end) -----------------------------------------------------------------------
+
+# ---- module build-vm (begin) -------------------------------------------------------------------------
+# lab/p2/builder/selftest.sh: the offline self-test of the Phase 2 builder scripts (the Ubuntu 26.04 build guest). No VM, no ssh, no network;
+# ssh, rsync and the iPXE build.sh are stand-ins. It skips (and says so) the cases that need a Linux /proc, GNU tools or the iPXE checkout.
+find_program(WR_BASH_BUILDER bash)
+if(WR_BASH_BUILDER)
+  add_test(NAME builder.selftest COMMAND "${WR_BASH_BUILDER}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/builder/selftest.sh")
+  set_tests_properties(builder.selftest PROPERTIES LABELS "builder;checks" TIMEOUT 300)
+endif()
+# ---- module build-vm (end) ---------------------------------------------------------------------------
+
+# ---- module qemu-scripts (begin) ---------------------------------------------------------------------
+# lab/p2/qemu/selftest.sh: the offline self-test of the Phase 2 QEMU scripts (generator, command lines, option refusals, process-list
+# parsing, whole runs against a QEMU stand-in). No KVM, no real QEMU, no cluster. The whole-run cases need Linux, flock and python3 and
+# skip (and say so) elsewhere.
+find_program(WR_BASH_QEMU_SCRIPTS bash)
+if(WR_BASH_QEMU_SCRIPTS)
+  add_test(NAME qemu_scripts.selftest COMMAND "${WR_BASH_QEMU_SCRIPTS}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/qemu/selftest.sh")
+  set_tests_properties(qemu_scripts.selftest PROPERTIES LABELS "qemu;checks" TIMEOUT 600)
+endif()
+# ---- module qemu-scripts (end) -----------------------------------------------------------------------
+
+# ---- module winpe-prep (begin) -----------------------------------------------------------------------
+# lab/p2/winpe/selftest.sh: the offline self-test of the WinPE preparation scripts (check-layout.sh, import-winpe.sh) and of the tools in run-rows.md. It
+# builds synthetic boot media (right names and magic numbers, no Windows file of any kind), disk images from them, and runs the cluster side against
+# stand-ins: no VM, no QEMU, no network, no root. It needs sfdisk, sgdisk, mkfs.fat 4.2 (--offset), mtools, python3 and gzip, and exits 77 (skipped)
+# when the machine lacks one.
+find_program(WR_BASH_WINPE bash)
+if(WR_BASH_WINPE)
+  add_test(NAME winpe.selftest COMMAND "${WR_BASH_WINPE}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/winpe/selftest.sh")
+  # RUN_SERIAL for the same reason as faultinject.selftest / exitrun.selftest (module exit-run): it failed once beside other tests on a loaded machine
+  # and passed alone.
+  set_tests_properties(winpe.selftest PROPERTIES LABELS "winpe;checks" TIMEOUT 300 SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)
+endif()
+# ---- module winpe-prep (end) -------------------------------------------------------------------------
+
+# ---- module linux-images (begin) ---------------------------------------------------------------------
+# lab/p2/images/selftest.sh: the offline test of the Linux guest images of the Phase 2 live matrix: the guest-side table checker
+# (rbft-check.c, built here with this build's compiler and flags, sanitizers included, so a Debug / Release / MinSizeRel and an
+# ASan/UBSan run each build it their own way), the boot hook and the marker in a sandbox, the build scripts' options and plans,
+# import.sh's validation. No VM, no root, no QEMU, no cluster. It skips (77) when bash, python3 or a C compiler is missing.
+find_program(WR_BASH_IMAGES bash)
+if(WR_BASH_IMAGES AND CMAKE_C_COMPILER)
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" _wr_img_bt)
+  set(_wr_img_cflags "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_wr_img_bt}}")
+  if(NOT WR_SANITIZE STREQUAL "")
+    string(APPEND _wr_img_cflags " -fsanitize=${WR_SANITIZE} -fno-sanitize-recover=undefined")
+  endif()
+  add_test(NAME images.selftest COMMAND "${WR_BASH_IMAGES}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/images/selftest.sh")
+  set_tests_properties(images.selftest PROPERTIES LABELS "images;checks" TIMEOUT 900 SKIP_RETURN_CODE 77
+                       ENVIRONMENT "CC=${CMAKE_C_COMPILER};CFLAGS=${_wr_img_cflags}")
+endif()
+# ---- module linux-images (end) -----------------------------------------------------------------------
+
+# ---- module ipxe-ci (begin) --------------------------------------------------------------------------
+# ipxe/tools/build.sh check / check -n: the static checks of the iPXE glue and the core's licence tags (no iPXE tree, no compiler: bash, awk,
+# grep, find), and their negative controls (a core file without its WR_FILE_LICENCE_ placeholder, a glue file marked PERMITTED, an unwired
+# test, a patch with wrong hunk counts, a workflow that calls a subcommand that does not exist, ... each seeded into a scratch copy and refused
+# with its own message; a workflow that dropped a gate; the licence, verify and test-log checks judged on stand-in inputs). The iPXE builds
+# themselves are the CI workflow ipxe.yml and need the pinned submodule, so they are not ctest cases.
+find_program(WR_BASH_IPXE_CI bash)
+if(WR_BASH_IPXE_CI)
+  add_test(NAME ipxe_ci.check COMMAND "${WR_BASH_IPXE_CI}" "${CMAKE_CURRENT_SOURCE_DIR}/../ipxe/tools/build.sh" check)
+  add_test(NAME ipxe_ci.check_negative COMMAND "${WR_BASH_IPXE_CI}" "${CMAKE_CURRENT_SOURCE_DIR}/../ipxe/tools/build.sh" check -n)
+  # check -n copies core/ into a scratch directory once per seeded mistake (about 40): 35 s on an idle box, minutes on a loaded one
+  set_tests_properties(ipxe_ci.check ipxe_ci.check_negative PROPERTIES LABELS "ipxe;checks" TIMEOUT 900)
+endif()
+# ---- module ipxe-ci (end) ----------------------------------------------------------------------------
+
+# ---- module harness-gates (begin) --------------------------------------------------------------------
+# The gates that keep the core buildable by iPXE (Phase 2). Each is a script that compiles the core itself (independent of the sanitizer flags
+# and of the build type of this tree), so the ones that cost real time are registered once, in the plain GNU flavours, like the object gates.
+#   ipxe.check              ipxe/tools/build.sh check: licence and Secure Boot lines of the glue and the self-tests, patch hunk counts, name collisions
+#                           (module ipxe-ci registers the same command as ipxe_ci.check, plus its negative controls; this name is the one the gates list)
+#   core_std_c              every core file with -std=gnu17 and -std=gnu2x (iPXE sets no -std: gcc 15 defaults to C23), freestanding, iPXE's warnings
+#   core_ipxe_headers_*     every core file against iPXE's own reduced <stdint.h> / <string.h> (no uintptr_t, no limit macros), the shim
+#                           ipxe/src/rbd_core_cfg.h, and iPXE's flags (the EFI64 ones for x86_64), i386 and x86_64, then the undefined symbols of the
+#                           objects (nm): anything outside iPXE's own out-of-line string and libgcc functions is a link failure in iPXE (a call to
+#                           memmove(), for one); skips (77) without third_party/ipxe, and a skip is a failure with WRT_IPXE_REQUIRE=1 (the CI job
+#                           ipxe-gates sets it)
+#   core_callgraph_*        check_callgraph.py with -Os (-m32 for i386, the BIOS images): the global limits and a budget per glue-facing entry point,
+#                           and every core function that ipxe/src calls must have one (--glue); i386 skips (77) when the compiler has no 32-bit
+#                           system headers (gcc-multilib), a failure with WRT_IPXE_REQUIRE=1
+#   gates.selftest          each of the above, fed a copy of the core with one seeded violation, must reject it (and accept the copy without it)
+# core_ipxe_headers_*, core_callgraph_* and gates.selftest are registered only in GNU builds without sanitizers (each build type of them runs them: a few
+# seconds apiece, the self-test about a minute); ipxe.check and core_std_c are registered in every flavour (seconds).
+find_program(WR_SH_GATES sh)
+find_program(WR_BASH_GATES bash)
+find_program(WR_PYTHON3_GATES python3)
+if(WR_BASH_GATES)
+  add_test(NAME ipxe.check COMMAND "${WR_BASH_GATES}" "${WR_ROOT}/ipxe/tools/build.sh" check)
+  set_tests_properties(ipxe.check PROPERTIES LABELS "ipxe;checks" TIMEOUT 120)
+endif()
+if(WR_SH_GATES AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+  add_test(NAME core_std_c COMMAND "${WR_SH_GATES}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_core_std.sh" -c "${CMAKE_C_COMPILER}" -k "${WR_CORE_DIR}")
+  set_tests_properties(core_std_c PROPERTIES LABELS "core;checks" SKIP_RETURN_CODE 77 TIMEOUT 300)
+endif()
+if(WR_SH_GATES AND CMAKE_C_COMPILER_ID STREQUAL "GNU" AND WR_SANITIZE STREQUAL "")
+  foreach(_a i386 x86_64)
+    add_test(NAME core_ipxe_headers_${_a} COMMAND "${WR_SH_GATES}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_ipxe_headers.sh"
+             -c "${CMAKE_C_COMPILER}" -k "${WR_CORE_DIR}" -a ${_a})
+    set_tests_properties(core_ipxe_headers_${_a} PROPERTIES LABELS "core;checks" SKIP_RETURN_CODE 77 TIMEOUT 300)
+    if(WR_PYTHON3_GATES)
+      add_test(NAME core_callgraph_${_a} COMMAND "${WR_SH_GATES}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/ci-docs-hardening/callgraph_ipxe.sh"
+               --cc "${CMAKE_C_COMPILER}" --core "${WR_CORE_DIR}" ${_a})
+      set_tests_properties(core_callgraph_${_a} PROPERTIES LABELS "core;checks" SKIP_RETURN_CODE 77 TIMEOUT 600)
+    endif()
+  endforeach()
+  if(WR_PYTHON3_GATES)
+    add_test(NAME gates.selftest COMMAND "${WR_PYTHON3_GATES}" -I "${CMAKE_CURRENT_SOURCE_DIR}/tests/ci-docs-hardening/gates_selftest.py"
+             --cc "${CMAKE_C_COMPILER}")
+    set_tests_properties(gates.selftest PROPERTIES LABELS "gates;checks" SKIP_RETURN_CODE 77 TIMEOUT 900)
+  endif()
+endif()
+# ---- module harness-gates (end) ----------------------------------------------------------------------
+
+# ---- module qemu-bios (begin) -------------------------------------------------------------------------
+# lab/p2/results/bios/bin/selftest.sh: the offline test of the scripts that ran the BIOS rows of the live matrix (the verdicts on synthetic logs with their
+# negative controls, the time-stamping and pausing tool against a fake QMP socket, the dry-run command lines of the two run scripts over the stock library, and
+# that every script parses). No QEMU, no KVM, no cluster, no network; needs bash and python3.
+find_program(WR_BASH_BIOS bash)
+find_program(WR_PYTHON3_BIOS python3)
+if(WR_BASH_BIOS AND WR_PYTHON3_BIOS)
+  add_test(NAME bios.selftest COMMAND "${WR_BASH_BIOS}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/results/bios/bin/selftest.sh")
+  set_tests_properties(bios.selftest PROPERTIES LABELS "bios;checks" TIMEOUT 300)
+endif()
+# ---- module qemu-bios (end) ---------------------------------------------------------------------------
+
+# ---- module qemu-uefi (begin) -------------------------------------------------------------------------
+# lab/p2/results/uefi/tools/selftest.sh: the offline test of the scripts that ran the UEFI rows of the live matrix (the verdicts on synthetic logs with their negative
+# controls, the Shell extractor on a made-up firmware volume, the generator of the byte-check script and the disk it checks, the table of the rows, and that every
+# script parses). No QEMU, no KVM, no cluster, no network; needs bash and python3 (the byte-check disk part is skipped when sfdisk, mkfs.vfat or mtools is missing).
+find_program(WR_BASH_UEFI bash)
+find_program(WR_PYTHON3_UEFI python3)
+if(WR_BASH_UEFI AND WR_PYTHON3_UEFI)
+  add_test(NAME uefi.selftest COMMAND "${WR_BASH_UEFI}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/results/uefi/tools/selftest.sh")
+  set_tests_properties(uefi.selftest PROPERTIES LABELS "uefi;checks" TIMEOUT 300 SKIP_RETURN_CODE 77)
+endif()
+# ---- module qemu-uefi (end) ---------------------------------------------------------------------------
+
+# ---- module qemu-robust (begin) -----------------------------------------------------------------------
+# lab/p2/results/robust/tools/selftest.sh: the offline test of the scripts that ran the robustness rows (milestone 7): the fault driver lab/p2/qemu/robust.sh against
+# a QEMU stand-in and a lab stub (every fault and its undo, the trigger, the key scan), the verdicts of analyze.py on synthetic evidence with their negative controls,
+# mkreader.py and (with GNU as and ld) the assembled INT 13h reader, labstate.sh, and that every script parses. No QEMU, no KVM, no cluster, no network; needs bash and
+# python3 (the whole-run cases need Linux and flock and skip themselves otherwise).
+find_program(WR_BASH_ROBUST bash)
+find_program(WR_PYTHON3_ROBUST python3)
+if(WR_BASH_ROBUST AND WR_PYTHON3_ROBUST)
+  add_test(NAME robust.selftest COMMAND "${WR_BASH_ROBUST}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/results/robust/tools/selftest.sh")
+  # RUN_SERIAL for the same reason as faultinject.selftest (module exit-run): its whole-run cases kill and restart stand-in daemons at fixed
+  # instants and judge the order of the lab commands; beside other tests of `ctest -j 4` on a loaded machine "osd-kill" failed once (final review,
+  # Ubuntu 24.04 guest, clang Release) and the test passed twice when run alone on the same guest. No limit or assertion changes.
+  set_tests_properties(robust.selftest PROPERTIES LABELS "robust;checks" TIMEOUT 600 SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)
+endif()
+# ---- module qemu-robust (end) -------------------------------------------------------------------------
+
+# ---- module measure (begin) ---------------------------------------------------------------------------
+# lab/p2/results/measure/tools/selftest.sh: the offline test of the scripts of the exit measurements (design 14.4): the analysers on synthetic consoles and captures
+# (negative controls included), mkbench.py and, with GNU as and ld for i386, the assembled INT 13h bench program (and, with QEMU, one run of it in software
+# emulation on a plain disk), the option refusals of mrun.sh / mimages.sh / krbd.sh / campaign.sh, and summarize.py on synthetic runs. No cluster, no lab VM, no
+# network; needs bash and python3 (the QEMU part skips itself without QEMU, the assembly part without GNU as).
+find_program(WR_BASH_MEASURE bash)
+find_program(WR_PYTHON3_MEASURE python3)
+if(WR_BASH_MEASURE AND WR_PYTHON3_MEASURE)
+  add_test(NAME measure.selftest COMMAND "${WR_BASH_MEASURE}" "${CMAKE_CURRENT_SOURCE_DIR}/lab/p2/results/measure/tools/selftest.sh")
+  set_tests_properties(measure.selftest PROPERTIES LABELS "measure;checks" TIMEOUT 600 SKIP_RETURN_CODE 77)
+endif()
+# ---- module measure (end) -----------------------------------------------------------------------------
 
 message(STATUS "winrbd harness: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, core sources: ${WR_CORE_SOURCES}")

@@ -1,0 +1,2 @@
+RESULT row=UB run=UB-20261124T123410Z-1528542 expect=marker met=0 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=32 console=<box>/p2r/work/q/logs/UB-20261124T123410Z-1528542.console
+exit=1 wall=32s retries=0

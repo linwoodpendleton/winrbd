@@ -1,0 +1,4 @@
+# 2026-11-24T03:38:52Z row U1-bytes-outage (uefi, bytes, fault outage), profile bytes; e: the cluster is gone for 7 minutes: the SAN layer retries and gives up, then the cluster comes back
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault outage --on \^WRBYTES-FILE\ f-17m --delay 0.5 --down 420 --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-bytes --pool winrbd --image wrtest-p2-rb-bytes --key-file <lab dir>/keys/client.wrtest-p2-rb-bytes.secret --timeout 1500 --action sanhook --leave none --append <out>/rows/.tmp.4100208/append.ipxe --expect marker --marker \^WRRUN-END

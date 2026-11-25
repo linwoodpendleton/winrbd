@@ -1,0 +1,401 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+#
+# local-top/rbft - the boot hook of the winrbd Linux test guests (initramfs-tools, runs before the root file system is mounted).
+#
+# It is the guest side of the live test matrix of docs/design/ipxe-driver.md, section 14.3:
+#   1. read the "rBFT" handoff table the loader left behind (UEFI: the firmware table in sysfs; BIOS: a scan of low memory through
+#      /dev/mem, which needs iomem=relaxed on the kernel command line);
+#   2. check EVERY field of it against the expected values (rbft-check prints one PASS / FAIL / SKIP line per field: that output
+#      is the proof that "the table matches the design");
+#   3. bring the NIC up from the table (MAC, VLAN, MTU, address, gateway);
+#   4. map the image with the kernel client (krbd: /sys/bus/rbd/add_single_major, or add on a kernel without single_major) and make
+#      /dev/rbd<N>p<ROOTPART> the root device.
+#
+# It does nothing at all unless the kernel command line has  rbft.hook=1.
+#
+# Kernel command line (all optional except rbft.hook=1):
+#   rbft.hook=1          switch the hook on
+#   rbft.map=1|0         map the image from the table and boot from it (default 1; 0: only read and check the table, bring the NIC
+#                        up, and leave the root= of the command line alone: a plain-QEMU run of the same image)
+#   rbft.src=auto|sysfs|scan|fwcfg
+#                        where the table is looked for. auto (default): UEFI -> sysfs; BIOS -> the low-memory scan, then sysfs (QEMU's
+#                        -acpitable puts a table into the RSDT, which iPXE never does). fwcfg is a TEST source: the whole table (any
+#                        defect, bad checksum included) from the QEMU fw_cfg file opt/winrbd/table
+#   rbft.rootpart=N      partition of the image that holds the root (default 2)
+#   rbft.require=1       no table, or an unusable one, or a failed mapping is fatal (default: the boot goes on with root= as given)
+#   rbft.onfail=continue|poweroff   what a fatal failure does (default poweroff with rbft.require=1, else continue)
+#   rbft.waitnic=S       seconds to wait for the NIC with the table's MAC (default 20)
+#   rbft.waitmap=S       seconds to wait for the mapping and the partition (default 90)
+#   rbft.strict=1        a field without an expected value is a FAIL, not a SKIP
+#   rbft.key=KEY         the cephx key (armoured base64, legacy "aes" type) for a table that carries none. WARNING: the kernel command
+#                        line is readable in the guest and shows in boot logs; the QEMU fw_cfg file opt/winrbd/key is the better road
+#   rbft.poweroff=1      (read by wrboot-marker) power the guest off after the marker line
+#   rbft.<field>=VALUE   the expected values (see rbft-check.c): mons entity pool image imageid snap auth mode flags keytype keylen fsid
+#                        mac vlan mtu ip gw dns.
+# Every rbft.* word except rbft.hook may also be in the QEMU fw_cfg file opt/winrbd/params (one word per line; a plain-QEMU test passes
+# the expectations and options that way without changing the image). The kernel command line wins over the file.
+#
+# The key comes from the table when the loader put it there (handoff=key); else from rbft.key= or the fw_cfg file opt/winrbd/key. If
+# both exist they must be equal. It is never printed, never put on a command line of a process, and its files are removed after the
+# mapping. Result for the booted system: /run/rbft/result (read by wrboot-marker).
+#
+# Every path can be moved below $RBFT_ROOT, and the tools can be replaced, so that selftest.sh runs this very file in a sandbox.
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "${1:-}" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+R=${RBFT_ROOT:-}
+CHECK=${RBFT_CHECK:-/usr/local/sbin/rbft-check}
+SLEEP=${RBFT_SLEEP:-sleep}
+RUN=$R/run/rbft
+FWCFG=$R/sys/firmware/qemu_fw_cfg/by_name/opt/winrbd
+RBDDEV=$R/sys/bus/rbd/devices
+BLOCKTEST=${RBFT_BLOCKTEST:--b}
+CONF=$R/conf/param.conf
+
+umask 077
+
+_cmdline=
+if [ -r "$R/proc/cmdline" ]; then _cmdline=$(cat "$R/proc/cmdline"); fi
+_fwwords= # the words of the QEMU fw_cfg file opt/winrbd/params, read once the hook is switched on
+
+arg() { # NAME : the value of rbft.NAME=VALUE; the fw_cfg words are read first, the kernel command line last, and the last one wins
+	_v=
+	set -f # a word of the command line is never a pattern
+	for _w in $_fwwords $_cmdline; do
+		case $_w in
+		"rbft.$1="*) _v=${_w#rbft."$1"=} ;;
+		esac
+	done
+	set +f
+	printf '%s' "$_v"
+}
+
+[ "$(arg hook)" = 1 ] || exit 0 # the kernel command line alone switches the hook on (the fw_cfg words are not read yet)
+
+say() { printf '%s\n' "$*"; }
+isblk() { test "$BLOCKTEST" "$1"; } # is it a block device (a plain file for the sandbox test, which sets BLOCKTEST=-e)
+
+# modules the hook may need; none of them is an error when missing (built in, or the hardware is not there)
+modprobe -q qemu_fw_cfg 2>/dev/null || true
+if [ -r "$FWCFG/params/raw" ]; then _fwwords=$(cat "$FWCFG/params/raw" 2>/dev/null); fi
+
+MAP=$(arg map);           [ -n "$MAP" ] || MAP=1
+SRC=$(arg src);           [ -n "$SRC" ] || SRC=auto
+ROOTPART=$(arg rootpart); [ -n "$ROOTPART" ] || ROOTPART=2
+REQUIRE=$(arg require);   [ -n "$REQUIRE" ] || REQUIRE=0
+ONFAIL=$(arg onfail)
+if [ -z "$ONFAIL" ]; then
+	if [ "$REQUIRE" = 1 ]; then ONFAIL="poweroff"; else ONFAIL="continue"; fi
+fi
+WAITNIC=$(arg waitnic);   [ -n "$WAITNIC" ] || WAITNIC=20
+WAITMAP=$(arg waitmap);   [ -n "$WAITMAP" ] || WAITMAP=90
+STRICT=$(arg strict)
+
+# only digits where a number is used
+case $MAP$REQUIRE$WAITNIC$WAITMAP$ROOTPART in *[!0-9]*) say "RBFT-HOOK FAIL: a numeric rbft.* option has a non-numeric value"; exit 0 ;; esac
+case $SRC in auto | sysfs | scan | fwcfg) ;; *) say "RBFT-HOOK FAIL: rbft.src=$SRC is not auto, sysfs, scan or fwcfg"; exit 0 ;; esac
+case $ONFAIL in continue | poweroff) ;; *) say "RBFT-HOOK FAIL: rbft.onfail=$ONFAIL is not continue or poweroff"; exit 0 ;; esac
+
+mkdir -p "$RUN"
+: > "$RUN/result"
+
+result() { # TABLE MAPPED DEV : what the booted system's marker reports
+	# plain KEY=VALUE lines, never sourced: the marker reads them with read, so a value (the image name comes from the table) cannot run
+	# anything; rbft-check only lets [A-Za-z0-9._+:-] through into RBFT_IMAGE, and the case below is the second fence
+	_img=${RBFT_IMAGE:-}
+	case $_img in *[!A-Za-z0-9._+:-]*) _img='?' ;; esac
+	{
+		printf 'TABLE=%s\n' "$1"
+		printf 'MAPPED=%s\n' "$2"
+		printf 'DEV=%s\n' "$3"
+		printf 'SRC=%s\n' "${USED_SRC:-none}"
+		printf 'REQUIRE=%s\n' "$REQUIRE"
+		printf 'IMAGE=%s\n' "$_img"
+	} > "$RUN/result"
+}
+
+wipe() { # remove every file that holds a key
+	rm -f "$RUN/secret" "$RUN/supplied" 2>/dev/null
+}
+
+die() { # TABLE-VERDICT MESSAGE : a fatal failure
+	say "RBFT-HOOK FAIL: $2"
+	result "$1" 0 ""
+	wipe
+	if [ "$ONFAIL" = poweroff ]; then
+		say "WRBOOT-HOOK-POWEROFF: $2"
+		if [ -n "$RBFT_NOPOWEROFF" ]; then exit 0; fi
+		poweroff -f 2>/dev/null
+		echo 1 > /proc/sys/kernel/sysrq 2>/dev/null
+		echo o > /proc/sysrq-trigger 2>/dev/null
+		$SLEEP 60
+	fi
+	exit 0
+}
+
+printf '\n' # initramfs-tools leaves its "Begin: ..." status without a newline: start the hook's lines on a line of their own
+say "RBFT-HOOK start: map=$MAP src=$SRC rootpart=$ROOTPART require=$REQUIRE"
+
+# ---- expectations: the kernel command line (rbft-check --cmdline) and, for QEMU, the fw_cfg file
+PARAMS_ARGS=
+if [ -r "$FWCFG/params/raw" ]; then
+	cat "$FWCFG/params/raw" > "$RUN/params" 2>/dev/null && PARAMS_ARGS="--params $RUN/params"
+fi
+STRICT_ARG=
+[ "$STRICT" = 1 ] && STRICT_ARG=--strict
+
+# ---- the key from another channel (never printed)
+HAVE_SUPPLIED=0
+_k=$(arg key)
+if [ -n "$_k" ]; then
+	printf '%s' "$_k" > "$RUN/supplied"
+	HAVE_SUPPLIED=1
+elif [ -r "$FWCFG/key/raw" ]; then
+	cat "$FWCFG/key/raw" > "$RUN/supplied" 2>/dev/null && HAVE_SUPPLIED=1
+fi
+_k=
+SUPPLIED_ARG=
+[ "$HAVE_SUPPLIED" = 1 ] && SUPPLIED_ARG="--supplied-key $RUN/supplied"
+
+# ---- the sources, in the order they are tried
+case $SRC in
+auto)
+	if [ -d "$R/sys/firmware/efi" ]; then
+		SOURCES="sysfs"
+	else
+		SOURCES="scan sysfs"
+	fi
+	;;
+*) SOURCES=$SRC ;;
+esac
+src_args() {
+	case $1 in
+	sysfs) printf '%s' "--sysfs $R/sys/firmware/acpi/tables/rBFT" ;;
+	scan) printf '%s' "--scan" ;;
+	fwcfg) printf '%s' "--file $FWCFG/table/raw" ;;
+	esac
+}
+
+# pass 1 (quiet): is there a table, and what NIC does it name? A table the hook cannot read is not an error yet: a local boot
+# of the same image has none.
+USED_SRC=
+rm -f "$RUN/env"
+for _s in $SOURCES; do
+	# shellcheck disable=SC2046,SC2086  # the arguments are words made by this script
+	"$CHECK" $(src_args "$_s") --cmdline-file "$R/proc/cmdline" $PARAMS_ARGS $STRICT_ARG --emit-env "$RUN/env" > "$RUN/pass1.log" 2>&1
+	_rc=$?
+	if [ "$_rc" != 2 ]; then USED_SRC=$_s; break; fi
+	say "RBFT-HOOK source $_s: no table"
+	# why not: a decoy with a bad checksum, /dev/mem not readable ...
+	while IFS= read -r _l; do
+		case $_l in "RBFT INFO "* | "RBFT-RESULT NOTABLE"*) say "$_l" ;; esac
+	done < "$RUN/pass1.log"
+done
+
+if [ -z "$USED_SRC" ]; then
+	say "RBFT-RESULT NOTABLE no rBFT table found (tried: $SOURCES)"
+	say "WRBOOT-TABLE NONE"
+	if [ "$REQUIRE" = 1 ]; then die NONE "no rBFT table found and rbft.require=1"; fi
+	result NONE 0 ""
+	wipe
+	exit 0
+fi
+say "RBFT-HOOK table found by source $USED_SRC"
+
+# ---- the NIC: wait until the one with the table's MAC exists, bring it up, then run the real, printed check
+RBFT_MAC=
+RBFT_IMAGE=
+if [ -s "$RUN/env" ]; then
+	# the file is written by rbft-check with every value single-quoted; names have been vetted there
+	# shellcheck disable=SC1091,SC1090
+	. "$RUN/env"
+fi
+
+NIC=
+find_nic() { # sets NIC to the interface with MAC $RBFT_MAC
+	NIC=
+	for _d in "$R"/sys/class/net/*; do
+		[ -e "$_d/address" ] || continue
+		read -r _a < "$_d/address" || continue
+		if [ "$_a" = "$RBFT_MAC" ]; then NIC=${_d##*/}; return 0; fi
+	done
+	return 1
+}
+
+if [ -n "$RBFT_MAC" ]; then
+	_t=0
+	while ! find_nic; do
+		[ "$_t" -ge "$WAITNIC" ] && break
+		$SLEEP 1
+		_t=$((_t + 1))
+	done
+	if [ -z "$NIC" ]; then
+		say "RBFT-HOOK nic: no interface with MAC $RBFT_MAC after ${WAITNIC}s"
+	fi
+fi
+
+if [ -n "$NIC" ]; then
+	_dev=$NIC
+	say "RBFT-HOOK nic: $NIC has MAC $RBFT_MAC"
+	if [ -n "$RBFT_MTU" ] && [ "$RBFT_MTU" != 0 ]; then
+		ip link set dev "$NIC" mtu "$RBFT_MTU" || say "RBFT-HOOK nic: cannot set MTU $RBFT_MTU on $NIC"
+	fi
+	ip link set dev "$NIC" up || say "RBFT-HOOK nic: cannot bring $NIC up"
+	if [ -n "$RBFT_VLAN" ] && [ "$RBFT_VLAN" != 0 ]; then
+		modprobe -q 8021q 2>/dev/null || true
+		if ip link add link "$NIC" name "$NIC.$RBFT_VLAN" type vlan id "$RBFT_VLAN"; then
+			_dev=$NIC.$RBFT_VLAN
+			ip link set dev "$_dev" up || say "RBFT-HOOK nic: cannot bring $_dev up"
+			say "RBFT-HOOK nic: VLAN $RBFT_VLAN on $NIC is $_dev"
+		else
+			say "RBFT-HOOK nic: cannot create VLAN $RBFT_VLAN on $NIC"
+		fi
+	fi
+	if [ -n "$RBFT_IP" ]; then
+		if ip addr add "$RBFT_IP/$RBFT_PREFIX" dev "$_dev"; then
+			say "RBFT-HOOK nic: $_dev address $RBFT_IP/$RBFT_PREFIX"
+		else
+			say "RBFT-HOOK nic: cannot add $RBFT_IP/$RBFT_PREFIX to $_dev"
+		fi
+		if [ -n "$RBFT_GW" ]; then
+			ip route add default via "$RBFT_GW" dev "$_dev" || say "RBFT-HOOK nic: cannot add the default route via $RBFT_GW"
+		fi
+	fi
+fi
+
+# pass 2: the check whose lines are the evidence
+say "RBFT-HOOK table check (source $USED_SRC):"
+rm -f "$RUN/secret" "$RUN/env" # pass 2 writes its own env file, and only for a table that is sound now
+# shellcheck disable=SC2046,SC2086
+"$CHECK" $(src_args "$USED_SRC") --cmdline-file "$R/proc/cmdline" $PARAMS_ARGS $STRICT_ARG $SUPPLIED_ARG --check-nic --net-dir "$R/sys/class/net" --hexdump \
+	--emit-env "$RUN/env" --emit-secret "$RUN/secret"
+_rc=$?
+case $_rc in
+0) VERDICT=PASS ;;
+1) VERDICT=FAIL ;;
+*) VERDICT=UNUSABLE ;;
+esac
+if [ "$VERDICT" = FAIL ] && ! [ -s "$RUN/env" ]; then VERDICT=UNUSABLE; fi
+say "WRBOOT-TABLE $VERDICT"
+
+if [ "$MAP" != 0 ]; then
+	# a table that fails its check is not mapped from: the row has failed, and the evidence is the lines above
+	case $VERDICT in
+	UNUSABLE) die UNUSABLE "the table is not usable: not mapping" ;;
+	FAIL) die FAIL "the table does not match what was expected: not mapping" ;;
+	esac
+fi
+
+if [ "$MAP" = 0 ]; then
+	say "RBFT-HOOK map=0: not mapping the image; root stays as given on the command line"
+	result "$VERDICT" 0 ""
+	wipe
+	exit 0
+fi
+
+# ---- the mapping
+[ -s "$RUN/env" ] || die "$VERDICT" "no usable table values to map with"
+# shellcheck disable=SC1091,SC1090
+. "$RUN/env"
+
+KEY=
+if [ -r "$RUN/secret" ] && [ -s "$RUN/secret" ]; then
+	read -r KEY < "$RUN/secret"
+elif [ "$HAVE_SUPPLIED" = 1 ]; then
+	read -r KEY < "$RUN/supplied"
+fi
+rm -f "$RUN/secret" "$RUN/supplied"
+
+if [ "$RBFT_AUTH" != 1 ]; then
+	die "$VERDICT" "the table says auth none: the kernel client always authenticates with cephx"
+fi
+if [ -z "$KEY" ]; then
+	if [ "$RBFT_KEY_IN_TABLE" = 1 ]; then
+		die "$VERDICT" "the table carries an aes256k key, which the kernel client cannot use, and no legacy key was supplied (rbft.key= or the fw_cfg file opt/winrbd/key)"
+	fi
+	die "$VERDICT" "the table carries no key and none was supplied (rbft.key= or the fw_cfg file opt/winrbd/key)"
+fi
+
+case $RBFT_MODE in
+1) _ms=crc ;;
+2) _ms=prefer-crc ;;
+3) _ms=prefer-secure ;;
+4) _ms=secure ;;
+*) die "$VERDICT" "message mode $RBFT_MODE of the table is not known" ;;
+esac
+
+_mons=
+for _m in $RBFT_MONS; do _mons=${_mons:+$_mons,}$_m; done
+_opts="ms_mode=$_ms,noshare"
+[ "$RBFT_RO" = 1 ] && _opts="$_opts,read_only"
+_snap=
+[ "$RBFT_SNAP" != "-" ] && _snap=" $RBFT_SNAP"
+
+modprobe -q libceph 2>/dev/null || true
+modprobe -q rbd 2>/dev/null || true
+# With the module's default single_major=Y the plain "add" answers EINVAL to everything: the client's own tool writes to add_single_major
+# (devices get partitions only in that mode). Older or single_major=N kernels have only "add".
+if [ -e "$R/sys/bus/rbd/add_single_major" ]; then
+	RBDADD=$R/sys/bus/rbd/add_single_major
+else
+	RBDADD=$R/sys/bus/rbd/add
+fi
+if [ ! -e "$RBDADD" ]; then
+	die "$VERDICT" "no /sys/bus/rbd/add_single_major or add: the rbd module is missing from the initramfs"
+fi
+
+_before=
+for _d in "$RBDDEV"/*; do [ -e "$_d" ] && _before="$_before ${_d##*/}"; done
+say "RBFT-HOOK map: pool $RBFT_POOL image $RBFT_IMAGE via $_mons as client.$RBFT_ENTITY (options $_opts, the key is not shown)"
+# the key stays inside this shell: printf is a builtin, so it is in no process's argument list; the sysfs file takes it from there
+ADD="$_mons name=$RBFT_ENTITY,secret=$KEY,$_opts $RBFT_POOL $RBFT_IMAGE$_snap"
+KEY=
+if ! printf '%s' "$ADD" > "$RBDADD" 2> "$RUN/maperr"; then
+	ADD=
+	say "RBFT-HOOK map: the kernel refused the mapping: $(cat "$RUN/maperr" 2>/dev/null)"
+	dmesg 2>/dev/null | grep -E 'libceph|rbd' | tail -n 6 | while IFS= read -r _l; do say "RBFT-HOOK dmesg: $_l"; done
+	die "$VERDICT" "mapping $RBFT_POOL/$RBFT_IMAGE failed"
+fi
+ADD=
+
+ID=
+_t=0
+while [ -z "$ID" ]; do
+	for _d in "$RBDDEV"/*; do
+		[ -e "$_d" ] || continue
+		_n=${_d##*/}
+		case " $_before " in *" $_n "*) ;; *) ID=$_n ;; esac
+	done
+	[ -n "$ID" ] && break
+	[ "$_t" -ge "$WAITMAP" ] && break
+	$SLEEP 1
+	_t=$((_t + 1))
+done
+[ -n "$ID" ] || die "$VERDICT" "the kernel accepted the mapping but no rbd device showed up"
+
+DEV=/dev/rbd${ID}p$ROOTPART
+_t=0
+while ! isblk "$R$DEV"; do
+	[ "$_t" -ge "$WAITMAP" ] && break
+	$SLEEP 1
+	_t=$((_t + 1))
+done
+if ! isblk "$R$DEV"; then
+	_have=
+	for _d in "$R"/dev/rbd"$ID"*; do [ -e "$_d" ] && _have="$_have ${_d##*/}"; done
+	say "RBFT-HOOK map: $DEV did not appear (nodes of rbd$ID:${_have:- none})"
+	die "$VERDICT" "no partition $ROOTPART on /dev/rbd$ID"
+fi
+
+mkdir -p "$R/conf"
+printf 'ROOT=%s\n' "$DEV" >> "$CONF"
+say "RBFT-HOOK map: image $RBFT_POOL/$RBFT_IMAGE is /dev/rbd$ID, root device $DEV"
+result "$VERDICT" 1 "$DEV"
+say "WRBOOT-HOOK-DONE root=$DEV table=$VERDICT"
+wipe
+exit 0

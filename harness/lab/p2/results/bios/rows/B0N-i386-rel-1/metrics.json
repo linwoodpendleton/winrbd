@@ -1,0 +1,45 @@
+{
+ "heap": {
+  "arena_bytes": 260128,
+  "bulk_bytes": 2627584,
+  "conns": 2,
+  "conns_most": 2,
+  "osd": "4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes",
+  "readahead": "2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid"
+ },
+ "rbft": {
+  "edd": [
+   "WRBOOT-EDD int13_dev80 mbr_signature=0x7d1f0001",
+   "WRBOOT-EDD int13_dev81 mbr_signature=0x7d1f0002"
+  ],
+  "fail": 0,
+  "fail_lines": [],
+  "length": 234,
+  "marker": "WRBOOT-ROOT-OK fw=bios root=initramfs fstype=rootfs mapped=none table=PASS src=scan image=wrtest-p2-b0 kernel=6.8.0-151-generic",
+  "pass": 40,
+  "result": "PASS",
+  "skip": 0,
+  "source": "scan: found at physical address 0x9e120 (1 valid copy/copies)",
+  "table": "WRBOOT-TABLE PASS"
+ },
+ "stack": {
+  "core_total": 16384,
+  "core_used": 1696
+ },
+ "stages": {
+  "end": 12.295,
+  "grub": 12.786,
+  "grub_countdown_end": 14.077,
+  "hook": 20.173,
+  "ipxe": 8.169,
+  "net": 11.758,
+  "registered": 11.984,
+  "root_ok": 20.93,
+  "san_ok": 12.004,
+  "san_start": 11.779,
+  "script": 11.634,
+  "stub": 8.477,
+  "table_found": 20.438,
+  "table_result": 20.889
+ }
+}

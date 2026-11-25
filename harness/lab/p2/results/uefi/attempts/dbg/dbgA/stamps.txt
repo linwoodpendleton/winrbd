@@ -1,0 +1,5 @@
+   11.6 ipxe-script       WRRUN-BEGIN row=U0
+   11.6 net-ok            WRRUN-NET-OK
+   11.6 san-start         WRRUN-SAN-START sanhook
+   12.1 san-ok            WRRUN-SAN-OK
+   12.1 script-end        WRRUN-END

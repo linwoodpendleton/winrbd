@@ -1,0 +1,34 @@
+guest_started_epoch: 1795498276.573
+fault_begin: +21.9 s
+fault_end: +45.5 s (lasted 23.6 s)
+fault_event: +21.9 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +22.5 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +43.4 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +45.5 s all OSDs up and in again: 3 3 3 (poll 1)
+fault_event: +70.7 s the health checks are the ones the run started with again (poll 1)
+workload_start: +19.7 s
+workload_end: +64.5 s (took 44.8 s)
+stall_close_lines: 0
+trouble_lines: 0
+rbd_info_pumps: 14207
+rbd_info_cancels: 1
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 624
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 2
+rbd_info_ra_reads: 2695
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=15; ops_failed=0; ops_resent=0; pumps=275; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 5
+connections_started_after_the_fault_began: +34.2 s osd:6818, +46.6 s osd:6818
+monitor_to_guest_bytes: 4937 before the fault (15 packets), 88 while it lasted (2), 88 after it ended (3)

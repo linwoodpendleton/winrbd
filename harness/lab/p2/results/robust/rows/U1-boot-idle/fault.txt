@@ -1,0 +1,13 @@
+1795493343.790 T+1 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795493345.900 T+3 lab: ms_connection_idle_timeout set to 20 s for the monitor and the OSDs
+1795493346.283 T+1 guest started (pid 51314); fault pause on 'before booting or' #1 + 1.2 s, down 60 s
+1795493346.641 T+1 lab-clock 1795493346.684351511
+1795493359.728 T+14 trigger seen (before booting or, #1)
+1795493359.735 T+14 keys 'ret' will be pressed after 1 s
+1795493359.742 T+14 fault pause after 1.2 s
+1795493360.950 T+15 fault pause: begins (down 60 s)
+1795493361.390 T+16 keys 'ret' pressed
+1795493361.403 T+16 guest stopped (rc 0)
+1795493421.465 T+76 guest continued (rc 0)
+1795493421.470 T+76 fault pause: ends (rc 0)
+1795493464.086 T+119 lab: ms_connection_idle_timeout removed again

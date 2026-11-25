@@ -1,0 +1,6 @@
+   15.6 ipxe-script       WRRUN-BEGIN row=U1
+   16.1 net-ok            WRRUN-NET-OK
+   16.1 san-start         WRRUN-SAN-START sanboot
+   18.6 grub              [0m[37m[40m[H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+# host: load average at start 49.15, at end 49.59
+# guest threads waited for a host CPU: 0.1 s in total; the worst 0.5 s polling interval 0.0 s (at 11 s)

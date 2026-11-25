@@ -1,0 +1,28 @@
+[2J[01;01H[=3h[2J[01;01H
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1423360 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iPXE initialising devices...
+autoexec.ipxe... ok
+
+
+
+[1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+WRRUN-BEGIN row=U1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+rbd: open failed: image not found (no id object; a format 1 image is not supported) (WR_E_RBD_NOT_FOUND)
+Could not open SAN device: No such file or directory (https://ipxe.org/2d76608e)
+WRRUN-SAN-FAILED 0x2d76608e
+WRRUN-FAIL
+WRRUN-END

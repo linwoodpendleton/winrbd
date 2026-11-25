@@ -1,0 +1,2 @@
+1795488872.239 T+1 guest started (pid 3873838); fault none on '^WRRUN-SAN-(OK|START)' #1 + 0 s, down 0 s
+1795488872.528 T+1 lab-clock 1795488872.588547703

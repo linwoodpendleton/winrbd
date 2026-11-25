@@ -1,0 +1,4 @@
+# 2026-11-24T04:33:49Z row U1-neg-mon (uefi, neg-mon, fault none), profile negative; e: a monitor address nobody answers on
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault none --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-bytes --pool winrbd --image wrtest-p2-rb-bytes --key-file <lab dir>/keys/client.wrtest-p2-rb-bytes.secret --mon 10.77.0.97:3300 --timeout 300 --action sanhook --leave none --on-fail hold --expect marker --marker WRRUN-SAN-FAILED\ 0x\[0-9a-f\]+

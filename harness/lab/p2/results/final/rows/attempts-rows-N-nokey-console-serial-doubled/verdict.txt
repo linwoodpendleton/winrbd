@@ -1,0 +1,7 @@
+FAIL
+INFO run: stop=guest-exited secs=11 ipxe=- net=- san=none@- os=-
+FAIL console line /no cephx key: set rbd-key/: not in the log
+PASS the row says what it expects: errno and console line given
+FAIL the SAN open failed: no WRRUN-SAN-FAILED line (stop=guest-exited)
+PASS no SAN device was made: no WRRUN-SAN-OK
+PASS nothing booted: yes

@@ -1,0 +1,18 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (2):
+  rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+  rbd: parse URI failed: out of memory
+run script lines (3):
+  WRRUN-BEGIN row=U1
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanboot
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     16.1 ipxe-script       WRRUN-BEGIN row=U1
+     16.1 net-ok            WRRUN-NET-OK
+     16.1 san-start         WRRUN-SAN-START sanboot
+     20.1 grub              [0m[37m[40m[H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+  # host: load average at start 50.95, at end 51.09
+  # guest threads waited for a host CPU: 0.1 s in total; the worst 0.5 s polling interval 0.0 s (at 47 s)
+rbd-info (0 lines):

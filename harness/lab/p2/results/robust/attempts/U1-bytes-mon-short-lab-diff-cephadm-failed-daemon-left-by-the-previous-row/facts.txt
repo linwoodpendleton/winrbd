@@ -1,0 +1,32 @@
+guest_started_epoch: 1795491100.036
+fault_begin: +12.2 s
+fault_end: +18.5 s (lasted 6.3 s)
+fault_event: +13.1 s monitor killed (rc 0)
+fault_event: +16.6 s monitor started (rc 0)
+fault_event: +18.5 s monitor is back in quorum (poll 1)
+workload_start: +11.5 s
+workload_end: +26.1 s (took 14.6 s)
+stall_close_lines: 0
+trouble_lines: 0
+rbd_info_pumps: 14573
+rbd_info_cancels: 0
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 589
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 0
+rbd_info_ra_reads: 2691
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=15; ops_failed=0; ops_resent=0; pumps=267; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.05 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 5, osd 3
+connections_started_after_the_fault_began: +13.1 s monitor:3300, +14.1 s monitor:3300, +16.2 s monitor:3300, +20.2 s monitor:3300
+monitor_to_guest_bytes: 4937 before the fault (15 packets), 0 while it lasted (5), 1293 after it ended (12)

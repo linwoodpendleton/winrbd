@@ -1,0 +1,8 @@
+1795489955.753 T+0 guest started (pid 3952703); fault pause on '^WRBYTES-FILE f-17m' #1 + 0.5 s, down 60 s
+1795489956.010 T+1 lab-clock 1795489956.069710527
+1795489967.373 T+12 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795489967.378 T+12 fault pause after 0.5 s
+1795489967.886 T+12 fault pause: begins (down 60 s)
+1795489967.942 T+12 guest stopped (rc 0)
+1795490027.990 T+72 guest continued (rc 0)
+1795490027.995 T+72 fault pause: ends (rc 0)

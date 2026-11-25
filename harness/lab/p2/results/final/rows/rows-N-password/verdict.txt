@@ -1,0 +1,9 @@
+PASS
+INFO run: stop=expectation secs=12 ipxe=11 net=- san=failed@11 os=-
+PASS console line /key material must not be part of the URI/: seen
+PASS the row says what it expects: errno and console line given
+PASS the SAN open failed: WRRUN-SAN-FAILED 0x1c706082
+PASS no SAN device was made: no WRRUN-SAN-OK
+INFO errno: 0x1c706082 = EINVAL
+PASS errno is EINVAL: EINVAL
+PASS nothing booted: yes

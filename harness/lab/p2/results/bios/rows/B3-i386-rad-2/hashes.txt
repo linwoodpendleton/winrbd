@@ -1,0 +1,21 @@
+# sha256 of what ran (nothing secret)
+ipxe_variant   i386-rel
+8fe0c887dc3928d58f29df3c0ac536eb2a5be1c312d95f706b65f8f79c4a6c7e  ipxe.iso
+build   ipxe_pinned_revision 9261ebe38af0c0b38ac332adeec125a518845013
+build   source_tree_digest   e644f582d8eebb6f  (sha256 over ipxe/ and core/ of the tree that was built, and ipxe/PINNED)
+build   builder              15.2.0 Ubuntu 26.04.1 LTS (iPXE's own -Werror; warning lines in the build log: 0)
+build   make_args            EXTRA_CFLAGS=-DCONSOLE_SERIAL 
+build   embedded_script      constant stub (gen-script.sh --stub), no key
+build   targets              bin-i386-pcbios/undionly.kpxe ipxe.pxe ipxe.usb ipxe.iso ipxe.lkrn (32-bit BIOS images)
+rbd image (linux-bios.raw) image_sha256=2766476dc701d4ee31672211afc7222c0c8c4b458437a4f19874314175af69c1
+ed320dfaf5fa1f39402dded307d3804c7149b2b67f06ea8465553d29ef33c957  params (expected values of the row)
+77d5c068c418fc2b74cc18702acd88f2b738d1f941ee22f45b8a1bd95b66f4ff  run-undi.sh
+80557b78b8420f5c03e5a3f2a596411f8f8a685370fe438914f4f8bbb5ff0403  run-media.sh
+b7d7b2fbb13b19153608a8572556eb7016450abc58c8b46f557a01722abcf462  lib.sh
+a79d5373c4763777d2d990459e932483537f3c5fa92161e887135327bea74adb  tailts.py
+eb1087a382a3d4108dd6b8ba8fd27a11c87ec92759982f8cde24ea8addd91060  analyse.py
+c6a69461fa5113c2302880bf4cb93c163f7294da10739c70ac84f033b31824fe  mkparams.sh
+f3f0e1a891da6378337f20afb4aff567801ad5c1b91a442dd8ffc24f3bf6ffee  runrow.sh
+50b36d5bae5b55dd907a1fc525455529c43952683185885f972f42abefa8a1f7  common.sh
+79315126ba7de6851709c48910191677939b7e96cc994e213001f9c6612bc8d3  gen-script.sh
+image_id       39648e0b332d

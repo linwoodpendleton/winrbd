@@ -1,0 +1,6 @@
+FAIL
+FAIL the bench program started (WRMS-START)
+FAIL the bench program finished (WRMS-DONE)
+ok   no WRMS-ERR line (0 seen)
+ok   iPXE's heap never failed an allocation (0 lines)
+FAIL a TSC calibration was printed

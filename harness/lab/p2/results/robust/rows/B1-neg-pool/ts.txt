@@ -1,0 +1,26 @@
+1795494955.157 iPXE initialising devices...
+1795494955.474 [0m
+1795494955.474 
+1795494955.474 
+1795494955.474 [1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+1795494955.474 Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+1795494955.474 WRRUN-STUB
+1795494958.628 Configuring (net0 52:54:00:77:11:16)...... ok
+1795494958.628 tftp://10.0.2.2/autoexec.ipxe... ok
+1795494958.628 WRRUN-BEGIN row=B1
+1795494958.628 Waiting for link-up on net1... ok
+1795494958.628 WRRUN-NET-OK
+1795494958.952 WRRUN-SAN-START sanhook
+1795494958.952 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494958.952 rbd: core stack high-water 512 of 16384 bytes
+1795494958.952 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494958.952 rbd: core stack high-water 760 of 16384 bytes
+1795494958.952 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494958.952 rbd: core stack high-water 1304 of 16384 bytes
+1795494958.952 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494958.952 rbd: core stack high-water 1588 of 16384 bytes
+1795494958.952 rbd: open failed: pool not found in the OSD map (WR_E_POOL_NOT_FOUND)
+1795494958.952 Could not open SAN device: No such file or directory (https://ipxe.org/2d76603b)
+1795494958.952 WRRUN-SAN-FAILED 0x2d76603b
+1795494958.952 WRRUN-FAIL
+1795494958.994 WRRUN-END

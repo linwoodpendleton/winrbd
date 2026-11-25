@@ -1,0 +1,63 @@
+#!/bin/busybox sh
+# SPDX-License-Identifier: MIT
+#
+# init of the Linux guest of the kernel-client comparison (design 14.4): the same virtual hardware and the same layer 2 as the iPXE guests, a kernel client
+# (rbd, libceph) mapping the same image with the same throwaway user's key, and rdbench reading it. It is an initramfs only: nothing is installed, nothing is
+# written. The key arrives as the first sector of a read-only virtio disk (/dev/vda) and goes from there to sysfs without being an argument of any program.
+# Kernel command line:  wrkg.mac=52:54:00:77:12:xx  wrkg.ip=10.77.0.N  wrkg.user=NAME  wrkg.image=NAME  wrkg.mib=128  wrkg.skip=8192  wrkg.runs=3  [wrkg.mon=10.77.0.10:3300]
+/bin/busybox --install -s /bin 2>/dev/null
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null
+exec > /dev/console 2>&1 < /dev/console
+echo "WRKG-START kernel=$(uname -r)"
+arg() { for w in $(cat /proc/cmdline); do case $w in "$1="*) echo "${w#*=}"; return;; esac; done; }
+for m in $(cat /modules.list); do insmod "/lib/modules/$m" 2>&1 | sed "s/^/WRKG-MOD $m: /"; done
+mac=$(arg wrkg.mac)
+ip=$(arg wrkg.ip)
+user=$(arg wrkg.user)
+image=$(arg wrkg.image)
+mib=$(arg wrkg.mib)
+skip=$(arg wrkg.skip)
+runs=$(arg wrkg.runs)
+mon=$(arg wrkg.mon)
+: "${mon:=10.77.0.10:3300}" "${mib:=128}" "${skip:=8192}" "${runs:=3}"
+iface=""
+n=0
+while [ -z "$iface" ] && [ "$n" -lt 50 ]; do
+	for d in /sys/class/net/*; do
+		[ -r "$d/address" ] || continue
+		[ "$(cat "$d/address")" = "$mac" ] && iface=$(basename "$d")
+	done
+	[ -n "$iface" ] || { n=$((n + 1)); sleep 0.2; }
+done
+[ -n "$iface" ] || { echo "WRKG-FAIL no interface with MAC $mac"; poweroff -f; }
+ip link set lo up
+ip link set "$iface" up
+ip addr add "$ip/24" dev "$iface"
+echo "WRKG-NET $iface $ip"
+sleep 2
+n=0
+while [ ! -b /dev/vda ] && [ "$n" -lt 50 ]; do sleep 0.2; n=$((n + 1)); done
+key=$(dd if=/dev/vda bs=512 count=1 2>/dev/null | tr -d '\000\n\r ')
+[ -n "$key" ] || { echo "WRKG-FAIL no key from the key disk"; poweroff -f; }
+echo "$mon name=$user,secret=$key,ms_mode=crc winrbd $image -" > /sys/bus/rbd/add_single_major || { echo "WRKG-FAIL map refused"; dmesg | tail -n 5; poweroff -f; }
+key=""
+n=0
+while [ ! -b /dev/rbd0 ] && [ "$n" -lt 100 ]; do sleep 0.2; n=$((n + 1)); done
+[ -b /dev/rbd0 ] || { echo "WRKG-FAIL no /dev/rbd0"; dmesg | tail -n 8; poweroff -f; }
+echo "WRKG-MAPPED /dev/rbd0 size=$(cat /sys/block/rbd0/size) sectors, read_ahead_kb=$(cat /sys/block/rbd0/queue/read_ahead_kb), mon=$mon, ms_mode=crc"
+bytes=$((mib * 1048576))
+for bs in 65536 1048576 4194304; do
+	rdbench /dev/rbd0 direct "$bs" "$bytes" "$skip" "$runs"
+done
+for ra in 128 2048; do
+	echo "# buffered, readahead $ra KiB"
+	for bs in 65536 1048576 4194304; do
+		rdbench /dev/rbd0 buffered "$bs" "$bytes" "$skip" "$runs" "$ra" | sed "s/mode=ra /mode=ra${ra}k /"
+	done
+done
+echo "WRKG-END"
+poweroff -f
+sleep 30

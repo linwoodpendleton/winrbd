@@ -1,0 +1,11 @@
+1795494213.018 T+2 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795494213.383 T+0 guest started (pid 166433); fault pause on 'before booting or' #1 + 1.2 s, down 60 s
+1795494213.671 T+0 lab-clock 1795494213.714389591
+1795494225.424 T+12 trigger seen (before booting or, #1)
+1795494225.429 T+12 keys 'ret' will be pressed after 1 s
+1795494225.433 T+12 fault pause after 1.2 s
+1795494226.642 T+13 fault pause: begins (down 60 s)
+1795494227.082 T+14 keys 'ret' pressed
+1795494227.087 T+14 guest stopped (rc 0)
+1795494287.134 T+74 guest continued (rc 0)
+1795494287.139 T+74 fault pause: ends (rc 0)

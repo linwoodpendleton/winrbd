@@ -1,0 +1,17 @@
+PASS
+PASS the fault was injected and undone: begins +13.0 s, cut short at +26.0 s after the start of the guest
+NOTE the guest finished 12.9 s after the fault began, before the fault's own 20 s were up: the fault was undone at the end of the run (the lab was put back)
+PASS the fault began while the guest was still working: fault began 11.8 s before the workload's end marker
+PASS the oracle of the reader is known: final hash 08FF74C1, 63 prefixes
+PASS the SAN device was opened
+PASS every progress hash equals the oracle's prefix hash: 63 lines, 0 wrong
+PASS the reader finished (WRRB-DONE)
+PASS the whole read has the oracle's hash: 262136 sectors, hash 08FF74C1, want 262136 08FF74C1
+PASS no write landed in a buffer the loader had moved on from (canary): stale=0
+PASS no read error reached the loader: errs=0
+PASS no WRRB-STALE line
+PASS no allocation failure and no reopen loop on the console
+PASS the lab's state after equals the state before: no difference
+PASS every OSD is up and in after the row: health after: 3 osds: 3 up (since 7m), 3 in (since 12h); epoch: e86 33 pgs: 33 active+clean; 820 MiB data, 2.5 GiB used, 34 GiB / 36 GiB avail; 6.8 MiB/s rd, 27
+PASS the run script's exit status is 0: exit=0 stop=expectation
+PASS no key-shaped string in the row's files

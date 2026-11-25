@@ -1,0 +1,59 @@
+{
+ "cal_spread_pct": null,
+ "core_stack": [],
+ "done": false,
+ "errors": [],
+ "heap_grow_requests": [
+  [
+   2402,
+   0
+  ],
+  [
+   5013508,
+   8
+  ]
+ ],
+ "heap_kb": [
+  120
+ ],
+ "heap_trouble": [
+  "HEAP failed to allocate 0x4c8004 (aligned 0x1000)"
+ ],
+ "info": {},
+ "info_all": [
+  {}
+ ],
+ "lat": {},
+ "load": {
+  "guest_cpu_wait_pct": 0.038779903439816486,
+  "guest_cpu_wait_s": 0.0020878,
+  "host_load1_end": 23.69,
+  "host_load1_max": 23.75,
+  "host_load1_start": 23.75,
+  "lab_cpu_wait_pct": 0.04332323344335088,
+  "sample_seconds": 5.383716344833374
+ },
+ "loop": {
+  "fail": 1,
+  "failed": [
+   "WRLOOP-HOOK  fail 0x31716006"
+  ],
+  "hooks": 1,
+  "n": 0,
+  "ok": 0
+ },
+ "stack": [
+  [
+   1720,
+   4096
+  ],
+  [
+   1720,
+   4096
+  ]
+ ],
+ "stalls": 0,
+ "started": false,
+ "steps": {},
+ "tsc_hz": null
+}

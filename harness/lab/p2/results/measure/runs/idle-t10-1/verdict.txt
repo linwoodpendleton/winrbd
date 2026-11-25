@@ -1,0 +1,14 @@
+PASS
+ok   the bench program started (WRMS-START)
+ok   the bench program finished (WRMS-DONE)
+ok   no WRMS-ERR line (0 seen)
+ok   iPXE's heap never failed an allocation (0 lines)
+ok   the two TSC calibrations agree within 2 % (0.001 %)
+ok   a TSC calibration was printed
+ok   step 2: the data check (sumA ccbee93f / sumB 1e81ba32 against the plan's ccbee93f / 1e81ba32)
+ok   latency series 3: every read succeeded
+ok   latency series 4: every read succeeded
+ok   latency series 5: every read succeeded
+ok   latency series 6: every read succeeded
+ok   latency series 7: every read succeeded
+ok   latency series 8: every read succeeded

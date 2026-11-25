@@ -1,0 +1,2 @@
+# heap baseline: no image hooked
+bash <box>/measure/repo/harness/lab/p2/qemu/run-bios-pxe.sh --row B1 --ip 10.77.0.66 --no-key --action none --leave exit --expect marker --marker HEAP\ maximum\ usage --timeout 240 --cpus 2 --mem 1024 --bin <box>/measure/work/bin/inst/ipxe-stub.pxe --ipxe-dir <box>/measure/work/bin/inst --delivery stub

@@ -1,0 +1,23 @@
+{
+ "rbft": {
+  "edd": [],
+  "fail": null,
+  "fail_lines": [],
+  "length": null,
+  "marker": null,
+  "pass": null,
+  "result": null,
+  "skip": null,
+  "source": null,
+  "table": null
+ },
+ "stages": {
+  "end": 31.845,
+  "ipxe": 8.122,
+  "net": 11.566,
+  "san_failed": 31.804,
+  "san_start": 11.587,
+  "script": 11.485,
+  "stub": 8.265
+ }
+}

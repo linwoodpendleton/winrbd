@@ -1,0 +1,14 @@
+echo WRINFO-BEGIN
+rbd-info
+echo WRINFO-END
+echo WRU0-HELPER-HOOK
+sanhook --drive 0x81 rbd://wrtest-p2-lin-uefi@10.77.0.10:3300/winrbd/wrtest-p2-bytes?devpath=vendor || goto helper-failed
+imgfetch --name wrshell file://WRBYTES/Shell.efi || goto helper-failed
+imgargs wrshell -nostartup
+echo WRU0-SHELL-START
+imgexec wrshell
+echo WRU0-SHELL-RETURNED
+exit
+:helper-failed
+echo WRU0-HELPER-FAILED 0x${errno:hexraw}
+exit

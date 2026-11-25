@@ -1,0 +1,2 @@
+ipxe.lkrn 512403
+ipxe.efi 1424384

@@ -1,0 +1,3 @@
+[qemu] budget: 3 other VM(s) under <box> use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 40 cores / 60000 MiB
+[qemu] starting wrp2q-W1-20261124T141010Z-1744952 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 400 s)
+RESULT row=W1 run=W1-20261124T141010Z-1744952 expect=none met=0 ipxe=13 net=13 san=none@- end=- os=- stop=timeout secs=401 console=<box>/p2r/work/q/logs/W1-20261124T141010Z-1744952.console

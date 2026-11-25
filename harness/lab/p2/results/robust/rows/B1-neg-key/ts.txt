@@ -1,0 +1,24 @@
+1795494899.181 iPXE initialising devices...
+1795494899.502 [0m
+1795494899.502 
+1795494899.502 
+1795494899.502 [1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+1795494899.502 Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+1795494899.502 WRRUN-STUB
+1795494902.689 Configuring (net0 52:54:00:77:11:16)...... ok
+1795494902.689 tftp://10.0.2.2/autoexec.ipxe... ok
+1795494902.689 WRRUN-BEGIN row=B1
+1795494902.689 Waiting for link-up on net1... ok
+1795494902.689 WRRUN-NET-OK
+1795494902.689 WRRUN-SAN-START sanhook
+1795494902.689 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494902.689 rbd: core stack high-water 512 of 16384 bytes
+1795494903.010 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494903.010 rbd: core stack high-water 760 of 16384 bytes
+1795494903.010 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795494903.010 rbd: core stack high-water 1304 of 16384 bytes
+1795494923.005 rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD)
+1795494923.005 Could not open SAN device: Error 0x43766001 (https://ipxe.org/43766001)
+1795494923.005 WRRUN-SAN-FAILED 0x43766001
+1795494923.005 WRRUN-FAIL
+1795494923.005 WRRUN-END

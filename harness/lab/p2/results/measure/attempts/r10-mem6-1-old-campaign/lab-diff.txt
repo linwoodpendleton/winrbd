@@ -1,0 +1,10 @@
+--- /dev/fd/63	2026-11-24 04:27:46.570887787 -0500
++++ /dev/fd/62	2026-11-24 04:27:46.570887787 -0500
+@@ -27,6 +27,7 @@
+ image winrbd/wrtest-p2-ms-lin-uefi size=2147483648
+ image winrbd/wrtest-p2-ms-probe size=44040192
+ image winrbd/wrtest-p2-ms-read size=276824064
++image winrbd/wrtest-p2-ms-winpe-gpt size=268435456
+ image winrbd/wrtest-p2-ms-write size=138412032
+ osd osd.0 status=up reweight=1
+ osd osd.1 status=up reweight=1

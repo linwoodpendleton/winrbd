@@ -1,0 +1,6 @@
+7b4d9b96719210bf465b8d849105f61977c30af6a217855320e74f9780115e74  <box>/p2r/work/bin/media/ipxe.efi
+fb88d05e22ee83b172d7b2fce7d1bbdb05dd824d18ad60d99f23bc885ec82c2b  <box>/p2r/repo/harness/lab/p2/qemu/run-uefi-usb.sh
+9be5f162354721899002f2d4ae8417809e509fe7477f8c9f02d2acf7e3e37af3  /usr/share/OVMF/OVMF_CODE_4M.fd
+5d2ac383371b408398accee7ec27c8c09ea5b74a0de0ceea6513388b15be5d1e  /usr/share/OVMF/OVMF_VARS_4M.fd
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# image wrtest-p2-ms-winpe-gpt: id 383308311aba7 size 1073741824 features ['layering']

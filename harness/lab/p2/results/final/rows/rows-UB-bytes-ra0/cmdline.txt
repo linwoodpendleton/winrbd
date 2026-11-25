@@ -1,0 +1,4 @@
+# 2026-11-24T12:45:33Z row UB-bytes-ra0 (uefi-pxe), profile bytes
+# run from <box>/p2r/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/p2r/work/q P2_LAB_DIR=<box>/lab-p2
+bash <box>/p2r/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row UB --ip 10.77.0.31 --user wrtest-p2-bytes --pool winrbd --image wrtest-p2-bytes --key-file <box>/lab-p2/keys/client.wrtest-p2-bytes.secret --opt readahead=0 --action sanhook --append <box>/p2r/out/rows/.expect/bytes.ipxe --leave poweroff --expect marker --marker \^WRBYTES-DONE --timeout 1500

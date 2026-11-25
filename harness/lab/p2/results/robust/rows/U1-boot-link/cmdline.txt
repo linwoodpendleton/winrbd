@@ -1,0 +1,4 @@
+# 2026-11-24T04:11:13Z row U1-boot-link (uefi, boot, fault link-down), profile boot; d: the lab NIC is cut for 40 s during the kernel load
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault link-down --on before\ booting\ or --delay 1.2 --down 40 --press ret --press-delay 1 --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-lin-uefi --pool winrbd --image wrtest-p2-rb-lin-uefi --key-file <lab dir>/keys/client.wrtest-p2-rb-lin-uefi.secret --timeout 600 --action sanboot --expect os --opt devpath=vendor --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=<out>/rows/.tmp.59576/params.txt --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/key\,file=<lab dir>/keys/client.wrtest-p2-rb-lin-uefi.secret

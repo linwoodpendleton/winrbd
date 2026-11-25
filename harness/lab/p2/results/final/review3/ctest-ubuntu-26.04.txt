@@ -1,0 +1,66 @@
+ci26_vm: MemAvailable 406 GiB (>= 64): ok
+ci26_vm: guest started (pid 3398687, ssh forward 127.0.0.1:20888 on this machine, 8 cores, 8192 MiB)
+ci26_vm: up: Linux 7.0.0-43-generic 8 
+builder: guest toolchain: gcc 15.2.0, clang 21.1.8
+ci26_vm: copying <box>/builder26/stage/repo into the guest (work/harness/src)
+ci26_vm log 20261124-192143 label=harness tree=<box>/builder26/stage/repo
+guest limits: 8 cores, 8192 MiB
+== toolchain
+os      Ubuntu 26.04.1 LTS kernel 7.0.0-43-generic
+gcc     15.2.0
+clang   21.1.8
+cmake   4.2.3   ninja 1.13.2
+openssl 3.5.5   python3 3.14.4
+cores   8, build jobs 8, ctest -j 4   mem 7934 MiB   mmap_rnd_bits 28
+tree    91bc2c20524ab1a9 (17411 files)
+== matrix gcc/debug
+== matrix gcc/san
+== matrix gcc/release
+== matrix gcc/minsizerel
+== matrix clang/debug
+== matrix clang/san
+== matrix clang/release
+== matrix clang/minsizerel
+== gates gcc
+  (gcc compile-matrix: 9s)
+== gates clang
+  (clang compile-matrix: 5s)
+
+== result (11372s)
+PASS   gcc/debug                    build 59s, ctest 253 tests, 0 failed, 0 skipped, 1422s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   gcc/san                      build 34s, ctest 246 tests, 0 failed, 1 skipped, 1883s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind
+PASS   gcc/release                  build 50s, ctest 253 tests, 0 failed, 0 skipped, 964s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   gcc/minsizerel               build 34s, ctest 253 tests, 0 failed, 0 skipped, 994s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   clang/debug                  build 14s, ctest 248 tests, 0 failed, 0 skipped, 1392s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   clang/san                    build 26s, ctest 246 tests, 0 failed, 1 skipped, 2329s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind
+PASS   clang/release                build 38s, ctest 248 tests, 0 failed, 0 skipped, 917s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   clang/minsizerel             build 31s, ctest 248 tests, 0 failed, 0 skipped, 920s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+PASS   gcc/wr_core_m32              built, no libc, no globals (113 objects)
+PASS   gcc/wr_core_ipxe_flags       built, no libc, no globals (113 objects)
+PASS   gcc/wr_header_check          built
+PASS   gcc/gates-Release            11 core_ checks
+PASS   gcc/gates-MinSizeRel         11 core_ checks
+PASS   clang/wr_core_m32            built, no libc, no globals (113 objects)
+SKIP   clang/wr_core_ipxe_flags     gcc only, as in CI
+PASS   clang/wr_header_check        built
+PASS   clang/gates-Release          7 core_ checks
+PASS   clang/gates-MinSizeRel       7 core_ checks
+ALL PASSED
+full logs on the guest: <guest>/work/harness/logs (reach them with: ci26_vm.sh ssh 'ls <guest>/work/harness/logs')
+ci26_vm exit status 0
+CI26_LOG=<box>/builder26/ci26/logs/harness-20261124-192143.log
+builder: box load (1 min) over the run: avg 34.1, max 52.5, 371 samples (<box>/builder26/logs/harness-harness-20261124-192143.log.load)
+builder: toolchain gcc 15.2.0 clang 21.1.8 (CI runner: gcc 15.2, clang 21.1.8)
+builder: ci26_vm.sh run exit status 0
+BUILDER_LOG=<box>/builder26/logs/harness-harness-20261124-192143.log
+B26-EXIT 0

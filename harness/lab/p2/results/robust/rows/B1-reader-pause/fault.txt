@@ -1,0 +1,8 @@
+1795490695.029 T+1 guest started (pid 4007591); fault pause on '^WRRB-START' #1 + 1 s, down 60 s
+1795490695.475 T+1 lab-clock 1795490695.531801291
+1795490706.792 T+12 trigger seen (^WRRB-START, #1)
+1795490706.798 T+12 fault pause after 1 s
+1795490707.806 T+13 fault pause: begins (down 60 s)
+1795490707.853 T+13 guest stopped (rc 0)
+1795490767.924 T+73 guest continued (rc 0)
+1795490767.929 T+73 fault pause: ends (rc 0)

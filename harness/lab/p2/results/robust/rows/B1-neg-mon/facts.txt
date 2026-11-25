@@ -1,0 +1,13 @@
+guest_started_epoch: 1795495014.958
+stall_close_lines: 0
+trouble_lines: 0
+san_failure_line: Could not open SAN device: Network unreachable (https://ipxe.org/28766011)
+errno: ENETUNREACH 0x28766011
+driver_lines: 1
+driver_line: rbd: open failed: no monitor could be reached (WR_E_MON_UNREACHABLE)
+seconds_to_fail: 20.3
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: none seen

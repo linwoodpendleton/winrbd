@@ -1,0 +1,16 @@
+1795498445.092 T+19 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795498445.712 T+0 guest started (pid 426052); fault mon-osd on '^WRBYTES-FILE f-17m' #1 + 0 s, down 15 s
+1795498447.213 T+2 lab-clock 1795498447.235228325
+1795498479.382 T+34 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795498479.390 T+34 fault mon-osd after 0 s
+1795498479.402 T+34 fault mon-osd: begins (down 15 s)
+1795498479.408 T+34 monitor: SIGKILL sent now
+1795498482.214 T+37 monitor killed (rc 0)
+1795498483.223 T+38 osd.1: SIGKILL sent now
+1795498490.075 T+45 osd.1 killed (rc 0), with the monitor down
+1795498506.459 T+61 monitor started (rc 0)
+1795498508.455 T+63 monitor is back in quorum (poll 1)
+1795498523.026 T+78 the run ended before the fault did: undoing it now
+1795498525.304 T+80 monitor is back in quorum (poll 1)
+1795498529.499 T+84 all OSDs up and in again: 3 3 3 (poll 2)
+1795498536.209 T+91 the health checks are the ones the run started with again (poll 2)

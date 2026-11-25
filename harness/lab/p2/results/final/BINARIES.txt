@@ -1,0 +1,28 @@
+# SHA-256 of the binaries that ran (sources as of the final review; every build with iPXE's own -Werror, zero warnings, Ubuntu 26.04 builder guest, gcc 15.2)
+# build-variants.sh / build.sh, release flags:
+277fc348a78b42d63546d26f0c1bd87e29907dfeeeb2d5d3e18411c6924a89a5  rel/SHA256SUMS
+58c2ef91899ddb958b2319ab53c633502480a043f61c66f74174320c3ef60b7d  rel/ipxe-stub.pxe        (32-bit BIOS ipxe.pxe with the constant PXE stub and a serial console)
+0c7180936e91d84d0544130df95e0158433a82af27faecc94da9a6baf9033a4a  rel/ipxe.efi             (UEFI with a serial console: the login rows)
+7b4d9b96719210bf465b8d849105f61977c30af6a217855320e74f9780115e74  media/ipxe.efi
+62199112288de0f8b7ee3b03b35a2c36ffeace71a285cc4e84f1598f4c3f8450  media/ipxe.lkrn
+62bc3618aa531ac197482d8fc1cf3563de2ea214b9979f34e2735504d609d17e  inst/ipxe-stub.pxe      (stack monitor and DEBUG=malloc)
+d62a5a15d0f3ac40e661e324797a4aa3425d52c1b98e6dc09b3452461c924246  inst/ipxe.efi
+aa363935216c2e029bc3a48158e6b2589ebb278ca4fc51fe42022154cd1ae20d  ab-new/ipxe.efi         (-DRBD_STACK_MONITOR, window 64 KiB)
+4b75b77e037e4445296a4883d2b5d6a4daa89058c04db28175d8ce99875366e2  ab-old/ipxe.efi         (-DRBD_STACK_MONITOR -DRBD_CONN_RX_WINDOW_MAX=4194304)
+03deba75804c2fe6f6015055f3f731e571ff53daeb505c2ebec47abc901e939f  x64/ipxe-stub.pxe       (64-bit BIOS)
+94862d6aa53e6cf4c81ee7474b1eb0c4284a1fa200a40bf93fb2f16a71cc4416  x64inst/ipxe-stub.pxe   (64-bit BIOS, stack monitor)
+aefab7609470858778ed7ab048bcdf4a5e29fb1acb5f63b7d5bfc958d9869bfe  oldwin/ipxe-stub.pxe    (32-bit BIOS, window 4 MiB)
+9c0dc1e0793e6c1dbb5e13dae46c34530203384cf0c656827c5749cd5e1ecdd5  w128/ipxe-stub.pxe      (32-bit BIOS, window 128 KiB)
+a95f71d1e5e94fb62667e58906543ce98b9eb2dc110449e31661ce4eb07ef10d  w256/ipxe-stub.pxe      (32-bit BIOS, window 256 KiB)
+# the build gate (harness/lab/p2/builder/build-ipxe.sh; the UEFI-shell, byte-check and negative rows run its ipxe.efi, which has no serial console of its own):
+bca90bb58cddceafd45f851946d9b0c97b2aaa3d01409e734b180e28f20f3760  ipxe.efi
+24e61bd4c6032749b061aede088e551c7a387e5f8d436e5e206943d0b910274c  undionly.kpxe
+9ff53453a29432d0c9059fc8cd9e2782ff35957ef3cb708a888d04e6abba93a0  ipxe.pxe
+2955c74342c97140f3ac5c2dc1776f6c72dedd4ca73e5ac178b5e9d18288105a  ipxe.usb
+90b835443c4f02a906b4367596fa964bea935a7ef08ef7bb11be3f4ea3d40b2f  ipxe.iso
+8272296877438ae96b0c326f2f6ce47bdf70d5c829afee789b38c991a9b54355  snponly.efi
+2b20f6163f7a684472f6d773e9c94f8b19ca4aeca52651503aa2920c3e7438e0  efi-ipxe.iso
+1007ee23f15d4756c7cf9ccb0fc83248040d4046e98a23bc773f753aa0ce1200  i386-undionly.kpxe
+ea38c7acbb1a589620875d9bb356740289493f12f19e1fad6872fb606a48b849  i386-ipxe.pxe
+522e60d273761b6188996a0f44a61187c5f267fc273823837a75fd367ad412f5  i386-ipxe.usb
+1d17cc4e35b071db23f75722ea1337c24248aa7fdf127990267e23a2ac490689  i386-ipxe.iso

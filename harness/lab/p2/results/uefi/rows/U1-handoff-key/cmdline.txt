@@ -1,0 +1,4 @@
+# 2026-11-23T21:28:41Z row U1-handoff-key (uefi-pxe), profile boot
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row U1 --ip 10.77.0.31 --user wrtest-p2-lin-uefi --pool winrbd --image wrtest-p2-lin-uefi --key-file /box/lab/keys/client.wrtest-p2-lin-uefi.secret --opt devpath=vendor --opt handoff=key --action sanboot --expect marker --marker login:\ \?\$ --fail-marker WRBOOT-ROOT-\(NOT-RBD\|TABLE-FAIL\|WRONG\)\|Kernel\ panic\|WRBOOT-HOOK-POWEROFF\|error:\ failure\ reading\ sector\|Failed\ to\ boot\ both\ default\|rbd:\ .\*\(out\ of\ memory\|closing\ the\ path\) --timeout 900 --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=/box/rows/.expect/U1-handoff-key.params

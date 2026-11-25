@@ -1,0 +1,6 @@
+56df2ada761d692fd152634a92d4711fb434b15cdbac910bc8b207edf6dc40d8  <work>/ipxe/ipxe-stub.pxe
+02cb5b7e53415dfdee07ecfbe18b28e5ba714d568ad6d94bd3c14f70a441f662  <images>/bytes/bytes.manifest
+81f8bc5f8c716bf14b57c0712a9e7560db18861b1ae6d3c264f33a9ed20b45b2  <images>/reader.raw.sha256
+2a6de7c970f8ab6926c150bb868041b2e8ed31d679838cc4ad4eeb3a1e8b7cbe  <repo>/harness/lab/p2/qemu/robust.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# the image wrtest-p2-rb-bytes on the cluster: id 4256f5de4d17

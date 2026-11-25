@@ -1,0 +1,10 @@
+MUT entry-align: caught (944 failure lines)
+MUT fit-gt: caught (38 failure lines)
+MUT scan-nosum: caught (6 failure lines)
+MUT scan-nocap: NOT CAUGHT
+MUT scan-nodecode: caught (360 failure lines)
+MUT window-edge: NOT CAUGHT
+MUT warn-prefix: caught (10 failure lines)
+MUT warn-booting: NOT CAUGHT
+MUT scan-align: caught (8 failure lines)
+MUT-DONE

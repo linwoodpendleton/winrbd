@@ -1,0 +1,12 @@
+1795489011.207 T+1 guest started (pid 3880515); fault mon-osd on '^WRBYTES-FILE z-fill' #1 + 1 s, down 15 s
+1795489011.507 T+1 lab-clock 1795489011.568238204
+1795489027.127 T+17 trigger seen (^WRBYTES-FILE z-fill, #1)
+1795489027.131 T+17 fault mon-osd after 1 s
+1795489028.139 T+18 fault mon-osd: begins (down 15 s)
+1795489029.222 T+19 monitor killed (rc 0)
+1795489032.139 T+22 osd.1 killed (rc 0), with the monitor down
+1795489048.452 T+38 monitor started (rc 0)
+1795489049.720 T+39 monitor is back in quorum (poll 1)
+1795489060.488 T+50 the run ended before the fault did: undoing it now
+1795489066.057 T+56 monitor is back in quorum (poll 1)
+1795489071.438 T+61 all OSDs up and in again: 3 3 3 (poll 3)

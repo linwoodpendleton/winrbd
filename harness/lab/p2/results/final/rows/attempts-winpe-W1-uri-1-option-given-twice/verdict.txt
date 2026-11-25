@@ -1,0 +1,4 @@
+FAIL
+FAIL the run script reached its expectation (met=0, stop=guest-exited)
+FAIL the stage 'marker' was seen (None)
+ok   no kernel panic

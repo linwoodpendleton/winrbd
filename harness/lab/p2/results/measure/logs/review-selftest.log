@@ -1,0 +1,57 @@
+# tools/selftest.sh after the review's changes, on the build machine (Ubuntu 22.04, GNU as/ld, QEMU 6.2.0 software emulation); shellcheck -S warning clean on the Mac
+ok   bash -n build-variants.sh
+ok   bash -n campaign.sh
+ok   bash -n krbd.sh
+ok   bash -n mboot.sh
+ok   bash -n mguest.sh
+ok   bash -n mheapbase.sh
+ok   bash -n mheapefi.sh
+ok   bash -n mimages.sh
+ok   bash -n mkloop.sh
+ok   bash -n mrun.sh
+ok   bash -n selftest.sh
+ok   py_compile analyze.py
+ok   py_compile captan.py
+ok   py_compile mkbench.py
+ok   py_compile summarize.py
+note shellcheck is not installed: skipped
+ok   analyze.py selftest
+ok   captan.py selftest
+ok   mkbench.py builds the probe disk
+ok   the probe disk: signature, header, records and sums are as the plan says
+ok   mkbench.py builds the write plan
+ok   verify accepts a disk on which the copies were made
+ok   verify refuses a disk with one flipped bit (names the range)
+ok   verify refuses a disk on which nothing was copied
+ok   verify --strict accepts a disk on which only the copies were made
+ok   verify --strict refuses a change of code (names it)
+ok   verify --strict refuses a change of data (names it)
+ok   verify --strict refuses a change of scratch (names it)
+ok   verify --strict refuses a change of gap (names it)
+ok   verify --strict refuses a change of short (names it)
+ok   the plain verify still looks only at the destination ranges (it passes the stray-byte disk that --strict refuses)
+ok   mkbench.py refuses a plan it does not know
+ok   the bench program starts in SeaBIOS (software emulation)
+ok   the calibration step prints
+ok   127-sector reads: the data check equals the plan's sums
+ok   127-sector reads: the planned sectors in the planned number of commands (a real console against the plan's record)
+ok   the latency series has the planned reads (a real console)
+ok   a 1 MiB command SeaBIOS cannot do is an error line, not a success
+ok   the analysis says FAIL for a run with a failed step
+ok   the latency series runs to its end
+ok   mrun.sh: a bad run name
+ok   mrun.sh: an image that is not a wrtest-p2 image
+ok   mrun.sh: no plan
+ok   mrun.sh: no binary
+ok   mrun.sh: address 50 is the lab's probe guest
+ok   mrun.sh: netem with a unit
+ok   mrun.sh: no key file
+ok   mrun.sh: an unknown option
+ok   mimages.sh: an unknown plan
+ok   mimages.sh: delete needs a plan
+ok   krbd.sh: an image that is not a wrtest-p2-ms image
+ok   krbd.sh: a non-numeric size
+ok   a refused request leaves no evidence directory behind
+ok   campaign.sh: an unknown series
+ok   summarize.py selftest
+selftest: PASS

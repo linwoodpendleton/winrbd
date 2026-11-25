@@ -1,0 +1,23 @@
+guest_started_epoch: 1795526172.156
+fault_begin: +13.9 s
+fault_end: +54.4 s (lasted 40.5 s)
+fault_event: +14.4 s lab NIC link set down (rc 0)
+fault_event: +54.4 s lab NIC link set up (rc 0)
+keys_pressed: +14.4 s
+workload_start: +10.8 s
+workload_end: +63.7 s (took 52.9 s)
+stall_close_lines: 1
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: network connection could not be established (WR_E_NET_CONNECT)
+trouble_lines: 0
+root_ok_line: WRBOOT-ROOT-OK fw=bios root=/dev/rbd0p1 fstype=ext4 mapped=rbd0 table=PASS src=scan image=wrtest-p2-rb-lin-bios kernel=6.8.0-151-generic
+boot_phase_seconds: 52.9 (SAN start to the first line of the Linux initramfs: the firmware's part)
+kernel_client_seconds: 1.7 (first initramfs line to the end of the image mapping by the guest's own kernel client)
+root_ok_at: +99.3 s
+grub_menu_at: +50.4 s
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 5, osd 8
+connections_started_after_the_fault_began: +56.2 s osd:6802, +58.9 s monitor:3300, +60.4 s osd:6818, +65.1 s monitor:3300, +65.1 s osd:6818, +65.1 s osd:6802, +68.8 s monitor:3300, +68.8 s monitor:3300, +95.2 s osd:6810
+monitor_to_guest_bytes: 5241 before the fault (16 packets), 2194 while it lasted (2), 8898 after it ended (34)

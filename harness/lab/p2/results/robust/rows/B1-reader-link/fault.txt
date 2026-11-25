@@ -1,0 +1,8 @@
+1795490809.016 T+1 guest started (pid 4013704); fault link-down on '^WRRB-START' #1 + 1 s, down 40 s
+1795490809.460 T+1 lab-clock 1795490809.514245620
+1795490821.427 T+13 trigger seen (^WRRB-START, #1)
+1795490821.435 T+13 fault link-down after 1 s
+1795490822.446 T+14 fault link-down: begins (down 40 s)
+1795490822.528 T+14 lab NIC link set down (rc 0)
+1795490862.585 T+54 lab NIC link set up (rc 0)
+1795490862.591 T+54 fault link-down: ends (rc 0)

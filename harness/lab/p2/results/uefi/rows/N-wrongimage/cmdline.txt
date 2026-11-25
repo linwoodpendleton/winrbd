@@ -1,0 +1,4 @@
+# 2026-11-23T20:19:27Z row N-wrongimage (uefi-pxe), profile negative
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row N --ip 10.77.0.31 --action sanhook --expect marker --marker WRRUN-SAN-FAILED\ 0x\[0-9a-f\]+ --timeout 300 --user wrtest-p2-bytes --pool winrbd --image wrtest-p2-nosuchimage --key-file /box/lab/keys/client.wrtest-p2-bytes.secret --opt timeout=20

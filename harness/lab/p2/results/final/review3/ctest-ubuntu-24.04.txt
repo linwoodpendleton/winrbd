@@ -1,0 +1,78 @@
+ci26_vm: MemAvailable 406 GiB (>= 64): ok
+ci26_vm: guest started (pid 3398691, ssh forward 127.0.0.1:31537 on this machine, 8 cores, 8192 MiB)
+ci26_vm: up: Linux 6.8.0-147-generic 8 
+ci26_vm: copying <box>/builder26/stage/repo into the guest (work/p2rev/src)
+ci26_vm log 20261124-192137 label=p2rev tree=<box>/builder26/stage/repo
+guest limits: 8 cores, 8192 MiB
+== toolchain
+os      Ubuntu 24.04.5 LTS kernel 6.8.0-147-generic
+gcc     13.3.0
+clang   18.1.3
+cmake   3.28.3   ninja 1.11.1
+openssl 3.0.13   python3 3.12.3
+cores   8, build jobs 8, ctest -j 4   mem 7939 MiB   mmap_rnd_bits 28
+tree    91bc2c20524ab1a9 (17411 files)
+== matrix gcc/debug
+== matrix gcc/san
+== matrix gcc/release
+== matrix gcc/minsizerel
+== matrix clang/debug
+== matrix clang/san
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+  | clang: error: linker command failed with exit code 1 (use -v to see invocation)
+== matrix clang/release
+  --- failed tests:
+  | The following tests FAILED:
+  | 	252 - robust.selftest (Failed)
+  | Errors while running CTest
+  | 237/248 Test #252: robust.selftest ..................***Failed  207.01 sec
+== matrix clang/minsizerel
+== gates gcc
+  (gcc compile-matrix: 9s)
+== gates clang
+  (clang compile-matrix: 6s)
+
+== result (8525s)
+PASS   gcc/debug                    build 19s, ctest 253 tests, 0 failed, 1 skipped, 1371s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+PASS   gcc/san                      build 38s, ctest 246 tests, 0 failed, 2 skipped, 1821s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=- core_no_globals=- core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: crypto.ct.valgrind winpe.selftest
+PASS   gcc/release                  build 50s, ctest 253 tests, 0 failed, 1 skipped, 872s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+PASS   gcc/minsizerel               build 35s, ctest 253 tests, 0 failed, 1 skipped, 905s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+PASS   clang/debug                  build 17s, ctest 248 tests, 0 failed, 1 skipped, 1260s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+FAIL   clang/san                    build failed (-Werror)
+FAIL   clang/release                ctest exit 8: 1 failed of 248, 1 skipped
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+PASS   clang/minsizerel             build 37s, ctest 248 tests, 0 failed, 1 skipped, 862s
+       checks: secure.skel=Passed core.docs=Passed core_sources_in_sync=Passed core_no_libc=Passed core_no_globals=Passed core_freestanding=Passed core_freestanding_os=Passed core_freestanding_m32=Passed
+       skipped: winpe.selftest
+PASS   gcc/wr_core_m32              built, no libc, no globals (113 objects)
+PASS   gcc/wr_core_ipxe_flags       built, no libc, no globals (113 objects)
+PASS   gcc/wr_header_check          built
+PASS   gcc/gates-Release            11 core_ checks
+PASS   gcc/gates-MinSizeRel         11 core_ checks
+PASS   clang/wr_core_m32            built, no libc, no globals (113 objects)
+SKIP   clang/wr_core_ipxe_flags     gcc only, as in CI
+PASS   clang/wr_header_check        built
+PASS   clang/gates-Release          7 core_ checks
+PASS   clang/gates-MinSizeRel       7 core_ checks
+FAILED: 2
+full logs on the guest: <guest>/work/p2rev/logs (reach them with: ci26_vm.sh ssh 'ls <guest>/work/p2rev/logs')
+ci26_vm exit status 1
+CI26_LOG=<box>/ci24/logs/p2rev-20261124-192137.log
+C24-EXIT 1

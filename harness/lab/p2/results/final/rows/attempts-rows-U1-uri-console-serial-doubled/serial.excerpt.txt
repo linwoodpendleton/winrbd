@@ -1,0 +1,99 @@
+[=3h
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1425920 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:52540077111F)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(52540077111F,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:52540077111F)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(52540077111F,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iiPPXXEE  iinniittiiaalliissiinngg  ddeevviicceess......
+
+aauuttooeexxeecc..iippxxee......  ookk
+
+
+
+
+
+
+
+[1miiPPXXEE  22..00..00++[0m  ----  OOppeenn  SSoouurrccee  NNeettwwoorrkk  BBoooott  FFiirrmmwwaarree  ----  [36mhhttttppss::////iippxxee..oorrgg[0m
+
+FFeeaattuurreess::  DDNNSS  HHTTTTPP  HHTTTTPPSS  iiSSCCSSII  TTFFTTPP  VVLLAANN  SSRRPP  AAooEE  EEFFII  MMeennuu
+
+WWRRRRUUNN--BBEEGGIINN  rrooww==UU11
+
+WWaaiittiinngg  ffoorr  lliinnkk--uupp  oonn  nneett11......  ookk
+
+WWRRRRUUNN--NNEETT--OOKK
+
+WWRRRRUUNN--SSAANN--SSTTAARRTT  ssaannbboooott
+
+RReeggiisstteerreedd  SSAANN  ddeevviiccee  00xx8800
+
+BBoooottiinngg  ffrroomm  SSAANN  ddeevviiccee  00xx8800
+
+GNU GRUB  version 2.14
+
++----------------------------------------------------------------------------+||||||||||||||||||||||||+----------------------------------------------------------------------------+     Use the ^ and v keys to select which entry is highlighted.          
+      Press enter to boot the selected OS, `e' to edit the commands       
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿³³³³³³³³³³³³³³³³³³³³³³³³³³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ     Use the ^ and v keys to select which entry is highlighted.          
+      Press enter to boot the selected OS, `e' to edit the commands       
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+Loading, please wait...
+Starting systemd-udevd version 255.4-1ubuntu8.19
+Begin: Loading essential drivers ... done.
+Begin: Running /scripts/init-premount ... done.
+Begin: Mounting root file system ... Begin: Running /scripts/local-top ... 
+RBFT-HOOK start: map=1 src=auto rootpart=2 require=1
+RBFT-HOOK table found by source sysfs
+RBFT-HOOK nic: eth1 has MAC 52:54:00:77:12:9f
+RBFT-HOOK nic: eth1 address 10.77.0.31/24
+RBFT-HOOK table check (source sysfs):
+RBFT INFO source: sysfs /sys/firmware/acpi/tables/rBFT (237 bytes read)
+RBFT PASS signature: rBFT
+RBFT PASS length: 237 bytes
+[... full console on the build machine ...]
+RBFT-RESULT PASS pass=40 fail=0 skip=0
+WRBOOT-TABLE PASS
+WRBOOT-HOOK-DONE root=/dev/rbd0p2 table=PASS
+WRBOOT-NET eth0 mac=52:54:00:77:11:1f 
+WRBOOT-NET eth1 mac=52:54:00:77:12:9f 10.77.0.31/24 fe80::5054:ff:fe77:129f/64 
+WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-ms-lin-uefi kernel=6.8.0-151-generic
+winrbd-guest login: 
+[... end of the console ...]
+[  OK  ] Reached target basic.target - Basic System.
+         Starting e2scrub_reap.service - Reâ€¦ne ext4 Metadata Check Snapshots...
+         Starting getty-static.service - geâ€¦bus and logind are not available...
+         Starting systemd-user-sessions.service - Permit User Sessions...
+         Starting wrboot-marker.service - Pâ€¦inrbd boot marker on the console...
+[  OK  ] Finished systemd-user-sessions.service - Permit User Sessions.
+[  OK  ] Started getty@tty1.service - Getty on tty1.
+[  OK  ] Started getty@tty2.service - Getty on tty2.
+[  OK  ] Finished e2scrub_reap.service - Reâ€¦line ext4 Metadata Check Snapshots.
+[  OK  ] Finished getty-static.service - geâ€¦ dbus and logind are not available.
+WRBOOT-NET eth0 mac=52:54:00:77:11:1f 
+[  OK  ] Found device dev-ttyS0.device - /dev/ttyS0.
+WRBOOT-NET eth1 mac=52:54:00:77:12:9f 10.77.0.31/24 fe80::5054:ff:fe77:129f/64 
+WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-ms-lin-uefi kernel=6.8.0-151-generic
+[  OK  ] Started getty@tty3.service - Getty on tty3.
+[  OK  ] Started getty@tty4.service - Getty on tty4.
+[  OK  ] Started getty@tty5.service - Getty on tty5.
+[  OK  ] Started getty@tty6.service - Getty on tty6.
+[  OK  ] Started serial-getty@ttyS0.service - Serial Getty on ttyS0.
+[  OK  ] Reached target getty.target - Login Prompts.
+[  OK  ] Finished wrboot-marker.service - Pâ€¦ winrbd boot marker on the console.
+[  OK  ] Reached target multi-user.target - Multi-User System.
+[  OK  ] Reached target graphical.target - Graphical Interface.
+         Starting systemd-update-utmp-runleâ€¦- Record Runlevel Change in UTMP...
+[  OK  ] Finished systemd-update-utmp-runleâ€¦e - Record Runlevel Change in UTMP.
+[  OK  ] Listening on systemd-rfkill.socketâ€¦ll Switch Status /dev/rfkill Watch.
+
+Ubuntu 24.04 LTS winrbd-guest ttyS0
+
+winrbd-guest login: 

@@ -1,0 +1,12 @@
+# heap on UEFI: hook, read the ESP's boot loader, exit
+bash <box>/measure/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row U1 --ip 10.77.0.67 --user wrtest-p2-ms-lin-uefi --pool winrbd --image wrtest-p2-ms-lin-uefi --key-file <box>/lab-p2/keys/client.wrtest-p2-ms-lin-uefi.secret --ipxe-dir <box>/measure/work/bin/inst --bin <box>/measure/work/bin/inst/ipxe.efi --action sanhook --leave none --append <box>/measure/out/runs/.tmp.w06oas/append.ipxe --expect marker --marker HEAP\ maximum\ usage --timeout 300 --opt devpath=vendor
+#   echo WRMS-INFO-BEGIN
+#   rbd-info
+#   echo WRMS-INFO-END
+#   imgfetch --name wrg file://WRBESP/EFI/BOOT/BOOTX64.EFI || echo WRHEAP-READ-FAILED ${errno}
+#   imgstat
+#   imgfree wrg
+#   echo WRMS-INFO-BEGIN
+#   rbd-info
+#   echo WRMS-INFO-END
+#   exit

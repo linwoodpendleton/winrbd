@@ -1,0 +1,151 @@
+echo WRINFO-BEGIN
+rbd-info
+echo WRINFO-END
+echo WRBYTES-FILE f-0001
+imgfetch --name wrb file://WRBYTES/f-0001 || goto fail-f-0001
+md5sum wrb
+imgfree wrb
+goto next-f-0001
+:fail-f-0001
+echo WRBYTES-FAIL f-0001
+:next-f-0001
+echo WRBYTES-FILE f-0511
+imgfetch --name wrb file://WRBYTES/f-0511 || goto fail-f-0511
+md5sum wrb
+imgfree wrb
+goto next-f-0511
+:fail-f-0511
+echo WRBYTES-FAIL f-0511
+:next-f-0511
+echo WRBYTES-FILE f-0512
+imgfetch --name wrb file://WRBYTES/f-0512 || goto fail-f-0512
+md5sum wrb
+imgfree wrb
+goto next-f-0512
+:fail-f-0512
+echo WRBYTES-FAIL f-0512
+:next-f-0512
+echo WRBYTES-FILE f-0513
+imgfetch --name wrb file://WRBYTES/f-0513 || goto fail-f-0513
+md5sum wrb
+imgfree wrb
+goto next-f-0513
+:fail-f-0513
+echo WRBYTES-FAIL f-0513
+:next-f-0513
+echo WRBYTES-FILE f-4095
+imgfetch --name wrb file://WRBYTES/f-4095 || goto fail-f-4095
+md5sum wrb
+imgfree wrb
+goto next-f-4095
+:fail-f-4095
+echo WRBYTES-FAIL f-4095
+:next-f-4095
+echo WRBYTES-FILE f-4096
+imgfetch --name wrb file://WRBYTES/f-4096 || goto fail-f-4096
+md5sum wrb
+imgfree wrb
+goto next-f-4096
+:fail-f-4096
+echo WRBYTES-FAIL f-4096
+:next-f-4096
+echo WRBYTES-FILE f-4097
+imgfetch --name wrb file://WRBYTES/f-4097 || goto fail-f-4097
+md5sum wrb
+imgfree wrb
+goto next-f-4097
+:fail-f-4097
+echo WRBYTES-FAIL f-4097
+:next-f-4097
+echo WRBYTES-FILE f-65535
+imgfetch --name wrb file://WRBYTES/f-65535 || goto fail-f-65535
+md5sum wrb
+imgfree wrb
+goto next-f-65535
+:fail-f-65535
+echo WRBYTES-FAIL f-65535
+:next-f-65535
+echo WRBYTES-FILE f-65536
+imgfetch --name wrb file://WRBYTES/f-65536 || goto fail-f-65536
+md5sum wrb
+imgfree wrb
+goto next-f-65536
+:fail-f-65536
+echo WRBYTES-FAIL f-65536
+:next-f-65536
+echo WRBYTES-FILE f-65537
+imgfetch --name wrb file://WRBYTES/f-65537 || goto fail-f-65537
+md5sum wrb
+imgfree wrb
+goto next-f-65537
+:fail-f-65537
+echo WRBYTES-FAIL f-65537
+:next-f-65537
+echo WRBYTES-FILE f-1m-1
+imgfetch --name wrb file://WRBYTES/f-1m-1 || goto fail-f-1m-1
+md5sum wrb
+imgfree wrb
+goto next-f-1m-1
+:fail-f-1m-1
+echo WRBYTES-FAIL f-1m-1
+:next-f-1m-1
+echo WRBYTES-FILE f-1m
+imgfetch --name wrb file://WRBYTES/f-1m || goto fail-f-1m
+md5sum wrb
+imgfree wrb
+goto next-f-1m
+:fail-f-1m
+echo WRBYTES-FAIL f-1m
+:next-f-1m
+echo WRBYTES-FILE f-1m+1
+imgfetch --name wrb file://WRBYTES/f-1m+1 || goto fail-f-1m+1
+md5sum wrb
+imgfree wrb
+goto next-f-1m+1
+:fail-f-1m+1
+echo WRBYTES-FAIL f-1m+1
+:next-f-1m+1
+echo WRBYTES-FILE f-3m
+imgfetch --name wrb file://WRBYTES/f-3m || goto fail-f-3m
+md5sum wrb
+imgfree wrb
+goto next-f-3m
+:fail-f-3m
+echo WRBYTES-FAIL f-3m
+:next-f-3m
+echo WRBYTES-FILE f-17m
+imgfetch --name wrb file://WRBYTES/f-17m || goto fail-f-17m
+md5sum wrb
+imgfree wrb
+goto next-f-17m
+:fail-f-17m
+echo WRBYTES-FAIL f-17m
+:next-f-17m
+echo WRBYTES-FILE f-33m
+imgfetch --name wrb file://WRBYTES/f-33m || goto fail-f-33m
+md5sum wrb
+imgfree wrb
+goto next-f-33m
+:fail-f-33m
+echo WRBYTES-FAIL f-33m
+:next-f-33m
+echo WRBYTES-FILE z-fill-80m
+imgfetch --name wrb file://WRBYTES/z-fill-80m || goto fail-z-fill-80m
+md5sum wrb
+imgfree wrb
+goto next-z-fill-80m
+:fail-z-fill-80m
+echo WRBYTES-FAIL z-fill-80m
+:next-z-fill-80m
+echo WRBYTES-FILE Shell.efi
+imgfetch --name wrb file://WRBYTES/Shell.efi || goto fail-Shell.efi
+md5sum wrb
+imgfree wrb
+goto next-Shell.efi
+:fail-Shell.efi
+echo WRBYTES-FAIL Shell.efi
+:next-Shell.efi
+echo WRINFO-BEGIN
+rbd-info
+echo WRINFO-END
+echo WRBYTES-DONE

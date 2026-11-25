@@ -1,0 +1,4 @@
+# 2026-11-23T22:07:11Z row W2-vendor (uefi-usb), profile winpe
+# run from /box/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=/box/work P2_LAB_DIR=/box/lab
+bash /box/repo/harness/lab/p2/qemu/run-uefi-usb.sh --row W2 --ip 10.77.0.31 --user wrtest-p2-winpe-gpt --pool winrbd --image wrtest-p2-winpe-gpt --key-file /box/lab/keys/client.wrtest-p2-winpe-gpt.secret --opt devpath=vendor --action sanboot --expect none --stay --mem 2048 --timeout 400

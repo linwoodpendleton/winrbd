@@ -1,0 +1,2 @@
+errno=EACCES
+console=rbd: .*failed: .*\((WR_E_AUTH_[A-Z_]+|WR_E_M2_BAD_METHOD; the cluster answered -[0-9]+)\)

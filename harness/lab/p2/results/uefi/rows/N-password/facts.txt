@@ -1,0 +1,16 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (1):
+  rbd: key material must not be part of the URI (use the rbd-key setting)
+run script lines (4):
+  WRRUN-BEGIN row=N
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-FAILED 0x1c706082
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     12.5 ipxe-script       WRRUN-BEGIN row=N
+     12.5 san-start         WRRUN-SAN-START sanhook
+     12.5 san-failed        WRRUN-SAN-FAILED 0x1c706082
+     12.5 script-end        WRRUN-END
+rbd-info (0 lines):

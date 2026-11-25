@@ -1,0 +1,4 @@
+03deba75804c2fe6f6015055f3f731e571ff53daeb505c2ebec47abc901e939f  <box>/p2r/work/bin/x64/ipxe-stub.pxe
+19d7d072ee30c70c6f11d5df43b53824fc540f254606985e6fe5be8edab924b7  <box>/p2r/repo/harness/lab/p2/qemu/run-bios-pxe.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# image wrtest-p2-ms-lin-bios: id 380847647b5c0 size 2147483648 features ['layering']

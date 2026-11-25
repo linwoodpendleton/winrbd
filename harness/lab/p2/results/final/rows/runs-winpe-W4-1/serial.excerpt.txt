@@ -1,0 +1,32 @@
+iPXE initialising devices...
+
+
+
+iPXE 2.0.0+ -- Open Source Network Boot Firmware -- https://ipxe.org
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-BEGIN row=B2
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+Registered SAN device 0x80
+Booting from SAN device 0x80
+WINRBD-WINPE-OK
+[... full console on the build machine ...]
+WRRUN-BEGIN row=B2
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+WINRBD-WINPE-OK
+[... end of the console ...]
+iPXE initialising devices...
+
+
+
+iPXE 2.0.0+ -- Open Source Network Boot Firmware -- https://ipxe.org
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-BEGIN row=B2
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+Registered SAN device 0x80
+Booting from SAN device 0x80
+WINRBD-WINPE-OK

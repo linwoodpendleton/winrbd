@@ -1,0 +1,9 @@
+1795490560.900 T+0 guest started (pid 4002485); fault osd-kill on '^WRRB-START' #1 + 1 s, down 8 s
+1795490561.456 T+1 lab-clock 1795490561.514432257
+1795490572.678 T+12 trigger seen (^WRRB-START, #1)
+1795490572.683 T+12 fault osd-kill after 1 s
+1795490573.692 T+13 fault osd-kill: begins (down 8 s)
+1795490573.695 T+13 osd.1: SIGKILL sent now
+1795490576.674 T+16 osd.1 killed (rc 0)
+1795490586.194 T+26 the run ended before the fault did: undoing it now
+1795490599.673 T+39 all OSDs up and in again: 3 3 3 (poll 4)

@@ -1,0 +1,4 @@
+PASS
+ok   the run script reached its expectation (met=1, stop=expectation)
+ok   the stage 'marker' was seen (95.0)
+ok   no kernel panic

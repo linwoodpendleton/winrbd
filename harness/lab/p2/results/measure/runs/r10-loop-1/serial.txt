@@ -1,0 +1,537 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3e)...... ok
+tftp://10.0.2.2/autoexec.ipxe...[31mHEAP attempting to grow for 0x964 (aligned 0x1000+ffc), used 0kB
+[0m ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+[31mHEAP attempting to grow for 0x4c8004 (aligned 0x1000+ffc), used 8kB
+[0mrbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 760 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-probe: open, 1 device(s), 86016 blocks of 512 bytes
+rbd:   session: 45 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+WRMS-INFO-END
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 0 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 1 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 2 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 3 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 4 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 5 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 6 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 7 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 8 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 9 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 10 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 11 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 12 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 13 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 14 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 15 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 16 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 17 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 18 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 19 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 20 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 21 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 22 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 23 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 24 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 25 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 26 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 27 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 28 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 29 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 30 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 31 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 32 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 33 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 34 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 35 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 36 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 37 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 38 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 39 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 40 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 41 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 42 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 43 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 44 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 45 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 46 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 47 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 48 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 49 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 50 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 51 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 52 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 53 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 54 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 55 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 56 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 57 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 58 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 59 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 60 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 61 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 62 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 63 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 64 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 65 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 66 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 67 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 68 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 69 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 70 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 71 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 72 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 73 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 74 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 75 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 76 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 77 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 78 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 79 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 80 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 81 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 82 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 83 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 84 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 85 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 86 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 87 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 88 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 89 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 90 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 91 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 92 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 93 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 94 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 95 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 96 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 97 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 98 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 99 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 100 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 101 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 102 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 103 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 104 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 105 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 106 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 107 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 108 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 109 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 110 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 111 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 112 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 113 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 114 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 115 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 116 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 117 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 118 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 119 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 120 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 121 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 122 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 123 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 124 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 125 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 126 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 127 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 128 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 129 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 130 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 131 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 132 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 133 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 134 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 135 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 136 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 137 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 138 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 139 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 140 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 141 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 142 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 143 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 144 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 145 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 146 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 147 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 148 ok
+Unregistered SAN device 0x80
+Registered SAN device 0x80
+WRLOOP-HOOK 149 ok
+Unregistered SAN device 0x80
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+[31mHEAP attempting to grow for 0x4c8004 (aligned 0x1000+ffc), used 8kB
+[0mrbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 760 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRLOOP-HOOK 150 ok after-grace
+Unregistered SAN device 0x80
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+[31mHEAP attempting to grow for 0x4c8004 (aligned 0x1000+ffc), used 8kB
+[0mrbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 760 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRLOOP-HOOK 151 ok after-grace
+Unregistered SAN device 0x80
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+[31mHEAP attempting to grow for 0x4c8004 (aligned 0x1000+ffc), used 8kB
+[0mrbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 760 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRLOOP-HOOK 152 ok after-grace
+Unregistered SAN device 0x80
+WRLOOP-END n=153 ok=153 fail=0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-probe: open, 0 device(s), 86016 blocks of 512 bytes
+rbd:   session: 46 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+WRMS-INFO-END
+WRMS-END
+[32mHEAP maximum usage 131kB
+[0m

@@ -1,0 +1,17 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (1):
+  rbd: open failed: image not found (no id object; a format 1 image is not supported) (WR_E_RBD_NOT_FOUND)
+run script lines (6):
+  WRRUN-BEGIN row=N
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-FAILED 0x2d76608e
+  WRRUN-FAIL
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     12.0 ipxe-script       WRRUN-BEGIN row=N
+     12.0 net-ok            WRRUN-NET-OK
+     12.0 san-start         WRRUN-SAN-START sanhook
+rbd-info (0 lines):

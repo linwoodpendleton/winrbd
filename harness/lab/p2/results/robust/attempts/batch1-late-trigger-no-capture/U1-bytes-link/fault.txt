@@ -1,0 +1,8 @@
+1795489321.939 T+0 guest started (pid 3904339); fault link-down on '^WRBYTES-FILE z-fill' #1 + 1.5 s, down 40 s
+1795489322.245 T+1 lab-clock 1795489322.306363797
+1795489338.208 T+17 trigger seen (^WRBYTES-FILE z-fill, #1)
+1795489338.212 T+17 fault link-down after 1.5 s
+1795489339.721 T+18 fault link-down: begins (down 40 s)
+1795489339.766 T+18 lab NIC link set down (rc 0)
+1795489379.815 T+58 lab NIC link set up (rc 0)
+1795489379.819 T+58 fault link-down: ends (rc 0)

@@ -1,0 +1,13 @@
+RESULT row=W4 run=W4-20261123T210704Z-2270875 expect=none met=0 ipxe=2 net=5 san=none@- end=- os=- stop=guest-exited secs=150 console=$P2B_WORK/work/logs/W4-20261123T210704Z-2270875.console
+run_script_exit 1
+lab_health_before HEALTH_WARN 3 3 3 
+lab_health_after  HEALTH_WARN 3 3 3 
+S1 (the SAN opened): 1 start line(s), 0 failed line(s), 1 'Booting from SAN device' line(s)
+evidence:
+  {}
+  rBFT at 0x9e120 length=248 flags=0x6 mode=1 mons=1 key=present (16 bytes) user=wrtest-p2-winpe-mbr image=winrbd/wrtest-p2-winpe-mbr
+  {}
+  rBFT at 0x9e120 length=248 flags=0x6 mode=1 mons=1 key=present (16 bytes) user=wrtest-p2-winpe-mbr image=winrbd/wrtest-p2-winpe-mbr
+  {}
+  probe: WinPE shell recognised
+screenshots: 7 (S2 to S4 are read from these by a person; see the README of the results)

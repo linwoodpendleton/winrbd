@@ -1,0 +1,31 @@
+guest_started_epoch: 1795498866.123
+fault_begin: +13.5 s
+fault_end: +73.6 s (lasted 60.1 s)
+fault_event: +13.6 s guest stopped (rc 0)
+fault_event: +73.6 s guest continued (rc 0)
+workload_start: +12.4 s
+workload_end: +87.7 s (took 75.3 s)
+stall_close_lines: 0
+trouble_lines: 0
+rbd_info_pumps: 14842
+rbd_info_cancels: 0
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 589
+rbd_info_ops_resent: 2
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 3
+rbd_info_ra_reads: 2690
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=13; ops_failed=0; ops_resent=0; pumps=259; ra_reads=19; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 2, osd 6
+connections_started_after_the_fault_began: +74.1 s monitor:3300, +75.7 s osd:6802, +75.7 s osd:6818, +75.8 s osd:6810
+monitor_to_guest_bytes: 4937 before the fault (15 packets), 0 while it lasted (19), 1337 after it ended (15)

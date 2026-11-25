@@ -1,0 +1,6 @@
+MUT warn-booting-compiles: caught by the tests (6 failure lines)
+MUT warn-drives-compiles: caught by the tests (6 failure lines)
+MUT warn-null-driver: build broke:   [DEPS] hci/wireless_errors.c
+MUT scan-kind3: caught by the tests (6 failure lines)
+MUT scan-kind-r: caught by the tests (6 failure lines)
+MUT3-DONE

@@ -109,6 +109,12 @@ harness/.ceph-ref/
 !/harness/vectors/public/keys/*.keyring
 !/harness/vectors/public/gt5/out/
 
+# The Phase 2 evidence is committed on purpose: the serial consoles of the QEMU rows are named serial.log (the verdicts were made from
+# them) and the build records sit in directories called build/. Every other rule above still applies to these directories; the
+# only files in them that match a rule are the logs and the build records (checked with git status --ignored).
+!/harness/lab/p2/results/**/*.log
+!/harness/lab/p2/results/**/build/
+
 # Python bytecode
 __pycache__/
 *.pyc

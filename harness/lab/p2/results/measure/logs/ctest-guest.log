@@ -1,0 +1,48 @@
+=== gcc Debug 
+Test project <guest-home>/work/measure/build-gcc-Debug
+    Start 258: measure.selftest
+1/1 Test #258: measure.selftest .................   Passed    5.20 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+checks     =   5.20 sec*proc (1 test)
+measure    =   5.20 sec*proc (1 test)
+
+Total Test time (real) =   5.21 sec
+=== gcc Release 
+Test project <guest-home>/work/measure/build-gcc-Release
+    Start 258: measure.selftest
+1/1 Test #258: measure.selftest .................   Passed    4.81 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+checks     =   4.81 sec*proc (1 test)
+measure    =   4.81 sec*proc (1 test)
+
+Total Test time (real) =   4.82 sec
+=== clang Debug -DWR_SANITIZE=address,undefined
+Test project <guest-home>/work/measure/build-clang-Debug-san
+    Start 251: measure.selftest
+1/1 Test #251: measure.selftest .................   Passed    5.02 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+checks     =   5.02 sec*proc (1 test)
+measure    =   5.02 sec*proc (1 test)
+
+Total Test time (real) =   5.03 sec
+=== clang Release 
+Test project <guest-home>/work/measure/build-clang-Release
+    Start 253: measure.selftest
+1/1 Test #253: measure.selftest .................   Passed    4.67 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+checks     =   4.67 sec*proc (1 test)
+measure    =   4.67 sec*proc (1 test)
+
+Total Test time (real) =   4.68 sec

@@ -1,0 +1,2 @@
+[qemu] budget: 3 other VM(s) under <box> use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 40 cores / 60000 MiB
+[qemu] starting wrp2q-U1-20261124T124219Z-1544539 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)

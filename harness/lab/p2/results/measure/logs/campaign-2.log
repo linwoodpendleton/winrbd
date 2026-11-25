@@ -1,0 +1,6 @@
+Connection timed out during banner exchange
+Connection to 127.0.0.1 port 22232 timed out
+labstate.sh: the snapshot failed
+campaign: 07:35:47 row inst-1 returned 2
+mrun.sh: inst-2: PASS  (RESULT row=B1 run=B1-20261124T073611Z-656038 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=159 console=<box>/measure/work/q/logs/B1-20261124T073)
+mrun.sh: inst-3: PASS  (RESULT row=B1 run=B1-20261124T073925Z-669182 expect=marker met=1 ipxe=9 net=12 san=ok@13 end=- os=- stop=expectation secs=169 console=<box>/measure/work/q/logs/B1-20261124T073)

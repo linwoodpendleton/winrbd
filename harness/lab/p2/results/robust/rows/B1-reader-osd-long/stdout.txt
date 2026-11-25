@@ -1,0 +1,4 @@
+[qemu] budget: 3 other VM(s) under <box dir> use 20 cores / 32768 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-B1-20261124T032345Z-4004916 (bios, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 420 s)
+Terminated
+RESULT row=B1 run=B1-20261124T032345Z-4004916 expect=marker met=1 ipxe=7 net=11 san=ok@11 end=25 os=- stop=expectation secs=41 console=<work>/logs/B1-20261124T032345Z-4004916.console

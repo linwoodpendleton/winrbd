@@ -1,0 +1,14 @@
+PASS
+INFO run: stop=expectation secs=77 ipxe=17 net=18 san=none@- os=71
+PASS run met its expectation: RESULT met=1 (expectation)
+PASS script used sanboot: yes
+PASS table: RBFT-RESULT PASS: RBFT-RESULT PASS pass=40 fail=0 skip=0
+PASS table: no FAIL line: 0 FAIL, 40 PASS
+PASS table: no SKIP line (every field has an expectation): 0 SKIP
+PASS table: fields checked: 40 distinct fields PASS
+PASS table: RBFT-RESULT counts agree with the lines: pass=40 fail=0 skip=0
+PASS no driver or GRUB trouble on the way to the login prompt: none
+PASS marker WRBOOT-ROOT-OK: WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-lin-uefi kernel=6.8.0-151-generic
+PASS root is on /dev/rbd<N>p<P>: root=/dev/rbd0p2
+PASS marker says table=PASS: yes
+PASS login prompt: seen

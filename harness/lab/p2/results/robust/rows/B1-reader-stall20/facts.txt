@@ -1,0 +1,37 @@
+guest_started_epoch: 1795490906.218
+fault_begin: +23.4 s
+fault_end: +46.5 s (lasted 23.1 s)
+fault_event: +23.4 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +24.2 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +44.6 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +46.5 s all OSDs up and in again: 3 3 3 (poll 1)
+workload_start: +22.4 s
+workload_end: +56.5 s (took 34.1 s)
+stall_close_lines: 0
+trouble_lines: 0
+san_failure_line: Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+rbd_info_pumps: 44988
+rbd_info_cancels: 1
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 592
+rbd_info_ops_resent: 1
+rbd_info_ops_failed: 0
+rbd_info_session_resets: 2
+rbd_info_ra_reads: 4884
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(3, 3); devices=1; ops_done=4; ops_failed=0; ops_resent=0; pumps=44; ra_reads=2; reopens=0; session_resets=0; stall_closes=0; state=open
+reader_errs: 0
+reader_stale: 0
+reader_maxticks: 379 ticks (20.8 s) at lba 37882
+reader_rtc_largest_step_seconds: 21
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.06 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 6
+connections_started_after_the_fault_began: +28.7 s osd:6810, +38.9 s osd:6810
+monitor_to_guest_bytes: 4982 before the fault (18 packets), 88 while it lasted (5), 44 after it ended (2)

@@ -1,0 +1,24 @@
+FAIL
+INFO run: stop=guest-exited secs=23 ipxe=- net=- san=none@- os=-
+PASS list of the image's files: 18 files
+FAIL file f-0001: iPXE printed no digest
+FAIL file f-0511: iPXE printed no digest
+FAIL file f-0512: iPXE printed no digest
+FAIL file f-0513: iPXE printed no digest
+FAIL file f-4095: iPXE printed no digest
+FAIL file f-4096: iPXE printed no digest
+FAIL file f-4097: iPXE printed no digest
+FAIL file f-65535: iPXE printed no digest
+FAIL file f-65536: iPXE printed no digest
+FAIL file f-65537: iPXE printed no digest
+FAIL file f-1m-1: iPXE printed no digest
+FAIL file f-1m: iPXE printed no digest
+FAIL file f-1m+1: iPXE printed no digest
+FAIL file f-3m: iPXE printed no digest
+FAIL file f-17m: iPXE printed no digest
+FAIL file f-33m: iPXE printed no digest
+FAIL file z-fill-80m: iPXE printed no digest
+FAIL file Shell.efi: iPXE printed no digest
+PASS the disk holds no file that is not in the list: oracle and list name the same files
+FAIL every file: iPXE digest == build list == rbd export: 0 of 18 files match
+FAIL script finished: no WRBYTES-DONE

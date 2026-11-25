@@ -36,12 +36,30 @@
 # and which would otherwise hide behind the single worst chain of the whole core. An entry that is not in the graph (a rename)
 # is a tool error, so a budget cannot silently stop applying.
 #
-#   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 17] [--stack 3328] [--keep DIR]
-#                                                              [--link CALLER=CALLEE]... [--chains] [--entry NAME[=BYTES]]...
+# An --entry has to be a function the core DEFINES. A name that is only called from the core (a function the host provides, a typo
+# that still matches a call target) has no frame size in the graph, would measure 0 bytes and pass any budget for ever: it is a tool
+# error, like a name that is not in the graph at all.
+#
+# --glue DIR (repeatable) is the completeness side of the budgets: every function of the core that a C file or header under DIR calls (a name
+# of the core that is followed by an opening parenthesis in the code, comments and string literals left out) must be one of the
+# --entry names, or the run fails and lists the ones without a budget. Without it a glue file that starts calling a new core function
+# is never measured, and the table of budgets quietly stops being "every entry point the glue calls".
+#
+# --cflag FLAG (repeatable) adds a compiler flag after the defaults, so a later -O level or -m32 wins. It is how the numbers of the
+# hosts that matter for the glue are measured: iPXE builds with -Os, and its BIOS images are 32-bit (i386), where pointers, size_t and
+# the frames are smaller than on x86_64 (the worst static chain of the core: 2,632 bytes with -m32 -Os, 2,944 with -Os on x86_64, against
+# the 3,000-odd of the default -O2 on x86_64). harness/tests/ci-docs-hardening/callgraph_ipxe.sh is the wrapper that fixes those flags and
+# carries the budgets of the glue-facing entry points; CI runs it for both. --core DIR measures another copy of the core (the self-test
+# of the gates feeds it a copy with a deepened chain).
+#
+#   python3 harness/tests/ci-docs-hardening/check_callgraph.py [--cc gcc] [--depth 17] [--stack 3328] [--keep DIR] [--core DIR]
+#                                                              [--cflag FLAG]... [--link CALLER=CALLEE]... [--chains]
+#                                                              [--entry NAME[=BYTES]]... [--glue DIR]...
 #
 # Run by the `static-limits` job of .github/workflows/harness.yml. Exit 0 = within the limits, 1 = not, 2 = tool error.
 import argparse
 import collections
+import concurrent.futures
 import glob
 import os
 import re
@@ -54,28 +72,35 @@ REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 CORE = os.path.join(REPO, "core")
 
 
-def compile_all(cc, outdir):
-    with open(os.path.join(CORE, "sources.txt")) as f:
+def compile_all(cc, outdir, core, cflags):
+    with open(os.path.join(core, "sources.txt")) as f:
         sources = [l.strip() for l in f if l.strip()]
-    incs = ["-I" + os.path.join(CORE, "include"), "-I" + os.path.join(CORE, "include", "winrbd")]
-    srcdir = os.path.join(CORE, "src")
+    incs = ["-I" + os.path.join(core, "include"), "-I" + os.path.join(core, "include", "winrbd")]
+    srcdir = os.path.join(core, "src")
     incs += ["-I" + os.path.join(srcdir, d) for d in sorted(os.listdir(srcdir)) if os.path.isdir(os.path.join(srcdir, d))]
-    for rel in sources:
+    # one gcc per file, a few at a time (the call graph is read afterwards in a fixed order, so the result does not depend on it)
+    def one(rel):
         base = os.path.basename(rel)
-        cmd = [cc, "-std=c99", "-O2", "-fno-stack-protector", "-fcallgraph-info=su", "-c",
-               "-o", os.path.join(outdir, base + ".o")] + incs + [os.path.join(CORE, rel)]
+        cmd = [cc, "-std=c99", "-O2", "-fno-stack-protector"] + cflags + ["-fcallgraph-info=su", "-c",
+               "-o", os.path.join(outdir, base + ".o")] + incs + [os.path.join(core, rel)]
         r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-        if r.returncode != 0:
-            sys.stderr.write("check_callgraph: compiling %s failed:\n%s\n" % (rel, r.stdout))
-            sys.exit(2)
+        return rel, r.returncode, r.stdout
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, min(8, os.cpu_count() or 1))) as pool:
+        for rel, rc, out in pool.map(one, sources):
+            if rc != 0:
+                sys.stderr.write("check_callgraph: compiling %s failed:\n%s\n" % (rel, out))
+                sys.exit(2)
     return len(sources)
 
 
 def read_graph(outdir):
-    """Edges, frame sizes and the functions whose frame gcc cannot bound (a VLA or alloca: '(dynamic)' without ',bounded')."""
+    """Edges, frame sizes, the functions whose frame gcc cannot bound (a VLA or alloca: '(dynamic)' without ',bounded') and the set of
+    functions that have a frame size in some file, that is, the ones the core defines (the others are only call targets)."""
     edges = collections.defaultdict(set)
     size = {}
     unbounded = []
+    defined = set()
     for f in sorted(glob.glob(os.path.join(outdir, "*.ci"))):
         text = open(f).read()
         for m in re.finditer(r'node: \{ title: "([^"]+)" label: "([^"]*)"', text):
@@ -86,12 +111,13 @@ def read_graph(outdir):
             if s is None:
                 size.setdefault(m.group(1), 0)
                 continue
+            defined.add(m.group(1))
             size[m.group(1)] = max(size.get(m.group(1), 0), int(s.group(1)))
             if s.group(2) not in (None, "static", "dynamic,bounded"):
                 unbounded.append(m.group(1))
         for m in re.finditer(r'edge: \{ sourcename: "([^"]+)" targetname: "([^"]+)"', text):
             edges[m.group(1)].add(m.group(2))
-    return edges, size, unbounded
+    return edges, size, unbounded, defined
 
 
 def analyse(edges, size):
@@ -153,15 +179,47 @@ def chain(n, depth, edges):
     return out
 
 
+_COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
+
+
+def glue_calls(dirs, public):
+    """The public functions of the core (names in PUBLIC) that the C files below DIRS call, as name followed by '('. Comments and string
+    and character literals are blanked first, so a function that is only mentioned in text does not count. None on a tool error."""
+    called = set()
+    seen = 0
+    for d in dirs:
+        if not os.path.isdir(d):
+            sys.stderr.write("check_callgraph: --glue %s is not a directory\n" % d)
+            return None
+        for root, _, names in os.walk(d):
+            for n in sorted(names):
+                if not n.endswith((".c", ".h")):
+                    continue
+                seen += 1
+                text = _COMMENT.sub(" ", open(os.path.join(root, n), errors="replace").read())
+                for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\(", text):
+                    if m.group(1) in public:
+                        called.add(m.group(1))
+    if seen == 0:
+        sys.stderr.write("check_callgraph: --glue %s holds no .c or .h file (a path that moved would otherwise pass for ever)\n" % ", ".join(dirs))
+        return None
+    return called
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cc", default=os.environ.get("CC", "gcc"))
     ap.add_argument("--depth", type=int, default=17, help="largest allowed call chain, in frames")
     ap.add_argument("--stack", type=int, default=3328, help="largest allowed static stack along a chain, in bytes")
     ap.add_argument("--keep", help="keep the object and .ci files in this directory")
+    ap.add_argument("--core", default=CORE, help="the core/ directory to measure (default: the one of this repository)")
+    ap.add_argument("--cflag", action="append", default=[], metavar="FLAG",
+                    help="an extra compiler flag, after the defaults (-m32, -Os ...); repeatable; use --cflag=-m32 for a flag with a dash")
     ap.add_argument("--link", action="append", default=[], metavar="CALLER=CALLEE",
                     help="add the edge of a call through a function pointer (resolved like an entry name)")
     ap.add_argument("--chains", action="store_true", help="also print the largest-stack chain of every --entry")
+    ap.add_argument("--glue", action="append", default=[], metavar="DIR",
+                    help="a directory of host glue sources (.c, .h): every core function they call must be an --entry (repeatable)")
     ap.add_argument("--entry", action="append", default=[], metavar="NAME[=BYTES]",
                     help="report one entry point; with =BYTES also fail when its static stack is above that")
     a = ap.parse_args()
@@ -173,8 +231,12 @@ def main():
         outdir = tmp.name
     else:
         os.makedirs(outdir, exist_ok=True)
-    n = compile_all(a.cc, outdir)
-    edges, size, unbounded = read_graph(outdir)
+    core = os.path.abspath(a.core)
+    if not os.path.isfile(os.path.join(core, "sources.txt")):
+        sys.stderr.write("check_callgraph: %s has no sources.txt\n" % core)
+        return 2
+    n = compile_all(a.cc, outdir, core, a.cflag)
+    edges, size, unbounded, defined = read_graph(outdir)
     if not size:
         sys.stderr.write("check_callgraph: no call graph information found (gcc 10 or newer is needed)\n")
         return 2
@@ -194,7 +256,7 @@ def main():
         return 1
     top_d = max(depth, key=lambda k: depth[k])
     top_s = max(stack, key=lambda k: stack[k])
-    print("check_callgraph: %d files, %d functions" % (n, len(size)))
+    print("check_callgraph: %d files, %d functions%s" % (n, len(size), (" (extra flags: " + " ".join(a.cflag) + ")") if a.cflag else ""))
     names = [x.replace(REPO + os.sep, "") for x in chain(top_d, depth, edges)]
     print("  deepest chain: %d frames (limit %d): %s" % (depth[top_d], a.depth, " > ".join(names)))
     print("  largest stack: %d bytes (limit %d) from %s" % (stack[top_s], a.stack, top_s.replace(REPO + os.sep, "")))
@@ -213,6 +275,10 @@ def main():
             sys.stderr.write("check_callgraph: entry point '%s' is not in the call graph (renamed, removed, or a static name "
                              "that exists in more than one file)\n" % name)
             return 2
+        if node not in defined:
+            sys.stderr.write("check_callgraph: entry point '%s' is only called in the core, never defined there (a function the host "
+                             "provides?): it has no frame size to measure\n" % name)
+            return 2
         if budget and not budget.isdigit():
             sys.stderr.write("check_callgraph: the budget of '%s' is not a number: '%s'\n" % (name, budget))
             return 2
@@ -226,6 +292,17 @@ def main():
         if a.chains:
             print("      " + " > ".join("%s(%d)" % (f.replace(REPO + os.sep, "").split(":")[-1], sz)
                                          for f, sz in stack_chain(node, stack, size, edges)))
+    if a.glue:
+        called = glue_calls(a.glue, {k for k in defined if ":" not in k})
+        if called is None:
+            return 2
+        listed = {spec.partition("=")[0] for spec in a.entry}
+        missing = sorted(called - listed)
+        print("  glue: %d core functions called from %s, %d without an --entry" % (len(called), ", ".join(a.glue), len(missing)))
+        if missing:
+            print("check_callgraph: the glue calls core functions that have no stack budget: %s (measure each with --entry NAME "
+                  "and add it to the table of callgraph_ipxe.sh)" % ", ".join(missing))
+            bad = 1
     if depth[top_d] > a.depth:
         print("check_callgraph: call depth %d is above the limit %d" % (depth[top_d], a.depth))
         bad = 1

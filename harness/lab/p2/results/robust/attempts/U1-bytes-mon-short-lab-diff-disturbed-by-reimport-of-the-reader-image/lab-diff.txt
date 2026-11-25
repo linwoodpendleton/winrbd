@@ -1,0 +1,10 @@
+--- /dev/fd/63	2026-11-23 22:08:58.032099042 -0500
++++ /dev/fd/62	2026-11-23 22:08:58.028098917 -0500
+@@ -23,7 +23,6 @@
+ image winrbd/wrtest-p2-rb-bytes size=201326592
+ image winrbd/wrtest-p2-rb-lin-bios size=2147483648
+ image winrbd/wrtest-p2-rb-lin-uefi size=2147483648
+-image winrbd/wrtest-p2-rb-reader size=134217728
+ osd osd.0 status=up reweight=1
+ osd osd.1 status=up reweight=1
+ osd osd.2 status=up reweight=1

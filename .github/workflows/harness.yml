@@ -16,9 +16,16 @@
 #                    encode, the reply decode, and the reply path through the msgr2 upper-layer table) and of part D (secure
 #                    mode: the receive step, the transmit frame, the GCM update chain and their neighbours) also have a budget of
 #                    their own
+#   ipxe-gates       the gates that keep the core buildable by iPXE, with the pinned iPXE tree checked out (every other job runs without it, so
+#                    there the header gates skip): the core compiled against iPXE's own reduced <stdint.h> and <string.h> with iPXE's flags
+#                    and the shim ipxe/src/rbd_core_cfg.h (i386 and x86_64) and the undefined symbols of those objects checked against what iPXE
+#                    defines out of line (a call to memmove() would not link), every file with -std=gnu17 and -std=gnu2x (iPXE sets
+#                    no -std; gcc 15 defaults to C23), ipxe/tools/build.sh check, the call-depth and stack budgets of the glue-facing entry
+#                    points with -Os and -m32 -Os (the flags of the BIOS images; every core function the glue calls must have a budget), and
+#                    the self-test that feeds each gate a seeded violation. A skip is a failure here (WRT_IPXE_REQUIRE=1)
 #   fuzz-smoke       clang + libFuzzer, 30 s per target, seeded from harness/fuzz/seeds (the checkout is not modified); a
 #                    target that was not built, or has no committed seeds, fails the job (the five targets of part B, the
-#                    seven of part C and the five of part D are named)
+#                    seven of part C, the five of part D and the two of Phase 2 are named)
 #
 # Two runner images. ubuntu-24.04 (gcc 13.3, clang 18.1) is the one the call-graph job and the measured numbers of the docs are pinned to,
 # so they stay comparable from run to run. ubuntu-26.04 (gcc 15.2, clang 21.1.8, the image core.yml reaches as ubuntu-latest) is where the
@@ -298,6 +305,60 @@ jobs:
           --entry wri_m2_rx_step=1120
           --entry wri_m2c_send=1416
 
+  # The core as iPXE builds it. No other job has third_party/ipxe checked out; this one has, and WRT_IPXE_REQUIRE=1 turns a gate that
+  # could not run (no tree, no -m32) into a red job instead of a skip. Both images: gcc 13 judges as 24.04's iPXE build would, gcc 15 (C23 by
+  # default) as 26.04's. The same gates also run inside ctest (core_std_c, core_ipxe_headers_*, core_callgraph_*, ipxe.check, gates.selftest), where the
+  # header ones skip without the submodule.
+  ipxe-gates:
+    name: iPXE build gates (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      WRT_IPXE_REQUIRE: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Only the iPXE submodule; full history, because the pinned revision is not a branch tip (the same as ipxe.yml).
+      - name: Fetch the pinned iPXE
+        run: git submodule update --init third_party/ipxe
+
+      # gcc-multilib: -m32 (the BIOS images are i386; the call graph of the 32-bit build includes the system headers). clang: the -std check.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential gcc-multilib clang python3
+
+      - name: ipxe/tools/build.sh check
+        run: bash ipxe/tools/build.sh check
+
+      # iPXE's <stdint.h> has no uintptr_t and no limit macros, its memmove is inline only: the shim (ipxe/src/rbd_core_cfg.h) supplies them,
+      # and a core file that uses another macro, or a shim that loses one, is a red job here before it is a red iPXE build. i386 and x86_64,
+      # iPXE's own flags and -Werror, no -std (so the compiler's default).
+      - name: The core against iPXE's headers
+        run: sh harness/tools/check_ipxe_headers.sh -c gcc
+
+      # iPXE sets no -std: gcc 15 gives it C23, where bool, true, false, nullptr and constexpr are keywords. Strict C99 (the harness) cannot see that.
+      - name: The core as gnu17 and gnu2x
+        run: |
+          sh harness/tools/check_core_std.sh -c gcc
+          sh harness/tools/check_core_std.sh -c clang
+          sh harness/tools/check_core_std.sh -c gcc -m "-m32"
+
+      # The budgets of the entry points the glue calls (wr_client_run, wr_conn_*, wr_image_*, the handoff, URL and readahead modules), measured
+      # as iPXE builds: -Os, and -m32 -Os for the BIOS images. The numbers and how they were set are in the script. `static-limits` above is the
+      # -O2 x86_64 measurement of the same core and is unchanged.
+      - name: Call depth and stack as iPXE builds it
+        run: sh harness/tests/ci-docs-hardening/callgraph_ipxe.sh --cc gcc both
+
+      # Each gate above must fail on a seeded violation (a deepened chain, a core file using INT16_MAX, a shim without uintptr_t, a variable
+      # called true); a gate that cannot fail proves nothing.
+      - name: The gates reject seeded violations
+        run: python3 -I harness/tests/ci-docs-hardening/gates_selftest.py --cc gcc
+
   fuzz-smoke:
     name: fuzz smoke (${{ matrix.os }}, clang, 30 s per target)
     runs-on: ${{ matrix.os }}
@@ -361,6 +422,15 @@ jobs:
             [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
           done
           [ -n "$(ls harness/fuzz/seeds/fuzz_cx_reply/sec_* 2>/dev/null)" ] || { echo "::error::fuzz_cx_reply lost its secret-carrying seeds"; exit 1; }
+
+      # The same for the two Phase 2 targets (the rBFT handoff table codec, the rbd:// URL parser).
+      - name: The Phase 2 targets exist and have seeds
+        run: |
+          set -eu
+          for t in fuzz_handoff fuzz_rburl; do
+            [ -x "build/fuzz/$t" ] || { echo "::error::$t was not built"; exit 1; }
+            [ -n "$(ls harness/fuzz/seeds/$t 2>/dev/null)" ] || { echo "::error::$t has no committed seeds"; exit 1; }
+          done
 
       # The whole set: every target that was built, except the smoke target of the harness itself, has committed seeds, and the number of
       # targets is the number of fuzz_*.c files of harness/fuzz (a target that stops being built, or a new one nobody seeded, is a red job).

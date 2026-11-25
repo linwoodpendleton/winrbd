@@ -1,0 +1,4 @@
+[qemu] budget: 2 other VM(s) under <box> use 12 cores / 20480 MiB; adding 2 cores / 1024 MiB; limit 24 cores / 32768 MiB
+[qemu] starting wrp2q-B1-20261124T071229Z-626084 (bios, pxe, 2 cores, 1024 MiB, nice 19 choom 600, up to 600 s)
+[qemu] warning: <box>/measure/work/q/runs/B1-20261124T071229Z-626084 holds files this script did not make; left alone
+RESULT row=B1 run=B1-20261124T071229Z-626084 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=307 console=<box>/measure/work/q/logs/B1-20261124T071229Z-626084.console

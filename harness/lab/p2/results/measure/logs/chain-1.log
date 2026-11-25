@@ -1,0 +1,18 @@
+chain: 07:42:38 campaign.sh redo
+mrun.sh: inst-4: PASS  (RESULT row=B1 run=B1-20261124T074256Z-681603 expect=marker met=1 ipxe=8 net=12 san=ok@13 end=- os=- stop=expectation secs=175 console=<box>/measure/work/q/logs/B1-20261124T074)
+mrun.sh: rd-def-4: PASS  (RESULT row=B1 run=B1-20261124T074622Z-693511 expect=marker met=1 ipxe=8 net=11 san=ok@11 end=220 os=- stop=expectation secs=220 console=<box>/measure/work/q/logs/B1-20261124T0)
+chain: 07:50:37 campaign.sh heap 3
+campaign: 07:50:48 heap baseline 1
+mheapbase.sh: heap-base-1: PASS (HEAP maximum usage 128kB)
+mrun.sh: heap-probe-1: PASS  (RESULT row=B1 run=B1-20261124T075137Z-708442 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=22 console=<box>/measure/work/q/logs/B1-20261124T0751)
+campaign: 07:53:10 heap baseline 2
+mheapbase.sh: heap-base-2: PASS (HEAP maximum usage 103kB)
+mrun.sh: heap-probe-2: PASS  (RESULT row=B1 run=B1-20261124T075344Z-711536 expect=marker met=1 ipxe=8 net=12 san=ok@13 end=- os=- stop=expectation secs=19 console=<box>/measure/work/q/logs/B1-20261124T0753)
+campaign: 07:54:19 heap baseline 3
+mheapbase.sh: heap-base-3: PASS (HEAP maximum usage 103kB)
+mrun.sh: heap-probe-3: PASS  (RESULT row=B1 run=B1-20261124T075450Z-714042 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=- os=- stop=expectation secs=18 console=<box>/measure/work/q/logs/B1-20261124T0754)
+chain: 07:55:23 campaign.sh write 3
+mrun.sh: wr-d0-1: PASS  (RESULT row=B1 run=B1-20261124T075551Z-715959 expect=marker met=1 ipxe=8 net=12 san=ok@13 end=49 os=- stop=expectation secs=49 console=<box>/measure/work/q/logs/B1-20261124T075)
+mrun.sh: wr-d0-2: PASS  (RESULT row=B1 run=B1-20261124T075720Z-719468 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=48 os=- stop=expectation secs=48 console=<box>/measure/work/q/logs/B1-20261124T075)
+mrun.sh: wr-d0-3: PASS  (RESULT row=B1 run=B1-20261124T075849Z-723091 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=49 os=- stop=expectation secs=50 console=<box>/measure/work/q/logs/B1-20261124T075)
+chain: 07:59:55 done

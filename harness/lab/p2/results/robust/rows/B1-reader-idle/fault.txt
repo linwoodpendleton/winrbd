@@ -1,0 +1,10 @@
+1795491415.872 T+5 lab: ms_connection_idle_timeout set to 20 s for the monitor and the OSDs
+1795491416.295 T+1 guest started (pid 4070633); fault pause on '^WRRB-START' #1 + 1 s, down 60 s
+1795491417.327 T+2 lab-clock 1795491417.371454478
+1795491428.568 T+13 trigger seen (^WRRB-START, #1)
+1795491428.577 T+13 fault pause after 1 s
+1795491429.591 T+14 fault pause: begins (down 60 s)
+1795491429.703 T+14 guest stopped (rc 0)
+1795491489.831 T+74 guest continued (rc 0)
+1795491489.847 T+74 fault pause: ends (rc 0)
+1795491515.391 T+100 lab: ms_connection_idle_timeout removed again

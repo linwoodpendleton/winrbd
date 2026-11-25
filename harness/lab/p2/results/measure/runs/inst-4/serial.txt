@@ -1,0 +1,81 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3e)...... ok
+tftp://10.0.2.2/autoexec.ipxe...[31mHEAP attempting to grow for 0x6bb (aligned 0x1000+ffc), used 0kB
+[0m ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+[31mHEAP attempting to grow for 0x4c8004 (aligned 0x1000+ffc), used 8kB
+[0mrbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 788 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-read: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 45 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+rbd: stack high-water 2692 of 4096 bytes (1404 left)
+rbd: core stack high-water 1696 of 16384 bytes
+WRMS-START drive=80 steps=11
+WRMS-CAL id=1 tsc0=0000000631ab51e9 tsc1=00000008bfd9fa48 ticks=91
+WRMS-STEP id=2 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=0000000fbad53243 wrn=0 wrtsc=0000000000000000 walltsc=0000000fbad8c133 ticks=560 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-LAT id=3 gap=0 cmd=127 n=8
+WRMS-LATR id=3 k=0 lba=4112 tsc=00000000017915da ah=00
+WRMS-LATR id=3 k=1 lba=53264 tsc=0000000001c18bbc ah=00
+WRMS-LATR id=3 k=2 lba=102416 tsc=0000000001c6bf9b ah=00
+WRMS-LATR id=3 k=3 lba=151568 tsc=0000000000ffc2ec ah=00
+WRMS-LATR id=3 k=4 lba=200720 tsc=00000000011460c6 ah=00
+WRMS-LATR id=3 k=5 lba=249872 tsc=0000000000ffa832 ah=00
+WRMS-LATR id=3 k=6 lba=299024 tsc=0000000001835678 ah=00
+WRMS-LATR id=3 k=7 lba=348176 tsc=00000000013d4c8e ah=00
+WRMS-STEP id=4 type=R cmd=127 sectors=262144 errs=0 rdn=2065 rdtsc=00000005f8b825c7 wrn=0 wrtsc=0000000000000000 walltsc=00000005f8caec59 ticks=212 sumA=04776fa4 sumB=04776fa4 lastcnt=16
+WRMS-STEP id=5 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=00000010f2204aba wrn=0 wrtsc=0000000000000000 walltsc=00000010f22434ac ticks=603 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-STEP id=6 type=R cmd=8192 sectors=262144 errs=0 rdn=32 rdtsc=00000007ce9e7c65 wrn=0 wrtsc=0000000000000000 walltsc=00000007ce9f5e7f ticks=278 sumA=6fffd7c3 sumB=87a12a4f lastcnt=8192
+WRMS-STEP id=7 type=R cmd=127 sectors=262144 errs=0 rdn=2065 rdtsc=0000000659544d86 wrn=0 wrtsc=0000000000000000 walltsc=00000006596d15b0 ticks=226 sumA=04776fa4 sumB=04776fa4 lastcnt=16
+WRMS-STEP id=8 type=R cmd=2048 sectors=262144 errs=0 rdn=128 rdtsc=0000000ff9366d9b wrn=0 wrtsc=0000000000000000 walltsc=0000000ff93d2419 ticks=569 sumA=1291e5e6 sumB=87a12a4f lastcnt=2048
+WRMS-STEP id=9 type=R cmd=8192 sectors=262144 errs=0 rdn=32 rdtsc=00000007e5195102 wrn=0 wrtsc=0000000000000000 walltsc=00000007e51a20e4 ticks=281 sumA=6fffd7c3 sumB=87a12a4f lastcnt=8192
+WRMS-LAT id=10 gap=0 cmd=127 n=8
+WRMS-LATR id=10 k=0 lba=4112 tsc=00000000019b5de0 ah=00
+WRMS-LATR id=10 k=1 lba=53264 tsc=0000000002869c36 ah=00
+WRMS-LATR id=10 k=2 lba=102416 tsc=0000000001bd6529 ah=00
+WRMS-LATR id=10 k=3 lba=151568 tsc=00000000014b290f ah=00
+WRMS-LATR id=10 k=4 lba=200720 tsc=00000000016eca68 ah=00
+WRMS-LATR id=10 k=5 lba=249872 tsc=000000000161a8ca ah=00
+WRMS-LATR id=10 k=6 lba=299024 tsc=0000000001f0c056 ah=00
+WRMS-LATR id=10 k=7 lba=348176 tsc=0000000004248250 ah=00
+WRMS-CAL id=11 tsc0=000000559ba8b9d9 tsc1=0000005829d49602 ticks=91
+WRMS-DONE errs=0
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-read: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 292803 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 4 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+rbd:   osd: 3360 ops done, 0 resent, 0 failed; in flight 5 (most 9), requests 5 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 7115 reads: 4478 hits, 2517 waits, 120 misses; 7 windows, 2981 prefetches (2976 landed, 0 failed, 0 dropped), 3 lines valid
+rbd: stack high-water 2772 of 4096 bytes (1324 left)
+WRMS-INFO-END
+WRMS-END
+[32mHEAP maximum usage 301kB
+[0mWRMS-START drive=80 steps=11

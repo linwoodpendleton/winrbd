@@ -1,0 +1,2 @@
+RESULT row=U0 run=U0-20261124T123219Z-1525390 expect=shell met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=38 console=<box>/p2r/work/q/logs/U0-20261124T123219Z-1525390.console
+exit=0 wall=40s retries=0

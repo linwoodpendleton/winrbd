@@ -1,0 +1,5 @@
+PASS
+INFO run: stop=expectation secs=18 ipxe=10 net=11 san=none@- os=-
+PASS run met its expectation: RESULT met=1 (expectation)
+PASS script used sanboot: yes
+PASS GRUB read everything: no GRUB read error

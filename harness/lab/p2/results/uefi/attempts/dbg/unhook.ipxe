@@ -1,0 +1,3 @@
+echo WRTEST-UNHOOK
+sanunhook
+echo WRTEST-UNHOOKED

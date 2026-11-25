@@ -16,7 +16,11 @@
  *      except core/crush_ln/, the one LGPL-2.1 directory: it must hold exactly the four files the boundary allows
  *      and every one of them must say LGPL-2.1-only (the Ceph table header through its .license sidecar);
  *   6. the CI workflow keeps its promises: warnings stay errors, the sanitizer, 32-bit, iPXE-flag, header and fuzz
- *      jobs are there, and nothing in it lets a failure pass (continue-on-error).
+ *      jobs are there, and nothing in it lets a failure pass (continue-on-error);
+ *   7. the gates that keep the core buildable by iPXE (Phase 2) are registered in harness/CMakeLists.txt, named in
+ *      both READMEs and run by the CI job `ipxe-gates` with a skip counted as a failure; every directory of core/src
+ *      has its row in core/README.md; and the number of glue-facing entry points that harness/README.md quotes is the
+ *      number of rows in the budget table of callgraph_ipxe.sh.
  *
  * The test reads the source tree through WRT_VECTOR_DIR (<repo>/harness/vectors); without a source tree around it
  * (an installed copy of the harness only) it skips.
@@ -440,6 +444,9 @@ static void check_spdx(void)
 	static const char *const dirs[] = {
 		"core/src/auth", "core/src/client", "core/src/crush", "core/src/crypto", "core/src/denc", "core/src/mon",
 		"core/src/msgr2", "core/src/osd", "core/src/osdmap", "core/src/rbd", "core/src/util", "core/include/winrbd", "core/tools", "harness", "harness/cmake",
+		/* Phase 2: the three new core modules, the scripts around the iPXE driver and the lab scripts of the live matrix */
+		"core/src/handoff", "core/src/ra", "core/src/rburl", "harness/tools", "harness/lab", "harness/lab/p2/builder", "harness/lab/p2/cluster",
+		"harness/lab/p2/images", "harness/lab/p2/qemu", "harness/lab/p2/winpe", "harness/vectors/handoff", "ipxe/tools",
 		"harness/test", "harness/test/support", "harness/fuzz", "harness/host", "harness/host/tools",
 		"harness/tests/ci-docs-hardening", "harness/oracle", ".github/workflows",
 	};
@@ -533,6 +540,132 @@ static void check_workflow(void)
 	free(doc);
 }
 
+/* ---- 7. the gates for the iPXE build -------------------------------------------------------------- */
+
+static void need(const char *file, const char *doc, const char *what)
+{
+	if (strstr(doc, what) == NULL)
+		fprintf(stderr, "%s has no '%s'\n", file, what);
+	WRT_CHECK(strstr(doc, what) != NULL);
+}
+
+/* the rows of the budget table in callgraph_ipxe.sh: "wr_name  <i386>  <x86_64>" between "table='" and the closing quote */
+static unsigned count_budget_rows(const char *script)
+{
+	const char *p = strstr(script, "\ntable='");
+	unsigned rows = 0;
+
+	if (p == NULL)
+		return 0;
+	p += 8;
+	while (*p != '\0' && *p != '\'') {
+		const char *eol = strchr(p, '\n');
+		size_t len = eol != NULL ? (size_t)(eol - p) : strlen(p);
+		unsigned a, b;
+		char name[64];
+
+		if (len > 0u && len < 100u) {
+			char line[128];
+
+			memcpy(line, p, len);
+			line[len] = '\0';
+			if (sscanf(line, "%63s %u %u", name, &a, &b) == 3 && strncmp(name, "wr_", 3) == 0)
+				rows++;
+		}
+		if (eol == NULL)
+			break;
+		p = eol + 1;
+	}
+	return rows;
+}
+
+static void check_gates(void)
+{
+	static const char *const gates[] = {"ipxe.check", "core_std_c", "core_ipxe_headers_i386", "core_ipxe_headers_x86_64",
+					    "core_callgraph_i386", "core_callgraph_x86_64", "gates.selftest"};
+	static const char *const cmake_names[] = {"NAME ipxe.check", "NAME core_std_c", "NAME core_ipxe_headers_${_a}",
+						  "NAME core_callgraph_${_a}", "NAME gates.selftest"};
+	static const char *const scripts[] = {"check_ipxe_headers.sh", "check_core_std.sh", "callgraph_ipxe.sh", "gates_selftest.py"};
+	char *cmake = slurp("harness/CMakeLists.txt", NULL);
+	char *hr = slurp("harness/README.md", NULL);
+	char *cr = slurp("core/README.md", NULL);
+	char *wf = slurp(".github/workflows/harness.yml", NULL);
+	char *cg = slurp("harness/tests/ci-docs-hardening/callgraph_ipxe.sh", NULL);
+	const char *job;
+	unsigned i, rows;
+	char want[128], modtok[300];
+	char path[1536];
+	DIR *d;
+	struct dirent *e;
+
+	WRT_CHECK(cmake != NULL && hr != NULL && cr != NULL && wf != NULL && cg != NULL);
+	if (cmake == NULL || hr == NULL || cr == NULL || wf == NULL || cg == NULL)
+		goto out;
+	for (i = 0; i < sizeof(cmake_names) / sizeof(cmake_names[0]); i++)
+		need("harness/CMakeLists.txt", cmake, cmake_names[i]);
+	for (i = 0; i < sizeof(gates) / sizeof(gates[0]); i++) {
+		need("harness/README.md", hr, gates[i]);
+		need("core/README.md", cr, gates[i]);
+	}
+	for (i = 0; i < sizeof(scripts) / sizeof(scripts[0]); i++)
+		need("harness/README.md", hr, scripts[i]);
+	/* the CI job that makes a skipped gate a failure, and the things it runs: dropping any of them would leave the gates unrun in CI */
+	job = strstr(wf, "\n  ipxe-gates:");
+	WRT_CHECK(job != NULL);
+	if (job != NULL) {
+		const char *end = strstr(job + 1, "\n  fuzz-smoke:");
+
+		if (end == NULL)
+			end = job + strlen(job);
+		{
+			char *body = malloc((size_t)(end - job) + 1u);
+
+			WRT_CHECK(body != NULL);
+			if (body != NULL) {
+				memcpy(body, job, (size_t)(end - job));
+				body[end - job] = '\0';
+				need("the ipxe-gates job of harness.yml", body, "WRT_IPXE_REQUIRE: 1");
+				need("the ipxe-gates job of harness.yml", body, "git submodule update --init third_party/ipxe");
+				need("the ipxe-gates job of harness.yml", body, "gcc-multilib");
+				need("the ipxe-gates job of harness.yml", body, "ubuntu-26.04"); /* gcc 15, C23 by default: where the std check bites */
+				need("the ipxe-gates job of harness.yml", body, "ipxe/tools/build.sh check");
+				for (i = 0; i < sizeof(scripts) / sizeof(scripts[0]); i++)
+					need("the ipxe-gates job of harness.yml", body, scripts[i]);
+				free(body);
+			}
+		}
+	}
+	/* "the N glue-facing entry points": the number in the README is the number of rows of the table */
+	rows = count_budget_rows(cg);
+	WRT_CHECK(rows >= 40u);
+	snprintf(want, sizeof(want), "the %u glue-facing entry points", rows);
+	need("harness/README.md", hr, want);
+	/* every module directory of the core has its row in the module map */
+	path_of(path, sizeof(path), "core/src");
+	d = opendir(path);
+	WRT_CHECK(d != NULL);
+	if (d != NULL) {
+		while ((e = readdir(d)) != NULL) {
+			char rel[512];
+
+			if (e->d_name[0] == '.')
+				continue;
+			snprintf(rel, sizeof(rel), "core/src/%s", e->d_name);
+			if (!is_dir(rel))
+				continue;
+			snprintf(modtok, sizeof(modtok), "`src/%s/`", e->d_name);
+			need("core/README.md", cr, modtok);
+		}
+		closedir(d);
+	}
+out:
+	free(cmake);
+	free(hr);
+	free(cr);
+	free(wf);
+	free(cg);
+}
+
 int main(void)
 {
 	char probe[1536];
@@ -550,5 +683,6 @@ int main(void)
 	check_spdx();
 	check_crush_ln();
 	check_workflow();
+	check_gates();
 	return wrt_finish();
 }

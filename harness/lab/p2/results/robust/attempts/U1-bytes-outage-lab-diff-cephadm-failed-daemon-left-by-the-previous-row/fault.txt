@@ -1,0 +1,9 @@
+1795491552.895 T+0 guest started (pid 4101028); fault outage on '^WRBYTES-FILE f-17m' #1 + 0.5 s, down 420 s
+1795491553.227 T+1 lab-clock 1795491553.278391235
+1795491586.677 T+34 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795491586.684 T+34 fault outage after 0.5 s
+1795491587.196 T+35 fault outage: begins (down 420 s)
+1795491587.203 T+35 all ceph-osd processes: SIGSTOP sent now
+1795491588.439 T+36 all ceph-osd processes stopped (SIGSTOP) (rc 0)
+1795491925.199 T+373 the run ended before the fault did: undoing it now
+1795491927.514 T+375 all OSDs up and in again: 3 3 3 (poll 1)

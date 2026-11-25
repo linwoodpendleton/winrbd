@@ -1,0 +1,45 @@
+guest_started_epoch: 1795491946.840
+fault_begin: +12.4 s
+fault_end: +435.4 s (lasted 423.0 s)
+fault_event: +12.4 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +12.8 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +434.0 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +435.4 s all OSDs up and in again: 3 3 3 (poll 1)
+workload_start: +11.3 s
+workload_end: +448.7 s (took 437.4 s)
+stall_close_lines: 13
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+trouble_lines: 0
+san_failure_line: Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+rbd_info_pumps: 49237
+rbd_info_cancels: 28
+rbd_info_reopens: 0
+rbd_info_stall_closes: 13
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 618
+rbd_info_ops_resent: 1
+rbd_info_ops_failed: 0
+rbd_info_session_resets: 47
+rbd_info_ra_reads: 4917
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(3, 3); devices=1; ops_done=4; ops_failed=0; ops_resent=0; pumps=43; ra_reads=2; reopens=0; session_resets=0; stall_closes=0; state=open
+reader_errs: 2
+reader_stale: 0
+reader_maxticks: 1717 ticks (94.3 s) at lba 45556
+reader_err_line: WRRB-ERR ah=04 lba=45556 try=1
+reader_err_line: WRRB-ERR ah=04 lba=45556 try=2
+reader_rtc_largest_step_seconds: 423
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.05 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 2, osd 51
+connections_started_after_the_fault_began: +16.7 s osd:6810, +26.8 s osd:6810, +39.0 s osd:6810, +47.9 s osd:6802, +55.1 s osd:6810, +60.1 s osd:6802, +73.3 s osd:6810, +76.2 s osd:6802, +91.4 s osd:6810, +94.4 s osd:6802, +109.5 s osd:6810, +112.5 s osd:6802, +127.6 s osd:6810, +130.6 s osd:6802, +145.8 s osd:6810, +148.7 s osd:6802
+monitor_to_guest_bytes: 5006 before the fault (14 packets), 1848 while it lasted (42), 1337 after it ended (16)

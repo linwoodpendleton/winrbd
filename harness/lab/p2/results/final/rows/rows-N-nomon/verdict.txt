@@ -1,0 +1,9 @@
+PASS
+INFO run: stop=expectation secs=46 ipxe=12 net=12 san=failed@27 os=-
+PASS console line /rbd: .*failed: .*\(WR_E_(MON_UNREACHABLE|TIMEOUT|NET_CONNECT)\)/: seen
+PASS the row says what it expects: errno and console line given
+PASS the SAN open failed: WRRUN-SAN-FAILED 0x28766090
+PASS no SAN device was made: no WRRUN-SAN-OK
+INFO errno: 0x28766090 = ENETUNREACH
+PASS errno is ETIMEDOUT/ENETUNREACH: ENETUNREACH
+PASS nothing booted: yes

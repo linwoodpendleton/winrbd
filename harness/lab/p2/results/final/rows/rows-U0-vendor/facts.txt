@@ -1,0 +1,31 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (5):
+  rbd: image winrbd/wrtest-p2-ms-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+  rbd:   session: 224 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 3 (most 3), arena 263392 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+  rbd:   osd: 19 ops done, 0 resent, 0 failed; in flight 1 (most 8), requests 1 (most 8); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: 24 reads: 8 hits, 5 waits, 11 misses; 1 windows, 7 prefetches (6 landed, 0 failed, 0 dropped), 6 lines valid
+run script lines (4):
+  WRRUN-BEGIN row=U0
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-OK
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     10.6 ipxe-script       WRRUN-BEGIN row=U0
+     10.6 net-ok            WRRUN-NET-OK
+     10.6 san-start         WRRUN-SAN-START sanhook
+     11.6 san-ok            WRRUN-SAN-OK
+     12.6 uefi-shell        [25;01H[1m[33m[40mShell> [0m[37m[40m
+  # host: load average at start 27.72, at end 27.02
+  # guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 4 s)
+  # lab VM (cluster) threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 12 s)
+rbd-info (7 lines):
+  WRINFO-BEGIN
+  rbd: image winrbd/wrtest-p2-ms-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+  rbd:   session: 224 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 3 (most 3), arena 263392 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+  rbd:   osd: 19 ops done, 0 resent, 0 failed; in flight 1 (most 8), requests 1 (most 8); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: 24 reads: 8 hits, 5 waits, 11 misses; 1 windows, 7 prefetches (6 landed, 0 failed, 0 dropped), 6 lines valid
+  WRINFO-END

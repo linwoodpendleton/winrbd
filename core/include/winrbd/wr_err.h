@@ -16,6 +16,7 @@
  *    180 .. 199   object placement
  *    200 .. 219   OSD client (sessions, operations)
  *    220 .. 239   RBD image (open, I/O)
+ *    240 .. 259   handoff table codec (the rBFT table of the iPXE driver)
  *
  * Adding a code = appending one line to the right block of WR_STATUS_LIST. The text is
  * English, static, and never formatted: hosts that want another language key off the code.
@@ -134,7 +135,16 @@
 	X(WR_E_RBD_PROTO, 229, "an RBD reply does not decode")                                    \
 	X(WR_E_RBD_ORDER, 230, "image object size out of range")                                  \
 	X(WR_E_RBD_READONLY, 231, "image was opened read-only")                                   \
-	X(WR_E_RBD_CLOSED, 232, "image is closed or failed")
+	X(WR_E_RBD_CLOSED, 232, "image is closed or failed")                                      \
+	/* handoff table (docs/design/handoff-table.md) */                                        \
+	X(WR_E_HO_SIGNATURE, 240, "not a handoff table (ACPI signature or body magic does not match)") \
+	X(WR_E_HO_VERSION, 241, "handoff table version not supported")                            \
+	X(WR_E_HO_LENGTH, 242, "handoff table length fields are inconsistent")                    \
+	X(WR_E_HO_CHECKSUM, 243, "handoff table checksum mismatch")                               \
+	X(WR_E_HO_OFFSET, 244, "handoff table offset out of range, or string not terminated")     \
+	X(WR_E_HO_FIELD, 245, "handoff table field not allowed (value, count, flag combination or key mismatch)") \
+	X(WR_E_HO_TOO_BIG, 246, "handoff table larger than the 1024-byte design maximum (refused, never truncated)") \
+	X(WR_E_HO_LAYOUT, 247, "handoff table variable area is not in the canonical order (gap, overlap or trailing bytes)")
 
 enum {
 #define WR_X_ENUM(name, code, text) name = -(code),

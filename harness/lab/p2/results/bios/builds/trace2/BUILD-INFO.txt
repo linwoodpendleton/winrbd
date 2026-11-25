@@ -1,0 +1,6 @@
+ipxe_pinned_revision 9261ebe38af0c0b38ac332adeec125a518845013
+source_tree_digest   e644f582d8eebb6f  (sha256 over ipxe/ and core/ of the tree that was built, and ipxe/PINNED)
+builder              15.2.0 Ubuntu 26.04.1 LTS (iPXE's own -Werror; warning lines in the build log: 0)
+make_args            EXTRA_CFLAGS=-DCONSOLE_SERIAL -DCONSOLE_DEBUGCON=0xf -DRBD_STACK_MONITOR DEBUG=rbd_block:2,rbd_session
+embedded_script      constant stub (gen-script.sh --stub), no key
+targets              bin/undionly.kpxe bin/ipxe.pxe bin/ipxe.usb bin/ipxe.iso bin/ipxe.lkrn

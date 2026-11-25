@@ -1,0 +1,3 @@
+PASS
+ok   iPXE printed its heap maximum (85 kB)
+ok   no allocation failure line

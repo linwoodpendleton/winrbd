@@ -1,0 +1,4 @@
+# 2026-11-24T04:00:59Z row U1-boot-mon-osd (uefi, boot, fault mon-osd), profile boot; a+b: no monitor, then no OSD, during the kernel load
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault mon-osd --on before\ booting\ or --delay 1.2 --down 15 --press ret --press-delay 1 --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-lin-uefi --pool winrbd --image wrtest-p2-rb-lin-uefi --key-file <lab dir>/keys/client.wrtest-p2-rb-lin-uefi.secret --timeout 600 --action sanboot --expect os --opt devpath=vendor --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/params\,file=<out>/rows/.tmp.24076/params.txt --qemu-arg -fw_cfg --qemu-arg name=opt/winrbd/key\,file=<lab dir>/keys/client.wrtest-p2-rb-lin-uefi.secret

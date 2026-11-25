@@ -1,0 +1,19 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (1):
+  rbd: cannot build the EFI device path (devpath option, names or URI not usable)
+run script lines (6):
+  WRRUN-BEGIN row=U0
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-FAILED 0x2c222087
+  WRRUN-FAIL
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     13.5 ipxe-script       WRRUN-BEGIN row=U0
+     13.5 net-ok            WRRUN-NET-OK
+     13.5 san-start         WRRUN-SAN-START sanhook
+     14.0 san-failed        WRRUN-SAN-FAILED 0x2c222087
+     14.0 script-end        WRRUN-END
+rbd-info (0 lines):

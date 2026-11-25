@@ -1,0 +1,4 @@
+62199112288de0f8b7ee3b03b35a2c36ffeace71a285cc4e84f1598f4c3f8450  <box>/p2r/work/bin/media/ipxe.lkrn
+95fbde6c9fea1f1cebe406d2d7c339df2f2d6953a01b14d5fde9dc22ed65e3e9  <box>/p2r/repo/harness/lab/p2/qemu/run-bios-usb.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# image wrtest-p2-ms-winpe-mbr: id 38364beaa92ba size 1073741824 features ['layering']

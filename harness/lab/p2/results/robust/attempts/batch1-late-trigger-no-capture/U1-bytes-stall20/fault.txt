@@ -1,0 +1,10 @@
+1795489412.649 T+0 guest started (pid 3915622); fault stall on '^WRBYTES-FILE z-fill' #1 + 1.5 s, down 20 s
+1795489412.945 T+0 lab-clock 1795489413.005740711
+1795489429.791 T+17 trigger seen (^WRBYTES-FILE z-fill, #1)
+1795489429.797 T+17 fault stall after 1.5 s
+1795489431.306 T+19 fault stall: begins (down 20 s)
+1795489431.310 T+19 all ceph-osd processes: SIGSTOP sent now
+1795489432.091 T+20 all ceph-osd processes stopped (SIGSTOP) (rc 0)
+1795489452.786 T+40 all ceph-osd processes continued (SIGCONT) (rc 0)
+1795489453.843 T+41 all OSDs up and in again: 3 3 3 (poll 1)
+1795489453.849 T+41 fault stall: ends (rc 0)

@@ -1,0 +1,4 @@
+# 2026-11-24T02:56:38Z row U1-bytes-mon-osd (uefi, bytes, fault mon-osd), profile bytes; a+b: the monitor is killed, then osd.1: with no monitor nobody can mark the OSD down or publish a map; the monitor is back after 15 s, the OSD 10 s later
+# run from <repo>; the cephx key is only ever a --key-file path
+P2Q_WORK=<work> P2_LAB_DIR=<lab dir>
+bash <repo>/harness/lab/p2/qemu/robust.sh --family uefi --fault mon-osd --on \^WRBYTES-FILE\ z-fill --delay 1 --down 15 --capture --bin <work>/ipxe/ipxe.efi --row U1 --ip 10.77.0.21 --user wrtest-p2-rb-bytes --pool winrbd --image wrtest-p2-rb-bytes --key-file <lab dir>/keys/client.wrtest-p2-rb-bytes.secret --timeout 420 --action sanhook --leave none --append <out>/rows/.tmp.3880268/append.ipxe --expect marker --marker \^WRRUN-END

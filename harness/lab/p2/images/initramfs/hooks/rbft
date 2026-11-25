@@ -1,0 +1,31 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+#
+# initramfs-tools hook: puts what scripts/local-top/rbft needs into the initramfs - the table checker, ip, and the kernel modules of
+# the kernel client, of the NICs a QEMU guest has, of the disks it boots from and of the crypto the client asks for.
+# A module that the running kernel does not have is skipped (build-*.sh checks the list of REQUIRED ones in the finished image).
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "${1:-}" in
+prereqs) prereqs; exit 0 ;;
+esac
+
+# shellcheck disable=SC1091
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /usr/local/sbin/rbft-check /usr/local/sbin/rbft-check
+
+# ip: the real one of iproute2 (the busybox applet of initramfs-tools lacks vlan and route options)
+for _ip in /usr/sbin/ip /sbin/ip /bin/ip; do
+	if [ -x "$_ip" ]; then copy_exec "$_ip" /usr/sbin/ip; break; fi
+done
+
+# "required|optional MODULE" per line in /etc/initramfs-tools/rbft-modules (a copy of initramfs/modules, written by build-*.sh); '#' starts
+# a comment. The kind only matters to build-*.sh, which checks the finished image; here every module is added when the kernel has it.
+if [ -r /etc/initramfs-tools/rbft-modules ]; then
+	while read -r _kind _m _rest; do
+		case $_kind in '' | '#'*) continue ;; esac
+		[ -n "$_m" ] && manual_add_modules "$_m"
+	done < /etc/initramfs-tools/rbft-modules
+fi

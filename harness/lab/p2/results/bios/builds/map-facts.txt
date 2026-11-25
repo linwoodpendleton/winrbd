@@ -1,0 +1,25 @@
+== x86_64 (b-rel/src/bin/undionly.kpxe.tmp)
+b-rel/src/bin/undionly.kpxe.tmp: ELF 64-bit LSB executable, x86-64
+ .stack         0xffffffffeb463660     0x2000 bin/blib.a(stack.o)
+                0xffffffffeb463660                _stack
+                0xffffffffeb463660                _stack
+                0xffffffffeb465660                _estack
+0000000000001a40 l     O .bss.data16	0000000000000800 xbftab
+ .stack16       0x00000000000025e8     0x1000 bin/blib.a(stack16.o)
+                0x00000000000025e8                _stack16
+== i386 (b32-rel/src/bin-i386-pcbios/undionly.kpxe.tmp)
+b32-rel/src/bin-i386-pcbios/undionly.kpxe.tmp: ELF 32-bit LSB executable, Intel i386
+ .stack         0x0045a140     0x1000 bin-i386-pcbios/blib.a(stack.o)
+                0x0045a140                _stack
+                0x0045a140                _stack
+                0x0045b140                _estack
+00001a40 l     O .bss.data16	00000800 xbftab
+ .stack16       0x000025c0     0x1000 bin-i386-pcbios/blib.a(stack16.o)
+                0x000025c0                _stack16
+out/build-rel.log            lines   3569  warning lines 0  error lines 0  last: rm bin/undionly.kpxe.bin bin/ipxe.hd.zinfo bin/ipxe.hd.bin b
+out/build-sm.log             lines   3569  warning lines 0  error lines 0  last: rm bin/undionly.kpxe.bin bin/ipxe.hd.zinfo bin/ipxe.hd.bin b
+out/build-trace3.log         lines   3569  warning lines 0  error lines 0  last: rm bin/undionly.kpxe.bin bin/ipxe.hd.zinfo bin/ipxe.hd.bin b
+out/build32-rel.log          lines   3575  warning lines 0  error lines 0  last: rm bin-i386-pcbios/version.ipxe.lkrn.o bin-i386-pcbios/ipxe.
+out/build32-sm.log           lines   3575  warning lines 0  error lines 0  last: rm bin-i386-pcbios/version.ipxe.lkrn.o bin-i386-pcbios/ipxe.
+out/build32-trace3.log       lines   3575  warning lines 0  error lines 0  last: rm bin-i386-pcbios/version.ipxe.lkrn.o bin-i386-pcbios/ipxe.
+out/build-fix.log            lines   3562  warning lines 0  error lines 0  last: rm bin/undionly.kpxe.bin bin/ipxe.hd.zinfo bin/ipxe.hd.bin b

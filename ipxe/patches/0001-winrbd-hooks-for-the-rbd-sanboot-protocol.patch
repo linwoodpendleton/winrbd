@@ -1,0 +1,66 @@
+Subject: [PATCH 1/4] winrbd: hooks for the rbd:// SAN protocol
+
+Adds the build and configuration hooks of the winrbd "rbd" SAN protocol to a
+clean iPXE tree (pinned revision: ipxe/PINNED). Nothing else of iPXE changes.
+
+ - src/Makefile: the source directory winrbd/ (ipxe/tools/build.sh fills it with the
+   glue files of ipxe/src and the portable core, which is imported unchanged
+   apart from licence tags).
+ - src/config/general.h: the SANBOOT_PROTO_RBD option, next to the other SAN
+   protocols; comment it out to build iPXE without the protocol.
+ - src/config/config.c: drags the rbd_uri object (and, through its
+   references, the rest of the driver) into the build when the option is set.
+ - src/include/ipxe/errfile.h: error file identifiers of the glue files (iPXE
+   derives the file part of an error code from ERRFILE_<object>).
+
+Licence: GPL2_OR_LATER_OR_UBDL, like the files it touches.
+
+---
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -83,6 +83,7 @@
+ SRCDIRS		+= drivers/net/sfc
+ SRCDIRS		+= drivers/net/marvell
+ SRCDIRS		+= drivers/block
++SRCDIRS		+= winrbd
+ SRCDIRS		+= drivers/nvs
+ SRCDIRS		+= drivers/bitbash
+ SRCDIRS		+= drivers/gpio
+--- a/src/config/general.h
++++ b/src/config/general.h
+@@ -78,6 +78,7 @@
+   #define SANBOOT_PROTO_HTTP	/* HTTP SAN protocol */
+   #define SANBOOT_PROTO_IB_SRP	/* Infiniband SCSI RDMA protocol */
+   #define SANBOOT_PROTO_ISCSI	/* iSCSI protocol */
++  #define SANBOOT_PROTO_RBD	/* RBD (Ceph) protocol */
+ #endif
+ 
+ /*****************************************************************************
+--- a/src/config/config.c
++++ b/src/config/config.c
+@@ -144,6 +144,9 @@
+ #ifdef SANBOOT_PROTO_HTTP
+ REQUIRE_OBJECT ( httpblock );
+ #endif
++#ifdef SANBOOT_PROTO_RBD
++REQUIRE_OBJECT ( rbd_uri );
++#endif
+ 
+ /*
+  * Drag in all requested resolvers
+--- a/src/include/ipxe/errfile.h
++++ b/src/include/ipxe/errfile.h
+@@ -328,6 +328,13 @@
+ #define ERRFILE_eap_mschapv2		( ERRFILE_NET | 0x004e0000 )
+ #define ERRFILE_syslogs			( ERRFILE_NET | 0x004f0000 )
+ #define ERRFILE_pccrr			( ERRFILE_NET | 0x00500000 )
++#define ERRFILE_rbd_uri			( ERRFILE_NET | 0x00700000 )
++#define ERRFILE_rbd_session		( ERRFILE_NET | 0x00710000 )
++#define ERRFILE_rbd_conn		( ERRFILE_NET | 0x00720000 )
++#define ERRFILE_rbd_block		( ERRFILE_NET | 0x00730000 )
++#define ERRFILE_rbd_acpi		( ERRFILE_NET | 0x00740000 )
++#define ERRFILE_rbd_efi			( ERRFILE_NET | 0x00750000 )
++#define ERRFILE_rbd_errors		( ERRFILE_NET | 0x00760000 )
+ 
+ #define ERRFILE_image		      ( ERRFILE_IMAGE | 0x00000000 )
+ #define ERRFILE_elf		      ( ERRFILE_IMAGE | 0x00010000 )

@@ -1,0 +1,90 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:48)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-idle: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 50 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+WRMS-START drive=80 steps=9
+WRMS-CAL id=1 tsc0=000000060c3c9080 tsc1=000000089a6a4de6 ticks=91
+WRMS-STEP id=2 type=R cmd=2048 sectors=131072 errs=0 rdn=64 rdtsc=0000000815d3939d wrn=0 wrtsc=0000000000000000 walltsc=0000000815d527b1 ticks=287 sumA=ccbee93f sumB=1e81ba32 lastcnt=2048
+WRMS-LAT id=3 gap=0 cmd=127 n=8
+WRMS-LATR id=3 k=0 lba=4112 tsc=0000000002e1c398 ah=00
+WRMS-LATR id=3 k=1 lba=53264 tsc=0000000002f4de6f ah=00
+WRMS-LATR id=3 k=2 lba=102416 tsc=00000000205d4317 ah=00
+WRMS-LATR id=3 k=3 lba=151568 tsc=000000000154ae1a ah=00
+WRMS-LATR id=3 k=4 lba=200720 tsc=00000000013be606 ah=00
+WRMS-LATR id=3 k=5 lba=249872 tsc=0000000000c8d0d8 ah=00
+WRMS-LATR id=3 k=6 lba=299024 tsc=000000000157f76e ah=00
+WRMS-LATR id=3 k=7 lba=348176 tsc=0000000001434a1c ah=00
+WRMS-LAT id=4 gap=5 cmd=127 n=6
+WRMS-LATR id=4 k=0 lba=4112 tsc=00000000011a623b ah=00
+WRMS-LATR id=4 k=1 lba=53264 tsc=000000000143088a ah=00
+WRMS-LATR id=4 k=2 lba=102416 tsc=000000000134bcb8 ah=00
+WRMS-LATR id=4 k=3 lba=151568 tsc=0000000000ce18d4 ah=00
+WRMS-LATR id=4 k=4 lba=200720 tsc=000000000155494e ah=00
+WRMS-LATR id=4 k=5 lba=249872 tsc=000000000135fd44 ah=00
+WRMS-LAT id=5 gap=40 cmd=127 n=6
+WRMS-LATR id=5 k=0 lba=4112 tsc=0000000117313790 ah=00
+WRMS-LATR id=5 k=1 lba=53264 tsc=0000000110948e11 ah=00
+WRMS-LATR id=5 k=2 lba=102416 tsc=0000000110719507 ah=00
+WRMS-LATR id=5 k=3 lba=151568 tsc=000000000089d582 ah=00
+WRMS-LATR id=5 k=4 lba=200720 tsc=0000000000a6b136 ah=00
+WRMS-LATR id=5 k=5 lba=249872 tsc=0000000000a020e0 ah=00
+WRMS-LAT id=6 gap=120 cmd=127 n=6
+WRMS-LATR id=6 k=0 lba=4112 tsc=0000000116de3de5 ah=00
+WRMS-LATR id=6 k=1 lba=53264 tsc=0000000110d624a9 ah=00
+WRMS-LATR id=6 k=2 lba=102416 tsc=000000000cb68cd6 ah=00
+WRMS-LATR id=6 k=3 lba=151568 tsc=0000000000b74a7a ah=00
+WRMS-LATR id=6 k=4 lba=200720 tsc=0000000000c71358 ah=00
+WRMS-LATR id=6 k=5 lba=249872 tsc=0000000000b1ae08 ah=00
+WRMS-LAT id=7 gap=960 cmd=127 n=6
+WRMS-LATR id=7 k=0 lba=4112 tsc=0000000115c8a16c ah=00
+WRMS-LATR id=7 k=1 lba=53264 tsc=0000000080d6e81c ah=00
+WRMS-LATR id=7 k=2 lba=102416 tsc=000000000bb3ea4a ah=00
+WRMS-LATR id=7 k=3 lba=151568 tsc=000000000088c3f8 ah=00
+WRMS-LATR id=7 k=4 lba=200720 tsc=000000000080e120 ah=00
+WRMS-LATR id=7 k=5 lba=249872 tsc=00000000007ffcca ah=00
+WRMS-LAT id=8 gap=0 cmd=127 n=8
+WRMS-LATR id=8 k=0 lba=4112 tsc=000000000079f468 ah=00
+WRMS-LATR id=8 k=1 lba=53264 tsc=000000000070534a ah=00
+WRMS-LATR id=8 k=2 lba=102416 tsc=00000000007e6bfa ah=00
+WRMS-LATR id=8 k=3 lba=151568 tsc=0000000000882d94 ah=00
+WRMS-LATR id=8 k=4 lba=200720 tsc=000000000067a248 ah=00
+WRMS-LATR id=8 k=5 lba=249872 tsc=00000000006fd488 ah=00
+WRMS-LATR id=8 k=6 lba=299024 tsc=000000000060bc5a ah=00
+WRMS-LATR id=8 k=7 lba=348176 tsc=000000000070a30a ah=00
+WRMS-CAL id=9 tsc0=0000025727b3648c tsc1=00000259b5e25eb7 ticks=91
+WRMS-DONE errs=0
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-idle: open, 1 device(s), 540672 blocks of 512 bytes
+rbd:   session: 31107 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 4 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 18 crc, 0 secure, 0 secure failures
+rbd:   osd: 310 ops done, 9 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 9 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 364 reads: 63 hits, 256 waits, 45 misses; 1 windows, 260 prefetches (260 landed, 0 failed, 0 dropped), 8 lines valid
+WRMS-INFO-END
+WRMS-END
+WRRUN-LEAVE none
+WRRUN-END
+WRMS-START drive=80 steps=9

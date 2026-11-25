@@ -1,0 +1,40 @@
+guest_started_epoch: 1795490473.869
+fault_begin: +13.0 s
+fault_end: +54.2 s (cut short after 41.2 s)
+fault_event: +13.9 s monitor killed (rc 0)
+fault_event: +17.8 s osd.1 killed (rc 0), with the monitor down
+fault_event: +34.9 s monitor started (rc 0)
+fault_event: +36.7 s monitor is back in quorum (poll 1)
+fault_event: +51.9 s osd.1 started (rc 0)
+fault_event: +57.0 s monitor is back in quorum (poll 1)
+fault_event: +58.6 s all OSDs up and in again: 3 3 3 (poll 1)
+workload_start: +11.9 s
+workload_end: +53.6 s (took 41.7 s)
+stall_close_lines: 0
+trouble_lines: 0
+san_failure_line: Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+rbd_info_pumps: 44800
+rbd_info_cancels: 1
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (3, 4)
+rbd_info_ops_done: 591
+rbd_info_ops_resent: 1
+rbd_info_ops_failed: 0
+rbd_info_session_resets: 6
+rbd_info_ra_reads: 4891
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(3, 3); devices=1; ops_done=4; ops_failed=0; ops_resent=0; pumps=44; ra_reads=2; reopens=0; session_resets=0; stall_closes=0; state=open
+reader_errs: 0
+reader_stale: 0
+reader_maxticks: 504 ticks (27.7 s) at lba 73699
+reader_rtc_largest_step_seconds: 28
+rbd_info_reports: 2
+pgs_after: 21 peering, 12 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.06 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 7, osd 8
+connections_started_after_the_fault_began: +14.1 s monitor:3300, +14.9 s monitor:3300, +16.9 s monitor:3300, +17.4 s osd:6810, +20.3 s monitor:3300, +21.4 s osd:6810, +26.9 s monitor:3300, +29.5 s osd:6810, +37.8 s osd:6802, +38.6 s monitor:3300, +39.5 s osd:6810
+monitor_to_guest_bytes: 5006 before the fault (16 packets), 2860 while it lasted (24), 0 after it ended (0)

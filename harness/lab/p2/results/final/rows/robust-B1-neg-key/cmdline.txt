@@ -1,0 +1,4 @@
+# 2026-11-24T13:24:29Z row B1-neg-key (bios, neg-key, fault none), profile negative; e
+# run from <box>/p2r/repo; the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/p2r/work/q P2_LAB_DIR=<box>/lab-p2
+bash <box>/p2r/repo/harness/lab/p2/qemu/robust.sh --family bios --fault none --capture --bin <box>/p2r/work/q/ipxe/ipxe-stub.pxe --row B1 --ip 10.77.0.22 --user wrtest-p2-rb-bytes --pool winrbd --image wrtest-p2-rb-bytes --fake-key --timeout 300 --action sanhook --leave none --on-fail hold --expect marker --marker WRRUN-SAN-FAILED\ 0x\[0-9a-f\]+ --delivery stub

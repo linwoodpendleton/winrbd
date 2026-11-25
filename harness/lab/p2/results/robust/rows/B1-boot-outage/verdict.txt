@@ -1,0 +1,11 @@
+PASS
+PASS the fault was injected and undone: begins +14.0 s, ends +346.9 s after the start of the guest
+NOTE the workload has no end marker, so whether the fault began before it ended is judged from the verdict of the workload alone
+PASS the loader reached an outcome: it booted after the cluster came back, or it reported a read error: booted
+PASS no damaged boot (not on RBD, table failure, kernel panic)
+PASS when it booted, the table check passed: RBFT-RESULT PASS pass=40 fail=0 skip=0
+PASS no allocation failure and no reopen loop on the console
+PASS the lab's state after equals the state before: no difference
+PASS every OSD is up and in after the row: health after: 3 osds: 3 up (since 30m), 3 in (since 13h); epoch: e131 33 pgs: 33 active+clean; 820 MiB data, 2.5 GiB used, 34 GiB / 36 GiB avail; 2.4 MiB/s rd, 
+PASS the run script's exit status is 0: exit=0 stop=expectation
+PASS no key-shaped string in the row's files

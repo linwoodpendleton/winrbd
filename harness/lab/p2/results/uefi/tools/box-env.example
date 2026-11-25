@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT
+#
+# The environment of tools/matrix.sh on the box (the machine that hosts the lab VM and the QEMU guests). Copy it OUTSIDE the repository, fix the paths, `. it`.
+# Everything below is a directory of your own; nothing here is secret (the cephx keys are files in $P2_LAB_DIR/keys, mode 600, made by tools/p2u.sh key).
+B=$HOME/winrbd-p2                                   # one directory for all of it
+export P2Q_WORK=$B/qemu-work                        # the QEMU scripts' work directory: ipxe/ (ipxe.efi, efi-ipxe-embed.iso, Shell.efi, SHA256SUMS), tools/usr (mtools, xorriso, syslinux)
+export P2_LAB_DIR=$B/lab LAB_DIR=$B/lab             # the directory of harness/lab/p2/cluster's lab (ssh/, keys/)
+export P2U_REPO=$B/repo                             # a copy of the repository (harness/lab/p2, harness/vectors/handoff, harness/tools)
+export P2U_OUT=$B/out/rows                          # the evidence goes here
+export P2U_IMAGES=$B/out/images                     # bytes/ (bytes.manifest, MD5SUMS), lin-uefi/ (linux-uefi.raw.manifest)
+export P2U_MANIFEST=$P2U_IMAGES/lin-uefi/linux-uefi.raw.manifest
+export P2U_EMBED_ISO=$P2Q_WORK/ipxe/efi-ipxe-embed.iso
+export BUILDER_DIR=$B/builder                       # for tools/embed-iso.sh
+# Only if the machine carries guests of another project under the same budget root (say so in the results): raise the budget by exactly their share
+#export P2Q_BUDGET_ROOT=$B/.. P2Q_BUDGET_CORES=32 P2Q_BUDGET_MEM_MB=45056

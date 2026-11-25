@@ -1,0 +1,34 @@
+#!/bin/busybox sh
+# SPDX-License-Identifier: MIT
+#
+# init of the initramfs-only guest of row B0 (a tiny local disk that boots a minimal Linux): mount the pseudo file systems, load the
+# BIOS drive information module (edd) and the fw_cfg one if there, run the same boot hook as the full images (local-top/rbft, which
+# reads the table with the low-memory scan and checks every field), print the same marker, power off.
+# Kernel command line: rbft.hook=1 iomem=relaxed rbft.map=0 console=ttyS0 [rbft.stay=1 keeps the guest running].
+
+/bin/busybox --install -s /bin 2>/dev/null
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/bin:/bin
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null
+exec > /dev/console 2>&1 < /dev/console
+
+echo "WRBOOT-TINY start kernel=$(uname -r)"
+for m in qemu_fw_cfg edd; do
+	if [ -r /lib/modules/$m.ko ]; then insmod /lib/modules/$m.ko 2>/dev/null; fi
+done
+# the hook is the one of the full images; here it never maps (there is no cluster path and no krbd)
+/scripts/local-top/rbft
+/usr/local/sbin/wrboot-marker
+stay=0
+cmdline=$(cat /proc/cmdline)
+for w in $cmdline; do
+	[ "$w" = rbft.stay=1 ] && stay=1
+done
+if [ "$stay" = 1 ]; then
+	echo "WRBOOT-TINY staying up (rbft.stay=1)"
+	while true; do sleep 3600; done
+fi
+sync
+poweroff -f
+sleep 30

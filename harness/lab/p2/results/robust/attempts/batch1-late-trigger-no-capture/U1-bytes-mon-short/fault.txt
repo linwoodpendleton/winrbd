@@ -1,0 +1,9 @@
+1795488963.886 T+0 guest started (pid 3878182); fault mon-kill on '^WRBYTES-FILE z-fill' #1 + 1 s, down 2 s
+1795488964.174 T+1 lab-clock 1795488964.236272701
+1795488980.478 T+17 trigger seen (^WRBYTES-FILE z-fill, #1)
+1795488980.482 T+17 fault mon-kill after 1 s
+1795488981.489 T+18 fault mon-kill: begins (down 2 s)
+1795488982.581 T+19 monitor killed (rc 0)
+1795488985.569 T+22 monitor started (rc 0)
+1795488986.853 T+23 monitor is back in quorum (poll 1)
+1795488986.861 T+23 fault mon-kill: ends (rc 0)

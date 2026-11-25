@@ -1,0 +1,22 @@
+1795495022.023 iPXE initialising devices...
+1795495022.350 [0m
+1795495022.350 
+1795495022.350 
+1795495022.350 [1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+1795495022.350 Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+1795495022.350 WRRUN-STUB
+1795495025.510 Configuring (net0 52:54:00:77:11:16)...... ok
+1795495025.510 tftp://10.0.2.2/autoexec.ipxe... ok
+1795495025.510 WRRUN-BEGIN row=B1
+1795495025.510 Waiting for link-up on net1... ok
+1795495025.510 WRRUN-NET-OK
+1795495025.510 WRRUN-SAN-START sanhook
+1795495025.510 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795495025.510 rbd: core stack high-water 512 of 16384 bytes
+1795495030.485 rbd: stack high-water 2096 of 4096 bytes (2000 left)
+1795495030.808 rbd: core stack high-water 900 of 16384 bytes
+1795495045.797 rbd: open failed: no monitor could be reached (WR_E_MON_UNREACHABLE)
+1795495045.797 Could not open SAN device: Network unreachable (https://ipxe.org/28766011)
+1795495045.797 WRRUN-SAN-FAILED 0x28766011
+1795495045.797 WRRUN-FAIL
+1795495045.797 WRRUN-END

@@ -1,0 +1,235 @@
+1795493491.555 [2J[01;01H[=3h[2J[01;01H
+1795493494.992 >>Start PXE over IPv4.
+1795493494.992   Station IP address is 10.0.2.15
+1795493494.992 
+1795493494.992   Server IP address is 10.0.2.2
+1795493494.992   NBP filename is ipxe.efi
+1795493494.992   NBP filesize is 1423360 Bytes
+1795493494.992  Downloading NBP file...
+1795493494.992 
+1795493494.992   NBP file downloaded successfully.
+1795493494.992 BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795493494.992 BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795493494.992 iPXE initialising devices...
+1795493494.992 autoexec.ipxe... ok
+1795493495.310 
+1795493495.310 
+1795493495.310 
+1795493495.310 [1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+1795493495.310 Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+1795493495.310 WRRUN-BEGIN row=U1
+1795493495.310 Waiting for link-up on net1... ok
+1795493495.310 WRRUN-NET-OK
+1795493495.310 WRRUN-SAN-START sanboot
+1795493495.939 Registered SAN device 0x80
+1795493495.939 Booting from SAN device 0x80
+1795493497.497 [H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+1795493497.497 
+1795493497.814 [m[4;2H+----------------------------------------------------------------------------+[5;2H|[5;79H|[6;2H|[6;79H|[7;2H|[7;79H|[8;2H|[8;79H|[9;2H|[9;79H|[10;2H|[10;79H|[11;2H|[11;79H|[12;2H|[12;79H|[13;2H|[13;79H|[14;2H|[14;79H|[15;2H|[15;79H|[16;2H|[16;79H|[17;2H+----------------------------------------------------------------------------+[m[18;2H[19;2H[m     Use the ^ and v keys to select which entry is highlighted.          
+1795493497.814       Press enter to boot the selected OS, `e' to edit the commands       
+1795493497.814       before booting or `c' for a command-line.                           [5;80H [7m[5;3H*winrbd Linux: check the table, root from the image if there is one         [m[5;78H[m[m[6;3H winrbd Linux: local root only (no hook)                                    [m[6;78H[m[m[7;3H                                                                            [m[7;78H[m[m[8;3H                                                                            [m[8;78H[m[m[9;3H                                                                            [m[9;78H[m[m[10;3H                                                                            [m[10;78H[m[m[11;3H                                                                            [m[11;78H[m[m[12;3H                                                                            [m[12;78H[m[m[13;3H                                                                            [m[13;78H[m[m[14;3H                                                                            [m[14;78H[m[m[15;3H                                                                            [m[15;78H[m[m[16;3H                                                                            [m[16;78H[m[16;80H [5;78H[0m[30m[40m[2J[01;01H[0m[37m[40m[02;30HGNU GRUB  version 2.14
+1795493497.814 
+1795493497.814 [04;02HÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿[05;02H³[05;79H³[06;02H³[06;79H³[07;02H³[07;79H³[08;02H³[08;79H³[09;02H³[09;79H³[10;02H³[10;79H³[11;02H³[11;79H³[12;02H³[12;79H³[13;02H³[13;79H³[14;02H³[14;79H³[15;02H³[15;79H³[16;02H³[16;79H³[17;02H³[17;79H³[18;02HÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ[19;02H[20;02H     Use the ^ and v keys to select which entry is highlighted.          
+1795493497.814       Press enter to boot the selected OS, `e' to edit the commands       
+1795493535.419       before booting or `c' for a command-line.                           [05;80H [0m[30m[47m[05;03H*winrbd Linux: check the table, root from the image if there is one         [0m[37m[40m[05;78H[06;03H winrbd Linux: local root only (no hook)                                    [06;78H[07;03H                                                                            [07;78H[08;03H                                                                            [08;78H[09;03H                                                                            [09;78H[10;03H                                                                            [10;78H[11;03H                                                                            [11;78H[12;03H                                                                            [12;78H[13;03H                                                                            [13;78H[14;03H                                                                            [14;78H[15;03H                                                                            [15;78H[16;03H                                                                            [16;78H[17;03H                                                                            [17;78H[17;80H [05;78H[23;01H   The highlighted entry will be executed automatically in 2s.                 [05;78H[22;1H   The highlighted entry will be executed automatically in 2s.                 [5;78H[23;01H   The highlighted entry will be executed automatically in 1s.                 [05;78H[22;1H   The highlighted entry will be executed automatically in 1s.                 [5;78H[23;01H                                                                               [24;01H                                                                               [05;78H[22;1H                                                                               [23;1H                                                                               [5;78H[0m[30m[40m[2J[01;01H[0m[37m[40m[?25h[H[J[1;1H[H[J[1;1H[0m[30m[40m[2J[01;01H[0m[37m[40mrbd: the cluster has not answered for 30 seconds, closing the path: network connection could not be established (WR_E_NET_CONNECT)
+1795493545.301 EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
+1795493547.018 Loading, please wait...
+1795493547.018 Starting systemd-udevd version 255.4-1ubuntu8.19
+1795493547.725 Begin: Loading essential drivers ... done.
+1795493547.725 Begin: Running /scripts/init-premount ... done.
+1795493547.725 Begin: Mounting root file system ... Begin: Running /scripts/local-top ... 
+1795493547.725 RBFT-HOOK start: map=1 src=auto rootpart=2 require=1
+1795493547.725 RBFT-HOOK table found by source sysfs
+1795493547.725 RBFT-HOOK nic: eth1 has MAC 52:54:00:77:12:95
+1795493547.725 RBFT-HOOK nic: eth1 address 10.77.0.21/24
+1795493547.725 RBFT-HOOK table check (source sysfs):
+1795493547.725 RBFT INFO source: sysfs /sys/firmware/acpi/tables/rBFT (236 bytes read)
+1795493547.725 RBFT PASS signature: rBFT
+1795493547.725 RBFT PASS length: 236 bytes
+1795493547.725 RBFT PASS acpi_revision: 1
+1795493547.725 RBFT PASS checksum: all 236 bytes sum to 0
+1795493547.725 RBFT INFO oem: not interpreted (iPXE writes its own): id 'FENSYS' table id 'iPXE' creator ''
+1795493547.725 RBFT PASS magic: WRBT
+1795493547.725 RBFT PASS version: 1
+1795493547.725 RBFT PASS header_len: 116
+1795493547.725 RBFT PASS reserved: all reserved bytes are zero
+1795493547.725 RBFT PASS flags_reserved: only bits 0..5 are set (0x4)
+1795493547.725 RBFT PASS layout: canonical: strings, 1 monitor records, nothing else (84 bytes of area)
+1795493547.725 RBFT PASS namespace: absent (as in version 1)
+1795493547.725 RBFT PASS rules: every rule of the field table holds
+1795493547.725 RBFT PASS entity: wrtest-p2-rb-lin-uefi
+1795493547.725 RBFT PASS pool: winrbd
+1795493547.725 RBFT PASS image: wrtest-p2-rb-lin-uefi
+1795493547.725 RBFT PASS image_id: 426efd9aee10
+1795493547.725 RBFT PASS snapshot: absent, as expected
+1795493547.725 RBFT PASS auth: cephx
+1795493547.725 RBFT PASS msgr_mode: crc
+1795493547.725 RBFT PASS flags: static (0x4)
+1795493547.725 RBFT PASS flag_readonly: clear
+1795493547.725 RBFT PASS flag_key: clear
+1795493547.725 RBFT PASS flag_nic_static: set
+1795493547.725 RBFT PASS flag_vlan: clear
+1795493547.725 RBFT PASS flag_fsid: clear
+1795493547.725 RBFT PASS flag_secure_required: clear
+1795493547.725 RBFT PASS key_type: none
+1795493547.725 RBFT PASS key_len: 0
+1795493547.725 RBFT INFO key: not in the table
+1795493547.725 RBFT INFO key_value: the table carries no key: the supplied one (aes, 16 bytes) will be used
+1795493547.725 RBFT PASS mon_count: 1
+1795493547.725 RBFT PASS mon0: 10.77.0.10:3300
+1795493547.725 RBFT PASS fsid: none, as expected
+1795493547.725 RBFT PASS nic_mac: 52:54:00:77:12:95
+1795493547.725 RBFT PASS nic_present: an interface with MAC 52:54:00:77:12:95 exists in this guest
+1795493547.725 RBFT PASS nic_vlan: 0
+1795493547.725 RBFT PASS nic_mtu: 1500
+1795493547.725 RBFT PASS nic_family: 4
+1795493547.725 RBFT PASS nic_ip: 10.77.0.21
+1795493547.725 RBFT PASS nic_prefix: 24
+1795493547.725 RBFT PASS nic_gateway: zero, as expected
+1795493547.725 RBFT PASS nic_dns: zero, as expected
+1795493547.725 RBFT DUMP 0000: 72 42 46 54 ec 00 00 00 01 26 46 45 4e 53 59 53
+1795493547.725 RBFT DUMP 0010: 69 50 58 45 00 00 00 00 00 00 00 00 00 00 00 00
+1795493547.725 RBFT DUMP 0020: 00 00 00 00 57 52 42 54 01 00 74 00 04 00 00 00
+1795493547.725 RBFT DUMP 0030: 01 01 00 00 01 04 18 00 00 00 00 00 00 00 00 00
+1795493547.725 RBFT DUMP 0040: 00 00 00 00 00 00 00 00 52 54 00 77 12 95 00 00
+1795493548.074 RBFT DUMP 0050: dc 05 00 00 0a 4d 00 15 00 00 00 00 00 00 00 00
+1795493548.074 RBFT DUMP 0060: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+1795493548.074 RBFT DUMP 0070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+1795493548.074 RBFT DUMP 0080: 00 00 00 00 00 00 16 00 ff ff 1d 00 33 00 ff ff
+1795493548.074 RBFT DUMP 0090: 40 00 ff ff 00 00 00 00 77 72 74 65 73 74 2d 70
+1795493548.074 RBFT DUMP 00a0: 32 2d 72 62 2d 6c 69 6e 2d 75 65 66 69 00 77 69
+1795493548.074 RBFT DUMP 00b0: 6e 72 62 64 00 77 72 74 65 73 74 2d 70 32 2d 72
+1795493548.074 RBFT DUMP 00c0: 62 2d 6c 69 6e 2d 75 65 66 69 00 34 32 36 65 66
+1795493548.074 RBFT DUMP 00d0: 64 39 61 65 65 31 30 00 04 00 e4 0c 0a 4d 00 0a
+1795493548.074 RBFT DUMP 00e0: 00 00 00 00 00 00 00 00 00 00 00 00
+1795493548.074 RBFT-RESULT PASS pass=40 fail=0 skip=0
+1795493548.074 WRBOOT-TABLE PASS
+1795493548.074 RBFT-HOOK map: pool winrbd image wrtest-p2-rb-lin-uefi via 10.77.0.10:3300 as client.wrtest-p2-rb-lin-uefi (options ms_mode=crc,noshare, the key is not shown)
+1795493548.074 RBFT-HOOK map: image winrbd/wrtest-p2-rb-lin-uefi is /dev/rbd0, root device /dev/rbd0p2
+1795493548.074 WRBOOT-HOOK-DONE root=/dev/rbd0p2 table=PASS
+1795493548.074 done.
+1795493548.074 Begin: Running /scripts/local-premount ... done.
+1795493578.273 Warning: fsck not present, so skipping root file system
+1795493578.273 done.
+1795493578.273 Begin: Running /scripts/local-bottom ... done.
+1795493578.273 Begin: Running /scripts/init-bottom ... done.
+1795493579.219 
+1795493579.219 Welcome to [1mUbuntu 24.04 LTS[0m!
+1795493579.219 
+1795493579.853 [[0;32m  OK  [0m] Created slice [0;1;39msystem-getty.slice[0m - Slice /system/getty.
+1795493579.853 [[0;32m  OK  [0m] Created slice [0;1;39msystem-modprobe.slice[0m - Slice /system/modprobe.
+1795493579.853 [[0;32m  OK  [0m] Created slice [0;1;39msystem-serial\x2dgetâ€¦slice[0m - Slice /system/serial-getty.
+1795493579.853 [[0;32m  OK  [0m] Created slice [0;1;39muser.slice[0m - User and Session Slice.
+1795493579.853 [[0;32m  OK  [0m] Started [0;1;39msystemd-ask-password-consoâ€¦[0mequests to Console Directory Watch.
+1795493579.853 [[0;32m  OK  [0m] Started [0;1;39msystemd-ask-password-wall.â€¦[0md Requests to Wall Directory Watch.
+1795493579.853 [[0;32m  OK  [0m] Set up automount [0;1;39mproc-sys-fs-binfmâ€¦[0mormats File System Automount Point.
+1795493579.853          Expecting device [0;1;39mdev-disk-by\x2dlaâ€¦vice[0m - /dev/disk/by-label/WRBESP...
+1795493579.853          Expecting device [0;1;39mdev-ttyS0.device[0m - /dev/ttyS0...
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mcryptsetup.target[0m - Local Encrypted Volumes.
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mintegritysetup.targâ€¦[0m Local Integrity Protected Volumes.
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mpaths.target[0m - Path Units.
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mremote-fs.target[0m - Remote File Systems.
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mslices.target[0m - Slice Units.
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mswap.target[0m - Swaps.
+1795493579.853 [[0;32m  OK  [0m] Reached target [0;1;39mveritysetup.target[0m - Local Verity Protected Volumes.
+1795493579.853 [[0;32m  OK  [0m] Listening on [0;1;39msystemd-initctl.sockeâ€¦[0m- initctl Compatibility Named Pipe.
+1795493579.853 [[0;32m  OK  [0m] Listening on [0;1;39msystemd-journald-dev-â€¦socket[0m - Journal Socket (/dev/log).
+1795493579.853 [[0;32m  OK  [0m] Listening on [0;1;39msystemd-journald.socket[0m - Journal Socket.
+1795493579.853 [[0;32m  OK  [0m] Listening on [0;1;39msystemd-udevd-control.socket[0m - udev Control Socket.
+1795493579.853 [[0;32m  OK  [0m] Listening on [0;1;39msystemd-udevd-kernel.socket[0m - udev Kernel Socket.
+1795493579.853          Mounting [0;1;39mdev-hugepages.mount[0m - Huge Pages File System...
+1795493579.853          Mounting [0;1;39mdev-mqueue.mount[0m - POSIX Message Queue File System...
+1795493579.853          Mounting [0;1;39msys-kernel-debug.mount[0m - Kernel Debug File System...
+1795493579.853          Mounting [0;1;39msys-kernel-tracing.mount[0m - Kernel Trace File System...
+1795493579.853          Starting [0;1;39msystemd-journald.service[0m - Journal Service...
+1795493579.853          Starting [0;1;39mkmod-static-nodes.service[0mâ€¦eate List of Static Device Nodes...
+1795493579.853          Starting [0;1;39mmodprobe@configfs.service[0m - Load Kernel Module configfs...
+1795493579.853          Starting [0;1;39mmodprobe@dm_mod.service[0m - Load Kernel Module dm_mod...
+1795493579.853          Starting [0;1;39mmodprobe@drm.service[0m - Load Kernel Module drm...
+1795493579.853          Starting [0;1;39mmodprobe@efi_pstore.serviâ€¦[0m - Load Kernel Module efi_pstore...
+1795493579.853          Starting [0;1;39mmodprobe@fuse.service[0m - Load Kernel Module fuse...
+1795493579.853          Starting [0;1;39mmodprobe@loop.service[0m - Load Kernel Module loop...
+1795493579.853          Starting [0;1;39msystemd-modules-load.service[0m - Load Kernel Modules...
+1795493579.853          Starting [0;1;39msystemd-remount-fs.servicâ€¦[0munt Root and Kernel File Systems...
+1795493579.853          Starting [0;1;39msystemd-udev-trigger.service[0m - Coldplug All udev Devices...
+1795493579.853 [[0;32m  OK  [0m] Mounted [0;1;39mdev-hugepages.mount[0m - Huge Pages File System.
+1795493579.853 [[0;32m  OK  [0m] Mounted [0;1;39mdev-mqueue.mount[0m - POSIX Message Queue File System.
+1795493579.853 [[0;32m  OK  [0m] Mounted [0;1;39msys-kernel-debug.mount[0m - Kernel Debug File System.
+1795493579.853 [[0;32m  OK  [0m] Mounted [0;1;39msys-kernel-tracing.mount[0m - Kernel Trace File System.
+1795493579.853 [[0;32m  OK  [0m] Started [0;1;39msystemd-journald.service[0m - Journal Service.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mkmod-static-nodes.service[0mâ€¦Create List of Static Device Nodes.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mmodprobe@configfs.service[0m - Load Kernel Module configfs.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mmodprobe@dm_mod.service[0m - Load Kernel Module dm_mod.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mmodprobe@drm.service[0m - Load Kernel Module drm.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mmodprobe@efi_pstore.service[0m - Load Kernel Module efi_pstore.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mmodprobe@fuse.service[0m - Load Kernel Module fuse.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39mmodprobe@loop.service[0m - Load Kernel Module loop.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39msystemd-modules-load.service[0m - Load Kernel Modules.
+1795493580.181          Mounting [0;1;39msys-fs-fuse-connections.mount[0m - FUSE Control File System...
+1795493580.181          Mounting [0;1;39msys-kernel-config.mount[0m - Kernel Configuration File System...
+1795493580.181          Starting [0;1;39msystemd-sysctl.service[0m - Apply Kernel Variables...
+1795493580.181          Starting [0;1;39msystemd-tmpfiles-setup-deâ€¦[0m Device Nodes in /dev gracefully...
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39msystemd-remount-fs.servicâ€¦[0mmount Root and Kernel File Systems.
+1795493580.181 [[0;32m  OK  [0m] Mounted [0;1;39msys-fs-fuse-connections.mount[0m - FUSE Control File System.
+1795493580.181 [[0;32m  OK  [0m] Mounted [0;1;39msys-kernel-config.mount[0m - Kernel Configuration File System.
+1795493580.181          Starting [0;1;39msystemd-random-seed.service[0m - Load/Save OS Random Seed...
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39msystemd-sysctl.service[0m - Apply Kernel Variables.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39msystemd-random-seed.service[0m - Load/Save OS Random Seed.
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39msystemd-tmpfiles-setup-deâ€¦[0mic Device Nodes in /dev gracefully.
+1795493580.181          Starting [0;1;39msystemd-tmpfiles-setup-deâ€¦[0meate Static Device Nodes in /dev...
+1795493580.181 [[0;32m  OK  [0m] Finished [0;1;39msystemd-tmpfiles-setup-deâ€¦[0mCreate Static Device Nodes in /dev.
+1795493580.181 [[0;32m  OK  [0m] Reached target [0;1;39mlocal-fs-pre.target[0mâ€¦Preparation for Local File Systems.
+1795493580.181          Mounting [0;1;39mtmp.mount[0m - /tmp...
+1795493580.181          Mounting [0;1;39mvar-cache.mount[0m - /var/cache...
+1795493580.504          Mounting [0;1;39mvar-log.mount[0m - /var/log...
+1795493580.504          Mounting [0;1;39mvar-tmp.mount[0m - /var/tmp...
+1795493580.504          Starting [0;1;39msystemd-udevd.service[0m - Râ€¦ager for Device Events and Files...
+1795493580.504 [[0;32m  OK  [0m] Finished [0;1;39msystemd-udev-trigger.service[0m - Coldplug All udev Devices.
+1795493580.504 [[0;32m  OK  [0m] Mounted [0;1;39mtmp.mount[0m - /tmp.
+1795493580.504 [[0;32m  OK  [0m] Mounted [0;1;39mvar-cache.mount[0m - /var/cache.
+1795493580.504 [[0;32m  OK  [0m] Mounted [0;1;39mvar-log.mount[0m - /var/log.
+1795493580.504 [[0;32m  OK  [0m] Mounted [0;1;39mvar-tmp.mount[0m - /var/tmp.
+1795493580.504 [[0;32m  OK  [0m] Reached target [0;1;39mlocal-fs.target[0m - Local File Systems.
+1795493580.504 [[0;32m  OK  [0m] Listening on [0;1;39msystemd-sysext.socket[0mâ€¦tension Image Management (Varlink).
+1795493580.504 [[0;32m  OK  [0m] Reached target [0;1;39msockets.target[0m - Socket Units.
+1795493580.504          Starting [0;1;39msystemd-journal-flush.serâ€¦[0msh Journal to Persistent Storage...
+1795493580.504 [[0;32m  OK  [0m] Finished [0;1;39msystemd-journal-flush.serâ€¦[0mlush Journal to Persistent Storage.
+1795493580.504          Starting [0;1;39msystemd-tmpfiles-setup.seâ€¦[0me Volatile Files and Directories...
+1795493580.504 [[0;32m  OK  [0m] Finished [0;1;39msystemd-tmpfiles-setup.seâ€¦[0mate Volatile Files and Directories.
+1795493580.504          Starting [0;1;39msystemd-update-utmp.serviâ€¦[0mord System Boot/Shutdown in UTMP...
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39msystemd-udevd.service[0m - Ruâ€¦anager for Device Events and Files.
+1795493580.504 [[0;32m  OK  [0m] Finished [0;1;39msystemd-update-utmp.serviâ€¦[0mecord System Boot/Shutdown in UTMP.
+1795493580.504 [[0;32m  OK  [0m] Reached target [0;1;39msysinit.target[0m - System Initialization.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39mapt-daily.timer[0m - Daily apt download activities.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39mapt-daily-upgrade.timer[0m - â€¦y apt upgrade and clean activities.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39mdpkg-db-backup.timer[0m - Daily dpkg database backup timer.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39me2scrub_all.timer[0m - Periodâ€¦Metadata Check for All Filesystems.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39mfstrim.timer[0m - Discard unused filesystem blocks once a week.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39mmotd-news.timer[0m - Message of the Day.
+1795493580.504 [[0;32m  OK  [0m] Started [0;1;39msystemd-tmpfiles-clean.timâ€¦[0my Cleanup of Temporary Directories.
+1795493580.504 [[0;32m  OK  [0m] Reached target [0;1;39mtimers.target[0m - Timer Units.
+1795493580.504 [[0;32m  OK  [0m] Reached target [0;1;39mbasic.target[0m - Basic System.
+1795493580.504          Starting [0;1;39me2scrub_reap.service[0m - Reâ€¦ne ext4 Metadata Check Snapshots...
+1795493580.504          Starting [0;1;39mgetty-static.service[0m - geâ€¦bus and logind are not available...
+1795493580.829          Starting [0;1;39msystemd-user-sessions.service[0m - Permit User Sessions...
+1795493580.829          Starting [0;1;39mwrboot-marker.service[0m - Pâ€¦inrbd boot marker on the console...
+1795493580.829 [[0;32m  OK  [0m] Finished [0;1;39msystemd-user-sessions.service[0m - Permit User Sessions.
+1795493580.829 [[0;32m  OK  [0m] Started [0;1;39mgetty@tty1.service[0m - Getty on tty1.
+1795493580.829 [[0;32m  OK  [0m] Finished [0;1;39me2scrub_reap.service[0m - Reâ€¦line ext4 Metadata Check Snapshots.
+1795493580.829 [[0;32m  OK  [0m] Finished [0;1;39mgetty-static.service[0m - geâ€¦ dbus and logind are not available.
+1795493580.829 WRBOOT-NET eth0 mac=52:54:00:77:11:15 
+1795493580.829 [[0;32m  OK  [0m] Found device [0;1;39mdev-ttyS0.device[0m - /dev/ttyS0.
+1795493580.829 WRBOOT-NET eth1 mac=52:54:00:77:12:95 10.77.0.21/24 fe80::5054:ff:fe77:1295/64 
+1795493580.829 WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-rb-lin-uefi kernel=6.8.0-151-generic
+1795493580.829 [[0;32m  OK  [0m] Started [0;1;39mgetty@tty2.service[0m - Getty on tty2.
+1795493580.829 [[0;32m  OK  [0m] Started [0;1;39mgetty@tty3.service[0m - Getty on tty3.
+1795493580.879 [[0;32m  OK  [0m] Started [0;1;39mgetty@tty4.service[0m - Getty on tty4.
+1795493580.879 [[0;32m  OK  [0m] Started [0;1;39mgetty@tty5.service[0m - Getty on tty5.
+1795493580.879 [[0;32m  OK  [0m] Started [0;1;39mgetty@tty6.service[0m - Getty on tty6.
+1795493581.047 [[0;32m  OK  [0m] Started [0;1;39mserial-getty@ttyS0.service[0m - Serial Getty on ttyS0.
+1795493581.047 [[0;32m  OK  [0m] Reached target [0;1;39mgetty.target[0m - Login Prompts.
+1795493581.047 [[0;32m  OK  [0m] Finished [0;1;39mwrboot-marker.service[0m - Pâ€¦ winrbd boot marker on the console.
+1795493581.047 [[0;32m  OK  [0m] Reached target [0;1;39mmulti-user.target[0m - Multi-User System.
+1795493581.047 [[0;32m  OK  [0m] Reached target [0;1;39mgraphical.target[0m - Graphical Interface.
+1795493581.047          Starting [0;1;39msystemd-update-utmp-runleâ€¦[0m- Record Runlevel Change in UTMP...
+1795493581.047 [[0;32m  OK  [0m] Finished [0;1;39msystemd-update-utmp-runleâ€¦e[0m - Record Runlevel Change in UTMP.

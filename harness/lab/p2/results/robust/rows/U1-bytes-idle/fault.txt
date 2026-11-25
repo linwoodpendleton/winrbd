@@ -1,0 +1,10 @@
+1795491167.465 T+5 lab: ms_connection_idle_timeout set to 20 s for the monitor and the OSDs
+1795491167.872 T+0 guest started (pid 4031392); fault pause on '^WRBYTES-FILE f-17m' #1 + 0.5 s, down 60 s
+1795491168.576 T+1 lab-clock 1795491168.623517104
+1795491186.931 T+19 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795491186.936 T+19 fault pause after 0.5 s
+1795491187.447 T+20 fault pause: begins (down 60 s)
+1795491187.516 T+20 guest stopped (rc 0)
+1795491247.629 T+80 guest continued (rc 0)
+1795491247.642 T+80 fault pause: ends (rc 0)
+1795491324.111 T+157 lab: ms_connection_idle_timeout removed again

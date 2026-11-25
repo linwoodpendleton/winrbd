@@ -1,0 +1,10 @@
+PASS
+ok   the bench program started (WRMS-START)
+ok   the bench program finished (WRMS-DONE)
+ok   no WRMS-ERR line (0 seen)
+ok   iPXE's heap never failed an allocation (0 lines)
+ok   the two TSC calibrations agree within 2 % (0.001 %)
+ok   a TSC calibration was printed
+ok   step 2: the data check (sumA 8cc76e36 / sumB 8cc76e36 against the plan's 8cc76e36 / 8cc76e36)
+ok   step 3: the data check (sumA 3c9e5848 / sumB 1b7de8ed against the plan's 3c9e5848 / 1b7de8ed)
+ok   step 4: the data check (sumA 3f54c076 / sumB 1b7de8ed against the plan's 3f54c076 / 1b7de8ed)

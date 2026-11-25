@@ -1,0 +1,2 @@
+RESULT row=U1 run=U1-20261124T122326Z-1513249 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=expectation secs=61 console=<box>/p2r/work/q/logs/U1-20261124T122326Z-1513249.console
+exit=0

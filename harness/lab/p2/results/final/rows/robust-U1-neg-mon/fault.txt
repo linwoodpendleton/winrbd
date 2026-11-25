@@ -1,0 +1,3 @@
+1795526624.819 T+0 guest started (pid 1656439); fault none on '^WRRUN-SAN-(OK|START)' #1 + 0 s, down 0 s
+1795526624.825 T+0 fault none: nothing will be injected
+1795526625.194 T+1 lab-clock 1795526625.225699433

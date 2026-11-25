@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: GPL-2.0-or-later OR LicenseRef-UBDL
+# A local experiment, NOT part of the repository's ipxe/ tree: the hunks change (and quote) ipxe/src/rbd_stack.c, a GPL2_OR_LATER_OR_UBDL glue file, so the
+# diff carries the licence of the file it patches, not the MIT licence of this directory. Apply with: patch -p1 < stack-phys.diff  (from the repository root).
+--- a/ipxe/src/rbd_stack.c
++++ b/ipxe/src/rbd_stack.c
+@@ -46,6 +46,7 @@
+ 
+ #include <stdio.h>
+ #include <string.h>
++#include <ipxe/uaccess.h>
+ #include <ipxe/command.h>
+ #include <ipxe/parseopt.h>
+ #include "rbd_priv.h"
+@@ -181,17 +182,22 @@
+  */
+ void rbd_stack_paint ( void ) {
+ 	char *frame = __builtin_frame_address ( 0 );
+-	char *high = ( frame - RBD_STACK_MARGIN );
++	unsigned long pframe = ( ( unsigned long ) virt_to_phys ( frame ) );
++	unsigned long plow = ( ( unsigned long ) virt_to_phys ( _stack ) );
++	unsigned long phigh = ( ( unsigned long ) virt_to_phys ( _estack ) );
++	char *high;
+ 
+-	/* Only the internal stack is painted, and only below the frame that is running: a frame outside it (a platform that runs this code
+-	 * on another stack) is left alone, whatever lies between would be overwritten
++	/* The frame and the linker symbols can be in different address spaces (x86_64 BIOS: the stack pointer is a physical address, the
++	 * image's symbols are in the high virtual half): compare physical addresses, and paint through the symbols' own mapping
+ 	 */
+-	if ( ( frame <= _stack ) || ( frame > _estack ) || ( high <= _stack ) ) {
++	if ( ( pframe <= plow ) || ( pframe > phigh ) ||
++	     ( ( pframe - RBD_STACK_MARGIN ) <= plow ) ) {
+ 		printf ( "rbd: stack monitor: the stack is not iPXE's own "
+ 			 "(frame %p, internal stack %p to %p): not painted\n",
+ 			 frame, _stack, _estack );
+ 		return;
+ 	}
++	high = ( _stack + ( ( pframe - RBD_STACK_MARGIN ) - plow ) );
+ 	rbd_stack_peak = rbd_stack_used();
+ 	rbd_stack_fill ( _stack, high );
+ 	rbd_stack_painted = high;

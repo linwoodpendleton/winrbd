@@ -1,0 +1,8 @@
+PASS
+INFO run: stop=guest-exited secs=20 ipxe=11 net=11 san=ok@12 os=-
+PASS list of the image's files: 18 files
+PASS the disk holds no file that is not in the list: oracle and list name the same files
+PASS no path closure during the row: 0 reopens, 0 stall closes
+INFO osd ops: 1 failed operation(s) in rbd-info although the row went on (finding F7)
+PASS every file: iPXE digest == build list == rbd export: 18 of 18 files
+PASS script finished: WRBYTES-DONE

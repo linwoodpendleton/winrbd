@@ -1,0 +1,3 @@
+PASS
+INFO run: stop=timeout secs=61 ipxe=12 net=13 san=none@- os=-
+PASS script ran: WRRUN-END seen

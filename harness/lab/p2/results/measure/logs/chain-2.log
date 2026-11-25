@@ -1,0 +1,43 @@
+chain2: 08:00:02 campaign.sh netem 1 3 10 3
+mrun.sh: wr-d1-1: FAIL  (RESULT row=B1 run=B1-20261124T080023Z-726465 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=77 os=- stop=expectation secs=77 console=<box>/measure/work/q/logs/B1-20261124T080)
+mrun.sh: wr-d1-2: PASS  (RESULT row=B1 run=B1-20261124T080218Z-731288 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=87 os=- stop=expectation secs=88 console=<box>/measure/work/q/logs/B1-20261124T080)
+mrun.sh: wr-d1-3: PASS  (RESULT row=B1 run=B1-20261124T080433Z-736924 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=86 os=- stop=expectation secs=86 console=<box>/measure/work/q/logs/B1-20261124T080)
+mrun.sh: wr-d3-1: FAIL  (RESULT row=B1 run=B1-20261124T080645Z-742191 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=274 os=- stop=expectation secs=275 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: wr-d3-2: FAIL  (RESULT row=B1 run=B1-20261124T081203Z-756468 expect=marker met=1 ipxe=7 net=11 san=ok@12 end=268 os=- stop=expectation secs=268 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: wr-d3-3: FAIL  (RESULT row=B1 run=B1-20261124T081715Z-770274 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=260 os=- stop=expectation secs=260 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: wr-d10-1: FAIL  (RESULT row=B1 run=B1-20261124T082208Z-783704 expect=marker met=1 ipxe=7 net=10 san=ok@12 end=452 os=- stop=expectation secs=452 console=<box>/measure/work/q/logs/B1-20261124T0)
+Terminated
+chain2: 08:30:10 campaign.sh ra 2
+mrun.sh: rd-ra256-1: PASS  (RESULT row=B1 run=B1-20261124T083022Z-806904 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=65 os=- stop=expectation secs=66 console=<box>/measure/work/q/logs/B1-20261124T083)
+mrun.sh: rd-ra512-1: PASS  (RESULT row=B1 run=B1-20261124T083151Z-810743 expect=marker met=1 ipxe=7 net=11 san=ok@12 end=64 os=- stop=expectation secs=64 console=<box>/measure/work/q/logs/B1-20261124T083)
+mrun.sh: rd-ra1024-1: PASS  (RESULT row=B1 run=B1-20261124T083317Z-814370 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=94 os=- stop=expectation secs=94 console=<box>/measure/work/q/logs/B1-20261124T083)
+mrun.sh: rd-ra4096-1: PASS  (RESULT row=B1 run=B1-20261124T083513Z-819539 expect=marker met=1 ipxe=7 net=10 san=ok@11 end=87 os=- stop=expectation secs=87 console=<box>/measure/work/q/logs/B1-20261124T083)
+mrun.sh: rd-ra256-2: PASS  (RESULT row=B1 run=B1-20261124T083703Z-824461 expect=marker met=1 ipxe=7 net=10 san=ok@11 end=63 os=- stop=expectation secs=63 console=<box>/measure/work/q/logs/B1-20261124T083)
+mrun.sh: rd-ra512-2: PASS  (RESULT row=B1 run=B1-20261124T083829Z-828064 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=72 os=- stop=expectation secs=72 console=<box>/measure/work/q/logs/B1-20261124T083)
+mrun.sh: rd-ra1024-2: PASS  (RESULT row=B1 run=B1-20261124T084012Z-850366 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=113 os=- stop=expectation secs=113 console=<box>/measure/work/q/logs/B1-20261124T0)
+mrun.sh: rd-ra4096-2: PASS  (RESULT row=B1 run=B1-20261124T084234Z-889777 expect=marker met=1 ipxe=8 net=11 san=ok@13 end=89 os=- stop=expectation secs=90 console=<box>/measure/work/q/logs/B1-20261124T084)
+chain2: 08:44:14 campaign.sh idle 3
+mrun.sh: idle-def-1: PASS  (RESULT row=B1 run=B1-20261124T084424Z-896670 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=1157 os=- stop=expectation secs=1157 console=<box>/measure/work/q/logs/B1-20261124)
+mrun.sh: idle-def-2: PASS  (RESULT row=B1 run=B1-20261124T084447Z-898545 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=1156 os=- stop=expectation secs=1157 console=<box>/measure/work/q/logs/B1-20261124)
+mrun.sh: idle-def-3: PASS  (RESULT row=B1 run=B1-20261124T084504Z-900669 expect=marker met=1 ipxe=8 net=11 san=ok@12 end=1162 os=- stop=expectation secs=1162 console=<box>/measure/work/q/logs/B1-20261124)
+campaign: 09:04:39 default-timeout idle runs done
+mrun.sh: idle-t10-1: PASS  (RESULT row=B1 run=B1-20261124T090454Z-1069020 expect=marker met=1 ipxe=9 net=12 san=ok@12 end=1178 os=- stop=expectation secs=1178 console=<box>/measure/work/q/logs/B1-2026112)
+mrun.sh: idle-t10-2: PASS  (RESULT row=B1 run=B1-20261124T090513Z-1070484 expect=marker met=1 ipxe=8 net=11 san=ok@11 end=1177 os=- stop=expectation secs=1178 console=<box>/measure/work/q/logs/B1-2026112)
+mrun.sh: idle-t10-3: PASS  (RESULT row=B1 run=B1-20261124T090534Z-1072800 expect=marker met=1 ipxe=8 net=12 san=ok@12 end=1175 os=- stop=expectation secs=1176 console=<box>/measure/work/q/logs/B1-2026112)
+campaign: 09:25:21 10 s idle-timeout runs done
+chain2: 09:25:21 campaign.sh r10 150
+mrun.sh: r10-loop-1: FAIL  (error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB exit=2 )
+mrun.sh: r10-mem24-1: FAIL  (error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB exit=2 )
+mrun.sh: r10-mem16-1: FAIL  (error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB exit=2 )
+mrun.sh: r10-mem12-1: FAIL  (error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB exit=2 )
+<box>/measure/repo/harness/lab/p2/results/measure/tools/mrun.sh: line 203: <box>/measure/out/runs/r10-mem10-1/load.txt: No such file or directory
+<box>/measure/repo/harness/lab/p2/results/measure/tools/mrun.sh: line 211: <box>/measure/out/runs/r10-mem10-1/stdout.txt: No such file or directory
+<box>/measure/repo/harness/lab/p2/results/measure/tools/mrun.sh: line 119: <box>/measure/out/runs/r10-mem10-1/result.txt: No such file or directory
+campaign: 09:27:01 row r10-mem10-1 returned 1
+mrun.sh: r10-mem8-1: FAIL  (error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB exit=2 )
+mrun.sh: r10-mem6-1: FAIL  (error: P2Q_MEM_MB (--mem) must be 512 to 4096: a test guest gets at most 4 GiB exit=2 )
+chain2: 09:27:46 campaign.sh efi 3
+mboot.sh: heap-efi-1: PASS  (RESULT row=U1 run=U1-20261124T092801Z-1227537 expect=marker met=1 ipxe=- net=- san=none@- end=- os=58 stop=expectation secs=65 console=<box>/measure/work/q/logs/U1-20261124T09)
+mboot.sh: heap-efi-2: PASS  (RESULT row=U1 run=U1-20261124T092925Z-1230164 expect=marker met=1 ipxe=- net=- san=none@- end=- os=56 stop=expectation secs=61 console=<box>/measure/work/q/logs/U1-20261124T09)
+mboot.sh: heap-efi-3: PASS  (RESULT row=U1 run=U1-20261124T093046Z-1232076 expect=marker met=1 ipxe=- net=- san=none@- end=- os=55 stop=expectation secs=60 console=<box>/measure/work/q/logs/U1-20261124T09)
+chain2: 09:31:54 done

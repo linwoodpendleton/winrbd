@@ -1,0 +1,29 @@
+guest_started_epoch: 1795489481.244
+fault_begin: +17.7 s
+fault_end: +61.2 s (lasted 43.5 s)
+fault_event: +17.7 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +18.6 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +60.0 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +61.2 s all OSDs up and in again: 3 3 3 (poll 1)
+workload_start: +10.9 s
+workload_end: +64.4 s (took 53.5 s)
+stall_close_lines: 0
+trouble_lines: 0
+rbd_info_pumps: 15167
+rbd_info_cancels: 3
+rbd_info_reopens: 0
+rbd_info_stall_closes: 1
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 622
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 3
+rbd_info_ra_reads: 2698
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=14; ops_failed=0; ops_resent=0; pumps=274; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation

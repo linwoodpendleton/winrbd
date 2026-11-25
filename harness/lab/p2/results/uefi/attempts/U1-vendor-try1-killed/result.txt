@@ -1,0 +1,2 @@
+[qemu] starting wrp2q-U1-20261123T202207Z-2134843 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 900 s)
+exit=143 wall=199s retries=0

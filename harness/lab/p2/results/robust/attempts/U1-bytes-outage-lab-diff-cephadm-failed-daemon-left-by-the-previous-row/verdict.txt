@@ -1,0 +1,15 @@
+FAIL
+PASS the fault was injected and undone: begins +34.3 s, cut short at +372.3 s after the start of the guest
+NOTE the guest finished 338.0 s after the fault began, before the fault's own 420 s were up: the fault was undone at the end of the run (the lab was put back)
+PASS the fault began while the guest was still working: fault began 337.5 s before the workload's end marker
+PASS the md5 list of the disk is known: 17 files
+PASS the SAN device was opened
+PASS the SAN layer gave up: at least one read failed and said so: f-17m, f-33m, z-fill-80m
+PASS no digest that was printed is wrong
+PASS files were read correctly before or after the outage: 14 of 17 digests printed
+PASS the script ran to its end (WRBYTES-DONE)
+PASS no allocation failure and no reopen loop on the console
+FAIL the lab's state after equals the state before: --- /dev/fd/63	2026-11-23 22:45:36.700279962 -0500 | +++ /dev/fd/62	2026-11-23 22:45:36.700279962 -0500 | @@ -49,6 +49,5 @@ |  health AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE muted=False |  health AUTH_INSECURE_SERVICE_TICKETS muted=True |  health BLUESTORE_SLOW_OP_ALERT muted=True | -health CEPHADM_
+PASS every OSD is up and in after the row: health after: 3 osds: 3 up (since 21m), 3 in (since 12h); epoch: e101 33 pgs: 33 active+clean; 820 MiB data, 2.5 GiB used, 34 GiB / 36 GiB avail; 1.7 MiB/s rd, 
+PASS the run script's exit status is 0: exit=0 stop=expectation
+PASS no key-shaped string in the row's files

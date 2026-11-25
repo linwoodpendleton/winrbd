@@ -1,0 +1,2 @@
+RESULT row=UB run=UB-20261123T200612Z-2085593 expect=marker met=1 ipxe=27 net=28 san=ok@28 end=83 os=- stop=guest-exited secs=83 console=/box/work/logs/UB-20261123T200612Z-2085593.console
+exit=0 wall=83s retries=0

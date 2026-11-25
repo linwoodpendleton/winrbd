@@ -1,0 +1,10 @@
+Re-check of the one FAIL line of results.txt ("every driver object is FORBIDDEN: 121 objects found (want > 50), 1 not forbidden", the object it named was
+rbd_session.c, the largest of the glue objects), made during the review of this module on 2026-11-23 with the repository's own checker, ipxe/tools/build.sh
+secboot, which does not use the builder's "nm | grep -q" pipeline (finding T1 in the README): the same sources, the pinned iPXE 9261ebe38, gcc 11.4.0
+on the build box, a clean export of the pinned tree.
+
+  ipxe/tools/build.sh: prepared <work>/out (iPXE 9261ebe38af0c0b38ac332adeec125a518845013, 191 files in src/winrbd, 7 test files)
+  ipxe/tools/build.sh: secboot: bin-x86_64-efi-sb/snponly.efi refused: not permitted to be signed for UEFI Secure Boot
+  ipxe/tools/build.sh: secboot: all 121 driver objects are FORBIDDEN
+
+Source level (grep, same tree): every file of ipxe/src carries exactly the line  FILE_SECBOOT ( FORBIDDEN );  and  FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );  (16 files).

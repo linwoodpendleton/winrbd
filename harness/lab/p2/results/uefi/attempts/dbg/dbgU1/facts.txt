@@ -1,0 +1,22 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (0):
+run script lines (3):
+  WRRUN-BEGIN row=U1
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanboot
+table check: 39 PASS, 1 FAIL, 0 SKIP; RBFT-RESULT FAIL pass=39 fail=1 skip=0
+  RBFT INFO source: sysfs /sys/firmware/acpi/tables/rBFT (230 bytes read)
+  RBFT INFO oem: not interpreted (iPXE writes its own): id 'FENSYS' table id 'iPXE' creator ''
+  RBFT FAIL image_id: expected absent, got '393ba267b6a4'
+  RBFT INFO key: not in the table
+  RBFT INFO key_value: the table carries no key: the supplied one (aes, 16 bytes) will be used
+guest markers (2):
+  WRBOOT-TABLE FAIL
+  WRBOOT-HOOK-POWEROFF: the table does not match what was expected: not mapping
+stages (seconds since the run script started):
+     11.0 ipxe-script       WRRUN-BEGIN row=U1
+     11.0 net-ok            WRRUN-NET-OK
+     11.0 san-start         WRRUN-SAN-START sanboot
+     13.0 grub              [0m[37m[40m[H[J[1;1H[?25l[m[H[J[1;1H[2;30HGNU GRUB  version 2.14
+     21.0 table-check-done  RBFT-RESULT FAIL pass=39 fail=1 skip=0
+rbd-info (0 lines):

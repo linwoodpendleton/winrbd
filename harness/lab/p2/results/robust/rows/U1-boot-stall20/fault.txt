@@ -1,0 +1,14 @@
+1795493604.800 T+1 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795493605.169 T+1 guest started (pid 67358); fault stall on 'before booting or' #1 + 1.2 s, down 20 s
+1795493605.464 T+1 lab-clock 1795493605.508554246
+1795493617.834 T+13 trigger seen (before booting or, #1)
+1795493617.838 T+13 keys 'ret' will be pressed after 1 s
+1795493617.843 T+13 fault stall after 1.2 s
+1795493619.051 T+15 fault stall: begins (down 20 s)
+1795493619.056 T+15 all ceph-osd processes: SIGSTOP sent now
+1795493619.454 T+15 all ceph-osd processes stopped (SIGSTOP) (rc 0)
+1795493619.490 T+15 keys 'ret' pressed
+1795493639.782 T+35 all ceph-osd processes continued (SIGCONT) (rc 0)
+1795493640.985 T+36 all OSDs up and in again: 3 3 3 (poll 1)
+1795493640.989 T+36 fault stall: ends (rc 0)
+1795493681.205 T+77 the health checks are the ones the run started with again (poll 1)

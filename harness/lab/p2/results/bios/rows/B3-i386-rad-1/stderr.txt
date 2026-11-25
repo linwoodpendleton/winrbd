@@ -1,0 +1,2 @@
+[qemu] budget: 4 other VM(s) under $BOX_ROOT use 22 cores / 34816 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-B3-20261123T201057Z-2099216 (bios, iso, 2 cores, 2048 MiB, nice 19 choom 600, up to 420 s)

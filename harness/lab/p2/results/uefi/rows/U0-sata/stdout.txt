@@ -1,0 +1,9 @@
+[qemu] budget: 5 other VM(s) under /box/vm use 24 cores / 36864 MiB; adding 2 cores / 2048 MiB; limit 32 cores / 45056 MiB
+[qemu] starting wrp2q-U0-20261123T200354Z-2076267 (uefi, pxe, 2 cores, 2048 MiB, nice 19 choom 600, up to 420 s)
+[qemu] typing into the UEFI shell: map -r
+[qemu] typing into the UEFI shell: fs1:
+[qemu] typing into the UEFI shell: ls
+[qemu] typing into the UEFI shell: fs2:
+[qemu] typing into the UEFI shell: ls
+[qemu] typing into the UEFI shell: ls EFI\BOOT
+RESULT row=U0 run=U0-20261123T200354Z-2076267 expect=shell met=1 ipxe=12 net=13 san=ok@13 end=- os=- stop=expectation secs=41 console=/box/work/logs/U0-20261123T200354Z-2076267.console

@@ -1,0 +1,28 @@
+guest_started_epoch: 1795489093.732
+fault_begin: +18.9 s
+fault_end: +26.1 s (cut short after 7.2 s)
+fault_event: +0.0 s guest started (pid 3884467); fault osd-kill on '^WRBYTES-FILE z-fill' #1 + 1 s, down 8 s
+fault_event: +21.4 s osd.1 killed (rc 0)
+fault_event: +37.4 s all OSDs up and in again: 3 3 3 (poll 3)
+workload_start: +11.8 s
+workload_end: +25.6 s (took 13.8 s)
+stall_close_lines: 0
+trouble_lines: 0
+rbd_info_pumps: 15039
+rbd_info_cancels: 0
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (3, 4)
+rbd_info_ops_done: 589
+rbd_info_ops_resent: 7
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 1
+rbd_info_ra_reads: 2683
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=15; ops_failed=0; ops_resent=0; pumps=208; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 12 active+clean, 21 active+undersized+degraded
+exit: 0
+stop: expectation

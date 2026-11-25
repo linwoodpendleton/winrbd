@@ -1,0 +1,4 @@
+# 2026-11-24T13:34:03Z boot winpe-W4-2 (B2: bios, usb), image wrtest-p2-ms-winpe-mbr
+# the cephx key is only ever a --key-file path or a fw_cfg file name
+P2Q_WORK=<box>/p2r/work/q P2_LAB_DIR=<box>/lab-p2 P2Q_BUDGET_ROOT=<box>
+bash <box>/p2r/repo/harness/lab/p2/qemu/run-bios-usb.sh --row B2 --ip 10.77.0.66 --user wrtest-p2-ms-winpe-mbr --pool winrbd --image wrtest-p2-ms-winpe-mbr --key-file <box>/lab-p2/keys/client.wrtest-p2-ms-winpe-mbr.secret --ipxe-dir <box>/p2r/work/bin/media --bin <box>/p2r/work/bin/media/ipxe.lkrn --action sanboot --expect marker --marker WINRBD-WINPE-OK --timeout 900 --mem 2048

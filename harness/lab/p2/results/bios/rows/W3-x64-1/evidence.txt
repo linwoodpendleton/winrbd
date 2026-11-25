@@ -1,0 +1,6 @@
+{}
+rBFT at 0x9a840 length=248 flags=0x6 mode=1 mons=1 key=present (16 bytes) user=wrtest-p2-winpe-mbr image=winrbd/wrtest-p2-winpe-mbr
+{}
+rBFT at 0x9a840 length=248 flags=0x6 mode=1 mons=1 key=present (16 bytes) user=wrtest-p2-winpe-mbr image=winrbd/wrtest-p2-winpe-mbr
+{}
+probe: no shell by the deadline

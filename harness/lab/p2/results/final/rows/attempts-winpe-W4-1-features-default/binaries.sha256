@@ -1,0 +1,4 @@
+925a4b1bd2e19b353a0822e7e5a2f60cdb945a8e0adf3162c39dd7b270929a47  <box>/p2r/work/bin/media/ipxe.lkrn
+95fbde6c9fea1f1cebe406d2d7c339df2f2d6953a01b14d5fde9dc22ed65e3e9  <box>/p2r/repo/harness/lab/p2/qemu/run-bios-usb.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# image wrtest-p2-ms-winpe-mbr: id 380b476b286f9 size 1073741824 features ['layering', 'exclusive-lock', 'object-map', 'fast-diff', 'deep-flatten']

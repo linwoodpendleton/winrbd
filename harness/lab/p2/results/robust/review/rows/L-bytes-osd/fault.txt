@@ -1,0 +1,11 @@
+1795498201.897 T+4 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795498202.268 T+1 guest started (pid 416715); fault osd-kill on '^WRBYTES-FILE f-17m' #1 + 0 s, down 8 s
+1795498202.791 T+1 lab-clock 1795498202.832699633
+1795498215.336 T+14 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795498215.341 T+14 fault osd-kill after 0 s
+1795498215.349 T+14 fault osd-kill: begins (down 8 s)
+1795498215.353 T+14 osd.1: SIGKILL sent now
+1795498219.005 T+18 osd.1 killed (rc 0)
+1795498230.938 T+29 the run ended before the fault did: undoing it now
+1795498240.883 T+39 all OSDs up and in again: 3 3 3 (poll 4)
+1795498247.826 T+46 the health checks are the ones the run started with again (poll 2)

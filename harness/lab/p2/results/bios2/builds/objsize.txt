@@ -1,0 +1,8 @@
+== object sizes (i386 rel)
+   text	   data	    bss	    dec	    hex	filename
+   1435	     32	      1	   1468	    5bc	tree-rel/src/bin-i386-pcbios/rbd_bios.o
+   6803	     24	      1	   6828	   1aac	tree-rel/src/bin-i386-pcbios/rbd_session.o
+   1904	     20	    253	   2177	    881	tree-rel/src/bin-i386-pcbios/rbd_stack.o
+== object sizes (x86_64 rel)
+   text	   data	    bss	    dec	    hex	filename
+   1607	     64	      1	   1672	    688	tree-rel/src/bin/rbd_bios.o

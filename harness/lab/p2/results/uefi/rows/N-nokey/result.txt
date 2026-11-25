@@ -1,0 +1,2 @@
+RESULT row=N run=N-20261123T201729Z-2119238 expect=marker met=1 ipxe=66 net=68 san=failed@68 end=68 os=- stop=guest-exited secs=68 console=/box/work/logs/N-20261123T201729Z-2119238.console
+exit=0 wall=68s retries=0

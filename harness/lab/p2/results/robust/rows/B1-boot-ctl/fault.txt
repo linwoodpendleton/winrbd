@@ -1,0 +1,7 @@
+1795492517.007 T+1 guest started (pid 745); fault none on 'before booting or' #1 + 0 s, down 0 s
+1795492517.015 T+1 fault none: nothing will be injected
+1795492517.470 T+1 lab-clock 1795492517.511419949
+1795492529.760 T+13 trigger seen (before booting or, #1)
+1795492529.769 T+13 keys 'ret' will be pressed after 1 s
+1795492529.783 T+13 fault none: nothing to do
+1795492531.459 T+15 keys 'ret' pressed

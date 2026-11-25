@@ -1,0 +1,38 @@
+guest_started_epoch: 1795495067.916
+fault_begin: +12.4 s
+fault_end: +168.5 s (cut short after 156.1 s)
+fault_event: +12.4 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +12.8 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +170.6 s all OSDs up and in again: 3 3 3 (poll 1)
+fault_event: +172.9 s the health checks are the ones the run started with again (poll 1)
+workload_start: +11.2 s
+workload_end: +168.0 s (took 156.8 s)
+stall_close_lines: 4
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: operation timed out (WR_E_TIMEOUT)
+trouble_lines: 0
+rbd_info_pumps: 3103
+rbd_info_cancels: 11
+rbd_info_reopens: 0
+rbd_info_stall_closes: 4
+rbd_info_conns: (2, 4)
+rbd_info_ops_done: 132
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 0
+rbd_info_session_resets: 17
+rbd_info_ra_reads: 492
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=13; ops_failed=0; ops_resent=0; pumps=223; ra_reads=19; reopens=0; session_resets=0; stall_closes=0; state=open
+files_failed: f-33m, z-fill-80m
+files_read: 15 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 19
+connections_started_after_the_fault_began: +16.8 s osd:6802, +19.9 s osd:6818, +31.9 s osd:6818, +40.7 s osd:6802, +47.9 s osd:6818, +52.7 s osd:6802, +65.9 s osd:6818, +68.7 s osd:6802, +86.7 s osd:6802, +92.9 s osd:6818, +104.7 s osd:6802, +122.7 s osd:6802, +122.9 s osd:6818, +140.7 s osd:6802, +152.9 s osd:6818, +158.7 s osd:6802
+monitor_to_guest_bytes: 4937 before the fault (15 packets), 660 while it lasted (32), 0 after it ended (0)

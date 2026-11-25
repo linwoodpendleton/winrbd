@@ -1,0 +1,11 @@
+1795492990.622 T+3 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795492991.042 T+1 guest started (pid 32446); fault osd-kill on '^Booting from SAN device' #1 + 0.3 s, down 45 s
+1795492991.407 T+1 lab-clock 1795492991.444959799
+1795493004.173 T+14 trigger seen (^Booting from SAN device, #1)
+1795493004.181 T+14 fault osd-kill after 0.3 s
+1795493004.497 T+14 fault osd-kill: begins (down 45 s)
+1795493004.506 T+14 osd.1: SIGKILL sent now
+1795493006.768 T+16 osd.1 killed (rc 0)
+1795493051.966 T+61 the run ended before the fault did: undoing it now
+1795493065.606 T+75 all OSDs up and in again: 3 3 3 (poll 3)
+1795493072.518 T+82 the health checks are the ones the run started with again (poll 2)

@@ -1,0 +1,93 @@
+1795490153.803 [2J[01;01H[=3h[2J[01;01H
+1795490157.256 >>Start PXE over IPv4.
+1795490157.256   Station IP address is 10.0.2.15
+1795490157.256 
+1795490157.256   Server IP address is 10.0.2.2
+1795490157.256   NBP filename is ipxe.efi
+1795490157.256   NBP filesize is 1423360 Bytes
+1795490157.256  Downloading NBP file...
+1795490157.256 
+1795490157.256   NBP file downloaded successfully.
+1795490157.256 BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795490157.256 BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771115)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771115,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+1795490157.256 iPXE initialising devices...
+1795490157.256 autoexec.ipxe... ok
+1795490157.585 
+1795490157.585 
+1795490157.585 
+1795490157.585 [1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+1795490157.585 Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+1795490157.585 WRRUN-BEGIN row=U1
+1795490157.585 Waiting for link-up on net1... ok
+1795490157.585 WRRUN-NET-OK
+1795490157.585 WRRUN-SAN-START sanhook
+1795490157.907 Registered SAN device 0x80
+1795490157.907 WRRUN-SAN-OK
+1795490157.907 WRINFO-BEGIN
+1795490157.907 rbd: image winrbd/wrtest-p2-rb-bytes: open, 1 device(s), 393216 blocks of 512 bytes
+1795490157.907 rbd:   session: 216 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+1795490157.907 rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+1795490157.907 rbd:   osd: 15 ops done, 0 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 0 session resets, zombies 0 of 0 bytes
+1795490157.907 rbd:   readahead: 14 reads: 8 hits, 0 waits, 6 misses; 1 windows, 7 prefetches (7 landed, 0 failed, 0 dropped), 7 lines valid
+1795490157.907 WRINFO-END
+1795490157.907 WRBYTES-FILE f-0001
+1795490158.231 file://WRBYTES/f-0001... ok
+1795490158.231 e2ba905bf306f46faca223d3cb20e2cf  wrb
+1795490158.231 WRBYTES-FILE f-0511
+1795490158.231 file://WRBYTES/f-0511... ok
+1795490158.231 3fa3761a530d5e2eb2cd8ee4e72030b2  wrb
+1795490158.231 WRBYTES-FILE f-0512
+1795490158.231 file://WRBYTES/f-0512... ok
+1795490158.231 cc8d3ffea4a9052f1527c576dd59016a  wrb
+1795490158.231 WRBYTES-FILE f-0513
+1795490158.231 file://WRBYTES/f-0513... ok
+1795490158.231 89f146f38d73ab2da1dd24eb8b392490  wrb
+1795490158.231 WRBYTES-FILE f-4095
+1795490158.231 file://WRBYTES/f-4095... ok
+1795490158.231 6dede511ceedaf053abfb6a6136032b4  wrb
+1795490158.231 WRBYTES-FILE f-4096
+1795490158.231 file://WRBYTES/f-4096... ok
+1795490158.231 72f760b68e3d4b02ff781e677761b70c  wrb
+1795490158.231 WRBYTES-FILE f-4097
+1795490158.231 file://WRBYTES/f-4097... ok
+1795490158.231 3d3bc48ba7782dd961f366479fb1e666  wrb
+1795490158.231 WRBYTES-FILE f-65535
+1795490158.231 file://WRBYTES/f-65535... ok
+1795490158.231 6da7ca95417e228e1dde2e9e5ff9e15a  wrb
+1795490158.231 WRBYTES-FILE f-65536
+1795490158.231 file://WRBYTES/f-65536... ok
+1795490158.231 7146d4249ac3fdfb524826cbf9e5b3e7  wrb
+1795490158.231 WRBYTES-FILE f-65537
+1795490158.231 file://WRBYTES/f-65537... ok
+1795490158.231 b72158992bc3310ccc8f846392cf281c  wrb
+1795490158.231 WRBYTES-FILE f-1m-1
+1795490158.231 file://WRBYTES/f-1m-1... ok
+1795490158.231 9c63cd03cb63ac54d5d38f47398703f7  wrb
+1795490158.231 WRBYTES-FILE f-1m
+1795490158.231 file://WRBYTES/f-1m... ok
+1795490158.231 5dbf81785c58299c470c8922f2a8235f  wrb
+1795490158.231 WRBYTES-FILE f-1m+1
+1795490158.231 file://WRBYTES/f-1m+1... ok
+1795490158.231 b1aa47043ab133f7401e185b9b73d153  wrb
+1795490158.231 WRBYTES-FILE f-3m
+1795490158.549 file://WRBYTES/f-3m... ok
+1795490158.549 96470389f570378ca1e2190bc093bac3  wrb
+1795490158.549 WRBYTES-FILE f-17m
+1795490183.071 file://WRBYTES/f-17m.... ok
+1795490183.071 814545bdc07a961b65267f2a6f8f605e  wrb
+1795490183.379 WRBYTES-FILE f-33m
+1795490185.187 file://WRBYTES/f-33m.... ok
+1795490185.796 cc23db2b89f58636c90cc589afc3d22c  wrb
+1795490185.796 WRBYTES-FILE z-fill-80m
+1795490190.632 file://WRBYTES/z-fill-80m.... ok
+1795490191.542 037c2ae6c7ec1bbeb87ee992271ec431  wrb
+1795490191.542 WRINFO-BEGIN
+1795490191.542 rbd: image winrbd/wrtest-p2-rb-bytes: open, 1 device(s), 393216 blocks of 512 bytes
+1795490191.542 rbd:   session: 14868 pumps, 1 cancels (most rounds 0), 0 reopens, 0 stall closes
+1795490191.542 rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 5 crc, 0 secure, 0 secure failures
+1795490191.542 rbd:   osd: 615 ops done, 0 resent, 1 failed; in flight 0 (most 8), requests 0 (most 8); 2 session resets, zombies 0 of 0 bytes
+1795490191.542 rbd:   readahead: 2697 reads: 2163 hits, 483 waits, 51 misses; 20 windows, 561 prefetches (553 landed, 8 failed, 0 dropped), 8 lines valid
+1795490191.542 WRINFO-END
+1795490191.542 WRBYTES-DONE
+1795490191.542 WRRUN-LEAVE none
+1795490191.542 WRRUN-END

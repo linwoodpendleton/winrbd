@@ -1,0 +1,14 @@
+# 2026-11-24T06:36:30Z run rd-ra0-3, image wrtest-p2-ms-read
+# the cephx key is only ever a --key-file path
+P2Q_WORK=<box>/measure/work/q P2_LAB_DIR=<box>/lab-p2 P2Q_BUDGET_ROOT=<box>
+bash <box>/measure/repo/harness/lab/p2/qemu/run-bios-pxe.sh --row B1 --ip 10.77.0.61 --user wrtest-p2-ms-read --pool winrbd --image wrtest-p2-ms-read --key-file <box>/lab-p2/keys/client.wrtest-p2-ms-read.secret --timeout 1500 --cpus 2 --mem 1024 --action sanhook --drive 0x80 --leave none --append <box>/measure/out/runs/.tmp.576262/append.ipxe --expect marker --marker \^WRRUN-END --bin <box>/measure/work/bin/rel/ipxe-stub.pxe --delivery stub --opt readahead=0
+# the iPXE script after sanhook:
+#   echo WRMS-INFO-BEGIN
+#   rbd-info
+#   echo WRMS-INFO-END
+#   echo WRMS-BOOT
+#   sanboot --drive 0x80 || echo WRMS-BOOT-RETURNED ${errno}
+#   echo WRMS-INFO-BEGIN
+#   rbd-info
+#   echo WRMS-INFO-END
+#   echo WRMS-END

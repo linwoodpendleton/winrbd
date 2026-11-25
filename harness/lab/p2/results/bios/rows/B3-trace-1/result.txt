@@ -1,0 +1,13 @@
+RESULT row=B3 run=B3-20261123T205730Z-2224513 expect=os met=1 ipxe=1 net=5 san=none@- end=- os=510 stop=expectation secs=511 console=$P2B_WORK/work/logs/B3-20261123T205730Z-2224513.console
+run_script_exit 0
+lab_health_before HEALTH_WARN 3 3 3 
+lab_health_after  HEALTH_WARN 3 3 3 
+CRITERION PASS run script reached the expected stage: met=1 stop=expectation
+CRITERION PASS run script exit status 0 (no leftover, no key in a log): exit 0
+CRITERION PASS booted system printed WRBOOT-ROOT-OK: WRBOOT-ROOT-OK fw=bios root=/dev/rbd0p1 fstype=ext4 mapped=rbd0 table=PASS src=scan image=wrtest-p2-b3 kernel=6.8.0-151-
+CRITERION PASS root is on the mapped image: WRBOOT-ROOT-OK fw=bios root=/dev/rbd0p1 fstype=ext4 mapped=rbd0 table=PASS src=scan image=wrtest-p2-b3 kernel=6.8.0-151-
+CRITERION PASS table found by the low-memory scan: scan: found at physical address 0x9e120 (1 valid copy/copies)
+CRITERION PASS every field of the table matches (RBFT-RESULT PASS, all 40 fields, no FAIL, no SKIP): PASS pass=40 fail=0 skip=0 (expected pass=40) []
+CRITERION PASS hook verdict WRBOOT-TABLE PASS: WRBOOT-TABLE PASS
+CRITERION PASS SAN device registered and booted from: Booting from SAN device
+VERDICT PASS

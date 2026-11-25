@@ -1,0 +1,4 @@
+2629bc9390ca155b797caeabc53253ddc8d1c415e54ecd00af7975ed25ed4142  <box>/measure/work/bin/rel/ipxe-stub.pxe
+19d7d072ee30c70c6f11d5df43b53824fc540f254606985e6fe5be8edab924b7  <box>/measure/repo/harness/lab/p2/qemu/run-bios-pxe.sh
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# image wrtest-p2-ms-winpe-mbr: id 37728579d8e97 size 1073741824 features ['layering']

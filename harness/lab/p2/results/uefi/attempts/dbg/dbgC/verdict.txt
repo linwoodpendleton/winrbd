@@ -1,0 +1,3 @@
+PASS
+INFO run: stop=expectation secs=21 ipxe=20 net=20 san=ok@21 os=-
+PASS script ran: WRRUN-END seen

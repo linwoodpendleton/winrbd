@@ -1,0 +1,10 @@
+PASS
+ok   the bench program started (WRMS-START)
+ok   the bench program finished (WRMS-DONE)
+ok   no WRMS-ERR line (0 seen)
+ok   iPXE's heap never failed an allocation (0 lines)
+ok   a TSC calibration was printed
+ok   step 2: the data check (sumA ad575dde / sumB ad575dde against the plan's ad575dde / ad575dde)
+ok   step 3: the data check (sumA 8618a5b5 / sumB 15570c0a against the plan's 8618a5b5 / 15570c0a)
+ok   latency series 4: every read succeeded
+ok   the cluster did not disturb the run (resent 0, session resets 0, cancels 0, stall closes 0, failed 0)

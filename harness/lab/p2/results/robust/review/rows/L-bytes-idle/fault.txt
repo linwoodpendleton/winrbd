@@ -1,0 +1,11 @@
+1795498862.304 T+2 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795498865.755 T+5 lab: ms_connection_idle_timeout set to 20 s for the monitor and the OSDs
+1795498866.123 T+1 guest started (pid 441215); fault pause on '^WRBYTES-FILE f-17m' #1 + 0.5 s, down 60 s
+1795498866.436 T+1 lab-clock 1795498866.476748304
+1795498879.144 T+14 trigger seen (^WRBYTES-FILE f-17m, #1)
+1795498879.148 T+14 fault pause after 0.5 s
+1795498879.656 T+14 fault pause: begins (down 60 s)
+1795498879.708 T+14 guest stopped (rc 0)
+1795498939.756 T+74 guest continued (rc 0)
+1795498939.761 T+74 fault pause: ends (rc 0)
+1795498956.849 T+91 lab: ms_connection_idle_timeout removed again

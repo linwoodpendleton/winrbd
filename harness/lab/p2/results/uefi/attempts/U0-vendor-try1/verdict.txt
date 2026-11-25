@@ -1,0 +1,8 @@
+FAIL
+INFO run: stop=guest-exited secs=311 ipxe=12 net=12 san=ok@13 os=-
+FAIL reached the UEFI shell: RESULT met=0 stop=guest-exited
+PASS sanhook: WRRUN-SAN-OK
+FAIL map -r lists the device and its partitions: no fsN / blkN line in the shell output
+FAIL device path flavour vendor: the node of flavour vendor is not in the output (the first 'Vendor|Uri|Sata' lines: none)
+PASS ls reads the ESP: directory EFI listed
+PASS script end: WRRUN-END

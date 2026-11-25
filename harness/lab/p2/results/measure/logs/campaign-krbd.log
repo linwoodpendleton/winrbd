@@ -1,0 +1,6 @@
+mguest.sh: kg-1: PASS (RESULT row=B1 run=B1-20261124T065433Z-601336 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=415 console=<home>/<box-dir>/vm/w)
+krbd.sh: krbd-1: rc=0, 27 passes recorded ( quorum winrbd-p2-ceph)
+mguest.sh: kg-2: PASS (RESULT row=B1 run=B1-20261124T070610Z-618462 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=224 console=<home>/<box-dir>/vm/w)
+krbd.sh: krbd-2: rc=0, 27 passes recorded (labstate: no difference)
+mguest.sh: kg-3: PASS (RESULT row=B1 run=B1-20261124T071229Z-626084 expect=marker met=1 ipxe=- net=- san=none@- end=- os=- stop=guest-exited secs=307 console=<home>/<box-dir>/vm/w)
+krbd.sh: krbd-3: rc=0, 27 passes recorded (labstate: no difference)

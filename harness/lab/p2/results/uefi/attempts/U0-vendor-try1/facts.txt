@@ -1,0 +1,30 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (5):
+  rbd: image winrbd/wrtest-p2-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+  rbd:   session: 303 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+  rbd:   osd: 20 ops done, 0 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: 19 reads: 8 hits, 0 waits, 11 misses; 1 windows, 7 prefetches (7 landed, 0 failed, 0 dropped), 7 lines valid
+run script lines (6):
+  WRRUN-BEGIN row=U0
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-OK
+  WRRUN-LEAVE exit
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     12.0 ipxe-script       WRRUN-BEGIN row=U0
+     12.0 net-ok            WRRUN-NET-OK
+     12.0 san-start         WRRUN-SAN-START sanhook
+     13.0 san-ok            WRRUN-SAN-OK
+     13.0 script-end        WRRUN-END
+rbd-info (7 lines):
+  WRINFO-BEGIN
+  rbd: image winrbd/wrtest-p2-lin-uefi: open, 1 device(s), 4194304 blocks of 512 bytes
+  rbd:   session: 303 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+  rbd:   core: connections 4 (most 4), arena 263392 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+  rbd:   osd: 20 ops done, 0 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 0 session resets, zombies 0 of 0 bytes
+  rbd:   readahead: 19 reads: 8 hits, 0 waits, 11 misses; 1 windows, 7 prefetches (7 landed, 0 failed, 0 dropped), 7 lines valid
+  WRINFO-END

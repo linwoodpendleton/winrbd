@@ -1,0 +1,33 @@
+Clean-up at the end of the qemu-bios work (2026-11-23). Paths are written with the variables of bin/labenv.sh; the commands were run with the real paths.
+
+Lab VM (the dedicated lab of harness/lab/p2/cluster):
+  users.sh delete wrtest-p2-b0 wrtest-p2-b1 wrtest-p2-b2 wrtest-p2-b3 wrtest-p2-winpe-mbr     (image, its snapshots, the user, the key files: one call each)
+  sudo apt-get remove --purge -y dnsmasq-base          (the only package this module installed; it had no dependencies)
+  rmdir /home/lab/wrp2-tftp                            (empty: run-undi.sh removes the run script and the binary after every run)
+  state afterwards (users matching client.wrtest*, images of pool winrbd, health, OSDs, dnsmasq, the lab user's home, pg_upmap entries):
+    client.wrtest-p2-bytes
+    client.wrtest-p2-lin-uefi
+    img-default
+    img-v1
+    wrtest-p2-bytes
+    wrtest-p2-lin-uefi
+    HEALTH_WARN 4 rotating auth service keys
+    3 osds: 3 up (since 6h), 3 in (since 6h); epoch: e48
+    dnsmasq: not installed
+    lab
+    0
+  (the users and images wrtest-p2-bytes and wrtest-p2-lin-uefi belong to other modules and were not touched; the cluster's own users, img-default and img-v1 were never touched)
+
+Builder guest (Ubuntu 26.04):
+  rm -rf /home/ci/work/bios ; sudo rm -rf /var/tmp/wrp2-bios-img          (the iPXE trees and builds, the guest images and the debootstrap cache of this module)
+
+Build box:
+  evidence kept: $BOX_ROOT/bios-keep/bios-results.tgz (780 KiB: rows, SHA256SUMS, link-map facts, the diff, the licence output)
+  rm -rf $BOX_ROOT/bios                                                  (work directory: iPXE binaries, guest images, the WinPE image converted for the import, run directories, logs)
+  no QEMU, ssh tunnel or listening socket of this module is left (the only QEMU running afterwards is another module's U1 guest)
+
+Workstation:
+  the caching proxy for the guest image build and its ssh -R tunnel were stopped, its cache (about 210 MB of Ubuntu packages) deleted; nothing listens on 127.0.0.1:18081 on the box.
+  The wrong-key control and every other log was scanned for the throwaway keys by the run scripts (exit status 4 and discarded logs on a hit: none) and by a scan of every file of the evidence directories against every key
+  string of the lab's key directory, taken before the last few runs (0 hits in 10,297 files); the keys were deleted with the users afterwards. A last scan of the copied evidence for
+  anything shaped like a cephx key (AQ followed by 20 or more base64 characters) found nothing.

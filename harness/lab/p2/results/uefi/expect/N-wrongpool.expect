@@ -1,0 +1,2 @@
+errno=ENOENT
+console=rbd: .*failed: pool not found .*\(WR_E_POOL_NOT_FOUND\)

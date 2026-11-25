@@ -1,0 +1,9 @@
+FAIL
+INFO run: stop=guest-exited secs=14 ipxe=13 net=13 san=failed@14 os=-
+FAIL reached the UEFI shell: RESULT met=0 stop=guest-exited
+FAIL sanhook of the image: no WRRUN-SAN-OK
+FAIL the shell was started from iPXE: no WRU0-SHELL-START (no WRU0 line)
+FAIL map -r lists the block devices and file systems: no FSn / BLKn line in the shell output
+FAIL device path flavour uri: no map entry carries the uri node (device paths seen: none)
+FAIL partitions are published (HD nodes): 0 partition entries (expected 3: the ESP and root of the Linux image, the FAT of the byte-check disk)
+FAIL ls of a file system root lists EFI (the ESP of the Linux image): no listing of a file system root has a <DIR> EFI line (listings: none)

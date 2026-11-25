@@ -1,0 +1,18 @@
+1795492874.603 T+4 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795492875.025 T+1 guest started (pid 24464); fault mon-osd on 'before booting or' #1 + 1.2 s, down 15 s
+1795492875.402 T+1 lab-clock 1795492875.439641106
+1795492890.438 T+16 trigger seen (before booting or, #1)
+1795492890.445 T+16 keys 'ret' will be pressed after 1 s
+1795492890.454 T+16 fault mon-osd after 1.2 s
+1795492891.671 T+17 fault mon-osd: begins (down 15 s)
+1795492891.679 T+17 monitor: SIGKILL sent now
+1795492892.154 T+18 keys 'ret' pressed
+1795492892.542 T+18 monitor killed (rc 0)
+1795492893.582 T+19 osd.1: SIGKILL sent now
+1795492896.078 T+22 osd.1 killed (rc 0), with the monitor down
+1795492913.108 T+39 monitor started (rc 0)
+1795492914.511 T+40 monitor is back in quorum (poll 1)
+1795492929.270 T+55 osd.1 started (rc 0)
+1795492935.580 T+61 all OSDs up and in again: 3 3 3 (poll 3)
+1795492935.589 T+61 fault mon-osd: ends (rc 0)
+1795492963.296 T+89 the health checks are the ones the run started with again (poll 1)

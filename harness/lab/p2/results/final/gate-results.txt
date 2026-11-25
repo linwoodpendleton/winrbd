@@ -1,0 +1,44 @@
+iPXE build check 2026-11-24T12:15:34Z
+os      Ubuntu 26.04.1 LTS kernel 7.0.0-43-generic
+gcc     15.2.0
+clang   21.1.8
+make    GNU Make 4.4.1
+ld      GNU ld (GNU Binutils for Ubuntu) 2.46
+perl    v5.40.1
+jobs    8
+tree    17c6410c45bf3c79
+PASS  pinned iPXE revision                         9261ebe38af0c0b38ac332adeec125a518845013
+PASS  build.sh check                               glue files tagged, no name collisions
+PASS  build, zero warnings (-Werror)               128 s, 10675 log lines
+PASS  target bin-x86_64-efi/ipxe.efi               1423872 bytes (skeleton table: 1288704)
+PASS  target bin/undionly.kpxe                     202342 bytes (skeleton table: 133909)
+PASS  target bin/ipxe.pxe                          546992 bytes (skeleton table: 480617)
+PASS  target bin/ipxe.usb                          573440 bytes (skeleton table: 507904)
+PASS  target bin/ipxe.iso                          1083392 bytes (skeleton table: n/a)
+PASS  target bin-x86_64-efi/snponly.efi            562176 bytes (skeleton table: n/a)
+PASS  target bin-x86_64-efi/ipxe.iso               2631680 bytes (skeleton table: n/a)
+PASS  target bin-i386-pcbios/undionly.kpxe         191554 bytes (skeleton table: n/a)
+PASS  target bin-i386-pcbios/ipxe.pxe              513323 bytes (skeleton table: n/a)
+PASS  target bin-i386-pcbios/ipxe.usb              540672 bytes (skeleton table: n/a)
+PASS  target bin-i386-pcbios/ipxe.iso              1050624 bytes (skeleton table: n/a)
+PASS  driver in bin-x86_64-efi/ipxe.efi, no self-test link map
+PASS  driver in bin/undionly.kpxe, no self-test    link map
+PASS  driver in bin/ipxe.pxe, no self-test         link map
+PASS  driver in bin/ipxe.lkrn, no self-test        link map
+PASS  driver in bin-i386-pcbios/undionly.kpxe, no self-test link map
+PASS  driver in bin-i386-pcbios/ipxe.pxe, no self-test link map
+PASS  driver in bin-i386-pcbios/ipxe.lkrn, no self-test link map
+PASS  driver text in ipxe.efi                      console line present
+PASS  no self-test text in ipxe.efi                no rbd_selftest string
+PASS  licence bin/undionly.kpxe                    GPL version 2 (or, at your option, any later version)
+PASS  licence bin-i386-pcbios/undionly.kpxe        GPL version 2 (or, at your option, any later version)
+PASS  licence bin-x86_64-efi/snponly.efi           GPL version 2 (or, at your option, any later version)
+PASS  Secure Boot build refused                    not permitted to be signed for UEFI Secure Boot
+PASS  every driver object is FORBIDDEN             122 objects
+PASS  control: pristine tree builds the -sb target 316416 bytes
+PASS  self-tests 64bit                             56 s, OK: all 84727 tests passed
+PASS  self-tests 32bit                             55 s, OK: all 84802 tests passed
+PASS  self-tests 64bit-ubsan                       68 s, OK: all 84727 tests passed
+PASS  self-tests 32bit-ubsan                       61 s, OK: all 84802 tests passed
+PASS  self-tests negative-control                  63 s, 
+RESULT 0 check(s) failed

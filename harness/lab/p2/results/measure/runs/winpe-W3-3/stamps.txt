@@ -1,0 +1,6 @@
+   11.1 ipxe-script       WRRUN-BEGIN row=B1
+   11.1 net-ok            WRRUN-NET-OK
+   11.1 san-start         WRRUN-SAN-START sanboot
+# host: load average at start 29.26, at end 25.91
+# guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 41 s)
+# lab VM (cluster) threads waited for a host CPU: 0.1 s in total; the worst 0.5 s polling interval 0.0 s (at 51 s)

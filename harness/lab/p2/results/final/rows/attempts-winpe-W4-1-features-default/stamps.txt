@@ -1,0 +1,8 @@
+    1.5 ipxe-script       WRRUN-BEGIN row=B2
+    1.5 net-ok            WRRUN-NET-OK
+    1.5 san-start         WRRUN-SAN-START sanboot
+    2.0 san-failed        WRRUN-SAN-FAILED 0x3c766003
+    2.0 script-end        WRRUN-END
+# host: load average at start 27.90, at end 27.67
+# guest threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 1 s)
+# lab VM (cluster) threads waited for a host CPU: 0.0 s in total; the worst 0.5 s polling interval 0.0 s (at 2 s)

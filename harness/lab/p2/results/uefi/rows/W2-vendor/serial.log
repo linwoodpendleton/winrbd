@@ -1,0 +1,16 @@
+[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU QEMU USB HARDDRIVE 1-0000:00:04.0-1" from PciRoot(0x0)/Pci(0x4,0x0)/USB(0x0,0x0)
+BdsDxe: starting Boot0001 "UEFI QEMU QEMU USB HARDDRIVE 1-0000:00:04.0-1" from PciRoot(0x0)/Pci(0x4,0x0)/USB(0x0,0x0)
+iPXE initialising devices...
+file:autoexec.ipxe... Not found (https://ipxe.org/7f4de18e)
+file:/autoexec.ipxe... ok
+
+
+
+[1m[37m[40miPXE 2.0.0+[0m[37m[40m -- Open Source Network Boot Firmware -- [0m[36m[40mhttps://ipxe.org[0m[37m[40m
+Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+WRRUN-BEGIN row=W2
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+Registered SAN device 0x80
+Booting from SAN device 0x80

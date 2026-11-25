@@ -1,0 +1,13 @@
+1795494107.251 T+5 health checks at the start: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT RECENT_CRASH
+1795494107.967 T+0 guest started (pid 136119); fault osd-kill on 'before booting or' #1 + 1.2 s, down 45 s
+1795494108.681 T+1 lab-clock 1795494108.681644060
+1795494122.753 T+15 trigger seen (before booting or, #1)
+1795494122.774 T+15 keys 'ret' will be pressed after 1 s
+1795494122.795 T+15 fault osd-kill after 1.2 s
+1795494124.019 T+17 fault osd-kill: begins (down 45 s)
+1795494124.028 T+17 osd.1: SIGKILL sent now
+1795494124.494 T+17 keys 'ret' pressed
+1795494131.534 T+24 osd.1 killed (rc 0)
+1795494175.911 T+68 the run ended before the fault did: undoing it now
+1795494185.969 T+78 all OSDs up and in again: 3 3 3 (poll 3)
+1795494192.357 T+85 the health checks are the ones the run started with again (poll 2)

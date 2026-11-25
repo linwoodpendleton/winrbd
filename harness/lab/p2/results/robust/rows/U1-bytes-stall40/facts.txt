@@ -1,0 +1,34 @@
+guest_started_epoch: 1795490213.362
+fault_begin: +12.0 s
+fault_end: +54.6 s (lasted 42.5 s)
+fault_event: +12.1 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +12.5 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +53.5 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +54.6 s all OSDs up and in again: 3 3 3 (poll 1)
+workload_start: +11.2 s
+workload_end: +67.1 s (took 55.9 s)
+stall_close_lines: 1
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+trouble_lines: 0
+rbd_info_pumps: 14926
+rbd_info_cancels: 3
+rbd_info_reopens: 0
+rbd_info_stall_closes: 1
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 620
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 1
+rbd_info_session_resets: 4
+rbd_info_ra_reads: 2677
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=15; ops_failed=0; ops_resent=0; pumps=282; ra_reads=14; reopens=0; session_resets=0; stall_closes=0; state=open
+files_read: 17 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.06 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 9
+connections_started_after_the_fault_began: +16.4 s osd:6802, +16.4 s osd:6810, +26.5 s osd:6802, +38.5 s osd:6802, +54.5 s osd:6802, +54.6 s osd:6810
+monitor_to_guest_bytes: 4937 before the fault (13 packets), 176 while it lasted (4), 44 after it ended (2)

@@ -1,0 +1,5 @@
+   32.1 ipxe-script       WRRUN-BEGIN row=U0
+   32.1 net-ok            WRRUN-NET-OK
+   32.6 san-start         WRRUN-SAN-START sanhook
+   34.6 san-ok            WRRUN-SAN-OK
+   36.1 uefi-shell        [25;01H[1m[33m[40mShell> [0m[37m[40m

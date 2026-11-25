@@ -1,0 +1,39 @@
+guest_started_epoch: 1795491552.895
+fault_begin: +34.3 s
+fault_end: +372.3 s (cut short after 338.0 s)
+fault_event: +34.3 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +35.5 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +374.6 s all OSDs up and in again: 3 3 3 (poll 1)
+workload_start: +32.4 s
+workload_end: +371.8 s (took 339.4 s)
+stall_close_lines: 10
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+stall_close: rbd: the cluster has not answered for 30 seconds, closing the path: connection handshake did not finish in time (WR_E_M2_HANDSHAKE_TIMEOUT)
+trouble_lines: 0
+rbd_info_pumps: 2145
+rbd_info_cancels: 22
+rbd_info_reopens: 0
+rbd_info_stall_closes: 10
+rbd_info_conns: (2, 4)
+rbd_info_ops_done: 120
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 0
+rbd_info_session_resets: 26
+rbd_info_ra_reads: 388
+rbd_info_devices: 0
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(4, 4); devices=1; ops_done=13; ops_failed=0; ops_resent=0; pumps=165; ra_reads=18; reopens=0; session_resets=0; stall_closes=0; state=open
+files_failed: f-17m, f-33m, z-fill-80m
+files_read: 14 of 17
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.05 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 28
+connections_started_after_the_fault_began: +39.4 s osd:6802, +49.4 s osd:6802, +61.4 s osd:6802, +77.4 s osd:6802, +95.4 s osd:6802, +113.4 s osd:6802, +135.6 s osd:6802, +153.6 s osd:6802, +171.6 s osd:6802, +189.6 s osd:6802, +207.6 s osd:6802, +228.7 s osd:6818, +230.6 s osd:6802, +240.7 s osd:6818, +248.6 s osd:6802, +256.7 s osd:6818
+monitor_to_guest_bytes: 4937 before the fault (13 packets), 1408 while it lasted (36), 0 after it ended (0)

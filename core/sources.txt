@@ -39,6 +39,8 @@ src/crypto/wri_sha256.c
 src/crypto/wri_sha512.c
 src/denc/wri_denc.c
 src/denc/wri_denc_map.c
+src/handoff/wri_handoff_dec.c
+src/handoff/wri_handoff_enc.c
 src/mon/wri_mon.c
 src/mon/wri_mon_hosts.c
 src/mon/wri_mon_hunt.c
@@ -87,6 +89,8 @@ src/osdmap/wri_osdmap_tab.c
 src/osdmap/wri_place.c
 src/osdmap/wri_place_cache.c
 src/osdmap/wri_place_stage.c
+src/ra/wri_ra.c
+src/ra/wri_ra_win.c
 src/rbd/wri_rbd.c
 src/rbd/wri_rbd_cls.c
 src/rbd/wri_rbd_cls_dec.c
@@ -100,6 +104,8 @@ src/rbd/wri_rbd_open_ctl.c
 src/rbd/wri_rbd_open_dec.c
 src/rbd/wri_rbd_policy.c
 src/rbd/wri_rbd_step.c
+src/rburl/wri_rburl.c
+src/rburl/wri_rburl_opt.c
 src/util/wri_ctx.c
 src/util/wri_cursor.c
 src/util/wri_err.c

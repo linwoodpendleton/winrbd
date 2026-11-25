@@ -1,0 +1,48 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3d)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-probe: open, 1 device(s), 86016 blocks of 512 bytes
+rbd:   session: 48 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+WRMS-START drive=80 steps=4
+WRMS-CAL id=1 tsc0=00000005e975c5da tsc1=0000000877a4ea58 ticks=91
+WRMS-STEP id=2 type=R cmd=127 sectors=2032 errs=0 rdn=16 rdtsc=0000000006962106 wrn=0 wrtsc=0000000000000000 walltsc=0000000006963236 ticks=0 sumA=ad575dde sumB=ad575dde lastcnt=127
+WRMS-STEP id=3 type=R cmd=2048 sectors=4096 errs=0 rdn=2 rdtsc=000000000a968174 wrn=0 wrtsc=0000000000000000 walltsc=000000000a968568 ticks=1 sumA=8618a5b5 sumB=15570c0a lastcnt=2048
+WRMS-LAT id=4 gap=0 cmd=127 n=4
+WRMS-LATR id=4 k=0 lba=8208 tsc=000000000cf7a69c ah=00
+WRMS-LATR id=4 k=1 lba=16400 tsc=0000000000b5957c ah=00
+WRMS-LATR id=4 k=2 lba=24592 tsc=0000000000d0f794 ah=00
+WRMS-LATR id=4 k=3 lba=32784 tsc=0000000000da6cc8 ah=00
+WRMS-DONE errs=0
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-probe: open, 1 device(s), 86016 blocks of 512 bytes
+rbd:   session: 1692 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 4 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+rbd:   osd: 23 ops done, 0 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 30 reads: 16 hits, 4 waits, 10 misses; 1 windows, 11 prefetches (11 landed, 0 failed, 0 dropped), 8 lines valid
+WRMS-INFO-END
+WRMS-END
+WRRUN-LEAVE none
+WRRUN-END

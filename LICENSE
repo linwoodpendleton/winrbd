@@ -21,9 +21,18 @@ the table is a bug: please open an issue.
                                                         with its copyright notice. See
                                                         the section below.
   harness/         MIT                                  Linux test harness.
-  ipxe/            GPL-2.0-or-later OR UBDL             iPXE glue, tagged
+  ipxe/            GPL-2.0-or-later OR UBDL             iPXE glue (src/), its tests
+                                                        (tests/) and the patches to
+                                                        iPXE (patches/), tagged
                                                         GPL2_OR_LATER_OR_UBDL like
-                                                        iPXE's own SAN code.
+                                                        iPXE's own SAN code, and by
+                                                        the SPDX line "GPL-2.0-or-
+                                                        later OR LicenseRef-UBDL".
+                                                        The build script (tools/)
+                                                        is MIT.
+                                                        A binary that links the core
+                                                        is GPL-2.0-or-later only (see
+                                                        the section below).
   windows/         LGPL-2.1-or-later for new files;     Files derived from WNBD are
                    LGPL-2.1-only for WNBD-derived files treated as LGPL-2.1-only
                                                         (see the section below).
@@ -89,11 +98,20 @@ people who write code). Code from the Linux kernel's libceph / rbd (GPL) must
 not be copied into core/ or windows/, and code from Ceph's user-space sources
 (mostly LGPL) must not be copied into the MIT core either. See CONTRIBUTING.md.
 
+Checked (Phase 2)
+-----------------
+ * iPXE's licence check (`make bin/<target>.licence`, run by
+   `ipxe/tools/build.sh licence` and by CI) was run on real builds that contain
+   the core (tagged MIT), the CRUSH tables (tagged GPL2_OR_LATER) and the glue
+   (tagged GPL2_OR_LATER_OR_UBDL). It reports "GPL version 2 (or, at your
+   option, any later version)": the combination is accepted, and, as said
+   above, without the UBDL option. The builds with every NIC driver
+   (`ipxe.efi`, `ipxe.pxe`) fail the same check on the pristine iPXE tree
+   because of unrelated InfiniBand headers, so the check is run on the targets
+   without them (`docs/design/ipxe-driver.md`, sections 3 and 13).
+
 Open items (not yet verified)
 -----------------------------
- * Run iPXE's licence check (`make bin/<target>.licence`) on a real build that
-   contains the core (tagged MIT) and the glue (tagged GPL2_OR_LATER_OR_UBDL)
-   to confirm the combination is accepted as expected.
  * The exact license of each Ceph user-space file we consult as a reference.
    We believe most are LGPL-2.1, but that has to be confirmed per file, and
    only the protocol facts are used, not the code.

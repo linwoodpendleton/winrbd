@@ -1,0 +1,64 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3f)...... ok
+tftp://10.0.2.2/autoexec.ipxe... ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-write: open, 1 device(s), 270336 blocks of 512 bytes
+rbd:   session: 38 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+WRMS-START drive=80 steps=5
+WRMS-CAL id=1 tsc0=00000006014c7323 tsc1=000000088f66a2ae ticks=91
+WRMS-STEP id=2 type=C cmd=127 sectors=16384 errs=0 rdn=130 rdtsc=000000000eb39a02 wrn=130 wrtsc=0000002ad4777c9c walltsc=0000002ae32c9ed6 ticks=1527 sumA=8cc76e36 sumB=8cc76e36 lastcnt=1
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+WRMS-ERR id=3 ah=04 lba=155648 op=43
+WRMS-STEP id=3 type=C cmd=2048 sectors=0 errs=1 rdn=1 rdtsc=0000000014bf455d wrn=1 wrtsc=0000005843c36490 walltsc=0000005858ae6493 ticks=3146 sumA=00000000 sumB=00000000 lastcnt=2048
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+rbd: a cancelled request did not finish; closing the cluster session
+WRMS-ERR id=4 ah=04 lba=172032 op=43
+WRMS-STEP id=4 type=C cmd=8192 sectors=0 errs=1 rdn=1 rdtsc=000000007b6ba36b wrn=1 wrtsc=000000582384d6e4 walltsc=000000589f1efa33 ticks=3156 sumA=00000000 sumB=00000000 lastcnt=8192
+WRMS-CAL id=5 tsc0=000000e46fd29efa tsc1=000000e6fe01e891 ticks=91
+WRMS-DONE errs=2
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: no session
+WRMS-INFO-END
+WRMS-END
+WRRUN-LEAVE none
+WRRUN-END

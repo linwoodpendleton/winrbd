@@ -1,0 +1,6 @@
+# harness ctest on the build machine itself (gcc 11.4.0, cmake from a private prefix, Unix Makefiles), 2026-11-24; clean environment (no lab variable), -LE lab, -j 4, --timeout 600
+# the machine was at a load average of 40 to 60 from other users; the QEMU matrix of this review had finished
+Release (-DWR_WERROR=ON): 1060 s of test time. 253 tests: 4 skipped (crypto.ct.valgrind: no valgrind; winpe.selftest: no sgdisk / ms-sys; core_ipxe_headers_i386, core_ipxe_headers_x86_64: no gcc-multilib), every other test passed
+  except faultinject.selftest, which failed once under that load and passed alone in 63.86 s ("ctest -R faultinject.selftest", load average 42.5).
+Debug (-DWR_WERROR=ON): 1235 s of test time. Same four skips; every other test passed.
+(The first attempt of this run inherited the lab variables of the shell that started it, so the tests of "no lab" cases failed: that was the runner's mistake and is not counted; the run above is the second one, from a clean environment.)

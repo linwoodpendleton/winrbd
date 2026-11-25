@@ -1,0 +1,9 @@
+PASS
+INFO run: stop=expectation secs=26 ipxe=11 net=11 san=failed@26 os=-
+PASS console line /rbd: .*failed: .*\((WR_E_AUTH_[A-Z_]+|WR_E_M2_BAD_METHOD; the cluster answered -[0-9]+)\)/: seen
+PASS the row says what it expects: errno and console line given
+PASS the SAN open failed: WRRUN-SAN-FAILED 0x0276608f
+PASS no SAN device was made: no WRRUN-SAN-OK
+INFO errno: 0x0276608f = EACCES
+PASS errno is EACCES: EACCES
+PASS nothing booted: yes

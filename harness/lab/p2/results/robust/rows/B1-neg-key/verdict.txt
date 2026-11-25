@@ -1,0 +1,13 @@
+FAIL
+PASS no fault, and nothing in fault.txt that says otherwise
+PASS the negative row has an expectation: neg-key
+PASS the SAN open failed (WRRUN-SAN-FAILED)
+FAIL the errno is the right one: EPROTO (0x43766001), want EACCES
+FAIL one driver console line, with the right text: 1 line(s): rbd: open failed: server refused the offered authentication method or mode (WR_E_M2_BAD_METHOD)
+PASS iPXE's own line (Could not open SAN device) is there
+PASS no SAN device was registered and nothing booted
+PASS no allocation failure or reopen loop
+PASS the lab's state after equals the state before: no difference
+PASS every OSD is up and in after the row: health after: 3 osds: 3 up (since 12m), 3 in (since 13h); epoch: e131 33 pgs: 33 active+clean; 820 MiB data, 2.5 GiB used, 34 GiB / 36 GiB avail HEALTH_WARN 4 r
+PASS the run script's exit status is 0 (the marker was seen): exit=0
+PASS no key-shaped string in the row's files

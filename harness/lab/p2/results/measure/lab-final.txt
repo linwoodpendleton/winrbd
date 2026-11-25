@@ -1,0 +1,46 @@
+auth client.admin mds=allow *;mgr=allow *;mon=allow *;osd=allow *
+auth client.bootstrap-mds mon=allow profile bootstrap-mds
+auth client.bootstrap-mgr mon=allow profile bootstrap-mgr
+auth client.bootstrap-osd mon=allow profile bootstrap-osd
+auth client.bootstrap-rbd mon=allow profile bootstrap-rbd
+auth client.bootstrap-rbd-mirror mon=allow profile bootstrap-rbd-mirror
+auth client.bootstrap-rgw mon=allow profile bootstrap-rgw
+auth client.crash.winrbd-p2-ceph mgr=profile crash;mon=profile crash
+auth client.winrbd mon=profile rbd;osd=profile rbd pool=winrbd
+auth client.winrbd-aes mon=profile rbd;osd=profile rbd pool=winrbd
+auth mgr.winrbd-p2-ceph.kzhhkv mds=allow *;mon=profile mgr;osd=allow *
+auth osd.0 mgr=allow profile osd;mon=allow profile osd;osd=allow *
+auth osd.1 mgr=allow profile osd;mon=allow profile osd;osd=allow *
+auth osd.2 mgr=allow profile osd;mon=allow profile osd;osd=allow *
+pool .mgr size=2 min_size=1 pg_num=1 flags=hashpspool app=mgr
+pool winrbd size=3 min_size=2 pg_num=32 flags=hashpspool,selfmanaged_snaps app=rbd
+image winrbd/img-default size=4294967296
+image winrbd/img-v1 size=4294967296
+osd osd.0 status=up reweight=1
+osd osd.1 status=up reweight=1
+osd osd.2 status=up reweight=1
+flags ['pglog_hardlimit', 'purged_snapdirs', 'recovery_deletes', 'sortbitwise']
+pg_upmap 0
+pg_upmap_items 0
+pg_temp 0
+primary_temp 0
+blocklist 12
+config global container_image = quay.io/ceph/ceph@sha256:4337ac8ac81d40df136e5eac92ca53bb52360a5e039f3d1f7935e729eb5ef42c
+config global osd_pool_default_size = 2
+config global public_network = 10.77.0.0/24
+config mgr mgr/cephadm/container_init = True
+config mgr mgr/cephadm/migration_current = 7
+config mgr mgr/orchestrator/orchestrator = cephadm
+config mgr mgr_standby_modules = false
+config mon auth_allow_insecure_global_id_reclaim = false
+config mon mon_auth_allow_insecure_key = true
+config osd osd_memory_target = 1288490188
+config osd osd_memory_target_autotune = false
+health AUTH_INSECURE_CLIENT_KEY_TYPE muted=True
+health AUTH_INSECURE_KEYS_ALLOWED muted=True
+health AUTH_INSECURE_KEYS_CREATABLE muted=True
+health AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE muted=False
+health AUTH_INSECURE_SERVICE_TICKETS muted=True
+health BLUESTORE_SLOW_OP_ALERT muted=True
+health RECENT_CRASH muted=False
+quorum winrbd-p2-ceph

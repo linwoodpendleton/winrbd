@@ -1,0 +1,16 @@
+guest_started_epoch: 1795492517.007
+keys_pressed: +14.5 s
+workload_start: +10.5 s
+workload_end: +19.1 s (took 8.6 s)
+stall_close_lines: 0
+trouble_lines: 0
+root_ok_line: WRBOOT-ROOT-OK fw=bios root=/dev/rbd0p1 fstype=ext4 mapped=rbd0 table=PASS src=scan image=wrtest-p2-rb-lin-bios kernel=6.8.0-151-generic
+boot_phase_seconds: 8.6 (SAN start to the first line of the Linux initramfs: the firmware's part)
+kernel_client_seconds: 1.5 (first initramfs line to the end of the image mapping by the guest's own kernel client)
+root_ok_at: +56.2 s
+grub_menu_at: +19.1 s
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 2, osd 6

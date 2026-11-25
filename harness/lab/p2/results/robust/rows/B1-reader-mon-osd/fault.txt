@@ -1,0 +1,15 @@
+1795490473.869 T+0 guest started (pid 3998065); fault mon-osd on '^WRRB-START' #1 + 1 s, down 15 s
+1795490474.447 T+1 lab-clock 1795490474.503723789
+1795490485.819 T+12 trigger seen (^WRRB-START, #1)
+1795490485.826 T+12 fault mon-osd after 1 s
+1795490486.834 T+13 fault mon-osd: begins (down 15 s)
+1795490486.838 T+13 monitor: SIGKILL sent now
+1795490487.752 T+14 monitor killed (rc 0)
+1795490488.758 T+15 osd.1: SIGKILL sent now
+1795490491.653 T+18 osd.1 killed (rc 0), with the monitor down
+1795490508.746 T+35 monitor started (rc 0)
+1795490510.615 T+37 monitor is back in quorum (poll 1)
+1795490525.786 T+52 osd.1 started (rc 0)
+1795490528.026 T+55 the run ended before the fault did: undoing it now
+1795490530.891 T+57 monitor is back in quorum (poll 1)
+1795490532.429 T+59 all OSDs up and in again: 3 3 3 (poll 1)

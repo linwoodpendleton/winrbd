@@ -1,0 +1,11 @@
+PASS
+PASS the fault was injected and undone: begins +13.3 s, ends +37.3 s after the start of the guest
+PASS the fault began while the guest was still working: fault began 5.2 s before the workload's end marker
+PASS the system booted with its root on the image (WRBOOT-ROOT-OK)
+PASS the table check passed in the guest: RBFT-RESULT PASS pass=40 fail=0 skip=0
+PASS no failure marker (not on RBD, table failure, kernel panic, GRUB read error)
+PASS no allocation failure and no reopen loop on the console
+PASS the lab's state after equals the state before: no difference
+PASS every OSD is up and in after the row: health after: 3 osds: 3 up (since 10m), 3 in (since 12h); epoch: e116 33 pgs: 33 active+clean; 820 MiB data, 2.5 GiB used, 34 GiB / 36 GiB avail; 1.8 MiB/s rd, 
+PASS the run script's exit status is 0: exit=0 stop=expectation
+PASS no key-shaped string in the row's files

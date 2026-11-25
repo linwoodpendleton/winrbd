@@ -1,0 +1,25 @@
+guest_started_epoch: 1795493605.169
+fault_begin: +13.9 s
+fault_end: +35.8 s (lasted 21.9 s)
+fault_event: +13.9 s all ceph-osd processes: SIGSTOP sent now
+fault_event: +14.3 s all ceph-osd processes stopped (SIGSTOP) (rc 0)
+fault_event: +34.6 s all ceph-osd processes continued (SIGCONT) (rc 0)
+fault_event: +35.8 s all OSDs up and in again: 3 3 3 (poll 1)
+fault_event: +76.0 s the health checks are the ones the run started with again (poll 1)
+keys_pressed: +14.3 s
+workload_start: +10.2 s
+workload_end: +37.9 s (took 27.7 s)
+stall_close_lines: 0
+trouble_lines: 0
+root_ok_line: WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-rb-lin-uefi kernel=6.8.0-151-generic
+boot_phase_seconds: 27.7 (SAN start to the first line of the Linux initramfs: the firmware's part)
+kernel_client_seconds: 0.6 (first initramfs line to the end of the image mapping by the guest's own kernel client)
+root_ok_at: +71.9 s
+grub_menu_at: +12.7 s
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.04 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 3, osd 8
+connections_started_after_the_fault_began: +18.2 s osd:6818, +28.2 s osd:6818, +38.4 s monitor:3300, +38.4 s osd:6802, +38.4 s osd:6810, +42.9 s monitor:3300, +68.5 s osd:6818
+monitor_to_guest_bytes: 4940 before the fault (15 packets), 88 while it lasted (10), 5094 after it ended (25)

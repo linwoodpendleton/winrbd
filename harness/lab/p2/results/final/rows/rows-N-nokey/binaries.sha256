@@ -1,0 +1,10 @@
+bca90bb58cddceafd45f851946d9b0c97b2aaa3d01409e734b180e28f20f3760  <box>/p2r/work/q/ipxe/ipxe.efi
+9be5f162354721899002f2d4ae8417809e509fe7477f8c9f02d2acf7e3e37af3  /usr/share/OVMF/OVMF_CODE_4M.fd
+5d2ac383371b408398accee7ec27c8c09ea5b74a0de0ceea6513388b15be5d1e  /usr/share/OVMF/OVMF_VARS_4M.fd
+43f4ff207b15a1e864d4d7e4f5c8ad3fd514b84baf495b359499bd5328da4fef  <box>/p2r/out/images/lin-uefi/linux-uefi.raw.manifest
+# iPXE build (SHA256SUMS of the build directory):
+#   bca90bb58cddceafd45f851946d9b0c97b2aaa3d01409e734b180e28f20f3760  ipxe.efi
+#   58c2ef91899ddb958b2319ab53c633502480a043f61c66f74174320c3ef60b7d  ipxe-stub.pxe
+# QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.31)
+# repository HEAD of the scripts: unknown
+# digest of the scripts (tools/ and harness/lab/p2/qemu/): 19aeb2dcfeac5b7f2fdf844822120b99952b511cbe34979f455adb3c7c35eef2

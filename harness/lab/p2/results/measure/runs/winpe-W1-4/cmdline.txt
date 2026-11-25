@@ -1,0 +1,4 @@
+# 2026-11-24T10:32:46Z boot winpe-W1-4 (U1: uefi, pxe), image wrtest-p2-ms-winpe-gpt
+# the cephx key is only ever a --key-file path or a fw_cfg file name
+P2Q_WORK=<box>/measure/work/q P2_LAB_DIR=<box>/lab-p2 P2Q_BUDGET_ROOT=<box>
+bash <box>/measure/repo/harness/lab/p2/qemu/run-uefi-pxe.sh --row U1 --ip 10.77.0.66 --user wrtest-p2-ms-winpe-gpt --pool winrbd --image wrtest-p2-ms-winpe-gpt --key-file <box>/lab-p2/keys/client.wrtest-p2-ms-winpe-gpt.secret --ipxe-dir <box>/measure/work/bin/rel --bin <box>/measure/work/bin/rel/ipxe.efi --action sanboot --expect marker --marker WINRBD-WINPE-OK --timeout 900 --opt devpath=vendor --mem 2048

@@ -1,0 +1,2 @@
+errno=ENOENT
+console=rbd: .*failed: image not found .*\(WR_E_RBD_NOT_FOUND\)

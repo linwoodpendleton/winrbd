@@ -1,0 +1,109 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+#
+# wrboot-marker - prints the lines the live test matrix looks for on the serial console once the guest is up.
+#
+#   WRBOOT-ROOT-OK fw=uefi|bios root=DEVICE fstype=T mapped=rbdN|none table=PASS|NONE|off src=sysfs|scan|fwcfg|none image=NAME kernel=V
+#       the guest booted, the root is where the table said it must be, and the table (if there was one) matched
+#   WRBOOT-ROOT-TABLE-FAIL ...    the table is there but does not match what was expected, or is unusable (the lines of the hook say which field)
+#   WRBOOT-ROOT-WRONG ...         the hook mapped the image but / is not on it
+#   WRBOOT-ROOT-NOT-RBD ...       rbft.require=1 and the root is not on a mapped image
+#
+# Also: the BIOS drives the kernel was told about (EDD), the addresses of the NICs, and with rbft.poweroff=1 on the kernel command line
+# the guest powers itself off afterwards. The state it reads is /run/rbft/result, written by the hook. No key is ever read or printed.
+# The same script runs in the initramfs-only image of row B0 (root is "rootfs" there).
+
+# every path can be moved below $RBFT_ROOT and the console replaced, so that selftest.sh runs this very file in a sandbox
+R=${RBFT_ROOT:-}
+exec > "${RBFT_CONSOLE:-/dev/console}" 2>&1
+
+TABLE=NONE
+MAPPED=0
+DEV=
+SRC=none
+REQUIRE=0
+IMAGE=
+if [ -r "$R/run/rbft/result" ]; then
+	# KEY=VALUE lines written by the hook; read, never sourced: a value that came out of the table must not be executed
+	while IFS= read -r line || [ -n "$line" ]; do
+		case $line in
+		TABLE=*) TABLE=${line#TABLE=} ;;
+		MAPPED=*) MAPPED=${line#MAPPED=} ;;
+		DEV=*) DEV=${line#DEV=} ;;
+		SRC=*) SRC=${line#SRC=} ;;
+		REQUIRE=*) REQUIRE=${line#REQUIRE=} ;;
+		IMAGE=*) IMAGE=${line#IMAGE=} ;;
+		esac
+	done < "$R/run/rbft/result"
+fi
+
+cmdline=$(cat "$R/proc/cmdline" 2>/dev/null)
+# the hook keeps the words of the fw_cfg file in /run/rbft/params; the kernel command line is read last and wins
+fwwords=$(cat "$R/run/rbft/params" 2>/dev/null)
+hook=0
+for w in $cmdline; do
+	[ "$w" = rbft.hook=1 ] && hook=1
+done
+poweroff=0
+for w in $fwwords $cmdline; do
+	case $w in
+	rbft.poweroff=*) poweroff=0; [ "$w" = rbft.poweroff=1 ] && poweroff=1 ;;
+	esac
+done
+[ "$hook" = 1 ] || TABLE=off
+
+if [ -d "$R/sys/firmware/efi" ]; then fw=uefi; else fw=bios; fi
+
+# the root file system: the last "/" entry of the mount table
+root=
+fstype=
+while read -r dev mp type _rest; do
+	if [ "$mp" = / ]; then root=$dev; fstype=$type; fi
+done < "$R/proc/mounts"
+case $root in rootfs | none | '') root=initramfs ;; esac
+
+mapped=none
+[ "$MAPPED" = 1 ] && mapped=${DEV#/dev/}
+[ "$MAPPED" = 1 ] && mapped=${mapped%%p[0-9]*}
+
+kernel=$(uname -r)
+fields="fw=$fw root=$root fstype=${fstype:-none} mapped=$mapped table=$TABLE src=$SRC image=${IMAGE:--} kernel=$kernel"
+
+if [ -d "$R/sys/firmware/edd" ]; then
+	for d in "$R"/sys/firmware/edd/int13_dev*; do
+		[ -d "$d" ] || continue
+		sig=
+		[ -r "$d/mbr_signature" ] && read -r sig < "$d/mbr_signature"
+		echo "WRBOOT-EDD ${d##*/} mbr_signature=${sig:--}"
+	done
+fi
+for d in "$R"/sys/class/net/*; do
+	[ -e "$d/address" ] || continue
+	n=${d##*/}
+	[ "$n" = lo ] && continue
+	read -r mac < "$d/address"
+	echo "WRBOOT-NET $n mac=$mac $(ip -o addr show dev "$n" 2>/dev/null | while read -r _i _d fam addr _r; do case $fam in inet | inet6) printf '%s ' "$addr" ;; esac; done)"
+done
+
+verdict=OK
+case $TABLE in
+FAIL | UNUSABLE) verdict='TABLE-FAIL' ;;
+*)
+	if [ "$MAPPED" = 1 ]; then
+		[ "$root" = "$DEV" ] || verdict=WRONG
+	elif [ "$REQUIRE" = 1 ]; then
+		verdict='NOT-RBD'
+	fi
+	;;
+esac
+echo "WRBOOT-ROOT-$verdict $fields"
+
+if [ "$poweroff" = 1 ]; then
+	sleep 2
+	if command -v systemctl > /dev/null 2>&1 && [ -d "$R/run/systemd/system" ]; then
+		systemctl --no-block poweroff
+	else
+		poweroff -f
+	fi
+fi
+exit 0

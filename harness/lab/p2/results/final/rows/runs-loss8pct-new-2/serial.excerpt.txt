@@ -1,0 +1,112 @@
+[=3h
+>>Start PXE over IPv4.
+  Station IP address is 10.0.2.15
+
+  Server IP address is 10.0.2.2
+  NBP filename is ipxe.efi
+  NBP filesize is 1424896 Bytes
+ Downloading NBP file...
+
+  NBP file downloaded successfully.
+BdsDxe: loading Boot0001 "UEFI PXEv4 (MAC:525400771141)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771141,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+BdsDxe: starting Boot0001 "UEFI PXEv4 (MAC:525400771141)" from PciRoot(0x0)/Pci(0x2,0x0)/MAC(525400771141,0x1)/IPv4(0.0.0.0,0x0,DHCP,0.0.0.0,0.0.0.0,0.0.0.0)
+iPXE initialising devices...
+autoexec.ipxe... ok
+
+
+
+iPXE 2.0.0+ -- Open Source Network Boot Firmware -- https://ipxe.org
+Features: DNS HTTP HTTPS iSCSI TFTP VLAN SRP AoE EFI Menu
+WRRUN-BEGIN row=U1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+Registered SAN device 0x80
+Booting from SAN device 0x80
+rbd: counters: 58 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 64 reads, 17 hits, 5 waits, 42 misses; heap block 2048 KiB
+GNU GRUB  version 2.14
+
++----------------------------------------------------------------------------+||||||||||||||||||||||||+----------------------------------------------------------------------------+     Use the ^ and v keys to select which entry is highlighted.          
+      Press enter to boot the selected OS, `e' to edit the commands       
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿³³³³³³³³³³³³³³³³³³³³³³³³³³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ     Use the ^ and v keys to select which entry is highlighted.          
+      Press enter to boot the selected OS, `e' to edit the commands       
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+rbd: counters: 91 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 230 reads, 150 hits, 23 waits, 57 misses; heap block 2048 KiB
+rbd: counters: 108 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 365 reads, 270 hits, 37 waits, 58 misses; heap block 2048 KiB
+rbd: counters: 119 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 371 reads, 270 hits, 41 waits, 60 misses; heap block 2048 KiB
+rbd: counters: 147 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 421 reads, 302 hits, 42 waits, 77 misses; heap block 2048 KiB
+rbd: counters: 168 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 559 reads, 422 hits, 54 waits, 83 misses; heap block 2048 KiB
+rbd: counters: 182 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 571 reads, 422 hits, 54 waits, 95 misses; heap block 2048 KiB
+rbd: counters: 200 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 599 reads, 434 hits, 58 waits, 107 misses; heap block 2048 KiB
+rbd: counters: 220 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 800 reads, 615 hits, 78 waits, 107 misses; heap block 2048 KiB
+rbd: counters: 234 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 926 reads, 727 hits, 92 waits, 107 misses; heap block 2048 KiB
+EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
+Loading, please wait...
+Starting systemd-udevd version 255.4-1ubuntu8.19
+Begin: Loading essential drivers ... done.
+Begin: Running /scripts/init-premount ... done.
+Begin: Mounting root file system ... Begin: Running /scripts/local-top ... 
+RBFT-HOOK start: map=1 src=auto rootpart=2 require=1
+RBFT-HOOK table found by source sysfs
+RBFT-HOOK nic: eth1 has MAC 52:54:00:77:12:c1
+RBFT-HOOK nic: eth1 address 10.77.0.65/24
+RBFT-HOOK table check (source sysfs):
+RBFT INFO source: sysfs /sys/firmware/acpi/tables/rBFT (237 bytes read)
+RBFT PASS signature: rBFT
+RBFT PASS length: 237 bytes
+RBFT PASS acpi_revision: 1
+RBFT PASS checksum: all 237 bytes sum to 0
+[... full console on the build machine ...]
+WRRUN-BEGIN row=U1
+WRRUN-NET-OK
+WRRUN-SAN-START sanboot
+rbd: counters: 58 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 64 reads, 17 hits, 5 waits, 42 misses; heap block 2048 KiB
+      before booting or `c' for a command-line.                            *winrbd Linux: check the table, root from the image if there is one          winrbd Linux: local root only (no hook)                                                                                                            
+rbd: counters: 91 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 230 reads, 150 hits, 23 waits, 57 misses; heap block 2048 KiB
+rbd: counters: 108 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 365 reads, 270 hits, 37 waits, 58 misses; heap block 2048 KiB
+rbd: counters: 119 ops done, 0 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 371 reads, 270 hits, 41 waits, 60 misses; heap block 2048 KiB
+rbd: counters: 147 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 421 reads, 302 hits, 42 waits, 77 misses; heap block 2048 KiB
+rbd: counters: 168 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 559 reads, 422 hits, 54 waits, 83 misses; heap block 2048 KiB
+rbd: counters: 182 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 571 reads, 422 hits, 54 waits, 95 misses; heap block 2048 KiB
+rbd: counters: 200 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 599 reads, 434 hits, 58 waits, 107 misses; heap block 2048 KiB
+rbd: counters: 220 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 800 reads, 615 hits, 78 waits, 107 misses; heap block 2048 KiB
+rbd: counters: 234 ops done, 1 resent, 5 failed, 0 resets, 0 reopens, 0 stall closes; readahead 926 reads, 727 hits, 92 waits, 107 misses; heap block 2048 KiB
+RBFT-RESULT PASS pass=40 fail=0 skip=0
+WRBOOT-TABLE PASS
+WRBOOT-HOOK-DONE root=/dev/rbd0p2 table=PASS
+winrbd-guest login: WRBOOT-NET eth0 mac=52:54:00:77:11:41 
+WRBOOT-NET eth1 mac=52:54:00:77:12:c1 10.77.0.65/24 fe80::5054:ff:fe77:12c1/64 
+WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-ms-lin-uefi kernel=6.8.0-151-generic
+[... end of the console ...]
+[  OK  ] Finished systemd-update-utmp.serviâ€¦ecord System Boot/Shutdown in UTMP.
+[  OK  ] Started systemd-udevd.service - Ruâ€¦anager for Device Events and Files.
+[  OK  ] Reached target sysinit.target - System Initialization.
+[  OK  ] Started apt-daily.timer - Daily apt download activities.
+[  OK  ] Started apt-daily-upgrade.timer - â€¦y apt upgrade and clean activities.
+[  OK  ] Started dpkg-db-backup.timer - Daily dpkg database backup timer.
+[  OK  ] Started e2scrub_all.timer - Periodâ€¦Metadata Check for All Filesystems.
+[  OK  ] Started fstrim.timer - Discard unused filesystem blocks once a week.
+[  OK  ] Started motd-news.timer - Message of the Day.
+[  OK  ] Started systemd-tmpfiles-clean.timâ€¦y Cleanup of Temporary Directories.
+[  OK  ] Reached target timers.target - Timer Units.
+[  OK  ] Reached target basic.target - Basic System.
+         Starting e2scrub_reap.service - Reâ€¦ne ext4 Metadata Check Snapshots...
+         Starting getty-static.service - geâ€¦bus and logind are not available...
+         Starting systemd-user-sessions.service - Permit User Sessions...
+         Starting wrboot-marker.service - Pâ€¦inrbd boot marker on the console...
+[  OK  ] Finished systemd-user-sessions.service - Permit User Sessions.
+[  OK  ] Started getty@tty1.service - Getty on tty1.
+[  OK  ] Found device dev-ttyS0.device - /dev/ttyS0.
+[  OK  ] Started serial-getty@ttyS0.service - Serial Getty on ttyS0.
+[  OK  ] Started getty@tty2.service - Getty on tty2.
+[  OK  ] Started getty@tty3.service - Getty on tty3.
+[  OK  ] Started getty@tty4.service - Getty on tty4.
+[  OK  ] Started getty@tty5.service - Getty on tty5.
+
+Ubuntu 24.04 LTS winrbd-guest ttyS0
+
+winrbd-guest login: WRBOOT-NET eth0 mac=52:54:00:77:11:41 
+WRBOOT-NET eth1 mac=52:54:00:77:12:c1 10.77.0.65/24 fe80::5054:ff:fe77:12c1/64 
+WRBOOT-ROOT-OK fw=uefi root=/dev/rbd0p2 fstype=ext4 mapped=rbd0 table=PASS src=sysfs image=wrtest-p2-ms-lin-uefi kernel=6.8.0-151-generic

@@ -1,0 +1,62 @@
+iPXE initialising devices...
+[0m
+
+
+[1miPXE 2.0.0+[0m -- Open Source Network Boot Firmware -- [36mhttps://ipxe.org[0m
+Features: DNS HTTP iSCSI TFTP SRP AoE ELF MBOOT PXE bzImage Menu PXEXT
+WRRUN-STUB
+Configuring (net0 52:54:00:77:11:3e)...... ok
+tftp://10.0.2.2/autoexec.ipxe...[31mHEAP attempting to grow for 0x6bd (aligned 0x1000+ffc), used 0kB
+[0m ok
+WRRUN-BEGIN row=B1
+Waiting for link-up on net1... ok
+WRRUN-NET-OK
+WRRUN-SAN-START sanhook
+[31mHEAP attempting to grow for 0x4c8004 (aligned 0x1000+ffc), used 8kB
+[0mrbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 512 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 788 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1304 of 16384 bytes
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+rbd: core stack high-water 1588 of 16384 bytes
+Registered SAN device 0x80
+WRRUN-SAN-OK
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-probe: open, 1 device(s), 86016 blocks of 512 bytes
+rbd:   session: 41 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 3 (most 3), arena 260128 bytes, bulk 2627584 bytes; modes: 3 crc, 0 secure, 0 secure failures
+rbd:   osd: 4 ops done, 0 resent, 0 failed; in flight 0 (most 1), requests 0 (most 1); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 2 reads: 0 hits, 0 waits, 2 misses; 0 windows, 0 prefetches (0 landed, 0 failed, 0 dropped), 0 lines valid
+rbd: stack high-water 2120 of 4096 bytes (1976 left)
+WRMS-INFO-END
+WRMS-BOOT
+Booting from SAN device 0x80
+rbd: stack high-water 2692 of 4096 bytes (1404 left)
+rbd: core stack high-water 1696 of 16384 bytes
+WRMS-START drive=80 steps=4
+WRMS-CAL id=1 tsc0=000000061c68b1ce tsc1=00000008aa9630c6 ticks=91
+WRMS-STEP id=2 type=R cmd=127 sectors=2032 errs=0 rdn=16 rdtsc=000000000946c28c wrn=0 wrtsc=0000000000000000 walltsc=000000000946e5b2 ticks=1 sumA=ad575dde sumB=ad575dde lastcnt=127
+WRMS-STEP id=3 type=R cmd=2048 sectors=4096 errs=0 rdn=2 rdtsc=0000000011079e21 wrn=0 wrtsc=0000000000000000 walltsc=000000001107a2db ticks=2 sumA=8618a5b5 sumB=15570c0a lastcnt=2048
+WRMS-LAT id=4 gap=0 cmd=127 n=4
+WRMS-LATR id=4 k=0 lba=8208 tsc=000000000d1f8aa6 ah=00
+WRMS-LATR id=4 k=1 lba=16400 tsc=0000000000cfe662 ah=00
+WRMS-LATR id=4 k=2 lba=24592 tsc=0000000000c66982 ah=00
+WRMS-LATR id=4 k=3 lba=32784 tsc=0000000000cef1e4 ah=00
+WRMS-DONE errs=0
+Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+WRMS-BOOT-RETURNED 0xb8080a0
+WRMS-INFO-BEGIN
+rbd: image winrbd/wrtest-p2-ms-probe: open, 1 device(s), 86016 blocks of 512 bytes
+rbd:   session: 1238 pumps, 0 cancels (most rounds 0), 0 reopens, 0 stall closes
+rbd:   core stack: 1696 of 16384 bytes used
+rbd:   core: connections 4 (most 4), arena 260128 bytes, bulk 2627584 bytes; modes: 4 crc, 0 secure, 0 secure failures
+rbd:   osd: 23 ops done, 0 resent, 0 failed; in flight 0 (most 8), requests 0 (most 8); 0 session resets, zombies 0 of 0 bytes
+rbd:   readahead: 30 reads: 16 hits, 4 waits, 10 misses; 1 windows, 11 prefetches (11 landed, 0 failed, 0 dropped), 8 lines valid
+rbd: stack high-water 2772 of 4096 bytes (1324 left)
+WRMS-INFO-END
+WRMS-END
+[32mHEAP maximum usage 132kB
+[0m

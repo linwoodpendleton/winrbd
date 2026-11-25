@@ -1,0 +1,3 @@
+# health before: 3 osds: 3 up (since 95m), 3 in (since 23h); epoch: e175 33 pgs: 33 active+clean; 2.4 GiB data, 7.3 GiB used, 29 GiB / 36 GiB avail; 29 KiB/s rd, 35 op/s HEALTH_WARN 4 rotating auth service keys using insecure key types; 1 daemons have recently crashed; (muted: AUTH_INSECURE_CLIENT_KEY_TYPE AUTH_INSECURE_KEYS_ALLOWED AUTH_INSECURE_KEYS_CREATABLE AUTH_INSECURE_SERVICE_TICKETS BLUESTORE_SLOW_OP_ALERT)  
+before t=1795531870.970846520 host_load=43.56 40.83 41.07 host_cpu=564374731 503618385 145983541 9765627303 169505555 0 4707444 0
+after t=1795531941.342534288 host_load=45.15 41.78 41.38 host_cpu=564413518 503652884 145990601 9766168369 169578874 0 4708073 0

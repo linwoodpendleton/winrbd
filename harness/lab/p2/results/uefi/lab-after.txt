@@ -1,0 +1,22 @@
+users:
+pools: winrbd (lab pool) and:
+images:
+key files (<lab dir>/keys):
+# the lab after the UEFI rows (2026-11-23T23:15:28Z): only what the lab started with is left
+## cephx users client.wrtest-* (count)
+0
+## rbd images in the lab pool
+  img-default
+  img-v1
+## pools
+.mgr
+winrbd
+## health and OSDs
+HEALTH_WARN 4 rotating auth service keys using insecure key types; (muted: AUTH_INSECURE_C
+3 osds: 3 up (since 7h), 3 in (since 7h); epoch: e48
+## files of this matrix left in the lab VM /tmp (count)
+0
+## key files of this matrix on the box (count)
+0
+## raw images and key-bearing ISOs of this matrix on the box (count)
+0

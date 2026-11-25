@@ -1,0 +1,29 @@
+guest_started_epoch: 1795490300.656
+workload_start: +14.2 s
+workload_end: +25.8 s (took 11.5 s)
+stall_close_lines: 0
+trouble_lines: 0
+san_failure_line: Boot from SAN device 0x80 failed: Operation canceled (https://ipxe.org/0b8080a0)
+rbd_info_pumps: 45824
+rbd_info_cancels: 0
+rbd_info_reopens: 0
+rbd_info_stall_closes: 0
+rbd_info_conns: (4, 4)
+rbd_info_ops_done: 519
+rbd_info_ops_resent: 0
+rbd_info_ops_failed: 0
+rbd_info_session_resets: 0
+rbd_info_ra_reads: 4898
+rbd_info_devices: 1
+rbd_info_state: open
+rbd_info_before: cancels=0; conns=(3, 3); devices=1; ops_done=4; ops_failed=0; ops_resent=0; pumps=46; ra_reads=2; reopens=0; session_resets=0; stall_closes=0; state=open
+reader_errs: 0
+reader_stale: 0
+reader_maxticks: 7 ticks (0.4 s) at lba 31204
+reader_rtc_largest_step_seconds: 1
+rbd_info_reports: 2
+pgs_after: 33 active+clean
+exit: 0
+stop: expectation
+lab_clock_offset_seconds: 0.06 (the lab VM's clock minus ours, the ssh round trip included)
+connections_started_in_the_run: monitor 1, osd 3

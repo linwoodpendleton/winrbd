@@ -1,0 +1,18 @@
+ipxe banner: iPXE initialising devices...
+rbd console lines (0):
+run script lines (6):
+  WRRUN-BEGIN row=U0
+  WRRUN-NET-OK
+  WRRUN-SAN-START sanhook
+  WRRUN-SAN-OK
+  WRRUN-LEAVE exit
+  WRRUN-END
+table check: 0 PASS, 0 FAIL, 0 SKIP; no RBFT-RESULT line
+guest markers (0):
+stages (seconds since the run script started):
+     20.1 ipxe-script       WRRUN-BEGIN row=U0
+     20.1 net-ok            WRRUN-NET-OK
+     20.1 san-start         WRRUN-SAN-START sanhook
+     20.6 san-ok            WRRUN-SAN-OK
+     20.6 script-end        WRRUN-END
+rbd-info (0 lines):
