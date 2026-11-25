@@ -1133,6 +1133,18 @@ st_go() {
 }
 st_wait() { wait; }   # every launched scenario is done
 st_num() { sed -n "s/.* $2=\([0-9]*\).*/\1/p" "$1/sc-$3/out" 2>/dev/null | tail -n 1; }   # st_num <dir> <key> <scenario>: a number of the summary line (empty when none)
+# st_once <dir> <scenario> <kind> <label>: PASS when the summary count of <kind> equals the number of <kind> faults that ended with rc=0 in the
+# events file, at least one did, and the first fault of the run (the one whose answer was lost) is among them. A re-run of a command whose answer was lost must not count the fault twice; the run may still have room
+# for a further fault of the same kind after the deck (--run-for), so the number itself depends on the runner's speed and is not fixed.
+st_once() {
+    local v n; v=$(st_num "$1" "$3" "$2")
+    n=$(grep -cE "fault n=[0-9]+ kind=$3 .* rc=0( |\$)" "$1/sc-$2/work/fault-events.log" 2>/dev/null)
+    # the first fault of the run is the one whose answer was lost (the stand-in fails only the first calls): it must have ended with rc=0
+    if [ -n "$v" ] && [ "${n:-0}" -ge 1 ] && [ "$v" -eq "$n" ] && grep -qE "fault n=1 kind=$3 .* rc=0( |\$)" "$1/sc-$2/work/fault-events.log" 2>/dev/null; then
+        st_ok "$4: $3=$v, $n fault(s) of that kind, the first one done"
+    else st_bad "$4: $3='${v:-none}', faults of that kind that ended with rc=0: ${n:-0}"; sed 's/^/      | /' "$1/sc-$2/out" | grep -E "summary|cli |fault n=" | tail -n 8; fi
+}
+
 st_cmp() { # <dir> <scenario> <key> <op> <n> <label>: PASS when the summary number of <key> satisfies <op> <n> (-eq, -ge)
     local v; v=$(st_num "$1" "$3" "$2")
     if [ -n "$v" ] && [ "$v" "$4" "$5" ]; then st_ok "$6: $3=$v"; else st_bad "$6: $3='${v:-none}', expected $4 $5"; sed 's/^/      | /' "$1/sc-$2/out" | grep -E "summary|cli |quorum" | tail -n 6; fi
@@ -1351,16 +1363,16 @@ fi_selftest() {
     # a command that was carried out but whose answer was lost is run again: out, in, pg-upmap and rm-pg-upmap give the same result twice (the lab says "already out" with status 0)
     st_judge "$d" cliapply "ceph osd out carried out, its answer lost, twice" 0
     st_cmp "$d" cliapply failed -eq 0 "answer lost (osd out): the injection is not failed"
-    st_cmp "$d" cliapply outin -eq 1 "answer lost (osd out): counted once, not twice"
+    st_once "$d" cliapply outin "answer lost (osd out): counted once per fault, not once per run"
     st_cmp "$d" cliapply cli_retries -eq 2 "answer lost (osd out): two re-runs"
     st_judge "$d" cliapplyin "ceph osd in carried out, its answer lost" 0
     st_cmp "$d" cliapplyin failed -eq 0 "answer lost (osd in): the injection is not failed"
     st_judge "$d" cliapplyup "ceph osd pg-upmap carried out, its answer lost" 0
     st_cmp "$d" cliapplyup failed -eq 0 "answer lost (pg-upmap): the injection is not failed"
-    st_cmp "$d" cliapplyup upmap -eq 1 "answer lost (pg-upmap): counted once"
+    st_once "$d" cliapplyup upmap "answer lost (pg-upmap): counted once per fault"
     st_judge "$d" cliapplyrm "ceph osd rm-pg-upmap carried out, its answer lost, twice" 0
     st_cmp "$d" cliapplyrm failed -eq 0 "answer lost (rm-pg-upmap): the injection is not failed"
-    st_cmp "$d" cliapplyrm upmap -eq 1 "answer lost (rm-pg-upmap): counted once"
+    st_once "$d" cliapplyrm upmap "answer lost (rm-pg-upmap): counted once per fault"
     st_judge "$d" clikey "a CLI that prints something shaped like a cephx key" any
     if ! grep -rq "AQBhZ2xhbmQgaXMgbm90" "$d/sc-clikey/out" "$d/sc-clikey/work" 2>/dev/null && grep -q "<key removed>" "$d/sc-clikey/work/fault-events.log"; then
         st_ok "key-shaped text: removed from the log, the events file and the note"
