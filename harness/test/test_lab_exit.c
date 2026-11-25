@@ -546,7 +546,10 @@ static void selftest(void)
 	WRT_CHECK(!g_deadline_hit && !g_signalled && g_script_pid == 0);
 
 	/* the deadline: the script is told to stop (SIGTERM, not a kill), the test waits until it has restored, and records the deadline */
-	st_write(p_dead, "trap 'echo restored > \"$1\"; exit 0' TERM\nfor i in $(seq 1 600); do sleep 0.1; done\nexit 9\n");
+	/* the waits are a background sleep and the `wait` builtin, which returns at once when a trapped signal arrives. With a foreground
+	 * `for ... sleep 0.1` loop the TERM was missed once in CI (Ubuntu 24.04, clang; not reproduced elsewhere): the script ran its full
+	 * minute and exited 9. The trap also stops the sleep, so nothing is left behind. */
+	st_write(p_dead, "trap 'kill \"$s\" 2>/dev/null; echo restored > \"$1\"; exit 0' TERM\nsleep 60 & s=$!\nwait \"$s\"\nexit 9\n");
 	args[0] = (char *)"bash"; args[1] = p_dead; args[2] = p_mark1; args[3] = NULL;
 	st_reset();
 	rc = run_to_file(args, p_out, 1u);
@@ -556,7 +559,7 @@ static void selftest(void)
 	WRT_CHECK(verdict(st_good, sizeof(st_good) - 1u, rc, 0, 2u, g_deadline_hit, g_signalled) != NULL);
 
 	/* a signal that reaches the test (Ctrl-C in the terminal): passed on as SIGTERM, waited for, recorded; the script here sends it to the test itself */
-	st_write(p_sig, "trap 'echo restored > \"$1\"; exit 0' TERM\nkill -INT $PPID\nfor i in $(seq 1 600); do sleep 0.1; done\nexit 9\n");
+	st_write(p_sig, "trap 'kill \"$s\" 2>/dev/null; echo restored > \"$1\"; exit 0' TERM\nsleep 60 & s=$!\nkill -INT $PPID\nwait \"$s\"\nexit 9\n");
 	args[1] = p_sig; args[2] = p_mark2;
 	st_reset();
 	rc = run_to_file(args, p_out, 0u);
